@@ -125,28 +125,57 @@ assert.equal(rejected.ok, false);
 assert.match(String(rejected.reason), /上限/);
 
 // ---- 工具：search / card / activate ----
+// dsh-tools 会按 output.schema 校验 execute 的返回值，并要求它能被 render 无损投影
+// （dsh-tools:3637-3648）。任何 undefined 属性都会让整次调用失败：
+//   Error: tool "skill_activate" returned invalid output: value is not lossless JSON
+// 所以每个工具出口都必须是纯 JSON。这里逐个断言往返无损。
+function assertLosslessJson(toolName, value) {
+  let round;
+  try {
+    round = JSON.parse(JSON.stringify(value));
+  } catch (e) {
+    assert.fail(`${toolName} returned non-serializable value: ${e.message}`);
+  }
+  assert.deepEqual(round, value, `${toolName} output is not lossless JSON — undefined values break dsh-tools`);
+  assert.notEqual(round, undefined, `${toolName} returned undefined`);
+}
+
+const tools = ['skill_search', 'skill_card', 'skill_activate'];
 const search = await captured.tools.get('skill_search').execute({ query: '设计', limit: 3 });
+assertLosslessJson('skill_search', search);
 assert.ok(search.results.length > 0, 'Chinese keyword should hit the catalog');
 assert.match(search.results[0].line, /装 [\d,]+/);
 
 const blank = await captured.tools.get('skill_search').execute({ query: '', limit: 3 });
+assertLosslessJson('skill_search', blank);
 assert.equal(blank.results.length, 3, 'empty query lists top scored');
 
 const card = await captured.tools.get('skill_card').execute({ id: skill.slug });
+assertLosslessJson('skill_card', card);
 assert.ok(card.ok);
 for (const field of ['介绍 —', '用途 —', '使用注意事项 —', '安装数 —', '8 周趋势 —', '来源 —']) {
   assert.ok(card.text.includes(field), `card should expose ${field}`);
 }
 const missing = await captured.tools.get('skill_card').execute({ id: 'nope/nope' });
+assertLosslessJson('skill_card', missing);
 assert.equal(missing.ok, false);
 
 const off = await captured.tools.get('skill_activate').execute({ id: skill.id, active: false });
+assertLosslessJson('skill_activate', off);
 assert.ok(off.ok);
 assert.equal((await readActivation()).active.includes(skill.id), false);
 
+const on = await captured.tools.get('skill_activate').execute({ id: skill.id, active: true });
+assertLosslessJson('skill_activate', on);
+assert.ok(on.ok);
+assert.equal(on.needsDownload, false, 'library has the body, so it is really served');
+assert.equal((await readActivation()).active.includes(skill.id), true);
+
 // 库存里没有正文的技能：允许激活，但要如实告知 provider 不会暴露它
+await writeFile(join(home, 'skills-center', 'activation.json'), JSON.stringify({ version: 1, active: [] }), 'utf8');
 const noBody = cat.skills.find((s) => s.id !== skill.id);
 const partial = await captured.tools.get('skill_activate').execute({ id: noBody.id, active: true });
+assertLosslessJson('skill_activate', partial);
 assert.ok(partial.ok);
 assert.equal(partial.needsDownload, true);
 assert.match(partial.libraryPath, /library[\\/]/);
