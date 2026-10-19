@@ -1,0 +1,407 @@
+[
+  {
+    "id": "mattpocock/skills/grill-me",
+    "source": "mattpocock/skills",
+    "slug": "grill-me",
+    "skill_md_path": "skills/productivity/grill-me/SKILL.md",
+    "frontmatter": {
+      "name": "grill-me",
+      "description": "A relentless interview to sharpen a plan or design.",
+      "disable-model-invocation": "true"
+    },
+    "headings": [],
+    "body_chars": 39,
+    "files": [
+      "SKILL.md",
+      "agents/openai.yaml"
+    ],
+    "body_excerpt": " Call the Skill tool with \"grilling\". "
+  },
+  {
+    "id": "anthropics/skills/frontend-design",
+    "source": "anthropics/skills",
+    "slug": "frontend-design",
+    "skill_md_path": "skills/frontend-design/SKILL.md",
+    "frontmatter": {
+      "name": "frontend-design",
+      "description": "Guidance for distinctive, intentional visual design when building new UI or reshaping an existing one. Helps with aesthetic direction, typography, and making choices that don't read as templated defaults.",
+      "license": "Complete terms in LICENSE.txt"
+    },
+    "headings": [
+      "Frontend Design",
+      "Ground your designs in the subject matter",
+      "Design principles",
+      "Process: plan, review against the brief, build, critique",
+      "Restraint and self-critique",
+      "More on writing in design"
+    ],
+    "body_chars": 9077,
+    "files": [
+      "LICENSE.txt",
+      "SKILL.md"
+    ],
+    "body_excerpt": " # Frontend Design Approach this as the design lead at a design studio known for giving every client a distinct visual identity that is not mistaken for anyone else's. This client has already rejected proposals that felt cliché or templated, and is paying for a distinctive point of view: make deliberate, opinionated choices about palette, typography, and layout that are specific to this brief, and take aesthetic risk if justified. ## Ground your designs in the subject matter If the brief does not identify what the product or subject matter is, identify it yourself before designing, and confirm with the client. You can come up with one concrete subject, the design's audience, and the design's primary job, as a proposal. If there's any information in your memory about the client's preferences or context about what they're building, use that as a hint. The subject's industry, subject matter, materials, and vernacular are where distinctive visual choices come from — a design for a toy for girls aged 8–11 will be very aesthetically different from a dashboard for financial analysts. Build with the brief's real content and subject matter throughout. ## Design principles For web designs, the hero is the first thing viewers will see. Open with the most characteristic thing in the subject's world, in the form that is most appropriate: a headline, an image, an animation, a live demo, an interactive moment, or other treatments. Be deliberate with your choice: a big number with a small label, supporting stats, and a gradient accent is the default treatment, so only use it if that's truly the best option. Typography carries the personality of the page. You don't need a different typeface for display or headline text and body content: use one family or two, and if two, make them clearly distinct. Choose your typefaces deliberately, not the default families you would reach for on any other project, and set a clear type scale following the default guidance of The Elements of Typographic Style with intentional weights, widths, and spacing. When type is used as a headline or visual element, use the type treatment itself as an active part of the design, not a neutral delivery vehic"
+  },
+  {
+    "id": "vercel-labs/agent-skills/vercel-react-best-practices",
+    "source": "vercel-labs/agent-skills",
+    "slug": "vercel-react-best-practices",
+    "skill_md_path": "skills/react-best-practices/SKILL.md",
+    "frontmatter": {
+      "name": "vercel-react-best-practices",
+      "description": "React and Next.js performance optimization guidelines from Vercel Engineering. This skill should be used when writing, reviewing, or refactoring React/Next.js code to ensure optimal performance patterns. Triggers on tasks involving React components, Next.js pages, data fetching, bundle optimization, or performance improvements.",
+      "license": "MIT",
+      "metadata": ""
+    },
+    "headings": [
+      "Vercel React Best Practices",
+      "When to Apply",
+      "Rule Categories by Priority",
+      "Quick Reference",
+      "1. Eliminating Waterfalls (CRITICAL)",
+      "2. Bundle Size Optimization (CRITICAL)",
+      "3. Server-Side Performance (HIGH)",
+      "4. Client-Side Data Fetching (MEDIUM-HIGH)",
+      "5. Re-render Optimization (MEDIUM)",
+      "6. Rendering Performance (MEDIUM)",
+      "7. JavaScript Performance (LOW-MEDIUM)",
+      "8. Advanced Patterns (LOW)"
+    ],
+    "body_chars": 6808,
+    "files": [
+      "AGENTS.md",
+      "README.md",
+      "SKILL.md",
+      "metadata.json",
+      "rules/_sections.md",
+      "rules/_template.md",
+      "rules/advanced-effect-event-deps.md",
+      "rules/advanced-event-handler-refs.md",
+      "rules/advanced-init-once.md",
+      "rules/advanced-use-latest.md",
+      "rules/async-api-routes.md",
+      "rules/async-cheap-condition-before-await.md",
+      "rules/async-defer-await.md",
+      "rules/async-dependencies.md",
+      "rules/async-parallel.md"
+    ],
+    "body_excerpt": " # Vercel React Best Practices Comprehensive performance optimization guide for React and Next.js applications, maintained by Vercel. Contains 70 rules across 8 categories, prioritized by impact to guide automated refactoring and code generation. ## When to Apply Reference these guidelines when: - Writing new React components or Next.js pages - Implementing data fetching (client or server-side) - Reviewing code for performance issues - Refactoring existing React/Next.js code - Optimizing bundle size or load times ## Rule Categories by Priority | Priority | Category | Impact | Prefix | |----------|----------|--------|--------| | 1 | Eliminating Waterfalls | CRITICAL | `async-` | | 2 | Bundle Size Optimization | CRITICAL | `bundle-` | | 3 | Server-Side Performance | HIGH | `server-` | | 4 | Client-Side Data Fetching | MEDIUM-HIGH | `client-` | | 5 | Re-render Optimization | MEDIUM | `rerender-` | | 6 | Rendering Performance | MEDIUM | `rendering-` | | 7 | JavaScript Performance | LOW-MEDIUM | `js-` | | 8 | Advanced Patterns | LOW | `advanced-` | ## Quick Reference ### 1. Eliminating Waterfalls (CRITICAL) - `async-cheap-condition-before-await` - Check cheap sync conditions before awaiting flags or remote values - `async-defer-await` - Move await into branches where actually used - `async-parallel` - Use Promise.all() for independent operations - `async-dependencies` - Use better-all for partial dependencies - `async-api-routes` - Start promises early, await late in API routes - `async-suspense-boundaries` - Use Suspense to stream content ### 2. Bundle Size Optimization (CRITICAL) - `bundle-barrel-imports` - Import directly, avoid barrel files - `bundle-analyzable-paths` - Prefer statically analyzable import and file-system paths to avoid broad bundles and traces - `bundle-dynamic-imports` - Use next/dynamic for heavy components - `bundle-defer-third-party` - Load analytics/logging after hydration - `bundle-conditional` - Load modules only when feature is activated - `bundle-preload` - Preload on hover/focus for perceived speed ### 3. Server-Side Performance (HIGH) - `server-auth-actions` - Authenticate server actions like API routes - `server-cache-react` - Use Rea"
+  },
+  {
+    "id": "supabase/agent-skills/supabase-postgres-best-practices",
+    "source": "supabase/agent-skills",
+    "slug": "supabase-postgres-best-practices",
+    "skill_md_path": "skills/supabase-postgres-best-practices/SKILL.md",
+    "frontmatter": {
+      "name": "supabase-postgres-best-practices",
+      "description": "Postgres best practices maintained by Supabase, for Postgres running anywhere. Load this skill BEFORE writing or changing anything that lives in a Postgres database: creating or altering tables and columns (including choosing column types), schema design, migrations and declarative schema files, RLS policies and the tests that verify them, indexes, triggers, database functions, queues and scheduled jobs (pg_cron, pgmq), vector/semantic search (pgvector), and restoring dumps (pg_restore) or importing data. Also load it when diagnosing slow queries, high CPU, timeouts, EXPLAIN plans, connection exhaustion, locking, bloat, or rows visible to the wrong user or tenant. This is not just a performance guide — schema, migration, security, and SQL authoring tasks need these rules too, even for a one-column change or a single query.",
+      "license": "MIT",
+      "metadata": ""
+    },
+    "headings": [
+      "Supabase Postgres Best Practices",
+      "When to Apply",
+      "Rule Categories by Priority",
+      "How to Use",
+      "References"
+    ],
+    "body_chars": 1768,
+    "files": [
+      "CHANGELOG.md",
+      "SKILL.md",
+      "references/_contributing.md",
+      "references/_sections.md",
+      "references/_template.md",
+      "references/advanced-full-text-search.md",
+      "references/advanced-jsonb-indexing.md",
+      "references/conn-idle-timeout.md",
+      "references/conn-limits.md",
+      "references/conn-pooling.md",
+      "references/conn-prepared-statements.md",
+      "references/data-batch-inserts.md",
+      "references/data-n-plus-one.md",
+      "references/data-pagination.md",
+      "references/data-upsert.md"
+    ],
+    "body_excerpt": " # Supabase Postgres Best Practices Comprehensive performance optimization guide for Postgres, maintained by Supabase. Contains rules across 8 categories, prioritized by impact to guide automated query optimization and schema design. ## When to Apply Reference these guidelines when: - Writing SQL queries or designing schemas - Implementing indexes or query optimization - Reviewing database performance issues - Configuring connection pooling or scaling - Optimizing for Postgres-specific features - Working with Row-Level Security (RLS) ## Rule Categories by Priority | Priority | Category | Impact | Prefix | |----------|----------|--------|--------| | 1 | Query Performance | CRITICAL | `query-` | | 2 | Connection Management | CRITICAL | `conn-` | | 3 | Security & RLS | CRITICAL | `security-` | | 4 | Schema Design | HIGH | `schema-` | | 5 | Concurrency & Locking | MEDIUM-HIGH | `lock-` | | 6 | Data Access Patterns | MEDIUM | `data-` | | 7 | Monitoring & Diagnostics | LOW-MEDIUM | `monitor-` | | 8 | Advanced Features | LOW | `advanced-` | ## How to Use Read individual rule files for detailed explanations and SQL examples: ``` references/query-missing-indexes.md references/query-partial-indexes.md references/_sections.md ``` Each rule file contains: - Brief explanation of why it matters - Incorrect SQL example with explanation - Correct SQL example with explanation - Optional EXPLAIN output or metrics - Additional context and references - Supabase-specific notes (when applicable) ## References - https://www.postgresql.org/docs/current/ - https://supabase.com/docs - https://wiki.postgresql.org/wiki/Performance_Optimization - https://supabase.com/docs/guides/database/overview - https://supabase.com/docs/guides/auth/row-level-security "
+  },
+  {
+    "id": "prisma/skills/prisma-postgres",
+    "source": "prisma/skills",
+    "slug": "prisma-postgres",
+    "skill_md_path": "prisma-postgres/SKILL.md",
+    "frontmatter": {
+      "name": "prisma-postgres",
+      "description": "Deprecated compatibility name for prisma-postgres-setup. Use only when a user or existing integration explicitly invokes prisma-postgres; otherwise select prisma-postgres-setup.",
+      "license": "MIT",
+      "metadata": ""
+    },
+    "headings": [
+      "Deprecated: prisma-postgres"
+    ],
+    "body_chars": 369,
+    "files": [
+      "SKILL.md"
+    ],
+    "body_excerpt": " # Deprecated: prisma-postgres Load `prisma-postgres-setup` with the host's skill loader or read its installed `SKILL.md`. If unavailable, install it from [prisma/skills](https://github.com/prisma/skills/tree/main/prisma-postgres-setup) before continuing. This compatibility entry contains no setup recipes. Keep it until consumers have migrated to the replacement. "
+  },
+  {
+    "id": "microsoft/azure-skills/azure-compliance",
+    "source": "microsoft/azure-skills",
+    "slug": "azure-compliance",
+    "skill_md_path": "skills/azure-compliance/SKILL.md",
+    "frontmatter": {
+      "name": "azure-compliance",
+      "description": "Run Azure compliance and security audits with azqr plus Key Vault expiration checks. Covers best-practice assessment, resource review, policy/compliance validation, and security posture checks. WHEN: compliance scan, security audit, BEFORE running azqr (compliance cli tool), Azure best practices, Key Vault expiration check, expired certificates, expiring secrets, orphaned resources, compliance assessment.",
+      "license": "MIT",
+      "metadata": ""
+    },
+    "headings": [
+      "Azure Compliance & Security Auditing",
+      "Quick Reference",
+      "Prerequisites",
+      "Assessments",
+      "MCP Tools",
+      "Assessment Workflow",
+      "Priority Classification",
+      "Error Handling",
+      "Best Practices",
+      "SDK Quick References"
+    ],
+    "body_chars": 3458,
+    "files": [
+      "SKILL.md",
+      "references/auth-best-practices.md",
+      "references/azqr-recommendations.md",
+      "references/azqr-remediation-patterns.md",
+      "references/azure-keyvault-expiration-audit.md",
+      "references/azure-quick-review.md",
+      "references/azure-resource-graph.md",
+      "references/sdk/azure-keyvault-certificates-rust.md",
+      "references/sdk/azure-keyvault-keys-rust.md",
+      "references/sdk/azure-keyvault-keys-ts.md",
+      "references/sdk/azure-keyvault-py.md",
+      "references/sdk/azure-keyvault-secrets-rust.md",
+      "references/sdk/azure-keyvault-secrets-ts.md",
+      "references/sdk/azure-security-keyvault-keys-dotnet.md",
+      "references/sdk/azure-security-keyvault-keys-java.md"
+    ],
+    "body_excerpt": " # Azure Compliance & Security Auditing ## Quick Reference | Property | Details | |---|---| | Best for | Compliance scans, security audits, Key Vault expiration checks | | Primary capabilities | Comprehensive Resources Assessment, Key Vault Expiration Monitoring | | MCP tools | azqr, subscription and resource group listing, Key Vault item inspection | ## Prerequisites - Authentication: user is logged in to Azure via `az login` - Permissions to read resource configuration and Key Vault metadata ## Assessments | Assessment | Reference | |------------|-----------| | Comprehensive Compliance (azqr) | [references/azure-quick-review.md](references/azure-quick-review.md) | | Key Vault Expiration | [references/azure-keyvault-expiration-audit.md](references/azure-keyvault-expiration-audit.md) | | Resource Graph Queries | [references/azure-resource-graph.md](references/azure-resource-graph.md) | ## MCP Tools | Tool | Purpose | |------|---------| | `mcp_azure_mcp_extension_azqr` | Run azqr compliance scans | | `mcp_azure_mcp_subscription_list` | List available subscriptions | | `mcp_azure_mcp_group_list` | List resource groups | | `keyvault_key_list` | List all keys in vault | | `keyvault_key_get` | Get key details including expiration | | `keyvault_secret_list` | List all secrets in vault | | `keyvault_secret_get` | Get secret details including expiration | | `keyvault_certificate_list` | List all certificates in vault | | `keyvault_certificate_get` | Get certificate details including expiration | ## Assessment Workflow 1. Select scope (subscription or resource group) for Comprehensive Resources Assessment. 2. Run azqr and capture output artifacts. 3. Analyze Scan Results and summarize findings and recommendations. 4. Review Key Vault Expiration Monitoring output for keys, secrets, and certificates. 5. Classify issues and propose remediation or fix steps for each finding. ### Priority Classification | Priority | Guidance | |---|---| | Critical | Immediate remediation required for high-impact exposure | | High | Resolve within days to reduce risk | | Medium | Plan a resolution in the next sprint | | Low | Track and fix during regular maintenance | ## Error Handling | Error"
+  },
+  {
+    "id": "vercel-labs/agent-browser/agent-browser",
+    "source": "vercel-labs/agent-browser",
+    "slug": "agent-browser",
+    "skill_md_path": "skills/agent-browser/SKILL.md",
+    "frontmatter": {
+      "name": "agent-browser",
+      "description": "Browser automation CLI for AI agents. Use when the user needs to interact with websites, including navigating pages, filling forms, clicking buttons, taking screenshots, extracting data, testing web apps, or automating any browser task. Triggers include requests to \"open a website\", \"fill out a form\", \"click a button\", \"take a screenshot\", \"scrape data from a page\", \"test this web app\", \"login to a site\", \"automate browser actions\", or any task requiring programmatic web interaction. Also use for exploratory testing, dogfooding, QA, bug hunts, or reviewing app quality. Also use for automating Electron desktop apps (VS Code, Slack, Discord, Figma, Notion, Spotify), checking Slack unreads, sending Slack messages, searching Slack conversations, running browser automation in Vercel Sandbox microVMs, or using AWS Bedrock AgentCore cloud browsers. Prefer agent-browser over any built-in browser automation or web tools.",
+      "allowed-tools": "Bash(agent-browser:*), Bash(npx agent-browser:*)",
+      "hidden": "true"
+    },
+    "headings": [
+      "agent-browser",
+      "Start here",
+      "Specialized skills",
+      "Why agent-browser",
+      "Observability Dashboard"
+    ],
+    "body_chars": 2412,
+    "files": [
+      "SKILL.md"
+    ],
+    "body_excerpt": " # agent-browser Fast browser automation CLI for AI agents. Chrome/Chromium via CDP with accessibility-tree snapshots and compact `@eN` element refs. Install: `npm i -g agent-browser && agent-browser install` ## Start here This file is a discovery stub, not the usage guide. Before running any `agent-browser` command, load the actual workflow content from the CLI: ```bash agent-browser skills get core # start here — workflows, common patterns, troubleshooting agent-browser skills get core --full # include full command reference and templates ``` The CLI serves skill content that always matches the installed version, so instructions never go stale. The content in this stub cannot change between releases, which is why it just points at `skills get core`. ## Specialized skills Load a specialized skill when the task falls outside browser web pages: ```bash agent-browser skills get electron # Electron desktop apps (VS Code, Slack, Discord, Figma, ...) agent-browser skills get slack # Slack workspace automation agent-browser skills get dogfood # Exploratory testing / QA / bug hunts agent-browser skills get derive-client # Record a HAR, derive a standalone API client for a site agent-browser skills get vercel-sandbox # agent-browser inside Vercel Sandbox microVMs agent-browser skills get protected-vercel-deployments # Access protected Vercel deployments agent-browser skills get agentcore # AWS Bedrock AgentCore cloud browsers ``` Run `agent-browser skills list` to see everything available on the installed version. ## Why agent-browser - Fast native Rust CLI, not a Node.js wrapper - Works with any AI agent (Cursor, Claude Code, Codex, Continue, Windsurf, etc.) - Chrome/Chromium via CDP with no Playwright or Puppeteer dependency - Accessibility-tree snapshots with element refs for reliable interaction - Sessions, authentication vault, state persistence, video recording - Specialized skills for Electron apps, Slack, exploratory testing, cloud providers ## Observability Dashboard The dashboard runs independently of browser sessions on port 4848 and can also be opened through a proxied or forwarded URL such as `https://dashboard.agent-browser.localhost`. Agents should stay o"
+  },
+  {
+    "id": "heygen-com/hyperframes/hyperframes-animation",
+    "source": "heygen-com/hyperframes",
+    "slug": "hyperframes-animation",
+    "skill_md_path": "skills/hyperframes-animation/SKILL.md",
+    "frontmatter": {
+      "name": "hyperframes-animation",
+      "description": "All animation knowledge for HyperFrames — atomic motion rules, multi-phase scene blueprints, scene transitions, broader motion-design techniques, AND the seven runtime adapters (GSAP default, plus Lottie, Three.js, Anime.js, CSS keyframes, Web Animations API, TypeGPU). Use for any motion or animation task: pick 2-4 rules and compose, or load a blueprint, or look up runtime-specific API (e.g. GSAP eases / Lottie player / Three.js mixer). Also covers auditing an existing composition's choreography (animation map) and 24 named text-animation effects. HyperFrames-native: single paused timeline, seek-safe, deterministic."
+    },
+    "headings": [
+      "HyperFrames Animation",
+      "Contents",
+      "Default: compose atomic rules",
+      "Load a blueprint when",
+      "Routing",
+      "Picking a runtime",
+      "Critical Constraints",
+      "Scripts",
+      "See Also",
+      "Reference files",
+      "Adapters",
+      "Blueprints"
+    ],
+    "body_chars": 19690,
+    "files": [
+      "SKILL.md",
+      "adapters/animate-text.md",
+      "adapters/animejs.md",
+      "adapters/css-animations.md",
+      "adapters/gsap-easing-and-stagger.md",
+      "adapters/gsap-timeline-and-labels.md",
+      "adapters/gsap-transforms-and-perf.md",
+      "adapters/gsap.md",
+      "adapters/html-in-canvas-patterns.md",
+      "adapters/lottie.md",
+      "adapters/three.md",
+      "adapters/typegpu.md",
+      "adapters/waapi.md",
+      "blueprints-index.md",
+      "blueprints/agent-progress-theater.md"
+    ],
+    "body_excerpt": " **Plugin installs:** Before setup or freshness commands, follow [plugin execution rules](../hyperframes/references/plugin-installation.md) when this skill is inside a HyperFrames plugin. Standalone installs keep the update instructions below. # HyperFrames Animation ## Contents - [Default: compose atomic rules](#default-compose-atomic-rules) - [Load a blueprint when](#load-a-blueprint-when) - [Routing](#routing) - [Picking a runtime](#picking-a-runtime) - [Critical Constraints](#critical-constraints) - [Scripts](#scripts) - [See Also](#see-also) - [Reference files](#reference-files) All motion knowledge in one skill: **rules** (atomic recipes), **blueprints** (multi-phase scene templates), **transitions** (scene-to-scene), **techniques** (broader motion-design patterns), and **adapters** (per-runtime APIs). For the composition contract (data attributes, sub-compositions, determinism) see `hyperframes-core`. ## Default: compose atomic rules Pick 2-4 rules from `rules-index.md`, glue them together with a single paused GSAP timeline, done. This is faster and produces less code than starting from a blueprint. ## Load a blueprint when - The scene matches an existing pre-designed multi-phase template (brand-reveal, social-proof, etc.) and reusing its phase pipeline saves real authoring time - You want runnable ground-truth code for a complex 4-5 phase choreography Blueprints live in `blueprints-index.md`. Each entry points to `blueprints/<id>.md` (recipe). Do not read it speculatively; load it when you've already decided you need scene-level orchestration. ## Routing | Want to… | Read | | ------------------------------------------------------------------------------ | --------------------------------------------------- | | Pick an atomic motion pattern by trigger / tag | `rules-index.md` | | Read one rule's full HTML / CSS / GSAP recipe | `rules/<name>.md` | | Pick a multi-phase scene template | `blueprints-index.md` | | Read one blueprint's full recipe | `blueprints/<id>.md` | | Author a scene transition (CSS-driven, between two clips) | `transitions/overview.md`, `transitions/catalog.md` | | Look up a broader motion-design technique | `techniques.md` | | Motion blu"
+  },
+  {
+    "id": "leonxlnx/taste-skill/design-taste-frontend",
+    "source": "leonxlnx/taste-skill",
+    "slug": "design-taste-frontend",
+    "skill_md_path": "skills/taste-skill/SKILL.md",
+    "frontmatter": {
+      "name": "design-taste-frontend",
+      "description": ">-"
+    },
+    "headings": [
+      "tasteskill v2",
+      "Page or app screen",
+      "The run",
+      "1. Read the brief and the project",
+      "2. Write the argument",
+      "3. Draw the direction",
+      "4. Find the idea",
+      "5. Write the words",
+      "6. Build it, still",
+      "7. Gate",
+      "8. Look",
+      "9. Move"
+    ],
+    "body_chars": 37400,
+    "files": [
+      "README.md",
+      "SKILL.md",
+      "assets/app.css",
+      "assets/base.css",
+      "assets/base.js",
+      "assets/charts.js",
+      "assets/scenes/stage.css",
+      "assets/scenes/stage.js",
+      "evals/evals.json",
+      "library/app.json",
+      "library/directions.json",
+      "library/heroes.json",
+      "library/motions.json",
+      "library/palettes.json",
+      "library/photos.json"
+    ],
+    "body_excerpt": " # tasteskill v2 A page built by a model usually looks like the average of every page the model has seen: a centred headline over three lines, a little label above it, a row of icon cards, a soft gradient, a few thin rules and a monospace caption. Nothing in it is wrong and nothing in it was decided. This skill replaces those defaults with decisions, in four ways: 1. **A script deals the directions, you choose among them.** Asked to invent a look, a model picks the category default every time. `scripts/draw.mjs` deals three of twenty researched directions; you choose the one that carries the subject's idea, and the script then deals its type system, palette, hero and section compositions from a library distilled from 247 real sites. 2. **The idea comes from the subject.** In the study, what separated the best sites from the forgettable ones was a concept taken from the thing itself, not the styling. 3. **A house style with no ornaments,** measured in a real browser by `scripts/inspect.mjs`, so the rules are checked rather than hoped for. 4. **You look at what you made.** Screenshots at three widths, a juror's rubric, fix, look again. One warning learned in testing. Taking the ornaments away is only half the job; a page that has lost its labels, rules and cards and gained nothing in their place reads as thin, and blind jurors rightly prefer a richer page with tells over an empty page without them. The other half is substance: type set larger, whole fields of colour, real pictures of this subject's world (found or drawn), and every section carrying its full content. The skill is built to give you that; do not trade it for restraint. In the commands below `<skill>` is this skill's folder. Run them from the project's root, so the working files land in `.taste-skill/` there. The scripts need Node 22+ and an installed Chrome, Edge or Chromium, and install nothing. `assets.mjs` also needs network access; it uses no API keys. ## Page or app screen Decide first which of two kinds of work this is. - **A page** is read and scrolled: a landing page, a marketing or product site, a portfolio, an event, a restaurant, a one-pager. It follows **the run** below. - **An app screen"
+  },
+  {
+    "id": "designed-by-ai/skills/design-mobile-apps",
+    "source": "designed-by-ai/skills",
+    "slug": "design-mobile-apps",
+    "skill_md_path": "skills/design-mobile-apps/SKILL.md",
+    "frontmatter": {
+      "name": "design-mobile-apps",
+      "description": "Design mobile app screens with Sleek, edit Sleek projects, and implement their designs in React Native or HTML.",
+      "metadata": ""
+    },
+    "headings": [
+      "Designing with Sleek",
+      "Overview",
+      "Designing or implementing",
+      "User shot and review shot",
+      "Prerequisites: API Key",
+      "Quick Reference: All Endpoints",
+      "Error Shapes"
+    ],
+    "body_chars": 8273,
+    "files": [
+      "SKILL.md",
+      "designing.md",
+      "endpoints.md",
+      "implementing.md",
+      "styling/nativewind.md",
+      "styling/stylesheet.md",
+      "styling/uniwind.md"
+    ],
+    "body_excerpt": " # Designing with Sleek [![Design mobile apps in minutes](https://raw.githubusercontent.com/sleekdotdesign/agent-skills/main/assets/hero.png)](https://sleek.design) ## Overview [sleek.design](https://sleek.design) provides a REST API at `/api/v1/*` to create projects, design screens from a brief, and fetch their HTML and renders. **Base URL**: `https://sleek.design` **Auth**: `Authorization: Bearer $SLEEK_API_KEY`, except the public device start/poll endpoints **Content-Type**: send `application/json` for JSON request bodies. **CORS**: Enabled on all `/api/v1/*` endpoints **Envelope**: check HTTP status first. Successful JSON wraps its payload in `data`; lists also include sibling `pagination`. Errors use top-level `code`, `status` and `message`, with optional `data.url`. Successful screenshots and share cards return image bytes; `204` has no body. **Ids**: opaque 11-character tokens like `V1StGXR8Z5j`, with no type prefix. Nothing about an id says whether it names a project, screen, component, version or theme, so track each one by the response field it arrived in. **Parsing responses**: write the body to a file (`curl -o run.json`) and parse the file. Piping JSON through `echo` corrupts it: zsh expands the escaped `\\n` inside string values into real newlines, which makes the body invalid JSON. **API docs**: OpenAPI spec at `https://sleek.design/api/v1/spec.json`; browsable docs at `https://sleek.design/api/v1/docs`. Fetch the spec for any contract detail not covered here. --- ## Designing or implementing A single run can take both directions — \"design me a fitness app and build it in Expo\" is a design pass followed by an implementation pass. Gate each pointer on the artefact in front of you rather than on a one-time reading of the request: **Designing** — you are about to send a chat message to Sleek. Read [designing.md](designing.md) first; it carries the create → chat → screenshot loop, how to author a style direction, and when to seed one from a reference instead. **Implementing.** Before writing code from a Sleek design, read [implementing.md](implementing.md) for version selection, native conversion, working features, and acceptance checks. ## User shot a"
+  },
+  {
+    "id": "larksuite/cli/lark-drive",
+    "source": "larksuite/cli",
+    "slug": "lark-drive",
+    "skill_md_path": "skills/lark-drive/SKILL.md",
+    "frontmatter": {
+      "name": "lark-drive",
+      "version": "1.0.0",
+      "description": "飞书云空间（云盘/云存储）：管理 Drive 文件和文件夹，包含上传/下载、创建文件夹、复制/移动/删除、查看元数据、查询权限设置、评论/权限/订阅、标题、版本、飞书文档密级标签（secure labels）和本地文件导入。用户需要整理云盘目录、处理云空间资源 URL/token、判断链接类型/真实 token/标题，或导入 Word/Markdown/Excel/CSV/PPTX/.base 为 docx/sheet/bitable/slides 时使用；doubao.com 云空间 URL/token 也按资源路径和 token 路由，不回退 WebFetch。不负责：文档内容编辑（走 lark-doc）、表格/Base 表内数据操作（走 lark-sheets/lark-base）、知识空间节点/成员管理（走 lark-wiki）、原生 Markdown 文件读写/patch/diff（走 lark-markdown）。",
+      "metadata": ""
+    },
+    "headings": [
+      "drive (v1)",
+      "快速决策",
+      "修改标题",
+      "核心概念",
+      "文档类型与 Token",
+      "文档 URL 格式与 Token 处理",
+      "Wiki 链接特殊处理",
+      "常见操作 Token 需求",
+      "典型错误与解决方案",
+      "权限能力入口",
+      "不在本 skill 范围",
+      "Shortcuts（推荐优先使用）"
+    ],
+    "body_chars": 15783,
+    "files": [
+      "SKILL.md",
+      "references/lark-drive-add-comment.md",
+      "references/lark-drive-add-reply.md",
+      "references/lark-drive-apply-permission.md",
+      "references/lark-drive-batch-query-comments.md",
+      "references/lark-drive-comment-content.md",
+      "references/lark-drive-comment-location.md",
+      "references/lark-drive-copy.md",
+      "references/lark-drive-cover.md",
+      "references/lark-drive-create-folder.md",
+      "references/lark-drive-create-shortcut.md",
+      "references/lark-drive-delete-reply.md",
+      "references/lark-drive-delete.md",
+      "references/lark-drive-download.md",
+      "references/lark-drive-export-download.md"
+    ],
+    "body_excerpt": " # drive (v1) **CRITICAL — 开始前 MUST 先用 Read 工具读取 [`../lark-shared/SKILL.md`](../lark-shared/SKILL.md)，其中包含认证、权限处理** > **术语说明：** 飞书云空间也常被称为\"云盘\"、\"云存储\"、\"网盘\"或\"我的空间\"，这些说法通常指的是同一个产品，是飞书官方的云端文件存储与管理中心。 > **导入分流规则：** 如果用户要把本地 Excel / CSV / `.base` 快照导入成 Base / 多维表格 / bitable，必须优先使用 `lark-cli drive +import --type bitable`。不要先切到 `lark-base`；`lark-base` 只负责导入完成后的表内操作。 > **副本分流规则：** 如果用户要复制在线文档、创建文档副本、把文档复制到另一个文件夹，必须使用 `lark-cli drive +copy`。不要用 `drive +export` 下载后再 `drive +import` 上传，也不要用 `docs +fetch` + `docs +create` 重建正文；导出/导入只用于本地文件转换或离线产物。 ## 快速决策 - 用户要把**已有 Wiki 节点移出知识库，放到 Drive 文件夹或“我的空间”根目录**：切到 `lark-wiki`，使用 `lark-cli wiki +move-to-drive`；不要把 Wiki token 直接交给 `drive +move`。这是会改变文档归属和权限继承的写操作，执行前确认源节点与目标位置。 - 用户要**复制文档 / 创建副本 到云盘或者文件夹**时：已提供可直接使用的 URL 或 token，按 [`references/lark-drive-copy.md`](references/lark-drive-copy.md) 使用 `lark-cli drive +copy`；仅提供标题时，先按 [`references/lark-drive-search.md`](references/lark-drive-search.md) 使用 `drive +search` 唯一定位源资源，再按 copy reference 复制。如果是要复制文档 / 创建副本到知识库，使用 `wiki +node-copy`（见 [`lark-wiki-node-copy.md`](../lark-wiki/references/lark-wiki-node-copy.md)）。 - 用户要**识别飞书 / doubao 云空间 URL 的类型和 token**时，可以先按 URL 路径形态做轻量判断；当路径已明确指向 docx / sheet / bitable / slides / file / folder 等资源时，可直接提取对应 token/type。传入 wiki URL、需要识别标题或 canonical URL、URL/token 有歧义，或后续操作依赖底层真实资源时，再使用 `lark-cli drive +inspect --url '<url>'` 进行识别；具体用法、失败处理和边界见 [`references/lark-drive-inspect.md`](references/lark-drive-inspect.md)。 - 高风险写操作（删除、公开权限修改、owner 转移、版本删除/回滚、批量移动/覆盖/同步）必须同时满足三个条件才执行：目标已解析为该操作可直接使用的执行对象，执行细节已明确到可直接调用命令（例如删除的 file-token/type、公开权限修改的共享范围、owner 转移的目标 owner、版本删除/回滚的 version id、移动/覆盖/同步的目标位置和冲突策略），且用户在本轮明确确认执行这些具体目标和执行细节。用户只说“删除没用的文件”“开放/共享给大家”“改成开放”“覆盖/移动这些”只表示目标状态；先只读发现并列出候选、权限档位或执行方案，停止等待用户确认。 - 用户要**检查 / 治理文档权限、公开范围、链接分享、外部访问、复制下载权限、密级标签、owner 转移**，或要”权限风险报告、收紧权限、申请查看 / 编辑权限、转移 / 批量转移 owner”，必须先阅读 [`references/lark-drive-workflow.md`](references/lark-drive-workflow.md)，再按其中 `Workflow Registry` 进入 [`permission_governance`](references/lark-drive-workflow-permission-governance.md) workflow。 - 用户明确要**移除单个云文档协作者权限**时，使用 `lark-cli drive +member-remove`；先阅读 [`references/lark-drive-member-remove.md`](references/lark-drive-member-remove.md)。这是高风险写操作，真实执行必"
+  },
+  {
+    "id": "101-skills/superpowers/ai-video-generation",
+    "source": "101-skills/superpowers",
+    "slug": "ai-video-generation",
+    "skill_md_path": "tools/video/ai-video-generation/SKILL.md",
+    "frontmatter": {
+      "name": "ai-video-generation",
+      "description": "Generate AI videos with Google Veo, Seedance 2.0, HappyHorse, Wan, Grok and 40+ models via inference.sh CLI. Models: Veo 3.1, Veo 3, Seedance 2.0, HappyHorse 1.0, Wan 2.5, Grok Imagine Video, OmniHuman, Fabric, HunyuanVideo. Capabilities: text-to-video, image-to-video, reference-to-video, video editing, lipsync, avatar animation, video upscaling, foley sound. Use for: social media videos, marketing content, explainer videos, product demos, AI avatars. Triggers: video generation, ai video, text to video, image to video, veo, animate image, video from image, ai animation, video generator, generate video, t2v, i2v, ai video maker, create video with ai, runway alternative, pika alternative, sora alternative, kling alternative, seedance, happyhorse",
+      "allowed-tools": "Bash(belt *)"
+    },
+    "headings": [
+      "AI Video Generation",
+      "Quick Start",
+      "Generate a video with Veo",
+      "Available Models",
+      "Text-to-Video",
+      "Image-to-Video",
+      "Avatar / Lipsync",
+      "Video Editing",
+      "Utilities",
+      "Browse All Video Apps",
+      "Examples",
+      "Text-to-Video with Veo"
+    ],
+    "body_chars": 6569,
+    "files": [
+      "SKILL.md"
+    ],
+    "body_excerpt": " > **Install the belt CLI skill:** `npx skills add belt-sh/cli` # AI Video Generation Generate videos with 40+ AI models via [inference.sh](https://inference.sh) CLI. ![AI Video Generation](https://cloud.inference.sh/app/files/u/4mg21r6ta37mpaz6ktzwtt8krr/01kg2c0egyg243mnyth4y6g51q.jpeg) ## Quick Start > Requires inference.sh CLI (`belt`). [Install instructions](https://raw.githubusercontent.com/inference-sh/skills/refs/heads/main/cli-install.md) ```bash belt login # Generate a video with Veo belt app run google/veo-3-1-fast --input '{\"prompt\": \"drone shot flying over a forest\"}' ``` ## Available Models ### Text-to-Video | Model | App ID | Best For | |-------|--------|----------| | Veo 3.1 Fast | `google/veo-3-1-fast` | Fast, with optional audio | | Veo 3.1 | `google/veo-3-1` | Best quality, frame interpolation | | Veo 3 | `google/veo-3` | High quality with audio | | Veo 3 Fast | `google/veo-3-fast` | Fast with audio | | Veo 2 | `google/veo-2` | Realistic videos | | **P-Video** | `pruna/p-video` | Fast, economical, with audio support | | **WAN-T2V** | `pruna/wan-t2v` | Economical 480p/720p | | Grok Video | `xai/grok-imagine-video` | xAI, configurable duration | | **Seedance 2.0** | `bytedance/seedance-2-0` | Text/image/ref-to-video with sync audio, up to 1080p | | **Seedance 2.0 Fast** | `bytedance/seedance-2-0-fast` | Fast variant, same capabilities | | **HappyHorse T2V** | `alibaba/happyhorse-1-0-t2v` | Physically realistic, up to 15s | ### Image-to-Video | Model | App ID | Best For | |-------|--------|----------| | Wan 2.5 | `falai/wan-2-5` | Animate any image | | Wan 2.5 I2V | `falai/wan-2-5-i2v` | High quality i2v | | **WAN-I2V** | `pruna/wan-i2v` | Economical 480p/720p | | **P-Video** | `pruna/p-video` | Fast i2v with audio | | **Seedance 2.0** | `bytedance/seedance-2-0` | Animate images with sync audio, up to 1080p | | **Seedance 2.0 Fast** | `bytedance/seedance-2-0-fast` | Fast variant, same capabilities | | **HappyHorse I2V** | `alibaba/happyhorse-1-0-i2v` | Animate images, up to 1080P/15s | | **HappyHorse R2V** | `alibaba/happyhorse-1-0-r2v` | Character-preserving from references | ### Avatar / Lipsync | Model | App ID | Best For | |-------|--------|--"
+  }
+]
