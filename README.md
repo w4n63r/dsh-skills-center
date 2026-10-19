@@ -31,6 +31,17 @@ npm test        # 假 ctx 冒烟：provider.list/get、三个工具、50 上限
 | `samples/` | 卡片样例与原始采样输出 |
 | `DESIGN.md` | 设计文档：边界、采集、去重、打分、激活、里程碑 |
 
+## 装到 DSH
+
+```bash
+# 装进某个 profile（desktop 是当前 GUI 在用的那个）
+dsh plugin --profile desktop add D:\dsh-skills-center
+```
+
+`package.json` 的 `dsh.bundle.patch` 会让 DSH 自动读本包的 `cordis.patch.yml`，插入 `skills-center` 组件——这一点与已装的 `@michengai/dsh-skills-manager`、`dsh-ops` 完全同形。装完重启该 profile 生效。
+
+技能正文的库存目录是 `~/.dsh/skills-center/library/<来源>/<slug>/SKILL.md`：**只有这里存在正文的技能才会被 provider 暴露**，否则 `skill_activate` 会明确告警而不是假装成功。
+
 ## 工具
 
 - `skill_search` — 本地目录检索，返回 `id + 中文一句话 + 判断 + 安装数 + S`
