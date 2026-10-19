@@ -115,6 +115,13 @@ const off = await captured.tools.get('skill_activate').execute({ id: skill.id, a
 assert.ok(off.ok);
 assert.equal((await readActivation()).active.includes(skill.id), false);
 
+// 库存里没有正文的技能：允许激活，但要如实告知 provider 不会暴露它
+const noBody = cat.skills.find((s) => s.id !== skill.id);
+const partial = await captured.tools.get('skill_activate').execute({ id: noBody.id, active: true });
+assert.ok(partial.ok);
+assert.equal(partial.needsDownload, true);
+assert.match(partial.libraryPath, /library[\\/]/);
+
 // 排序检查：S 分降序即榜单顺序
 const top = await searchSkills('', 12);
 assert.deepEqual(
@@ -127,6 +134,43 @@ assert.match(renderCard(getSkillSync(cat, skill.id)), /来源 —/);
 function getSkillSync(c, id) {
   return c.skills.find((s) => s.id === id);
 }
+
+// ---- Web API：status / search / card / 404 ----
+const route = captured.routes[0];
+assert.equal(route.kind, 'prefix');
+assert.equal(route.path, '/api/dsh-skills-center');
+async function callApi(pathname) {
+  let body = '';
+  const res = {
+    statusCode: 0,
+    headers: {},
+    setHeader(k, v) {
+      this.headers[k] = v;
+    },
+    end(chunk) {
+      body = chunk;
+    },
+  };
+  await route.handler({ url: pathname }, res);
+  return { code: res.statusCode, body: JSON.parse(body) };
+}
+const status = await callApi('/api/dsh-skills-center/status');
+assert.equal(status.code, 200);
+assert.equal(status.body.count, cat.count);
+assert.equal(status.body.maxActive, MAX_ACTIVE);
+assert.ok(Array.isArray(status.body.active));
+
+const apiSearch = await callApi('/api/dsh-skills-center/search?q=design&limit=2');
+assert.equal(apiSearch.code, 200);
+assert.ok(apiSearch.body.results.length <= 2);
+
+const apiCard = await callApi(`/api/dsh-skills-center/card?id=${encodeURIComponent(skill.id)}`);
+assert.equal(apiCard.code, 200);
+assert.equal(apiCard.body.id, skill.id);
+
+const api404 = await callApi('/api/dsh-skills-center/nope');
+assert.equal(api404.code, 404);
+assert.equal(api404.body.error, 'not_found');
 
 await rm(home, { recursive: true, force: true });
 console.log('smoke ok — catalog', cat.count, '| top:', list[0].name, '| tools:', [...captured.tools.keys()].join(','));
