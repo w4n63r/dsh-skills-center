@@ -33,12 +33,18 @@ npm test        # 假 ctx 冒烟：provider.list/get、三个工具、50 上限
 
 ## 装到 DSH
 
-```bash
-# 装进某个 profile（desktop 是当前 GUI 在用的那个）
-dsh plugin --profile desktop add D:\dsh-skills-center
-```
+**别用 `dsh plugin --profile desktop add`**——当前 desktop profile 里的 `dsh-ops@0.3.0` 依赖了 npmmirror 上不存在的 `@dsh-ops/bash-win32-x64@0.2.1`，任何 `pnpm add` 都会在重解析依赖树时撞上它（`ERR_PNPM_NO_MATCHING_VERSION`），与本项目无关。手工挂三步：
 
-`package.json` 的 `dsh.bundle.patch` 会让 DSH 自动读本包的 `cordis.patch.yml`，插入 `skills-center` 组件——这一点与已装的 `@michengai/dsh-skills-manager`、`dsh-ops` 完全同形。装完重启该 profile 生效。
+1. `~/.dsh/profiles/<name>/package.json`：`dependencies` 加 `"dsh-skills-center": "link:D:/dsh-skills-center"`，`dsh.profile.bundles` 追加 `"dsh-skills-center"`；
+2. 在 `~/.dsh/profiles/<name>/node_modules/` 建 junction 指向本仓库（用 node 建，bash 里 `mklink /J` 的引号会出错）：
+   ```js
+   require('fs').symlinkSync('D:\\dsh-skills-center',
+     require('path').join(process.env.USERPROFILE, '.dsh/profiles/desktop/node_modules/dsh-skills-center'), 'junction')
+   ```
+3. 重启该 profile。
+
+`package.json` 的 `dsh.bundle.patch` 会让 DSH 自动读本包的 `cordis.patch.yml`，插入 `skills-center` 组件——与已装的 `@michengai/dsh-skills-manager`、`dsh-ops` 同形。这一步已在临时 profile 上验证过：`--dump-config` 出现 `- id: skills-center`，真启动后 `/api/dsh-skills-center/status` 正常返回。
+
 
 技能正文的库存目录是 `~/.dsh/skills-center/library/<来源>/<slug>/SKILL.md`：**只有这里存在正文的技能才会被 provider 暴露**，否则 `skill_activate` 会明确告警而不是假装成功。
 
