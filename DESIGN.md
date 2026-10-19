@@ -185,7 +185,7 @@ M1 依赖 M0 的 hash，M2 可先在本地样例数据上开发（`samples/diges
 
 1. 采集挂 Vercel Cron 还是 GitHub Action——用户有 Vercel 账号，倾向 Vercel（能顺带托管 `catalog.json` 供插件 CDN 拉取）。
 
-## 12. 已验证的插件契约（M2 开工前）
+## 12. 已验证的插件契约
 
 原"`registerProvider` 签名未验证"一项已由已安装的 `@michengai/dsh-skills-manager` 源码实证（它消费同一套 host API）：
 
@@ -202,7 +202,21 @@ ctx.skills.registerProvider((control) => ({ name, list(options), get(candidate, 
 
 因此 M0 骨架可直接在本机跑通：`lib/provider.js` 的 `createProvider()` 同步返回工厂，`list/get` 内部异步读 `library/`，未激活或库存无正文的技能不对外声称可用。
 
-**`rank` 的方向性**（`lib/core.js:2748` 佐证）：`overlayRank = Math.min(...) - 1`——越小的 rank 越优先，用来"覆盖"别的来源；skills-manager 自己的技能根占 100~450。故本插件用 `DEFAULT_RANK = 500`：激活的技能默认**不会**盖住用户自己手写/已装的同名技能，想让它优先可用 `config.rank` 调低。
+**`rank` 的梯子**（越小越优先，同层内比较，`dsh-skill:519-521`）：project `.dsh` 100 / project `.agents` 200 / runtime 250 / custom dirs 300 / user `.dsh` 400 / user `.agents` 500 / bundled 600（`dsh-skill-filesystem:20-24`、`dsh-skill:21-23`）。本插件取 **`DEFAULT_RANK = 700`**：比所有原生根都靠后，激活的技能默认**不会**盖住用户自己写的同名技能；想让它优先就用 `config.rank` 调低。
+
+## 12.1 一方源码（app.asar）里读到的硬约束
+
+第二条独立证据：直接解析 `D:\dsh\resources\app.asar` 拿到 `@deepseek-ai/dsh-skill`（技能注册表）、`dsh-tools`、`dsh-tool-skill`（catalog 注入）、`dsh-skill-filesystem`（唯一的前置元数据解析者）——`~/.dsh/profiles/node_modules/@deepseek-ai/*` 全是死软链，asar 可用 `dataStart = 8 + u32(4)`、header JSON 在 `16..16+u32(12)` 解出。
+
+- **工厂必须同步**（`dsh-skill:147-183`）：`provider = create(control)` 之后立刻读 `provider.name`，全程没有 `await`。返 Promise ⇒ `name === undefined` ⇒ 注册在 `undefined` 名下，随后被 `"provider.list is not a function"`（`:354`）跳过，什么都不暴露。
+- **候选不合格会 throw**（`dsh-skill:452-464`）：`name` 必须匹配 `/^[a-z0-9]+(?:-[a-z0-9]+)*$/`（`:17`）；`description` 非空；`source` 字符串；`rank` 有限数字；`provider` **逐字等于**注册名；`invocation` 若给出必须是 `{modelInvocable:boolean,userInvocable:boolean}`。而 `validateCandidate` 的调用点（`:360`）**在包 `provider.list` 的 try 之外**（`:349-355`）——一个坏候选会让**所有** provider 的目录当场消失。`locator` 完全不校验，只原样回传。
+- **`get()` 收到的是 `list()` 返回的那个对象本身**（`:256`）。返回的 definition 会再过一次 `validateDefinition`（`:471-490`），其中 `content` 必须是字符串；**host 从不剥 frontmatter**（YAML 只在 `dsh-skill-filesystem:673` 解析），所以 provider 必须自己剥。`definition.name !== candidate.name` 时静默判定"技能不存在"并清缓存（`:259-262`）。
+- **`resourceBase` 决定相对路径怎么解析**（`:71-80`）：丢了就退化成"资源由 provider 托管"，技能里的 `../lark-shared/SKILL.md` 这类引用会失效。
+- **缓存**：collectCache 以 `{cwd, scopes, revision}` 为键、上限 128（`:18`、`:395-401`）；`invalidate()` 直接 `revision += 1` + 清缓存（`:153-156`、`:376-380`），无防抖。→ **`invalidate()` 是库存文件变动后唯一能生效的路径。**
+- **没有技能数量上限**：唯一的截断是 catalog 注入时的 `catalogDescriptionMaxLength = 500`（`dsh-tool-skill:768`、截断在 `:1087-1090`），且 catalog 每次 digest 变化都**全量重发**（`:946-963`）。→ 每个激活技能的 description 都是持续成本，`MAX_ACTIVE = 50` 是我们自己的闸门而非 host 约束；中文 `intro` 要压在 500 字内，否则被截成 `...`。
+- **工具注册只强校验两件事**（`dsh-tools:2974-2983`）：`output.render` 是函数、`output.schema` 在受支持的 JSON Schema 子集内。`parameters` 不校验但必须留在子集里，否则模型侧签名类型退化成 `unknown`（`:1768-1774`）。`execute` 的返回值按 `output.schema` 校验后，`render` 必须给出无损投影（`:3637-3648`）。
+
+**据此做的加固（`lib/provider.js`）**：slug 一律过 `toSkillName()` 收敛成 kebab（`Bad_Slug`→`bad-slug`、`x y`→`x-y`）；收敛不出或 `description` 为空直接丢；归一后重名只留第一条；`list()` 整体 try、**绝不抛**；`get()` 原样返回 `candidate.name` 并保留 `resourceBase`。`tests/smoke.mjs` 里照抄了 host 两个校验器逐条断言，并用一份畸形目录（大写+下划线+空格+空 description+归一撞名）验证坏数据拖不垮目录。
 
 ## 13. 装进 profile 的实测（2026-10-19）
 

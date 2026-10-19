@@ -85,6 +85,35 @@ assert.ok(got, 'get should resolve the candidate');
 assert.equal(got.content, '# Body\nfixture body text\n');
 assert.ok(!got.content.includes('description: test fixture'), 'frontmatter must be stripped');
 
+// ---- 照抄 host 的校验器（dsh-skill/lib/index.js:452-464 / :471-490），确认候选真能过 ----
+const SKILL_NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+function hostValidateCandidate(c) {
+  assert.equal(typeof c.name, 'string');
+  assert.ok(SKILL_NAME.test(c.name), `host would throw: invalid name "${c.name}"`);
+  assert.equal(typeof c.description, 'string');
+  assert.ok(c.description.length > 0, 'host would throw: empty description');
+  assert.equal(typeof c.invocation, 'object');
+  assert.equal(typeof c.invocation.modelInvocable, 'boolean');
+  assert.equal(typeof c.invocation.userInvocable, 'boolean');
+  assert.equal(typeof c.source, 'string');
+  assert.equal(typeof c.rank, 'number');
+  assert.ok(Number.isFinite(c.rank), 'host would throw: non-finite rank');
+  assert.equal(c.provider, 'dsh-skills-center', 'host would throw: provider name mismatch');
+  assert.ok(c.path === undefined || typeof c.path === 'string');
+}
+function hostValidateDefinition(d) {
+  assert.ok(SKILL_NAME.test(d.name));
+  assert.ok(typeof d.description === 'string' && d.description.length > 0);
+  assert.equal(typeof d.source, 'string');
+  assert.equal(typeof d.provider, 'string');
+  assert.equal(typeof d.content, 'string');
+}
+hostValidateCandidate(candidate);
+hostValidateDefinition(got);
+assert.equal(got.name, candidate.name, 'host compares names and silently un-serves on mismatch (dsh-skill:259-262)');
+assert.deepEqual(got.resourceBase, candidate.resourceBase, 'resourceBase drives relative-path hints');
+assert.ok(candidate.rank > 600, 'our rank must sit below every native root (bundled=600) so we never shadow them');
+
 // ---- 上限：满 50 之后拒绝 ----
 for (let i = 0; i < MAX_ACTIVE + 5; i += 1) {
   await setActive(`synthetic/overflow-${i}`, true);
@@ -171,6 +200,36 @@ assert.equal(apiCard.body.id, skill.id);
 const api404 = await callApi('/api/dsh-skills-center/nope');
 assert.equal(api404.code, 404);
 assert.equal(api404.body.error, 'not_found');
+
+// ---- 恶意/畸形目录：host 的 validateCandidate 会 throw，且不在 list 的 try 里，
+// 一个坏候选能让所有 provider 的目录当场消失。我们的 list 必须自己滤掉。 ----
+const hostile = [
+  { id: 'a/good-one', slug: 'good-one', source: 'a', description_en: 'fine', zh: { intro: '好的那条' } },
+  { id: 'a/Bad_Slug', slug: 'Bad_Slug', source: 'a', description_en: 'uppercase + underscore' },
+  { id: 'a/no-desc', slug: 'no-desc', source: 'a', description_en: '', zh: {} },
+  { id: 'b/dup', slug: 'dup', source: 'b', description_en: 'first dup' },
+  { id: 'b/DUP', slug: 'DUP', source: 'b', description_en: 'second dup, same normalized name' },
+  { id: 'c/../escape', slug: 'x y', source: 'c', description_en: 'spaces normalize to dashes' },
+];
+const catDir = join(home, 'skills-center', 'catalog');
+await mkdir(catDir, { recursive: true });
+await writeFile(
+  join(catDir, 'catalog.json'),
+  JSON.stringify({ version: 'hostile-test', count: hostile.length, skills: hostile }),
+  'utf8',
+);
+for (const s of hostile) {
+  const dir = join(home, 'skills-center', 'library', s.source, s.slug);
+  await mkdir(dir, { recursive: true });
+  await writeFile(join(dir, 'SKILL.md'), `---\nname: ${s.slug}\n---\n\nbody for ${s.slug}\n`, 'utf8');
+}
+const hostileProvider = captured.providerFactory({ invalidate() {}, signal: undefined });
+await writeFile(join(home, 'skills-center', 'activation.json'), JSON.stringify({ version: 1, active: hostile.map((s) => s.id) }), 'utf8');
+const hostileList = await hostileProvider.list(); // 绝不抛
+for (const c of hostileList) hostValidateCandidate(c);
+const names = hostileList.map((c) => c.name).sort();
+assert.deepEqual(names, ['bad-slug', 'dup', 'good-one', 'x-y'], `unexpected candidates: ${names}`);
+assert.equal(hostileList.find((c) => c.name === 'dup').description, 'first dup', 'normalized duplicate keeps the first');
 
 await rm(home, { recursive: true, force: true });
 console.log('smoke ok — catalog', cat.count, '| top:', list[0].name, '| tools:', [...captured.tools.keys()].join(','));
