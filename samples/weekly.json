@@ -1,0 +1,264 @@
+{
+  "mattpocock/skills/grill-me": {
+    "series": [
+      65310,
+      62524,
+      57027,
+      53625,
+      48139,
+      48386,
+      58939,
+      52386
+    ],
+    "trend_pct": -12.8,
+    "previous_trend_pct": 19.3
+  },
+  "vercel-labs/agent-browser/agent-browser": {
+    "series": [
+      38762,
+      42495,
+      45207,
+      49337,
+      64121,
+      70642,
+      67389,
+      75461
+    ],
+    "trend_pct": 57.9,
+    "previous_trend_pct": -4.4
+  },
+  "anthropics/skills/frontend-design": {
+    "series": [
+      26207,
+      24029,
+      22329,
+      22390,
+      23150,
+      24769,
+      25306,
+      27828
+    ],
+    "trend_pct": 6.4,
+    "previous_trend_pct": 105.1
+  },
+  "heygen-com/hyperframes/hyperframes-animation": {
+    "series": [
+      32801,
+      26843,
+      41855,
+      78223,
+      67130,
+      91534,
+      144874,
+      148755
+    ],
+    "trend_pct": 151.7,
+    "previous_trend_pct": -5.4
+  },
+  "designed-by-ai/skills/design-mobile-apps": {
+    "series": [
+      0,
+      53047,
+      140172,
+      138476,
+      141029,
+      142502,
+      140054,
+      140289
+    ],
+    "trend_pct": 70,
+    "previous_trend_pct": 22.6
+  },
+  "vercel-labs/agent-skills/vercel-react-best-practices": {
+    "series": [
+      19977,
+      16627,
+      16436,
+      19251,
+      18945,
+      21814,
+      22366,
+      25064
+    ],
+    "trend_pct": 22,
+    "previous_trend_pct": -3.6
+  },
+  "101-skills/superpowers/ai-video-generation": {
+    "series": [
+      0,
+      13241,
+      64317,
+      213120,
+      240489,
+      130740,
+      72792,
+      67895
+    ],
+    "trend_pct": 76.1,
+    "previous_trend_pct": 209.6
+  },
+  "open.feishu.cn/lark-drive": {
+    "series": [],
+    "trend_pct": null,
+    "previous_trend_pct": null
+  },
+  "magentosh/superpowers/ai-video-generation": {
+    "series": [
+      2975,
+      8521,
+      15414,
+      51727,
+      67328,
+      122372,
+      176297,
+      201265
+    ],
+    "trend_pct": 621.4,
+    "previous_trend_pct": -32.6
+  },
+  "uizze.sh/ui-taste": {
+    "series": [],
+    "trend_pct": null,
+    "previous_trend_pct": null
+  },
+  "leonxlnx/taste-skill/design-taste-frontend": {
+    "series": [
+      30536,
+      26670,
+      24448,
+      24767,
+      28341,
+      33886,
+      32748,
+      41181
+    ],
+    "trend_pct": 27.9,
+    "previous_trend_pct": -9.3
+  },
+  "microsoft/azure-skills/azure-compliance": {
+    "series": [
+      12039,
+      10783,
+      11567,
+      11146,
+      12391,
+      12251,
+      11647,
+      9132
+    ],
+    "trend_pct": -0.3,
+    "previous_trend_pct": -7.2
+  },
+  "qu-skills/superpowers/ai-video-generation": {
+    "series": [
+      0,
+      6040,
+      30726,
+      102710,
+      134169,
+      77717,
+      66995,
+      66997
+    ],
+    "trend_pct": 148,
+    "previous_trend_pct": 74.6
+  },
+  "larksuite/cli/lark-drive": {
+    "series": [
+      7739,
+      7743,
+      6907,
+      6875,
+      6551,
+      3385,
+      4147,
+      5478
+    ],
+    "trend_pct": -33.2,
+    "previous_trend_pct": -52
+  },
+  "supabase/agent-skills/supabase-postgres-best-practices": {
+    "series": [
+      13199,
+      10577,
+      10251,
+      10215,
+      10470,
+      10506,
+      10801,
+      9704
+    ],
+    "trend_pct": -6.2,
+    "previous_trend_pct": 96.1
+  },
+  "nextlevelbuilder/ui-ux-pro-max-skill/ui-ux-pro-max": {
+    "series": [
+      9438,
+      9759,
+      8609,
+      8407,
+      9100,
+      9858,
+      10371,
+      11203
+    ],
+    "trend_pct": 11.9,
+    "previous_trend_pct": -30.1
+  },
+  "prisma/skills/prisma-postgres": {
+    "series": [
+      20789,
+      16592,
+      17433,
+      17139,
+      17448,
+      16797,
+      18642,
+      16779
+    ],
+    "trend_pct": -3.2,
+    "previous_trend_pct": 35.1
+  },
+  "skills-shell/superpowers/ai-video-generation": {
+    "series": [
+      0,
+      5412,
+      15657,
+      51506,
+      66911,
+      67301,
+      67104,
+      67191
+    ],
+    "trend_pct": 270,
+    "previous_trend_pct": -5.7
+  },
+  "its-a-skill-issue/superpowers/ai-video-generation": {
+    "series": [
+      0,
+      0,
+      14822,
+      51660,
+      66937,
+      66373,
+      67413,
+      67116
+    ],
+    "trend_pct": 302.9,
+    "previous_trend_pct": 26.4
+  },
+  "bankai-skills/superpowers/ai-video-generation": {
+    "series": [
+      0,
+      0,
+      0,
+      50586,
+      67420,
+      67384,
+      67184,
+      67074
+    ],
+    "trend_pct": 431.9,
+    "previous_trend_pct": 54
+  }
+}

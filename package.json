@@ -26,6 +26,7 @@
   },
   "scripts": {
     "check": "node --input-type=module -e \"import('./lib/index.js').then(m => console.log('exports:', Object.keys(m).sort().join(', ')))\"",
-    "test": "node tests/smoke.mjs"
+    "test": "node tests/smoke.mjs && node collector/pipeline.test.mjs && node collector/fetch.test.mjs",
+    "collect": "node collector/run.mjs"
   }
 }
