@@ -175,7 +175,7 @@ export function apply(ctx, config) { /* … */ }
 ## 10. 里程碑
 
 - **M0 目录**：Vercel 采集函数 + `catalog.json` 分片，能拉全量 8420 条（含趋势/去重/打分）
-- **M1 中文层**：分层 1500 条批量生成中文卡片，落 `zh/`，本地样例已可用
+- **M1 中文层**：**只精做 installs top 300**（用户 2026-10-19 定），其余条目留英文 description 占位、点开时再补；这样成本可控且头部质量高
 - **M2 插件**：3 个工具 + provider 激活 + GUI 榜单页
 - **M3 召回**：钩子注入与 50 上限策略，实测"任务开始自动命中"
 
@@ -184,7 +184,6 @@ M1 依赖 M0 的 hash，M2 可先在本地样例数据上开发（`samples/diges
 ## 11. 未决
 
 1. 采集挂 Vercel Cron 还是 GitHub Action——用户有 Vercel 账号，倾向 Vercel（能顺带托管 `catalog.json` 供插件 CDN 拉取）。
-2. 中文生成成本：1500 条 × 平均 8k 字正文，需分批与限流；是否用便宜模型先跑、只对 top 200 用强模型精修。
 
 ## 12. 已验证的插件契约（M2 开工前）
 
@@ -204,5 +203,25 @@ ctx.skills.registerProvider((control) => ({ name, list(options), get(candidate, 
 因此 M0 骨架可直接在本机跑通：`lib/provider.js` 的 `createProvider()` 同步返回工厂，`list/get` 内部异步读 `library/`，未激活或库存无正文的技能不对外声称可用。
 
 **`rank` 的方向性**（`lib/core.js:2748` 佐证）：`overlayRank = Math.min(...) - 1`——越小的 rank 越优先，用来"覆盖"别的来源；skills-manager 自己的技能根占 100~450。故本插件用 `DEFAULT_RANK = 500`：激活的技能默认**不会**盖住用户自己手写/已装的同名技能，想让它优先可用 `config.rank` 调低。
+
+## 13. 装进 profile 的实测（2026-10-19）
+
+`dsh plugin --profile desktop add D:\dsh-skills-center` **会失败**，且与本源无关：
+
+```
+[ERR_PNPM_NO_MATCHING_VERSION] No matching version found for @dsh-ops/bash-win32-x64@0.2.1
+... This error happened while installing the dependencies of dsh-ops@0.3.0
+```
+
+即 desktop profile 里既有的 `dsh-ops@0.3.0` 依赖一个在 npmmirror 上不存在的可选平台包（镜像上只有 `0.0.0-stage`）。任何 `pnpm add` 都会重解析整棵依赖树，因此撞上它。`--dump-config` 也拒绝了 desktop（`error: profile "desktop" is managed exclusively by the Electron application`）。
+
+**绕开办法（已验证，三步，无需 pnpm）**：
+
+1. `~/.dsh/profiles/desktop/package.json` 的 `dependencies` 加 `"dsh-skills-center": "link:D:/dsh-skills-center"`，并把 `"dsh-skills-center"` 追加到 `dsh.profile.bundles`；
+2. 在 `~/.dsh/profiles/desktop/node_modules/` 里建 junction 指向仓库：`fs.symlinkSync('D:\\dsh-skills-center', link, 'junction')`（bash 里调 `mklink /J` 因引号转义会失败，用 node 建）；
+3. 重启 GUI。
+
+**已验证的事实**（在临时 `scratch` profile 上做完整链路，做完即删）：`--dump-config` 里出现 `# == dsh-skills-center` / `- id: skills-center / name: dsh-skills-center`；真的 boot 起来后 `GET /api/dsh-skills-center/status` 返回 `{"version":"sample-2026-10-19","count":12,...,"catalogFile":"D:\\dsh-skills-center\\data\\catalog.json"}`，说明插件在真实 DSH 进程里 apply 成功、catalog 读的是仓库内数据；写入 `activation.json` 后同一接口的 `active` 立即反映 → 状态是文件驱动的实时读，不需要重启。
+
 
 
