@@ -203,3 +203,6 @@ ctx.skills.registerProvider((control) => ({ name, list(options), get(candidate, 
 
 因此 M0 骨架可直接在本机跑通：`lib/provider.js` 的 `createProvider()` 同步返回工厂，`list/get` 内部异步读 `library/`，未激活或库存无正文的技能不对外声称可用。
 
+**`rank` 的方向性**（`lib/core.js:2748` 佐证）：`overlayRank = Math.min(...) - 1`——越小的 rank 越优先，用来"覆盖"别的来源；skills-manager 自己的技能根占 100~450。故本插件用 `DEFAULT_RANK = 500`：激活的技能默认**不会**盖住用户自己手写/已装的同名技能，想让它优先可用 `config.rank` 调低。
+
+
