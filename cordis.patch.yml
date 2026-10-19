@@ -1,0 +1,7 @@
+# dsh-skills-center bundle patch
+#
+# 由 `dsh plugin --profile <name> add <路径或包名>` 自动挂载；
+# 手动挂载时在 profiles/<name>/cordis.patch.yml 里自行追加同样的 insert 条目。
+- insert:
+    - id: skills-center
+      name: 'dsh-skills-center'

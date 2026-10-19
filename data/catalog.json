@@ -1,0 +1,370 @@
+{
+  "version": "sample-2026-10-19",
+  "count": 12,
+  "skills": [
+    {
+      "id": "mattpocock/skills/grill-me",
+      "slug": "grill-me",
+      "name": "grill-me",
+      "name_zh": "挑剔面试官",
+      "source": "mattpocock/skills",
+      "source_kind": "github",
+      "official": false,
+      "installs": 1385556,
+      "trend_pct": 19.3,
+      "description_en": "A relentless interview to sharpen a plan or design.",
+      "skill_md_path": "skills/productivity/grill-me/SKILL.md",
+      "body_chars": 39,
+      "file_count": 2,
+      "flags": [
+        "pointer",
+        "thin_body"
+      ],
+      "zh": {
+        "intro": "让模型反过来质问你，把方案里没想清楚的地方问出来。但正文只有 39 个字符：`Call the Skill tool with \"grilling\".` 真正的面试流程在同仓库的 `grilling` 技能里，这个只是转发壳。",
+        "usage": "方案或设计文档定稿前自检；评审前预演被挑刺；判断一份计划是不是看着完整其实空心。",
+        "notes": "单独装它等于装了个空壳，必须同时装 `grilling`，否则调用后没有任何内容。"
+      },
+      "score": {
+        "S": 0.5804,
+        "H": 1.0,
+        "T": 0.2772,
+        "C": 0.0,
+        "A": 0.5
+      }
+    },
+    {
+      "id": "vercel-labs/agent-browser/agent-browser",
+      "slug": "agent-browser",
+      "name": "agent-browser",
+      "name_zh": "浏览器自动化",
+      "source": "vercel-labs/agent-browser",
+      "source_kind": "github",
+      "official": true,
+      "installs": 1093187,
+      "trend_pct": -4.4,
+      "description_en": "Browser automation CLI for AI agents. Use when the user needs to interact with websites, including navigating pages, filling forms, clicking buttons, taking screenshots, extracting data, testing web apps, or automating any browser task. Triggers include requests to \\",
+      "skill_md_path": "skills/agent-browser/SKILL.md",
+      "body_chars": 2412,
+      "file_count": 1,
+      "flags": [
+        "needs_external_cli",
+        "pointer"
+      ],
+      "zh": {
+        "intro": "Vercel 的浏览器自动化 CLI 配套技能。CDP 驱 Chrome，用无障碍树快照加 `@eN` 元素引用来定位和点击，比截图配坐标那套稳。",
+        "usage": "打开网页、填表、点按钮、截图、抓页面数据、测 web 应用、登录站点、端到端探索测试。",
+        "notes": "主 `SKILL.md` 是发现桩，原文写明 `This file is a discovery stub, not the usage guide.`。真文档要从 CLI 取：\n```\nnpm i -g agent-browser && agent-browser install\nagent-browser skills get core      # 加 --full 取完整命令参考\n```\n好处是文档永远跟装的版本对齐，坏处是 CLI 没装好时这个技能是空的。"
+      },
+      "score": {
+        "S": 0.6819,
+        "H": 0.8231,
+        "T": 0.1824,
+        "C": 1.0,
+        "A": 0.5
+      }
+    },
+    {
+      "id": "anthropics/skills/frontend-design",
+      "slug": "frontend-design",
+      "name": "frontend-design",
+      "name_zh": "前卫视觉设计",
+      "source": "anthropics/skills",
+      "source_kind": "github",
+      "official": true,
+      "installs": 1003686,
+      "trend_pct": 105.1,
+      "description_en": "Guidance for distinctive, intentional visual design when building new UI or reshaping an existing one. Helps with aesthetic direction, typography, and making choices that don't read as templated defaults.",
+      "skill_md_path": "skills/frontend-design/SKILL.md",
+      "body_chars": 9077,
+      "file_count": 2,
+      "flags": [],
+      "zh": {
+        "intro": "Anthropic 官方写来做视觉方向的技能，9077 字。核心要求是别让界面看起来像模板：先答清楚产品是什么、配色凭什么这么选，才准动代码；中间有自我批判环节，对着 brief 找自己在哪里回避了取舍。",
+        "usage": "从零做界面；改造已有 UI 的审美方向；嫌生成结果\"能用但很平庸\"。",
+        "notes": "只给方法论不给代码，落地靠自己。不写前端的人装了用不上。"
+      },
+      "score": {
+        "S": 0.7408,
+        "H": 0.7593,
+        "T": 0.6204,
+        "C": 1.0,
+        "A": 0.5
+      }
+    },
+    {
+      "id": "heygen-com/hyperframes/hyperframes-animation",
+      "slug": "hyperframes-animation",
+      "name": "hyperframes-animation",
+      "name_zh": "HyperFrames 动效库",
+      "source": "heygen-com/hyperframes",
+      "source_kind": "github",
+      "official": true,
+      "installs": 943724,
+      "trend_pct": -5.4,
+      "description_en": "Discover and install skills for AI agents.",
+      "skill_md_path": "skills/hyperframes-animation/SKILL.md",
+      "body_chars": 19690,
+      "file_count": 15,
+      "flags": [
+        "has_references"
+      ],
+      "zh": {
+        "intro": "HyperFrames 的动效知识总库，19.7k 字主文件加 122 个附属文件：原子运动规则、多阶段场景蓝图、转场、7 种运行时适配器（GSAP 默认，另有 Lottie、Three.js、Anime.js、CSS keyframes、WAAPI、TypeGPU）。",
+        "usage": "挑几条原子规则组合、加载场景蓝图、查具体运行时 API、审计已有编排的动画地图。",
+        "notes": "强绑定 HyperFrames 产品，正文里还引用 `../hyperframes/` 的插件安装规则。不在这个项目里时，只有运动规则那层可复用，蓝图和脚本没有意义。"
+      },
+      "score": {
+        "S": 0.6317,
+        "H": 0.7133,
+        "T": 0.1784,
+        "C": 1.0,
+        "A": 0.5
+      }
+    },
+    {
+      "id": "designed-by-ai/skills/design-mobile-apps",
+      "slug": "design-mobile-apps",
+      "name": "design-mobile-apps",
+      "name_zh": "移动端界面设计",
+      "source": "designed-by-ai/skills",
+      "source_kind": "github",
+      "official": true,
+      "installs": 897218,
+      "trend_pct": 22.6,
+      "description_en": "Design mobile app screens with Sleek, edit Sleek projects, and implement their designs in React Native or HTML.",
+      "skill_md_path": "skills/design-mobile-apps/SKILL.md",
+      "body_chars": 8273,
+      "file_count": 7,
+      "flags": [
+        "needs_api_key"
+      ],
+      "zh": {
+        "intro": "接 sleek.design 的 REST API 出移动端界面稿，再落成 React Native 或 HTML。8.3k 字基本都是端点用法：建项目、按 brief 生成屏幕、取 HTML 与渲染图、全部端点速查、错误形状。",
+        "usage": "快速出移动端方案；改已有 Sleek 项目；把设计稿落成 RN / HTML。",
+        "notes": "要 Sleek 的付费 API Key（`Authorization: Bearer $SLEEK_API_KEY`），只有设备启动和轮询是公开端点。没 key 整个技能不可用。"
+      },
+      "score": {
+        "S": 0.6371,
+        "H": 0.6756,
+        "T": 0.2904,
+        "C": 1.0,
+        "A": 0.5
+      }
+    },
+    {
+      "id": "vercel-labs/agent-skills/vercel-react-best-practices",
+      "slug": "vercel-react-best-practices",
+      "name": "vercel-react-best-practices",
+      "name_zh": "React 性能规则库",
+      "source": "vercel-labs/agent-skills",
+      "source_kind": "github",
+      "official": true,
+      "installs": 814685,
+      "trend_pct": -3.6,
+      "description_en": "React and Next.js performance optimization guidelines from Vercel Engineering. This skill should be used when writing, reviewing, or refactoring React/Next.js code to ensure optimal performance patterns. Triggers on tasks involving React components, Next.js pages, data fetching, bundle optimization, or performance improvements.",
+      "skill_md_path": "skills/react-best-practices/SKILL.md",
+      "body_chars": 6808,
+      "file_count": 15,
+      "flags": [
+        "has_references"
+      ],
+      "zh": {
+        "intro": "Vercel 官方的 70 条性能规则，按影响面分 8 个优先级：消除请求瀑布和包体积是 CRITICAL，往下是服务端性能、客户端取数、重渲染。主文件 6.8k 字，76 个附属文件放分类细则。",
+        "usage": "写新组件或页面；实现数据获取；查请求瀑布、包体积、重渲染；接到\"优化一下性能\"这类任务。",
+        "notes": "纯文档不联网。规则写在 RSC / App Router 语境里，纯客户端老项目有些条目用不上。"
+      },
+      "score": {
+        "S": 0.5837,
+        "H": 0.6035,
+        "T": 0.1856,
+        "C": 1.0,
+        "A": 0.5
+      }
+    },
+    {
+      "id": "101-skills/superpowers/ai-video-generation",
+      "slug": "ai-video-generation",
+      "name": "ai-video-generation",
+      "name_zh": "AI 视频生成",
+      "source": "101-skills/superpowers",
+      "source_kind": "github",
+      "official": false,
+      "installs": 801414,
+      "trend_pct": 209.6,
+      "description_en": "Discover and install skills for AI agents.",
+      "skill_md_path": "tools/video/ai-video-generation/SKILL.md",
+      "body_chars": 6569,
+      "file_count": 1,
+      "flags": [
+        "needs_external_cli"
+      ],
+      "zh": {
+        "intro": "通过 inference.sh 的 `belt` CLI 调 40 多个视频模型：Veo 3.1、Seedance 2.0、Wan 2.5、Grok Imagine、OmniHuman 等，覆盖文生视频、图生视频、参考图生视频、视频编辑、对口型、数字人、超分、拟音。6.6k 字单文件，给的是各模型 app id 和最小可用命令。",
+        "usage": "社媒视频、营销素材、讲解片、产品演示、数字人。",
+        "notes": "要 `belt` CLI 并 `belt login`（付费网关），正文顶部还要求再装 `belt-sh/cli` 技能。另外同一份内容至少 6 个 owner 在发（101-skills 80 万、magentosh 64 万、qu-skills 48 万…整族约 300 万），装之前先确认是不是同一个东西。"
+      },
+      "score": {
+        "S": 0.5411,
+        "H": 0.5913,
+        "T": 1.0,
+        "C": 0.0,
+        "A": 0.5
+      }
+    },
+    {
+      "id": "leonxlnx/taste-skill/design-taste-frontend",
+      "slug": "design-taste-frontend",
+      "name": "design-taste-frontend",
+      "name_zh": "tasteskill v2",
+      "source": "leonxlnx/taste-skill",
+      "source_kind": "github",
+      "official": false,
+      "installs": 634387,
+      "trend_pct": -9.3,
+      "description_en": "design-taste-frontend — an installable skill for AI agents.",
+      "skill_md_path": "skills/taste-skill/SKILL.md",
+      "body_chars": 37400,
+      "file_count": 15,
+      "flags": [
+        "has_references"
+      ],
+      "zh": {
+        "intro": "37.4k 字，讲怎么让页面别长成\"模型见过所有页面的平均值\"。做法是让 `scripts/draw.mjs` 从 20 个调研过的方向里抽 3 个，你选一个承载主题的，再抽配套字体组合；正文是九步流程加门禁。",
+        "usage": "做落地页或应用界面但不想再看到\"居中大标题 + 三行副标 + 一排图标卡 + 淡渐变\"；需要字体和版式上的明确取舍。",
+        "notes": "要 Node 跑 `scripts/draw.mjs`。frontmatter 的 description 是空 YAML 块，任何按描述检索的工具都捞不到它，只能靠正文识别。"
+      },
+      "score": {
+        "S": 0.2951,
+        "H": 0.4168,
+        "T": 0.1628,
+        "C": 0.0,
+        "A": 0.5
+      }
+    },
+    {
+      "id": "microsoft/azure-skills/azure-compliance",
+      "slug": "azure-compliance",
+      "name": "azure-compliance",
+      "name_zh": "Azure 合规审计",
+      "source": "microsoft/azure-skills",
+      "source_kind": "github",
+      "official": true,
+      "installs": 558194,
+      "trend_pct": -7.2,
+      "description_en": "Run Azure compliance and security audits with azqr plus Key Vault expiration checks. Covers best-practice assessment, resource review, policy/compliance validation, and security posture checks. WHEN: compliance scan, security audit, BEFORE running azqr (compliance cli tool), Azure best practices, Key Vault expiration check, expired certificates, expiring secrets, orphaned resources, compliance assessment.",
+      "skill_md_path": "skills/azure-compliance/SKILL.md",
+      "body_chars": 3458,
+      "file_count": 15,
+      "flags": [
+        "has_references",
+        "needs_external_cli"
+      ],
+      "zh": {
+        "intro": "微软官方的 Azure 合规体检技能，两块能力：azqr 全面资源评估 + Key Vault 过期项监控。3.5k 字加 17 个 references，含评估工作流、优先级分级、错误处理、SDK 速查。",
+        "usage": "合规扫描、安全审计、跑 azqr 之前、查 Key Vault 证书和密钥过期、清僵尸资源。",
+        "notes": "要先 `az login`，且账号有读资源配置和 Key Vault 元数据的权限。依赖 MCP 工具（azqr、订阅/资源组列举、Key Vault 项检查），缺一个流程就断。"
+      },
+      "score": {
+        "S": 0.4538,
+        "H": 0.3213,
+        "T": 0.1712,
+        "C": 1.0,
+        "A": 0.5
+      }
+    },
+    {
+      "id": "larksuite/cli/lark-drive",
+      "slug": "lark-drive",
+      "name": "lark-drive",
+      "name_zh": "飞书云空间",
+      "source": "larksuite/cli",
+      "source_kind": "github",
+      "official": true,
+      "installs": 467230,
+      "trend_pct": -52.0,
+      "description_en": "飞书云空间（云盘/云存储）：管理 Drive 文件和文件夹，包含上传/下载、创建文件夹、复制/移动/删除、查看元数据、查询权限设置、评论/权限/订阅、标题、版本、飞书文档密级标签（secure labels）和本地文件导入。用户需要整理云盘目录、处理云空间资源 URL/token、判断链接类型/真实 token/标题，或导入 Word/Markdown/Excel/CSV/PPTX/.base 为 docx/sheet/bitable/slides 时使用；doubao.com 云空间 URL/token 也按资源路径和 token 路由，不回退 WebFetch。不负责：文档内容编辑（走 lark-doc）、表格/Base 表内数据操作（走 lark-sheets/lark-base）、知识空间节点/成员管理（走 lark-wiki）、原生 Markdown 文件读写/patch/diff（走 lark-markdown）。",
+      "skill_md_path": "skills/lark-drive/SKILL.md",
+      "body_chars": 15783,
+      "file_count": 15,
+      "flags": [
+        "has_references",
+        "needs_external_cli"
+      ],
+      "zh": {
+        "intro": "飞书云盘的操作手册，靠 `lark-cli` 管文件和文件夹：上传下载、建目录、复制移动删除、元数据、权限评论订阅、版本、密级标签，也能把本地 Word/Markdown/Excel/CSV/PPTX 导成 docx/sheet/bitable/slides。15.8k 字加 61 个附属文件。",
+        "usage": "整理云盘目录；处理云空间 URL/token、判断链接类型和真实 token；批量导入文档。",
+        "notes": "开始前必须先读同仓库的 `../lark-shared/SKILL.md` 拿认证和权限处理，另需 `lark-cli` 与飞书应用凭证。正文有两条硬规则：导 bitable 必须走 `drive +import --type bitable`（别先切 `lark-base`）；复制在线文档必须走 `drive +copy`（别导出再导入）。"
+      },
+      "score": {
+        "S": 0.3598,
+        "H": 0.1885,
+        "T": 0.0,
+        "C": 1.0,
+        "A": 0.5
+      }
+    },
+    {
+      "id": "supabase/agent-skills/supabase-postgres-best-practices",
+      "slug": "supabase-postgres-best-practices",
+      "name": "supabase-postgres-best-practices",
+      "name_zh": "Postgres 最佳实践",
+      "source": "supabase/agent-skills",
+      "source_kind": "github",
+      "official": true,
+      "installs": 450297,
+      "trend_pct": 96.1,
+      "description_en": "Discover and install skills for AI agents.",
+      "skill_md_path": "skills/supabase-postgres-best-practices/SKILL.md",
+      "body_chars": 1768,
+      "file_count": 15,
+      "flags": [
+        "has_references"
+      ],
+      "zh": {
+        "intro": "Supabase 官方的 Postgres 规则集，8 类按影响面排序，覆盖建表选列类型、schema 设计、迁移、RLS 策略及其测试、索引、触发器、DB 函数、pg_cron/pgmq 队列、pgvector 语义检索、pg_restore 恢复。定位是跑在任何地方的 Postgres，不限于 Supabase 托管。1.8k 字加 15 个 references。",
+        "usage": "任何 Postgres 上动手之前都该先读：尤其写 RLS 策略、建索引、选列类型的时候。",
+        "notes": "纯文档。RLS 和 pgvector 部分对有自己 DBA 的团队偏细。"
+      },
+      "score": {
+        "S": 0.4643,
+        "H": 0.1609,
+        "T": 0.5844,
+        "C": 1.0,
+        "A": 0.5
+      }
+    },
+    {
+      "id": "prisma/skills/prisma-postgres",
+      "slug": "prisma-postgres",
+      "name": "prisma-postgres",
+      "name_zh": "废弃占位",
+      "source": "prisma/skills",
+      "source_kind": "github",
+      "official": true,
+      "installs": 362998,
+      "trend_pct": 35.1,
+      "description_en": "Deprecated compatibility name for prisma-postgres-setup. Use only when a user or existing integration explicitly invokes prisma-postgres; otherwise select prisma-postgres-setup.",
+      "skill_md_path": "prisma-postgres/SKILL.md",
+      "body_chars": 369,
+      "file_count": 1,
+      "flags": [
+        "deprecated",
+        "pointer",
+        "thin_body"
+      ],
+      "zh": {
+        "intro": "空的。正文 369 字，没有一条 setup 步骤，原文写着 `This compatibility entry contains no setup recipes.` 它只为兼容旧调用名存在，把请求转到 `prisma-postgres-setup`。",
+        "usage": "只有用户或既有集成显式点名 `prisma-postgres` 时才需要；其他情况直接选 `prisma-postgres-setup`。",
+        "notes": "别装。要装的是：\n```\nnpx skills add prisma/skills --skill prisma-postgres-setup\n```\n36 万安装、八周还涨 35%，说明安装量单个指标不能用来做推荐。"
+      },
+      "score": {
+        "S": 0.3431,
+        "H": 0.0,
+        "T": 0.3404,
+        "C": 1.0,
+        "A": 0.5
+      }
+    }
+  ]
+}

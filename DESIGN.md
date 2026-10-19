@@ -184,5 +184,22 @@ M1 依赖 M0 的 hash，M2 可先在本地样例数据上开发（`samples/diges
 ## 11. 未决
 
 1. 采集挂 Vercel Cron 还是 GitHub Action——用户有 Vercel 账号，倾向 Vercel（能顺带托管 `catalog.json` 供插件 CDN 拉取）。
-2. `ctx.skills.registerProvider` 的确切签名未验证（只从 skills-manager 见到 `registerProvider((control) => provider)` 形态），M2 第一步要实测；不通则退化为软链。
-3. 中文生成成本：1500 条 × 平均 8k 字正文，需分批与限流；是否用便宜模型先跑、只对 top 200 用强模型精修。
+2. 中文生成成本：1500 条 × 平均 8k 字正文，需分批与限流；是否用便宜模型先跑、只对 top 200 用强模型精修。
+
+## 12. 已验证的插件契约（M2 开工前）
+
+原"`registerProvider` 签名未验证"一项已由已安装的 `@michengai/dsh-skills-manager` 源码实证（它消费同一套 host API）：
+
+```js
+// ~/.dsh/profiles/desktop/node_modules/@michengai/dsh-skills-manager/lib/index.js:233 / :312
+ctx.skills.registerProvider((control) => ({ name, list(options), get(candidate, options) }))
+// control = { invalidate(), signal }；工厂同步返回 provider；registerProvider 返回 dispose
+```
+
+- candidate 形状（同包 `lib/core.js:2725 listProviderCandidates`）：`{ name, description, invocation:{modelInvocable,userInvocable}, provider, source, rank, locator, resourceBase:{kind:'directory',path}, path, metadata }`
+- get 返回 skill 形状（`lib/core.js:2785 getProviderSkill`）= candidate 字段 + `content`
+- 工具注册：`ctx.effect(() => ctx.tools.register({ name, description, parameters, output:{schema, render}, execute, presentCall }), label)`
+- **结论：provider 方案成立，不需要软链 `~/.agents/skills`。**
+
+因此 M0 骨架可直接在本机跑通：`lib/provider.js` 的 `createProvider()` 同步返回工厂，`list/get` 内部异步读 `library/`，未激活或库存无正文的技能不对外声称可用。
+
