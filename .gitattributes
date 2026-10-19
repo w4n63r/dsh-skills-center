@@ -1,0 +1,19 @@
+# Normalize line endings in the repo
+* text=auto
+
+# Scripts must keep LF even on Windows checkouts
+*.sh text eol=lf
+*.bash text eol=lf
+
+# Binary assets stay untouched
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.zip binary
+*.gz binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
