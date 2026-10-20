@@ -36,6 +36,7 @@ window.__ModuleLoader__.load({
       filterEnriched: '已抓正文',
       filterLabel: '筛选',
       moreCategories: '更多分类',
+      fewerCategories: '收起',
       categoryHint: '按技能实际功能自动分类（关键词规则，不是 skills.sh 官方字段）；一条技能可能属于多个分类。',
       searchResults: '搜索结果',
       prev: '上一页',
@@ -133,6 +134,7 @@ window.__ModuleLoader__.load({
       filterEnriched: 'Has body',
       filterLabel: 'Filter',
       moreCategories: 'More categories',
+      fewerCategories: 'Show less',
       categoryHint: 'Categories are inferred from what each skill does (keyword rules, not a skills.sh field). A skill can sit in several.',
       searchResults: 'Search results',
       prev: 'Prev',
@@ -234,16 +236,16 @@ color:var(--dsw-alias-label-secondary)}
 .dsc-search:focus-within{border-color:var(--dsw-alias-brand-primary)}
 .dsc-search input{flex:1;min-width:0;border:0;outline:none;background:transparent;color:var(--dsw-alias-label-primary);
 font:inherit;font-size:13.5px}
-.dsc-select,.dsc-btn{height:38px;padding:0 14px;border:1px solid var(--dsw-alias-border-l1);border-radius:9px;
+.dsc-btn{height:38px;padding:0 14px;border:1px solid var(--dsw-alias-border-l1);border-radius:9px;
 background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font:inherit;font-size:13.5px;
 cursor:pointer;white-space:nowrap;transition:border-color .12s,background .12s}
-.dsc-select:hover,.dsc-btn:hover{border-color:var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2)}
+.dsc-btn:hover{border-color:var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2)}
 .dsc-btn[disabled]{opacity:.5;cursor:default}
 .dsc-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:center}
 .dsc-chips-sub{margin-top:10px;gap:6px}
 .dsc-chip-label{color:var(--dsw-alias-label-secondary);font-size:12.5px;margin-right:2px}
 .dsc-chip-sm{height:26px;padding:0 11px;font-size:12.5px}
-.dsc-select-sm{height:30px;padding:0 10px;font-size:12.5px}
+.dsc-chip-ghost{border-style:dashed}
 .dsc-hint{margin-top:10px;color:var(--dsw-alias-label-secondary);font-size:12px;line-height:1.6}
 .dsc-chip{height:30px;padding:0 15px;border:1px solid var(--dsw-alias-border-l1);border-radius:999px;
 background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:13px;cursor:pointer;
@@ -297,8 +299,17 @@ font-variant-numeric:tabular-nums}
 .dsc-page[data-on="true"]{border-color:var(--dsw-alias-border-l2);color:var(--dsw-alias-label-primary);font-weight:600}
 .dsc-page[disabled]{opacity:.4;cursor:default}
 .dsc-page-info{display:flex;align-items:center;gap:8px;color:var(--dsw-alias-label-secondary);font-size:12.5px}
-.dsc-page-size{height:32px;padding:0 8px;border:1px solid var(--dsw-alias-border-l1);border-radius:8px;
-background:var(--dsw-alias-bg-layer-1);color:inherit;font:inherit;font-size:12.5px;cursor:pointer}
+.dsc-menu{position:relative}
+.dsc-menu-btn{display:inline-flex;align-items:center;gap:6px}
+.dsc-menu-btn-sm{height:32px;padding:0 11px;font-size:12.5px}
+.dsc-caret{font-size:10px;color:var(--dsw-alias-label-secondary);position:relative;top:-1px}
+.dsc-menu-list{position:absolute;z-index:30;top:calc(100% + 6px);right:0;min-width:100%;padding:6px;
+border:1px solid var(--dsw-alias-border-l1);border-radius:11px;background:var(--dsw-alias-bg-overlay);
+box-shadow:0 12px 30px rgba(15,17,21,.16);display:flex;flex-direction:column;gap:2px}
+.dsc-menu-item{padding:7px 12px;border:0;border-radius:7px;background:transparent;
+color:var(--dsw-alias-label-primary);font:inherit;font-size:13px;text-align:left;cursor:pointer;white-space:nowrap}
+.dsc-menu-item:hover{background:var(--dsw-alias-bg-layer-2)}
+.dsc-menu-item[data-on="true"]{background:var(--dsw-alias-bg-layer-2);font-weight:600}
 .dsc-empty{padding:34px 2px;color:var(--dsw-alias-label-secondary);font-size:13px}
 .dsc-overlay{position:fixed;inset:0;z-index:40;background:rgba(15,17,21,.42);display:flex;
 align-items:center;justify-content:center;padding:36px}
@@ -436,6 +447,72 @@ white-space:pre-wrap;word-break:break-all}
             section(t('helpSourceTitle'), t('helpSourceBody')),
           ),
         ),
+      );
+    }
+
+    /**
+     * 自绘下拉菜单。不用原生 <select>：那个展开层是操作系统的 UI，明暗主题、圆角、字号
+     * 都不受宿主 token 控制，和面板放一起像两个程序。
+     */
+    function Menu({ label, value, options, onChange, compact, title }) {
+      const [open, setOpen] = useState(false);
+      const box = useRef(null);
+
+      useEffect(() => {
+        if (!open) return undefined;
+        const onDown = (event) => {
+          if (box.current && !box.current.contains(event.target)) setOpen(false);
+        };
+        const onKey = (event) => {
+          if (event.key === 'Escape') setOpen(false);
+        };
+        document.addEventListener('pointerdown', onDown);
+        document.addEventListener('keydown', onKey);
+        return () => {
+          document.removeEventListener('pointerdown', onDown);
+          document.removeEventListener('keydown', onKey);
+        };
+      });
+
+      const current = options.find((option) => option.value === value);
+
+      return h(
+        'div',
+        { className: 'dsc-menu', ref: box },
+        h(
+          'button',
+          {
+            type: 'button',
+            className: compact ? 'dsc-btn dsc-menu-btn dsc-menu-btn-sm' : 'dsc-btn dsc-menu-btn',
+            onClick: () => setOpen(!open),
+            'aria-expanded': open ? 'true' : 'false',
+            title: title || label,
+          },
+          h('span', null, current ? current.label : label),
+          h('span', { className: 'dsc-caret' }, '▾'),
+        ),
+        open
+          ? h(
+              'div',
+              { className: 'dsc-menu-list' },
+              options.map((option) =>
+                h(
+                  'button',
+                  {
+                    key: option.value,
+                    type: 'button',
+                    className: 'dsc-menu-item',
+                    'data-on': option.value === value ? 'true' : 'false',
+                    onClick: () => {
+                      onChange(option.value);
+                      setOpen(false);
+                    },
+                  },
+                  option.label,
+                ),
+              ),
+            )
+          : null,
       );
     }
 
@@ -671,6 +748,7 @@ white-space:pre-wrap;word-break:break-all}
       const [dir, setDir] = useState('desc');
       const [filter, setFilter] = useState('');
       const [category, setCategory] = useState('');
+      const [showAllCategories, setShowAllCategories] = useState(false);
       const [page, setPage] = useState(1);
       const [pageSize, setPageSize] = useState(PAGE);
       const [detail, setDetail] = useState({ status: 'idle', id: '', skill: null, row: null });
@@ -831,19 +909,16 @@ white-space:pre-wrap;word-break:break-all}
                 },
               }),
             ),
-            h(
-              'select',
-              {
-                className: 'dsc-select',
-                value: sort,
-                onChange: (event) => {
-                  setSort(event.target.value);
-                  setPage(1);
-                },
-                title: t('sort'),
+            h(Menu, {
+              label: t('sort'),
+              title: t('sort'),
+              value: sort,
+              options: sorts.map(([value, label]) => ({ value, label })),
+              onChange: (next) => {
+                setSort(next);
+                setPage(1);
               },
-              sorts.map(([value, label]) => h('option', { key: value, value }, label)),
-            ),
+            }),
             h(
               'button',
               {
@@ -890,25 +965,40 @@ white-space:pre-wrap;word-break:break-all}
                 item.label,
               ),
             ),
+            // 不用原生下拉：那个弹出菜单是操作系统的样式，和面板完全不搭。
+            // 改成行内展开——点一下把剩余分类铺成同样的小胶囊，再点收起。
             restCategories.length
-              ? h(
-                  'select',
-                  {
-                    className: 'dsc-select dsc-select-sm',
-                    value: restCategories.some((c) => c.key === category) ? category : '',
-                    onChange: (event) => {
-                      setCategory(event.target.value);
-                      setPage(1);
+              ? [
+                  showAllCategories
+                    ? restCategories.map((item) =>
+                        h(
+                          'button',
+                          {
+                            key: item.key,
+                            type: 'button',
+                            className: 'dsc-chip dsc-chip-sm',
+                            'data-on': category === item.key ? 'true' : 'false',
+                            title: `${item.label} ${fmtInt(item.count)}`,
+                            onClick: () => {
+                              setCategory(category === item.key ? '' : item.key);
+                              setPage(1);
+                            },
+                          },
+                          item.label,
+                        ),
+                      )
+                    : null,
+                  h(
+                    'button',
+                    {
+                      key: 'toggle-categories',
+                      type: 'button',
+                      className: 'dsc-chip dsc-chip-sm dsc-chip-ghost',
+                      onClick: () => setShowAllCategories(!showAllCategories),
                     },
-                    title: t('moreCategories'),
-                  },
-                  [
-                    h('option', { key: 'none', value: '' }, `${t('moreCategories')}…`),
-                    ...restCategories.map((item) =>
-                      h('option', { key: item.key, value: item.key }, `${item.label}（${fmtInt(item.count)}）`),
-                    ),
-                  ],
-                )
+                    showAllCategories ? t('fewerCategories') : `${t('moreCategories')}（${restCategories.length}）`,
+                  ),
+                ]
               : null,
           ),
           h(
@@ -1009,18 +1099,17 @@ white-space:pre-wrap;word-break:break-all}
               'div',
               { className: 'dsc-page-info' },
               h('span', null, `${t('page')} ${currentPage} / ${totalPages}`),
-              h(
-                'select',
-                {
-                  className: 'dsc-page-size',
-                  value: String(pageSize),
-                  onChange: (event) => {
-                    setPageSize(Number(event.target.value));
-                    setPage(1);
-                  },
+              h(Menu, {
+                label: t('perPage'),
+                title: t('perPage'),
+                compact: true,
+                value: String(pageSize),
+                options: pageSizes.map((size) => ({ value: String(size), label: `${t('perPage')} ${size}` })),
+                onChange: (next) => {
+                  setPageSize(Number(next));
+                  setPage(1);
                 },
-                pageSizes.map((size) => h('option', { key: size, value: String(size) }, `${t('perPage')} ${size}`)),
-              ),
+              }),
               state.error ? h('span', null, t('failed') + state.error) : null,
             ),
           ),

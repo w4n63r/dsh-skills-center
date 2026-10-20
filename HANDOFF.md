@@ -304,6 +304,10 @@ f6e6c8c test: cover web api + honest activate when body missing
 - **工具侧**：`skill_search` 每行带上「分类 X/Y」，让 agent 按功能筛。
 - **测试**：新增 `tests/categories.test.mjs`（21 条归类断言 + 5 条词边界反例：latest≠test、docker≠doc、find-skills≠AI…）；
   smoke 增加分类菜单/过滤/计数稳定性断言；client 测试增加 chips 渲染与点击带参断言。`npm test` 现在是 7 套。
+- **原生下拉踩雷**：第一版把长尾分类放进 `<select>`，用户看到展开层直接说「不要使用这样的方式」——那是
+  操作系统画的菜单，与面板主题（token 控制的颜色/圆角/字号）完全两套。改法：`更多分类（N）` chips 行内展开；
+  排序与每页条数也从 `<select>` 换成自绘 `Menu`（按钮 + 绝对定位浮层 + 点外部/Esc 关闭，颜色走 token）。
+  现在 `client/client.js` 里**没有任何 `select` 元素**，测试里也钉了「分类行不许出现原生 select」。
 - **没做的事**：分类没有落进采集产物（`catalog.json` 里没有 `categories` 字段），是查询时按目录版本算的。
   好处是不用重采、随时可调词表；坏处是每次进程启动要重算一遍（已用启动预热遮掉）。
 

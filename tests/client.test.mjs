@@ -131,7 +131,7 @@ function expand(node) {
 const textOf = (tree) => JSON.stringify(expand(tree));
 
 const first = textOf(render());
-for (const expected of ['技能中心', '搜索技能名', '有中文卡', '官方精选', '有风险信号', '评分', '安装量']) {
+for (const expected of ['技能中心', '搜索技能名', '有中文卡', '官方精选', '有风险信号', '评分', '排序']) {
   assert.ok(first.includes(expected), `panel renders 「${expected}」`);
 }
 // 主题 token 必须走变量，不能写死颜色（否则明暗切换会留下死色块）。
@@ -159,7 +159,7 @@ const PAGE_FIXTURE = {
     { key: 'language', label: '语言与框架', count: 333 },
     { key: 'frontend', label: '前端与界面', count: 327 },
     { key: 'browser', label: '浏览器与自动化', count: 319 },
-    // 前 12 个之外的分类应该收进「更多分类」下拉
+    // 前 12 个之外的分类靠「更多分类」行内展开
     { key: 'testing', label: '测试与质量', count: 301 },
     { key: 'security', label: '安全与合规', count: 296 },
     { key: 'mobile', label: '移动端', count: 290 },
@@ -270,11 +270,86 @@ for (const expected of [
 assert.ok(loaded2.includes('dsc-up'), 'rising trend is coloured by class, not by inline colour');
 assert.ok(loaded2.includes('dsc-card'), 'cards are rendered, not table rows');
 
-// 分类菜单：全部（带总数）+ 前 12 个分类铺成 chips，长尾收进「更多分类」下拉
+// 分类菜单：全部（带总数）+ 前 12 个分类铺成 chips，长尾靠行内展开，不用原生下拉
 for (const expected of ['全部 7,572', 'AI 与模型', '部署与运维', '设计与图像', '更多分类']) {
   assert.ok(loaded2.includes(expected), `category chips show 「${expected}」`);
 }
 assert.ok(loaded2.includes('按技能实际功能自动分类'), 'chips carry a hint that categories are inferred');
+// 用户明确说过不要操作系统原生下拉：分类行里不许出现 <select>
+const hasNativeSelectInChips = (function scan(node) {
+  if (Array.isArray(node)) return node.some(scan);
+  if (!node || typeof node !== 'object') return false;
+  const classes = String(node.props?.className || '').split(/\s+/);
+  if (classes.includes('dsc-chips') && JSON.stringify(node).includes('"type":"select"')) return true;
+  const children = node.children || [];
+  return (Array.isArray(children) ? children : [children]).some(scan);
+})(expand(render()));
+assert.equal(hasNativeSelectInChips, false, 'the category row uses chips, never a native <select>');
+
+// 点「更多分类」把剩下的分类铺开；此时「移动端」才出现，按钮变成「收起」
+const findToggle = (node) => {
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      const hit = findToggle(child);
+      if (hit) return hit;
+    }
+    return null;
+  }
+  if (!node || typeof node !== 'object') return null;
+  const classes = String(node.props?.className || '').split(/\s+/);
+  if (classes.includes('dsc-chip-ghost')) return node;
+  const children = node.children || [];
+  for (const child of Array.isArray(children) ? children : [children]) {
+    const hit = findToggle(child);
+    if (hit) return hit;
+  }
+  return null;
+};
+const toggle = findToggle(expand(render()));
+assert.ok(toggle, 'the more-categories toggle is rendered');
+assert.ok(!textOf(render()).includes('移动端'), 'long-tail categories stay collapsed at first');
+toggle.props.onClick();
+const expanded = textOf(render());
+assert.ok(expanded.includes('移动端'), 'expanding reveals the long-tail categories');
+assert.ok(expanded.includes('收起'), 'the toggle turns into a collapse control');
+toggle.props.onClick(); // 收起，别影响后面的断言
+
+// 排序菜单也是自绘的：点开才渲染选项，点选之后菜单关闭
+const findMenuButton = (node) => {
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      const hit = findMenuButton(child);
+      if (hit) return hit;
+    }
+    return null;
+  }
+  if (!node || typeof node !== 'object') return null;
+  const classes = String(node.props?.className || '').split(/\s+/);
+  if (classes.includes('dsc-menu-btn')) return node;
+  const children = node.children || [];
+  for (const child of Array.isArray(children) ? children : [children]) {
+    const hit = findMenuButton(child);
+    if (hit) return hit;
+  }
+  return null;
+};
+const sortMenu = findMenuButton(expand(render()));
+assert.ok(sortMenu, 'sort control is a self-drawn menu button, not a native select');
+const countByClass = (node, cls, out = 0) => {
+  if (Array.isArray(node)) return node.reduce((sum, child) => countByClass(child, cls, sum), out);
+  if (!node || typeof node !== 'object') return out;
+  const classes = String(node.props?.className || '').split(/\s+/);
+  const next = classes.includes(cls) ? out + 1 : out;
+  const children = node.children || [];
+  return (Array.isArray(children) ? children : [children]).reduce(
+    (sum, child) => countByClass(child, cls, sum),
+    next,
+  );
+};
+assert.equal(countByClass(expand(render()), 'dsc-menu-item'), 0, 'menu options stay closed until clicked');
+sortMenu.props.onClick();
+assert.ok(countByClass(expand(render()), 'dsc-menu-item') > 0, 'opening the sort menu lists its options');
+assert.ok(textOf(render()).includes('安装量'), 'the opened menu shows every sort option');
 
 // 点分类 chip → 带上 category 参数重新取数，并回到第 1 页
 const categoryChip = (function find(node) {
