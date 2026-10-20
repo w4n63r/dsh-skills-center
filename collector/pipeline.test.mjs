@@ -33,6 +33,23 @@ assert.equal(dedupedForks[0].installs, 801414, 'canonical keeps its own installs
 assert.equal(dedupedForks[0].installs_merged, 2917414, 'merged total is display-only');
 assert.equal(dedupedForks[0].aliases.length, 5);
 
+// buildCatalog 的白名单会丢掉没写进去的字段：新增字段（星标、发布时间）必须在这里钉一下，
+// 否则采集端解析对了、产物里却永远是空的（踩过一次：first_seen 有、stars 没有）。
+{
+  const built = buildCatalog(
+    [
+      { id: 'a/b/with-stars', slug: 'with-stars', name: 'with-stars', source: 'a/b', installs: 100, stars: 182200, first_seen: '2026-01-19' },
+      { id: 'a/b/no-stars', slug: 'no-stars', name: 'no-stars', source: 'a/b', installs: 50 },
+    ],
+    { version: 'full-2026-10-20T00-00-00-000Z', generatedAt: '2026-10-20T00:00:00.000Z' },
+  );
+  const withStars = built.skills.find((s) => s.slug === 'with-stars');
+  const noStars = built.skills.find((s) => s.slug === 'no-stars');
+  assert.equal(withStars.stars, 182200, 'stars must survive buildCatalog');
+  assert.equal(withStars.first_seen, '2026-01-19');
+  assert.equal(noStars.stars, undefined, 'a missing star count must not become 0');
+}
+
 // hash 优先于 slug：不同 slug、同一份内容，也算同一个技能
 const sameContent = [
   normalizeRecord({ id: 'a/skills-alpha', slug: 'alpha', installs: 900, description: 'x', hash: 'abc123' }),

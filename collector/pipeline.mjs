@@ -197,6 +197,8 @@ export function buildCatalog(records, { version, generatedAt = null, zh = {} } =
       official: rec.official || undefined,
       curated: rec.curated || undefined,
       first_seen: rec.first_seen || undefined,
+      // 星标数是仓库级指标（技能页的 GitHub Stars），没抓过页面的条目没有 → 缺省不写
+      stars: Number.isFinite(rec.stars) ? rec.stars : undefined,
       audit: rec.audit || undefined,
       score,
       flags: flagsOf(rec),
