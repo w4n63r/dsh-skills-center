@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>技能中心 · 12 条</title>
+<style>
+:root{--fg:#1a1a1a;--dim:#6b6b6b;--line:#e4e4e4;--bg:#fafafa;--up:#1a7f37;--down:#b42318;--mark:#fff6d6}
+@media (prefers-color-scheme:dark){:root{--fg:#e8e8e8;--dim:#9a9a9a;--line:#333;--bg:#161616;--up:#4ade80;--down:#f87171;--mark:#3a3410}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif}
+header{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+h1{font-size:16px;margin:0;font-weight:600}
+.meta{color:var(--dim);font-size:12px}
+input{padding:6px 10px;border:1px solid var(--line);border-radius:6px;background:transparent;color:inherit;min-width:240px}
+main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,420px);gap:0}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{position:sticky;top:0;background:var(--bg);font-size:12px;color:var(--dim);font-weight:500;cursor:pointer;white-space:nowrap}
+td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.row{cursor:pointer}
+tr.row:hover{background:color-mix(in srgb,var(--fg) 5%,transparent)}
+tr.on{background:color-mix(in srgb,var(--fg) 9%,transparent)}
+.name{font-weight:600}
+.sub{color:var(--dim);font-size:12px}
+.up{color:var(--up)}.down{color:var(--down)}
+.flag{display:inline-block;border:1px solid var(--line);border-radius:4px;padding:0 4px;font-size:11px;color:var(--dim);margin-right:4px}
+aside{border-left:1px solid var(--line);padding:14px 18px;min-height:60vh;position:sticky;top:0;max-height:100vh;overflow:auto;white-space:pre-wrap}
+aside h2{font-size:14px;margin:0 0 8px}
+.empty{color:var(--dim);padding:24px}
+@media (max-width:860px){main{grid-template-columns:1fr}aside{border-left:0;border-top:1px solid var(--line);position:static;max-height:none}}
+</style></head>
+<body>
+<header>
+  <h1>技能中心</h1>
+  <span class="meta" id="meta"></span>
+  <input id="q" placeholder="筛技能名 / 简介 / 标记（直接打字）" autocomplete="off">
+</header>
+<main>
+  <div><table>
+    <thead><tr>
+      <th data-k="idx">#</th><th data-k="name">技能</th><th data-k="installs">安装数</th>
+      <th data-k="trend_pct">8 周</th><th data-k="S">S</th><th>判断 / 标记</th>
+    </tr></thead>
+    <tbody id="rows"></tbody>
+  </table></div>
+  <aside id="card"><div class="empty">点左边任意一行看完整卡片。</div></aside>
+</main>
+<script id="data" type="application/json">{"version":"sample-2026-10-19","count":12,"active":[],"maxActive":50,"rows":[{"id":"mattpocock/skills/grill-me","slug":"grill-me","name":"挑剔面试官","intro":"A relentless interview to sharpen a plan or design.","installs":1385556,"trend_pct":-12.8,"S":0.5548,"verdict":"装之前先看注意事项（转发壳）","flags":["pointer","thin_body"]},{"id":"vercel-labs/agent-browser/agent-browser","slug":"agent-browser","name":"浏览器自动化","intro":"Browser automation CLI for AI agents. Use when the user needs to interact with websites, including navigating pages, filling forms, clicking buttons, taking screenshots, extracting data, testing web apps, or automating any browser task. Triggers include requests to \\","installs":1093187,"trend_pct":57.9,"S":0.7317,"verdict":"官方维护","flags":["needs_external_cli","pointer"]},{"id":"anthropics/skills/frontend-design","slug":"frontend-design","name":"前卫视觉设计","intro":"Guidance for distinctive, intentional visual design when building new UI or reshaping an existing one. Helps with aesthetic direction, typography, and making choices that don't read as templated defaults.","installs":1003686,"trend_pct":6.4,"S":0.6618,"verdict":"官方维护","flags":[]},{"id":"heygen-com/hyperframes/hyperframes-animation","slug":"hyperframes-animation","name":"HyperFrames 动效库","intro":"Discover and install skills for AI agents.","installs":943724,"trend_pct":151.7,"S":0.7573,"verdict":"官方维护，八周翻倍","flags":["has_references"]},{"id":"designed-by-ai/skills/design-mobile-apps","slug":"design-mobile-apps","name":"移动端界面设计","intro":"Design mobile app screens with Sleek, edit Sleek projects, and implement their designs in React Native or HTML.","installs":897218,"trend_pct":70,"S":0.675,"verdict":"看情况（需要付费 key）","flags":["needs_api_key"]},{"id":"vercel-labs/agent-skills/vercel-react-best-practices","slug":"vercel-react-best-practices","name":"React 性能规则库","intro":"React and Next.js performance optimization guidelines from Vercel Engineering. This skill should be used when writing, reviewing, or refactoring React/Next.js code to ensure optimal performance patterns. Triggers on tasks involving React components, Next.js pages, data fetching, bundle optimization, or performance improvements.","installs":814685,"trend_pct":22,"S":0.6042,"verdict":"官方维护","flags":["has_references"]},{"id":"101-skills/superpowers/ai-video-generation","slug":"ai-video-generation","name":"AI 视频生成","intro":"Discover and install skills for AI agents.","installs":801414,"trend_pct":76.1,"S":0.442,"verdict":"可用","flags":["needs_external_cli"]},{"id":"leonxlnx/taste-skill/design-taste-frontend","slug":"design-taste-frontend","name":"tasteskill v2","intro":"design-taste-frontend — an installable skill for AI agents.","installs":634387,"trend_pct":27.9,"S":0.3249,"verdict":"可用","flags":["has_references"]},{"id":"microsoft/azure-skills/azure-compliance","slug":"azure-compliance","name":"Azure 合规审计","intro":"Run Azure compliance and security audits with azqr plus Key Vault expiration checks. Covers best-practice assessment, resource review, policy/compliance validation, and security posture checks. WHEN: compliance scan, security audit, BEFORE running azqr (compliance cli tool), Azure best practices, Key Vault expiration check, expired certificates, expiring secrets, orphaned resources, compliance assessment.","installs":558194,"trend_pct":-0.3,"S":0.4593,"verdict":"官方维护","flags":["has_references","needs_external_cli"]},{"id":"larksuite/cli/lark-drive","slug":"lark-drive","name":"飞书云空间","intro":"飞书云空间（云盘/云存储）：管理 Drive 文件和文件夹，包含上传/下载、创建文件夹、复制/移动/删除、查看元数据、查询权限设置、评论/权限/订阅、标题、版本、飞书文档密级标签（secure labels）和本地文件导入。用户需要整理云盘目录、处理云空间资源 URL/token、判断链接类型/真实 token/标题，或导入 Word/Markdown/Excel/CSV/PPTX/.base 为 docx/sheet/bitable/slides 时使用；doubao.com 云空间 URL/token 也按资源路径和 token 路由，不回退 WebFetch。不负责：文档内容编辑（走 lark-doc）、表格/Base 表内数据操作（走 lark-sheets/lark-base）、知识空间节点/成员管理（走 lark-wiki）、原生 Markdown 文件读写/patch/diff（走 lark-markdown）。","installs":467230,"trend_pct":-33.2,"S":0.3732,"verdict":"官方维护","flags":["has_references","needs_external_cli"]},{"id":"supabase/agent-skills/supabase-postgres-best-practices","slug":"supabase-postgres-best-practices","name":"Postgres 最佳实践","intro":"Discover and install skills for AI agents.","installs":450297,"trend_pct":-6.2,"S":0.3824,"verdict":"官方维护","flags":["has_references"]},{"id":"prisma/skills/prisma-postgres","slug":"prisma-postgres","name":"废弃占位","intro":"Deprecated compatibility name for prisma-postgres-setup. Use only when a user or existing integration explicitly invokes prisma-postgres; otherwise select prisma-postgres-setup.","installs":362998,"trend_pct":-3.2,"S":0.3124,"verdict":"别装（废弃占位）","flags":["deprecated","pointer","thin_body"]}]}</script>
+<script>
+const D = JSON.parse(document.getElementById('data').textContent);
+document.getElementById('meta').textContent =
+  D.count + ' 条 · 版本 ' + (D.version || '无') + ' · 已激活 ' + D.active.length + (D.maxActive ? '/' + D.maxActive : '');
+let sortKey = 'S', sortDir = -1, query = '';
+const body = document.getElementById('rows'), aside = document.getElementById('card');
+const fmt = (n) => n == null ? '—' : n.toLocaleString('en-US');
+const pct = (t) => t == null ? '<span class="sub">—</span>'
+  : '<span class="' + (t > 0 ? 'up' : t < 0 ? 'down' : 'sub') + '">' + (t > 0 ? '+' : '') + t + '%</span>';
+const raw = (t) => t == null ? -1e9 : t;
+
+function draw() {
+  const q = query.trim().toLowerCase();
+  let rows = D.rows.filter((r) => !q || (r.name + ' ' + r.slug + ' ' + r.intro + ' ' + r.verdict + ' ' + r.flags.join(' ')).toLowerCase().includes(q));
+  rows.sort((a, b) => {
+    if (sortKey === 'name') return sortDir * String(a.name).localeCompare(String(b.name), 'zh');
+    return sortDir * (raw(a[sortKey]) - raw(b[sortKey]));
+  });
+  body.innerHTML = '';
+  for (const [i, r] of rows.entries()) {
+    const tr = document.createElement('tr');
+    tr.className = 'row';
+    tr.dataset.id = r.id;
+    tr.innerHTML = '<td class="num sub">' + (i + 1) + '</td>'
+      + '<td><div class="name"></div><div class="sub"></div></td>'
+      + '<td class="num">' + fmt(r.installs) + '</td>'
+      + '<td class="num">' + pct(r.trend_pct) + '</td>'
+      + '<td class="num">' + (r.S == null ? '—' : r.S.toFixed(3)) + '</td>'
+      + '<td><div class="sub"></div></td>';
+    tr.querySelector('.name').textContent = r.name;
+    tr.querySelector('.name + .sub').textContent = r.slug;
+    const judge = tr.children[5].querySelector('.sub');
+    judge.textContent = r.verdict;
+    for (const f of r.flags) {
+      const s = document.createElement('span');
+      s.className = 'flag';
+      s.textContent = f;
+      tr.children[5].appendChild(s);
+    }
+    tr.onclick = () => openCard(r.id, tr);
+    body.appendChild(tr);
+  }
+  if (!rows.length) body.innerHTML = '<tr><td colspan="6" class="empty">没匹配到。</td></tr>';
+}
+
+async function openCard(id, tr) {
+  for (const el of body.querySelectorAll('tr.on')) el.classList.remove('on');
+  tr.classList.add('on');
+  aside.textContent = '读取中…';
+  try {
+    const r = await fetch('/api/dsh-skills-center/card?id=' + encodeURIComponent(id));
+    const s = await r.json();
+    aside.innerHTML = '';
+    const h = document.createElement('h2');
+    h.textContent = (s.name_zh || s.slug) + ' · ' + s.id;
+    aside.appendChild(h);
+    const pre = document.createElement('div');
+    pre.textContent = s.text || JSON.stringify(s, null, 2);
+    aside.appendChild(pre);
+  } catch (e) { aside.textContent = '读取失败：' + e; }
+}
+
+for (const th of document.querySelectorAll('th[data-k]')) {
+  th.onclick = () => {
+    const k = th.dataset.k;
+    sortDir = sortKey === k ? -sortDir : (k === 'name' ? 1 : -1);
+    sortKey = k;
+    draw();
+  };
+}
+document.getElementById('q').oninput = (e) => { query = e.target.value; draw(); };
+draw();
+</script>
+</body></html>
