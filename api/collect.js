@@ -17,7 +17,8 @@ import { collect, DEFAULTS } from '../collector/collect.mjs';
 import { publishCatalog, validateCatalog } from '../collector/publish.mjs';
 
 export const runtime = 'nodejs';
-export const maxDuration = 60; // Hobby 上限就是 60；Pro 想放开要同步改这里
+// 实测这个部署上函数能跑满 300s（Fluid compute 的默认上限）；写 60 会让下面的闸门白白只用到 1/5。
+export const maxDuration = 300;
 export const dynamic = 'force-dynamic';
 
 const json = (status, body) =>

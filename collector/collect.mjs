@@ -16,14 +16,14 @@ import { buildCatalog, normalizeRecord } from './pipeline.mjs';
 /** 默认值按 Hobby 安全值给：Pro（300s）用环境变量放开即可。 */
 export const DEFAULTS = Object.freeze({
   view: 'all-time',
-  // 目录规模：93036 条全量要 187 页（每页固定约 7s），Hobby 的 60s 根本装不下。
-  // 所以默认只收「按安装量降序的前 3000 条」（6 页，安装量 ≳ 6700）。要更宽就调这个数。
+  // 目录规模：93043 条全量要 187 页（每页固定约 7s，与服务端查询成本绑定），一次跑不完。
+  // 所以默认只收「按安装量降序的前 3000 条」（6 页）+ 全部 curated。要更宽就调这个数。
   limitRecords: 3000,
   listConcurrency: 6,
-  enrich: 300, // 预算内最多给多少个「预聚类后的头部」抓详情
+  enrich: 600, // 预算内最多给多少个「预聚类后的头部 + curated」抓详情（继承上一版的已抓项）
   concurrency: 8, // 详情/审计的并发；实测 8 路无 429，每个约 0.3–0.6s
-  maxRequests: 900, // 上游请求总数闸门（目录 6 + curated 1 + 详情/审计 600 + 余量）
-  maxRuntimeMs: 42000, // 采集段的时间闸门，留 ~18s 给上传与函数收尾
+  maxRequests: 1500, // 上游请求总数闸门（目录 6 + curated 1 + 详情/审计 1200 + 余量）
+  maxRuntimeMs: 250000, // 采集段的时间闸门；函数上限 300s，留 ~50s 给上传与响应
 });
 
 const isoStamp = (d = new Date()) => d.toISOString().replace(/[:.]/g, '-');

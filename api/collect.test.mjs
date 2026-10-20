@@ -110,7 +110,7 @@ assert.equal(dryBody.count, 9, 'the handler really ran collect() over the fixtur
 assert.equal(dryBody.raw_count, 14);
 assert.equal(dryBody.deduped, 5);
 assert.equal(dryBody.requests.used, 21);
-assert.equal(dryBody.requests.max, 900, 'default request budget covers 6 list pages + 300 enrich targets');
+assert.equal(dryBody.requests.max, 1500, 'default request budget covers 6 list pages + 600 enrich targets');
 assert.equal(dryBody.limit_records, 3000, 'the catalog is capped at the top 3000 by installs by default');
 assert.equal(dryBody.list_total, 13, 'pagination.total from the fixture is surfaced, not hidden');
 assert.ok(dryBody.previous, 'the response must report what happened when reading the previous catalog');

@@ -82,7 +82,9 @@ assert.ok(
 const listCalls = fetchImpl.calls.filter((c) => c.url.includes('/api/v1/skills?'));
 assert.equal(listCalls.length, 3, '13 records at pageSize 5 = 3 pages, and no fourth request');
 assert.ok(listCalls[0].url.includes('page=0'), 'first page request must be page=0');
-assert.ok(listCalls[1].url.includes('page=1'));
+// 分页之间是并发的（每页约 7s，不并发跑不完），所以只能断言「页码集合」，不能断言到达顺序
+const listPages = listCalls.map((c) => new URL(c.url).searchParams.get('page')).sort();
+assert.deepEqual(listPages, ['0', '1', '2'], 'pages 0..2, each exactly once');
 assert.ok(
   fetchImpl.calls.every((c) => c.headers['x-vercel-oidc-token'] === undefined),
   'must never send x-vercel-oidc-token upstream (401s in production)',
