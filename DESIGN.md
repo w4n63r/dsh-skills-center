@@ -157,6 +157,54 @@ S = 0.45·H + 0.20·T + 0.20·C + 0.15·A      # 内部字段叫 score.S（0–1
   （按钮 + 绝对定位浮层 + 点外部/Esc 关闭），颜色、圆角、字号全部走宿主 token。
 - **工具侧**：`skill_search` 的每行摘要带上「分类 前端/设计」，让 agent 按功能筛而不是只看名字。
 
+## 5.3 上游数据面盘点（2026-10-20 实测）
+
+用户问「分析一下 API，看看都还能展示哪些东西」。这一节是**已经抓下来、但还没展示**的东西的清单，
+每条都注了来源、成本、覆盖，写下来免得下次再翻一遍文档。
+
+### 三个数据面
+
+| 面 | 地址 | 鉴权 | 我们现在的用法 |
+|---|---|---|---|
+| JSON API | `https://skills.sh/api/v1/*` | Vercel OIDC（`Authorization: Bearer`） | 列表 6 页（3000 条）+ curated + 每个目标 2 个请求（detail + audit） |
+| 技能页 HTML | `https://www.skills.sh/<source>/<slug>` | 无 | 抓 8 周周量与 First Seen |
+| 站内页面 | `/topics` `/topic/<slug>` `/audits` `/hot` `/trending` `/agent/<name>` `/packs` | 无（`/packs` 要登录） | 没用 |
+
+### 已经拿到、还没展示的
+
+| 能展示什么 | 来源 | 成本 | 覆盖（实测） |
+|---|---|---|---|
+| **审计风险筛选**：只看 High Risk / 有告警 / 未审 | 我们已存全量 `audit` | 0 新请求 | 2452/7715 有审计 |
+| **审计查的是什么**：`audit.audits[].categories`，实测出现过 14 个值——风险类：COMMAND_EXECUTION / DYNAMIC_EXECUTION / REMOTE_CODE_EXECUTION / EXTERNAL_DOWNLOADS / DATA_EXFILTRATION / CREDENTIALS_UNSAFE / PRIVILEGE_ESCALATION / PERSISTENCE / OBFUSCATION / PROMPT_INJECTION / INDIRECT_PROMPT_INJECTION / DYNAMIC_CONTEXT_INJECTION；非风险标记：SAFE / NO_CODE（展示时要排除） | 同上 | 0 | 1354 条审计带 categories |
+| **风险等级筛选**：只看 `riskLevel` = HIGH / CRITICAL | 同上 | 0 | 实测分布：SAFE 2170 / LOW 1876 / MEDIUM 1211 / NONE 1173 / HIGH 116 / **CRITICAL 22** —— 需要人看一眼的只有 138 条 |
+| **上游话题**：如 `Design & UI`（`/topic/design`） | 技能页标题下的徽章 | 0（同一页） | 只有 8 个话题：react / nextjs / design / mobile / agent-workflows / databases / testing / marketing，且**不是每个技能都有**（实测 prisma-postgres、xlsx 没有） |
+| **相关技能**（Related skills，2–5 条） | 技能页底部区块 | 0（同一页） | 部分技能有 |
+| **官方精选视图**：87 家厂商 × 342 个技能，按 `totalInstalls` 排序，带 `featuredSkill`/`featuredRepo`/`generatedAt` | `/api/v1/skills/curated` | 1 请求/天 | 全量 |
+| **本周上升榜**（官方周榜，跨仓库合并展示） | `?view=trending` 或 `/trending` | 1–2 请求 | 全量 |
+| **此刻最热**：最近一小时安装量与变化（`installsYesterday`/`change`） | `?view=hot` 或 `/hot` | 1–2 请求 | 全量；实测数值很小（个位数/小时），噪声大 |
+| **按仓库浏览**：某个仓库的全部技能（不受全局截断限制） | `?source=owner/repo` | 1 请求/仓库 | 全量 |
+| **文件树**：`files[]` 里每个 path（还有完整 contents） | detail 接口 | 0（已抓） | 2657/7715 有 hash 与文件 |
+| **正文原文**（我们只存 4000 字摘录） | detail 的 `files[0].contents` | 要改存储 | 同上 |
+| **在 skills.sh 打开**、`installUrl` | 列表项 `url`/`installUrl` | 0（已抓但没存进目录） | 全量 |
+| **语义搜索兜底**：多词英文查询走上游 `searchType=semantic`（单词走 fuzzy） | `/api/v1/skills/search` | 1 请求/次查询 | 全量；中文查询上游大概不行，本地中文卡仍是主路 |
+
+### 做不了的（别浪费时间）
+
+- **Packs**：`/packs` 要 Vercel 登录，非公开数据。
+- **每个技能兼容哪些 agent**：站上有 20 个 `/agent/<name>` 落地页（claude-code / cursor / codex / windsurf / zed…），
+  但技能页里没有「兼容 agent」这个字段，那些链接只是导航。
+- **更新时间**：见 §5.2，上游确实没有。
+- **GitHub Stars**：页面有，但用户早已决定不做这个维度。
+
+### 如果要做，建议的顺序（按「价值/成本」）
+
+1. **审计视图**：`High Risk / 有告警 / 未审` 三个筛选 + 详情里展开 `categories`（会执行命令、会下载外网文件、易被提示注入）。
+   数据全在本地，零新请求，是「装之前先看一眼」最实用的东西。
+2. **上游话题 + 相关技能**：都是技能页上的现成内容，抓页面时顺手解析，零额外请求；话题可以补进分类（当「官方话题」标签）。
+3. **官方精选视图**：87 家厂商按总安装量排，带 featured skill —— 「做这个产品的人教你怎么用」。
+4. **本周上升 / 此刻最热**：给目录加两个动态入口；`hot` 数值小，建议只做 `trending`。
+5. 其余（按仓库浏览、文件树、语义搜索兜底）按需。
+
 ## 6. 库存 / 激活 / 召回 三层
 
 | 层 | 位置 | 成本 | 谁能看见 |
