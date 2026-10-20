@@ -101,6 +101,7 @@ export async function collect({
   maxRequests = DEFAULTS.maxRequests,
   maxRuntimeMs = DEFAULTS.maxRuntimeMs,
   fetchTrend = DEFAULTS.fetchTrend,
+  zh = {}, // 中文层：{ [id]: {name_zh, intro, usage, notes} }，由 api/collect.js 注入
   stage = 'all', // 'all' | 'list'
   previous = null, // 上一版目录的 skills[]：抓过 detail/audit 的条目直接继承，不再重复花请求
   refreshEnrich = false, // true = 无视上一版，全部重抓（内容可能变了，但要花满 600 个请求）
@@ -197,7 +198,7 @@ export async function collect({
   log(`records: ${records.length} normalized (${dupIds} duplicate ids dropped, ${curatedIds.size} curated)`);
 
   const directoryVersion = `dir-${isoStamp()}`;
-  const catalogStage = buildCatalog(records, { version: directoryVersion, generatedAt: new Date().toISOString() });
+  const catalogStage = buildCatalog(records, { version: directoryVersion, generatedAt: new Date().toISOString(), zh });
   log(`directory stage: ${catalogStage.count} entries after dedupe (${catalogStage.deduped} merged)`);
 
   const baseStats = () => ({
@@ -295,6 +296,7 @@ export async function collect({
 
   const finalRecords = records.map((rec) => enriched.get(rec.id) || rec);
   const catalog = buildCatalog(finalRecords, {
+    zh,
     version: `full-${isoStamp()}`,
     generatedAt: new Date().toISOString(),
   });

@@ -13,8 +13,27 @@
 // 触发鉴权：CRON_SECRET。没设置就直接 503 —— 一个任何人都能触发的采集端点等于开着额度给别人烧。
 
 import { timingSafeEqual } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
 import { collect, DEFAULTS } from '../collector/collect.mjs';
 import { publishCatalog, validateCatalog } from '../collector/publish.mjs';
+
+// 中文层：data/zh.json 由 tools/zh_merge.mjs 从各分片合并而来（{ entries: { [id]: {name_zh,intro,usage,notes} } }）。
+// 优先走 JSON import（打包器会把它内联进函数），失败再读文件（本地直跑时）。都没有就当空表，不阻塞采集。
+async function loadZhLayer() {
+  try {
+    const mod = await import('../data/zh.json', { with: { type: 'json' } });
+    const entries = mod?.default?.entries || mod?.entries || {};
+    return entries && typeof entries === 'object' ? entries : {};
+  } catch {
+    try {
+      const text = await readFile(new URL('../data/zh.json', import.meta.url), 'utf8');
+      const parsed = JSON.parse(text);
+      return parsed?.entries && typeof parsed.entries === 'object' ? parsed.entries : {};
+    } catch {
+      return {};
+    }
+  }
+}
 
 export const runtime = 'nodejs';
 // 实测这个部署上函数能跑满 300s（Fluid compute 的默认上限）；写 60 会让下面的闸门白白只用到 1/5。
@@ -189,10 +208,14 @@ async function run(request, trigger, { resolveToken = resolveOidcToken, loadBlob
 
     // ---- 4) 采集（与 --replay 同一份编排代码）----
     stage = 'collect';
+    const zhLayer = await loadZhLayer();
+    const zhCount = Object.keys(zhLayer).length;
+    console.log(`[collect] zh layer: ${zhCount} entries`);
     const result = await collect({
       fetchImpl: globalThis.fetch,
       token,
       previous: previousSkills,
+      zh: zhLayer,
       ...options,
       log: (msg) => console.log(`[collect] ${msg}`),
     });

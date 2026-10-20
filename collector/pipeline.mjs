@@ -184,8 +184,10 @@ export function buildCatalog(records, { version, generatedAt = null, zh = {} } =
       hash: rec.hash || undefined,
       enrich_v: rec.enrich_v || undefined,
       description_en: rec.description_en || undefined,
-      name_zh: zh[rec.hash || rec.id]?.name_zh || undefined,
-      zh: zh[rec.hash || rec.id] || undefined,
+      // 中文层按 id 索引（fork 合并后 hash 会随正文变化，id 才是稳定身份）；
+      // 老数据里按 hash 写的也认，两条路都查一遍。
+      name_zh: zh[rec.id]?.name_zh || zh[rec.hash]?.name_zh || undefined,
+      zh: zh[rec.id] || zh[rec.hash] || undefined,
       official: rec.official || undefined,
       curated: rec.curated || undefined,
       first_seen: rec.first_seen || undefined,

@@ -1,0 +1,302 @@
+{
+  "mattpocock/skills/to-issues": {
+    "name_zh": "拆工单",
+    "intro": "把一个 plan、spec 或 PRD 拆成别人能直接领走的 issue，拆法是 tracer-bullet 的纵向切片：每条切片都切穿整条链路、能独立交付，而不是按数据库层接口层横着切。装量 33.9 万，8 周涨 44.4%，Snyk 给的是 warn（MEDIUM），Gen Agent Trust Hub 与 Socket 都 pass。",
+    "usage": "方案或需求文档定稿、要变成任务分给几个人并行做的时候用；评审时也能拿它回头检查任务列表是不是切错了方向。",
+    "notes": "Snyk 报 warn（MEDIUM），另两家 pass；不需要额外凭据或外部 CLI。"
+  },
+  "supabase/agent-skills/supabase": {
+    "name_zh": "后端基础套件",
+    "intro": "Supabase 官方维护的技能，description 覆盖 Database、Auth、Edge Functions、Realtime、Storage、Vectors、Cron、Queues，还包括 supabase-js 与 @supabase/ssr 在 Next.js、React、SvelteKit、Astro、Remix 里的接法，以及 RLS、迁移和日志排查。装量 33.4 万，8 周 -3.3%，curated 与 official 都是 true。",
+    "usage": "只要有 Supabase 相关改动就该调它：改 schema 和迁移、RLS 报 permission denied、session 与 JWT 出问题、Edge Function 崩了要读 Logs Explorer。",
+    "notes": "Snyk 与 ZeroLeaks 都给 warn（MEDIUM），Gen Agent Trust Hub 和 Socket pass；触发面很宽，容易被无关请求误召。"
+  },
+  "stablyai/orca/orca-cli": {
+    "name_zh": "工作树指挥",
+    "intro": "管 Orca 托管的工作树、目录上下文、终端、仓库、自动化、artifacts、技能共享和内嵌浏览器，也包括往工作树里拉起 codex/claude、读/等/发终端、做 handoff。description 说涉及 Orca 状态时优先用它，别直接上 git worktree 或临时 PTY。flags 标 pointer，SKILL.md 是转发壳。装量 33.2 万。",
+    "usage": "已经在用 Orca 的时候，需要开子工作树、把任务交接给另一个代理、或读取某个终端输出时调用；不用 Orca 的场景没必要装。",
+    "notes": "flags 标 pointer，正文转发到别处，单独装意义有限；四家审计全 pass。"
+  },
+  "leonxlnx/taste-skill/design-taste-frontend-v1": {
+    "name_zh": "品味旧版",
+    "intro": "taste-skill 的第一版，description 明说是留给依赖它固定行为的项目，属于 opt-in：只有按名字显式调用才跑，不会被自动选中。装量 33 万，8 周涨 20.9%，三家审计全 pass。",
+    "usage": "老项目已经按 v1 的口味调好了产出、不想让新版改动打乱输出时，明确按名字调用它，并要求模型别顺手换版本。",
+    "notes": "description 自己写明是旧版；新项目该用当前版本，别默认装这个。"
+  },
+  "microsoft/azure-skills/entra-agent-id": {
+    "name_zh": "代理身份蓝图",
+    "intro": "微软官方技能，用 Microsoft Graph 建 Agent Identity Blueprint、BlueprintPrincipal 和按实例的 Agent Identity，再配 OAuth 2.0 token 交换（fmi_path、OBO、跨租户），还覆盖 AgentID 的 sidecar SDK。装量 32.9 万，8 周 -0.8%，curated 与 official 都是 true。",
+    "usage": "给代理申请 Entra 身份、配 OBO 或跨租户换 token 时用；普通应用注册和 Foundry 内的代理编写不在它范围内。",
+    "notes": "Socket 给 warn，Snyk 与 Gen Agent Trust Hub pass；description 划了边界，普通 app registration 要走 entra-app-registration。"
+  },
+  "lllllllama/rigorpilot-skills/ai-research-explore": {
+    "name_zh": "研究探索",
+    "intro": "RigorPilot 系列里做候选探索的一片：前提是任务族、数据集、benchmark、评测方法都已定好，它只在 current_research 之上跑候选想法，结果写进 explore_outputs/。装量 32.7 万，8 周涨 5525%，带 references。",
+    "usage": "研究方向已经收窄到具体任务，要在现成基线上试几个候选想法、又要留下可审计记录时用。",
+    "notes": "三家审计全给 warn（Gen Agent Trust Hub、Socket、Snyk，后两个是 MEDIUM）；它明确不做从零找方向，也不背书新颖性。"
+  },
+  "lllllllama/rigorpilot-skills/analyze-project": {
+    "name_zh": "仓库只读分析",
+    "intro": "Rigor 系列的只读分析技能：读深度学习研究仓库，看模型结构、训练与推理入口、配置文件和可插入点，并标出可疑实现，全程不改代码也不跑重任务。装量 32.7 万，8 周涨 8251%，三家审计全 pass。",
+    "usage": "接手一个陌生的训练仓库，先要弄清入口在哪、配置怎么串、哪段实现可疑时用；要改代码或跑实验得换别的技能。",
+    "notes": "description 明确只读，不做重构和自动修 bug；三家审计均 pass。"
+  },
+  "stablyai/orca/orchestration": {
+    "name_zh": "多代理编排",
+    "intro": "管 Orca 里被监督的 worker：线程消息、阻塞式 ask/reply、任务派发、等 worker_done 或 escalation、任务 DAG、决策闸口和协调循环。description 说整套交接（hand off）走 orca-cli，这条负责监督与编排。flags 标 pointer，装量 32.7 万，8 周 -10%。",
+    "usage": "要把一件事拆给多个代理、需要盯进度和闸口时用；单纯把任务交接给另一个代理，用 orca-cli 更直接。",
+    "notes": "flags 标 pointer，正文转发到别处；装它之前最好把同仓库的 orca-cli 一起装上。"
+  },
+  "lllllllama/rigorpilot-skills/ai-research-reproduction": {
+    "name_zh": "论文复现",
+    "intro": "Rigor 系列的复现技能：README 优先，先读仓库，再选最小的、有文档记录的推理或评测目标，串起 intake、环境、可信执行、可选训练和可选论文空白处理，产出统一的 repro_outputs/。装量 32.7 万，8 周涨 7054%，带 references。",
+    "usage": "拿到论文官方仓库、要跑出能信的数字时用；写论文摘要、搭通用环境、追分数都不在它的范围内。",
+    "notes": "Socket 给 warn，Snyk 与 Gen Agent Trust Hub pass；它明确禁止静默改协议和追分。"
+  },
+  "lllllllama/rigorpilot-skills/safe-debug": {
+    "name_zh": "保守排障",
+    "intro": "Rigor 系列的报错诊断技能：贴上来 traceback、CUDA OOM、checkpoint 加载失败、shape 不匹配、loss 变 NaN 或训练崩，它先给保守判断再动补丁，并把 debug 修复和研究贡献分开记。装量 32.6 万，8 周涨 8384%，三家审计全 pass。",
+    "usage": "训练脚本报错、想先弄清原因再改代码时用；要大规模重构或探索式乱试就别用这条。",
+    "notes": "description 强调的是先诊断后打补丁，不保证给出修复。"
+  },
+  "lllllllama/rigorpilot-skills/explore-code": {
+    "name_zh": "探索改码",
+    "intro": "Rigor 系列里做候选实现的叶子技能：必须由研究者明确授权、在隔离分支或工作树上动手，搬模块、换 backbone、加 LoRA 或 adapter、换 head，并把改动和回滚方式记进 explore_outputs/。装量 32.6 万，8 周涨 11312%，Gen Agent Trust Hub 给 warn（MEDIUM）。",
+    "usage": "已经跑通基线、想把别处的模块迁进来试一下时用；复现基线、保守调试、环境搭建都不是它。",
+    "notes": "Gen Agent Trust Hub 报 warn（MEDIUM），Socket 与 Snyk pass；动手前得自己能回滚。"
+  },
+  "lllllllama/rigorpilot-skills/run-train": {
+    "name_zh": "训练执行",
+    "intro": "Rigor 系列的训练技能：按文档里选好的训练命令，做启动验证、短跑验证、正式开跑或续跑，把 command、config、seed、log、checkpoint、status、metric 证据写进 train_outputs/。装量 32.6 万，8 周涨 14193%，Gen Agent Trust Hub 给 warn（MEDIUM）。",
+    "usage": "训练脚本已经调通、要跑一次可审计的短跑或正式训练时用；扫参搜索和想法实现不在这条里。",
+    "notes": "Gen Agent Trust Hub 报 warn（MEDIUM）；它假设命令已经写好，不负责踩环境。"
+  },
+  "lllllllama/rigorpilot-skills/explore-run": {
+    "name_zh": "探索试跑",
+    "intro": "Rigor 系列里跑探索实验的叶子技能：在研究者明确授权下做小样本验证、短周期猜测式试跑、批量扫描、闲卡搜索或快速迁移试跑，产出写进 explore_outputs/，并附公平性说明和不夸大结论。装量 32.6 万，8 周涨 15417%，Gen Agent Trust Hub 给 warn（MEDIUM）。",
+    "usage": "想先拿小样本探一下方向、又不打算对外声称结果时用；基线可信执行和正式训练验证要换别的技能。",
+    "notes": "Gen Agent Trust Hub 报 warn（MEDIUM），另两家 pass；它产出的东西不能当 SOTA 结论用。"
+  },
+  "obra/superpowers/test-driven-development": {
+    "name_zh": "测试先行",
+    "intro": "obra/superpowers 里的 TDD 技能，触发条件写得很窄：实现任何功能或修任何 bug 之前、动实现代码之前。装量 31.2 万，其中自己仓库 25.5 万，剩下的是合并 fork 带来的量；8 周基本走平（-0.2%），五家审计全 pass。",
+    "usage": "新开一段功能实现、或准备修一个已知 bug 时先调它，把测试写在前面的节奏定下来。",
+    "notes": "description 一句话就到「写实现代码之前」，没有更多约束；五家审计（含 Runlayer、ZeroLeaks）都是 pass。"
+  },
+  "mattpocock/skills/writing-great-skills": {
+    "name_zh": "技能写法",
+    "intro": "写和改 skill 的参考手册：讲的是让一个 skill 行为可预期的词汇与原则，属于文档型技能，本身不执行流程。装量 30.7 万，8 周涨 7.4%，三家审计全 pass。",
+    "usage": "要改自己的 SKILL.md、或不确定触发词该怎么写时查它；写完一批技能后横向对齐风格也用得上。",
+    "notes": "description 只说是 reference，别指望它替你生成技能；要动手建技能得换别的条目。"
+  },
+  "heygen-com/hyperframes/figma": {
+    "name_zh": "设计进画框",
+    "intro": "把 Figma 里的东西导进 HyperFrames 的合成里：渲染好的素材、品牌 token、组件、storyboard 段落变成动效，frame 被当成状态而不是幻灯片；有 connector 时走 connector，着色器可从 connector 或原生导出取。装量 30.4 万，8 周涨 100.8%。",
+    "usage": "用户甩一个 figma.com 链接，或要把某个设计、frame、logo、品牌、动效塞进视频或合成里时用。",
+    "notes": "只在 HyperFrames 这套合成工具里有意义；description 提到 REST 与 CLI 两条路径。"
+  },
+  "obra/superpowers/systematic-debugging": {
+    "name_zh": "系统化调试",
+    "intro": "obra/superpowers 的调试技能，触发点同样窄：遇到 bug、测试失败或行为不对、在提修复方案之前。带 references 附件。装量 30 万，8 周涨 20.1%，五家审计全 pass。",
+    "usage": "线上或本地冒出说不清原因的失败时先调它，把先定位再改的顺序摆正；紧急热修可以事后补。",
+    "notes": "description 没写具体步骤，细节在 references 里；五家审计都是 pass。"
+  },
+  "microsoft/azure-skills/azure-reliability": {
+    "name_zh": "可靠性体检",
+    "intro": "微软官方技能，评估 Azure Functions 与 App Service 的可靠性：扫已部署资源有没有可用区冗余、ZRS 存储、健康探针和多区域故障转移，先给一张按功能铺开的清单，再在用户确认下做分阶段整改（CLI 或 IaC 补丁）。装量 29.2 万，8 周走平，curated 与 official 都是 true。",
+    "usage": "要给 Azure 上的应用量高可用与容灾、找单点故障时用；跟 Azure 无关的部署别用，技能里全是 Azure 资源语义。",
+    "notes": "flags 标 needs_external_cli 和 has_references，装之前要备好 az CLI；Snyk 报 warn（MEDIUM），另两家 pass。"
+  },
+  "obra/superpowers/writing-plans": {
+    "name_zh": "写实施计划",
+    "intro": "obra/superpowers 的计划技能：手里已经有 spec 或需求、任务分多步、还没碰代码时调用。装量 27.8 万，8 周涨 4.2%，五家审计全 pass。",
+    "usage": "需求确认完、准备动手前，先把分步计划写出来给自己或别人照着执行。",
+    "notes": "description 只给触发条件，不给模板；五家审计均 pass。"
+  },
+  "obra/superpowers/using-superpowers": {
+    "name_zh": "开场调度",
+    "intro": "superpowers 系列的门面技能：规定会话一开始怎么找技能、怎么用技能，甚至要求在任何回应之前先调用技能，连反问澄清也算回应。装量 26.7 万，8 周 -8%，Gen Agent Trust Hub 给 warn（MEDIUM），其余四家 pass。",
+    "usage": "装了整套 superpowers、想让后续对话都按技能优先的顺序走时放在最前；只想临时用一个技能就别装它。",
+    "notes": "Gen Agent Trust Hub 报 warn（MEDIUM）；它会强制改变会话起手行为，跟别的技能抢触发时先摘掉它。"
+  },
+  "mattpocock/skills/implement-spec": {
+    "name_zh": "落实规格",
+    "intro": "description 只有一句：把 /to-spec 和 /to-tickets 的产物落进代码。flags 标了 pointer，正文是转发壳，真正的流程在别处。装量 26.2 万，8 周涨 12.2%，Snyk 给 warn（MEDIUM）。",
+    "usage": "用同一套 mattpocock 技能走完 spec 和 ticket 拆分、要进入编码环节时调用。",
+    "notes": "pointer 加一句话 description，脱离 /to-spec、/to-tickets 单独用没有内容；Snyk 报 warn（MEDIUM）。"
+  },
+  "neondatabase/agent-skills/neon-postgres": {
+    "name_zh": "分支式数据库",
+    "intro": "Neon 官方技能，讲 Lakebase Postgres 的用法：连接方式（池化与直连之别）、schema 迁移、分支、自动伸缩、缩到零、即时恢复、只读副本、IP 白名单、逻辑复制，以及 Lakebase Search 的关键词与向量检索。装量 26.1 万，8 周涨 17%，curated 与 official 都是 true，五家审计全 pass。",
+    "usage": "已经有 DATABASE_URL、要写 SQL、改 schema、做检索或排查连接问题时用；新建后端和 Auth 交给上级 neon 技能。",
+    "notes": "它主动把边界划给 neon、neon-auth、neon-realtime，只装这一条会缺上下文；五家审计全 pass。"
+  },
+  "obra/superpowers/requesting-code-review": {
+    "name_zh": "发起评审",
+    "intro": "obra/superpowers 的评审发起技能，触发条件是任务做完、大功能实现完、合并之前，用来确认产出对得上需求。装量 25.8 万，8 周涨 7.8%，五家审计全 pass。",
+    "usage": "准备合并或交付前调它，把该过的检查点过一遍；单人写的几行小改没必要走这条。",
+    "notes": "description 只给时机，具体评审项在正文；五家审计均 pass。"
+  },
+  "mattpocock/skills/retro": {
+    "name_zh": "复盘会",
+    "intro": "对一次编码会话做复盘，description 就这一句。flags 标 pointer，正文转发到别处。装量 25.4 万，8 周涨 19.7%，三家审计 pass。",
+    "usage": "一个任务或一段结对结束后，想留下哪里卡住、下次怎么改的记录时调用。",
+    "notes": "pointer 转发壳加一句话 description，得整包装；单装它基本没有内容。"
+  },
+  "vercel-labs/agent-skills/vercel-react-native-skills": {
+    "name_zh": "移动端规范",
+    "intro": "Vercel 官方出品，curated 与 official 都是 true，带 references，装量 24.7 万、8 周涨 32.6%。但这一条拿不到说明：抓取时 skills.sh 的 API 返回 401 authentication_required，所以只能确认名字、来源和量级，用途细节得自己读 SKILL.md。",
+    "usage": "在 Vercel 体系里做 React Native 的项目想拿官方规范对照时安装；具体覆盖哪些主题要先翻技能目录。",
+    "notes": "上游 description 缺失（401），本卡片不为它编用途；Runlayer 给 warn（MEDIUM），其余四家 pass。"
+  },
+  "obra/superpowers/verification-before-completion": {
+    "name_zh": "完工先验证",
+    "intro": "要求在下结论之前先跑验证命令：不能没跑就说完成、修好、通过了，提交或开 PR 之前同样如此，证据先于断言。装量 24.6 万，8 周涨 10.4%，五家审计全 pass。",
+    "usage": "agent 准备回「已修复」之前挂上它，逼一遍真实命令和输出；人自己写代码时同样适用。",
+    "notes": "前提是有可跑的命令、能读到输出；纯文档改动时用不上。"
+  },
+  "scrapegraphai/just-scrape/just-scrape": {
+    "name_zh": "网页抓取",
+    "intro": "通过 ScrapeGraph AI 的 CLI 做搜索、抓单页、爬站点、抽结构化数据、监控页面变化、查请求历史和剩余额度。装量 24.5 万，8 周 0%，Snyk 与 Runlayer 都给 warn（MEDIUM）。",
+    "usage": "要按 URL 抓正文、从站点抽 JSON、爬文档目录、或者盯着某个页面等它变的时候用。",
+    "notes": "description 明说是走 ScrapeGraph AI CLI，装前先备好这个 CLI 和账号；Snyk、Runlayer 均报 warn（MEDIUM）。"
+  },
+  "anthropics/skills/pptx": {
+    "name_zh": "幻灯片文档",
+    "intro": "Anthropic 官方技能，场景里只要出现 .pptx 或 .potx 就该用它：建 deck、读和抽文字、改现有演示、合并或拆分、模板与版式、演讲者备注、批注。装量 23.9 万，8 周 -11.3%，curated 与 official 都是 true，带 references。",
+    "usage": "任何要产出或解析 PowerPoint 的活都先调它，哪怕抽出来的文字是拿去写邮件或摘要。",
+    "notes": "Socket 给 warn，Gen Agent Trust Hub、Snyk、Runlayer、ZeroLeaks 都 pass；触发面很宽，写别的文档时容易被它抢。"
+  },
+  "obra/superpowers/executing-plans": {
+    "name_zh": "照计划执行",
+    "intro": "把实施计划在当前会话里自己执行，适用条件写死了：人明确选了内联执行，或者手上没有 subagent 工具。装量 23.9 万，8 周涨 0.8%，五家审计全 pass。",
+    "usage": "计划已写好、但只能自己一步步做的时候用；有子代理能力时该走子代理那条路。",
+    "notes": "description 把适用条件卡得很死，别在有 subagent 工具的环境里默认用它。"
+  },
+  "emilkowalski/skills/review-animations": {
+    "name_zh": "动画评审",
+    "intro": "按 Emil Kowalski 的设计工程标准审动画与动效代码，默认倾向挑刺，通过是要挣来的。装量 23.9 万，8 周涨 28.4%，三家审计全 pass。",
+    "usage": "动效写完要过一遍质量关、或觉得哪里不对劲又说不清时用它挑问题。",
+    "notes": "只评审不实现：要动手做动画用 animate，要审整个代码库用 improve-animations。"
+  },
+  "emilkowalski/skills/animate": {
+    "name_zh": "动画实现",
+    "intro": "从零做一段动画，按决定观感的顺序做判断：该不该动、什么目的、用哪个工具、动哪些属性、哪条曲线和多长时长、怎么被打断、怎么退出，然后写出实现。装量 23.7 万（含合并 fork，自身 15.5 万），8 周涨 27.2%。",
+    "usage": "让你给某个组件加动效、做过渡、让交互有点生命感的时候用；只想要批评意见就换评审那条。",
+    "notes": "description 自己划了分工：评审已有动效走 review-animations，审整个库走 improve-animations。"
+  },
+  "open.feishu.cn/lark-meeting": {
+    "name_zh": "飞书会议",
+    "intro": "飞书视频会议技能：查会议记录与产物（纪要、逐字稿、妙记）、妙记的搜索上传下载编辑、机器人参会，也能查进行中的会议、对实时发言和共享文档做问答、发会中聊天和表情。支持用 meeting_id、meeting_no、event_id、note_id、minute_token、vc-node-id 或妙记 URL 查。装量 23.4 万。",
+    "usage": "要从飞书会议里捞纪要、逐字稿，或让机器人在会中参与问答时用；预约会议、忙闲和会议室要走 lark-calendar。",
+    "notes": "skills.sh 没回传审计结论（audit 为 null），trend_pct 也是空的，装之前自己核一下来源。"
+  },
+  "coreyhaines31/marketingskills/seo-audit": {
+    "name_zh": "搜索体检",
+    "intro": "排查站点 SEO：技术 SEO、on-page、meta 标签、抓取错误、core web vitals、排名掉了、卡在第二页、标题改写带来的低 CTR、本地 SEO 与地图包都算在内。装量 23.3 万，8 周涨 15%，Snyk 给 warn（MEDIUM），其余四家 pass。",
+    "usage": "流量莫名下滑、页面不收录、或者用户只丢一句我的 SEO 很差时，先跑一遍审计再谈优化。",
+    "notes": "description 划了边界：批量建页走 programmatic-seo，结构化数据走 schema，AI 搜索走 ai-seo；Snyk 报 warn（MEDIUM）。"
+  },
+  "emilkowalski/skills/apple-design": {
+    "name_zh": "苹果设计法",
+    "intro": "把苹果那套界面设计与带物理感的动效搬到 web：手势驱动交互、弹簧动画、拖拽与 sheet、惯性和可打断过渡、半透明材质与层次、字号字距行高、reduced-motion，以及反馈、空间一致、克制这三条底层原则。装量 23.3 万，8 周涨 26.5%，三家审计 pass。",
+    "usage": "做拖拽、上滑面板、可打断的转场这类讲手感的交互时对照它；评审别人的动效也能用。",
+    "notes": "是设计方法和原则的说明，不含可直接跑的代码。"
+  },
+  "obra/superpowers/subagent-driven-development": {
+    "name_zh": "子代理开发",
+    "intro": "用子代理执行实施计划，卡在计划里有若干互相独立的任务、又要在当前会话里推进的时候。装量 23.3 万，8 周涨 6.3%，五家审计全 pass。",
+    "usage": "计划拆出来的任务彼此不依赖、可以并行分给几个子代理时用它；任务之间有先后就得换顺序化的做法。",
+    "notes": "description 只给触发条件，派发流程在正文；五家审计均 pass。"
+  },
+  "coreyhaines31/marketingskills/copywriting": {
+    "name_zh": "营销文案",
+    "intro": "写和改营销页文案：首页、落地页、定价页、功能页、关于页、产品页都覆盖。它先判断输入类型（空白 brief、有真实语气、还是逐句点改）再决定改多少，description 明确禁掉「不是 X，而是 Y」「没有 X、没有 Y」这类 AI 腔。装量 22.9 万，8 周涨 17.7%，五家审计全 pass。",
+    "usage": "落地页或定价页文案要重写、标题和 CTA 想不出、或者有人说这段像 AI 写的时用。",
+    "notes": "要求主张可支撑，被拒的主张要指名缺哪条证据；邮件、弹窗、报价结构分别走 emails、popups、offers。"
+  },
+  "mattpocock/skills/diagnose": {
+    "name_zh": "疑难诊断",
+    "intro": "给难缠 bug 和性能回归用的诊断循环：复现 → 最小化 → 立假设 → 加探针 → 修 → 回归测试。装量 22.8 万，8 周走平（0%），三家审计 pass。",
+    "usage": "线上报错复现不了、性能慢慢变差、或者用户只丢一句坏了的时候，按这个顺序走一遍再动手。",
+    "notes": "description 里的六步就是全部约束，别跳步；没有脚本或凭据依赖。"
+  },
+  "stablyai/orca/computer-use": {
+    "name_zh": "界面操控",
+    "intro": "通过 orca computer 驱动可见窗口的 GUI：读无障碍树、点击、输入、走菜单和对话框、截图，覆盖本地原生应用与 Chrome、Edge、Safari 等外部浏览器窗口。description 要求能用 shell、文件系统、git、HTTP、现成 CLI 解决就别用它。flags 标 pointer，装量 22.6 万，8 周 -19.9%。",
+    "usage": "只能在看得见的窗口里点、程序化路径全都走不通时才用；Orca 自己的内嵌浏览器要走 orca-cli。",
+    "notes": "pointer 转发壳；依赖真实屏幕和窗口，无头环境用不了。"
+  },
+  "emilkowalski/skills/animation-vocabulary": {
+    "name_zh": "动效词典",
+    "intro": "反查动效叫什么的词典：把 popover 打开时那个弹的东西、iOS 那种橡皮筋回弹翻译成 Pop in、Rubber-banding 这类准确术语。装量 22.3 万，8 周涨 23.1%，三家审计全 pass。",
+    "usage": "想跟设计师或 AI 描述一个效果却不知道名字时查；查到了再拿去写 prompt 或提需求。",
+    "notes": "只负责命名，不负责设计或实现；description 自己就这么划的。"
+  },
+  "microsoft/azure-skills/python-appservice-deploy": {
+    "name_zh": "应用服务部署",
+    "intro": "把 Flask、Django、FastAPI 代码部署到 Azure App Service Linux。但这条在 skills.sh 上被标了 deprecated，也就是停止维护。装量 22.3 万，8 周 -0.8%，带 references，归属 microsoft/azure-skills。",
+    "usage": "维护老项目、还在这条路径上部署时可以参考；新项目按它自己 description 的说法要走 azure-prepare。",
+    "notes": "flags 标 deprecated，别在新项目里用；Container Apps、Functions、非 Python、Terraform/Bicep 都不归它管。"
+  },
+  "mattpocock/skills/write-a-skill": {
+    "name_zh": "写新技能",
+    "intro": "建新 agent 技能：搭结构、做渐进式披露、把资源打包进技能目录。装量 22 万，8 周涨 66.7%，Runlayer 给 warn（MEDIUM），其余四家 pass。",
+    "usage": "要从零写一个 SKILL.md、或者把一段反复做的流程固化成技能时用。",
+    "notes": "Runlayer 报 warn（MEDIUM），Gen Agent Trust Hub、Socket、Snyk、ZeroLeaks 都 pass。"
+  },
+  "mattpocock/skills/zoom-out": {
+    "name_zh": "拉远视角",
+    "intro": "让 agent 退一步，给更大范围的上下文或更高层的视角，用在看不懂某段代码、或不清楚它在大局里处在哪的时候。flags 标了 thin_body，正文极短。装量 21.9 万，8 周涨 57.1%，三家审计 pass。",
+    "usage": "在陌生模块里绕晕了、想知道这块跟整体怎么接的时候调用一次。",
+    "notes": "thin_body，正文短到几乎就是一句指令；它值不值装，取决于你自己 prompt 里怎么写「拉远」。"
+  },
+  "obra/superpowers/receiving-code-review": {
+    "name_zh": "接评审意见",
+    "intro": "处理收到的 code review 意见时用，尤其意见含糊或技术上可疑的时候：要求技术严谨、自己去验证，而不是顺着说好、也不是照单全改。装量 21.8 万，8 周 -3.3%，Snyk 给 warn（MEDIUM）。",
+    "usage": "评审意见一堆互相矛盾、或有人要求就这么改但你不认同时，用它定住处理规矩。",
+    "notes": "Snyk 报 warn（MEDIUM），其余四家 pass；它对人的要求比多数技能硬，喜欢顺从的模型装上会别扭。"
+  },
+  "obra/superpowers/dispatching-parallel-agents": {
+    "name_zh": "并行派发",
+    "intro": "手上有两个以上互不共享状态、也没有先后依赖的任务时，用它把活并行派出去。装量 21.5 万，8 周 -6.1%，五家审计全 pass。",
+    "usage": "几个独立改造可以同时开工、又不想互相踩文件的时候；有先后顺序的任务别硬并行。",
+    "notes": "description 的前置条件就是全部判断依据：无共享状态、无顺序依赖；五家审计均 pass。"
+  },
+  "neondatabase/agent-skills/neon": {
+    "name_zh": "后端总览",
+    "intro": "Neon 的总览技能：一套云后端原语围着 Lakebase Postgres，含 Auth、对象存储、Functions、AI Gateway、Realtime，负责先选型（登录、文件、API、LLM 调用），再配 CLI 或 MCP server，走分支优先的流程。装量 21.4 万，8 周涨 18%，三家审计 pass。",
+    "usage": "要在 Neon 上起新应用或后端、还没定用哪几块能力时从它进；已有 DATABASE_URL 就走 neon-postgres。",
+    "notes": "它是父技能：SQL 与 schema 交给 neon-postgres，登录交给 neon-auth，实时查询交给 neon-realtime。"
+  },
+  "obra/superpowers/writing-skills": {
+    "name_zh": "技能编写",
+    "intro": "写新技能、改现有技能、部署前验证技能是否真能跑，都归这一条。装量 21.4 万，8 周 -3.3%，五家审计全 pass。",
+    "usage": "自己的技能改完想验证触发和产出、或者要从零写一条新技能时用。",
+    "notes": "同类还有 mattpocock/skills 的 write-a-skill，触发词接近，装之前挑一条，别让两个抢。"
+  },
+  "anthropics/skills/pdf": {
+    "name_zh": "便携文档",
+    "intro": "Anthropic 官方技能，涉及 PDF 就该调：抽文字和表格、合并拆分、转页、加水印、新建、填表单、加解密、抽图片，扫描件还能 OCR 成可搜索文本。装量 21.4 万，8 周涨 0.8%，curated 与 official 都是 true，Snyk 给 warn（MEDIUM）。",
+    "usage": "给一份 .pdf 要内容、要合并几份、要填表、或要把扫描件做成可搜索的时候先调它。",
+    "notes": "Snyk 报 warn（MEDIUM），Gen Agent Trust Hub、Socket、Runlayer、ZeroLeaks 都 pass；OCR 是它最重的一步，别在超长扫描件上盲跑。"
+  },
+  "obra/superpowers/using-git-worktrees": {
+    "name_zh": "隔离工作树",
+    "intro": "开功能活之前先要有隔离的工作区：优先用原生工具，没有就走 git worktree 兜底，免得跟当前工作区互相污染。装量 21.3 万，8 周 -8.7%，五家审计全 pass。",
+    "usage": "要同时开两条改造、或执行实施计划前需要干净分支目录时用。",
+    "notes": "需要有 git 仓库；没有原生隔离工具时会退回 git worktree，磁盘占用自己盯。"
+  },
+  "obra/superpowers/finishing-a-development-branch": {
+    "name_zh": "收尾分支",
+    "intro": "实现做完了、测试也过了，决定这段工作怎么并进去时用它：合并、开 PR 还是弃掉，收尾的检查顺序都在这条里。装量 21.1 万，8 周 -4.8%，五家审计全 pass。",
+    "usage": "开发分支要交付前调它，把该跑的事跑完再决定并法，别急着 merge。",
+    "notes": "description 明说前提是全测试通过；测试没绿就该先回去补。"
+  },
+  "wind-alice/alicemarket/wind-mcp-skill": {
+    "name_zh": "金融数据台",
+    "intro": "万得金融数据技能：查、筛、取、比、验市场数据，覆盖 A 股、港股、美股，基金 ETF、指数板块、债券公告、财经新闻、宏观、汇率、行业、企业、风控、量化指标和衍生品，description 明确要求优先用它而不是靠模型记忆。装量 21 万，8 周 -26.7%，带 references。",
+    "usage": "要报行情、财务、估值、股东与事件数据，或做跨市场对比时用；结论应当能溯源到数据源。",
+    "notes": "条目名带 mcp，用前先确认 MCP 服务和凭据到位；三家审计 pass，但 8 周掉了 26.7%，量在退。"
+  }
+}

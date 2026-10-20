@@ -1,0 +1,302 @@
+{
+  "heygen-com/hyperframes/hyperframes-creative": {
+    "name_zh": "视频创意指导",
+    "intro": "HyperFrames 视频里非动画的那一半归它管：设计规格（frame.md / design.md）、配色、字体、旁白、节拍规划、音频可视化、构图模式、品牌与风格取舍。安装量 87.6 万，8 周涨 120.3%，是这个仓库里跑得最快的一支。它明确不做原子动效和场景蓝图，那部分交给同仓库的 hyperframes-animation；三个审计 provider（Gen Agent Trust Hub、Socket、Snyk）结论全 pass。",
+    "usage": "做品牌片、产品片之前定视觉方案时用：要先出一份能落地的 frame.md 或 design.md，或者纠结配色、字体、旁白节奏、画面怎么跟拍子对齐。真要写具体动效代码时换 hyperframes-animation。",
+    "notes": "依赖 HyperFrames 这套体系，单独装它产不出视频。三家审计均 pass。"
+  },
+  "mattpocock/skills/domain-modeling": {
+    "name_zh": "领域模型梳理",
+    "intro": "整理一个项目的领域模型：统一代码里的术语，写或改 GLOSSARY.md，记录或修订 ADR。description 只说了这三件事，没有更多内部细节。安装量 85 万，8 周趋势 -5.3%，属于老仓库里常见的温和回落；三家审计 provider 结论全 pass。",
+    "usage": "接手术语混乱的老项目、要给新同事解释某个词到底指什么、或者判断一条架构决策该不该落成 ADR 时用。",
+    "notes": "偏向文档产出，不碰代码。装不装取决于你团队是否真的维护 GLOSSARY.md 和 ADR。"
+  },
+  "mattpocock/skills/teach": {
+    "name_zh": "工作区教学",
+    "intro": "让模型在工作区里教用户一个新技能或概念。description 只有一句：Teach the user a new skill or concept, within this workspace。安装量 83.8 万，8 周 -8.4%，无 flag，三家审计 provider 全 pass。正文细节输入里没给，能说的就到这里。",
+    "usage": "想让人带着你过一遍某个概念、某个库的用法，并且希望讲解能直接引用当前仓库里的代码和文件时用。",
+    "notes": "描述极短，实际教学流程得装了才知道。别指望它是成体系的课程。"
+  },
+  "mattpocock/skills/codebase-design": {
+    "name_zh": "深模块设计",
+    "intro": "给「深模块」设计提供一套共享词汇：接口怎么切、哪里还能再深一层、seam 放在哪、怎么让代码更好测、更好让 AI 读懂。description 说它本身就是给别的 skill 复用的词汇表。安装量 82.5 万，8 周 -3.8%，三家审计 provider 全 pass。",
+    "usage": "改一个模块的 API 之前、判断该不该拆、或者想给团队立一套讲接口的统一说法时用；别的技能讨论深模块时也会引它。",
+    "notes": "是判断框架和词汇表，不是重构脚本。别期待它替你改代码。"
+  },
+  "vercel-labs/agent-skills/vercel-react-best-practices": {
+    "name_zh": "组件性能规范",
+    "intro": "Vercel 工程团队给出的 React / Next.js 性能规范：写组件、审代码、重构时对着它查数据获取、bundle 体积、渲染开销这些点。安装量 81.9 万，8 周涨 22%。带 has_references，审计五家（Gen Agent Trust Hub、Socket、Snyk、Runlayer、ZeroLeaks）全 pass，在这份榜单里算少见的干净条目。",
+    "usage": "写或 review React / Next.js 代码时挂上；bundle 变大、首屏变慢、怀疑数据获取方式不对时最有用。",
+    "notes": "只对 React / Next.js 有效，Vue、Svelte 项目装了也是噪音。"
+  },
+  "prime-skills/runcomfy-agent-skills/image-to-video": {
+    "name_zh": "图生视频选型",
+    "intro": "RunComfy 图生视频的选型路由：把意图对到目录里合适的 i2v 模型上——通用动画走 HappyHorse 1.0 I2V（描述里称其 Arena 第一、原生音频、保人脸），要自带配音的口型同步走 Wan 2.7 加 audio_url，图片加参考视频加参考音频走 Seedance 2.0 Pro。每条路由都附该模型文档里的提示词写法。安装量 81 万，8 周 -4.2%。",
+    "usage": "手上有一张静图要让它动起来，但不确定挑哪个模型、提示词怎么写时用；尤其是要口型同步或多模态参考的活儿。",
+    "notes": "要先有本地 RunComfy CLI 和账号，命令形如 runcomfy run <vendor>/<model>/image-to-video。"
+  },
+  "mattpocock/skills/diagnosing-bugs": {
+    "name_zh": "疑难缺陷诊断",
+    "intro": "给难 bug 和性能回退用的诊断循环。用户说「诊断一下」「debug 这个」，或者报某处崩、某处失败、某处变慢时触发。安装量 81 万，8 周 -2.2%，三家审计 provider 全 pass。description 只说明它是一个循环，没有写具体步骤。",
+    "usage": "线上问题复现不了、性能忽然掉了、堆栈看不出原因，需要一个按步骤往下压的排查流程时用。",
+    "notes": "是方法流程，不替代日志和 profiler。"
+  },
+  "open.feishu.cn/lark-note": {
+    "name_zh": "飞书会议转交",
+    "intro": "飞书的 lark-note 已经停更：description 直接写明只有用户或上游配置显式点名 lark-note 时才用，相关请求一律转给 lark-meeting。带 deprecated 和 thin_body 两个标记，正文极短，审计里没有任何 provider 给出结论。安装量 80.6 万，8 周趋势数据缺失。",
+    "usage": "基本不用主动装。只有当某个上游流程或旧配置里明确写了 lark-note、需要它把请求转给 lark-meeting 时才会碰到。",
+    "notes": "已废弃的转发壳，正文薄，审计无结论。新项目直接用 lark-meeting。"
+  },
+  "juliusbrussee/caveman/caveman": {
+    "name_zh": "极简穴居腔",
+    "intro": "把回答切成穴居人腔：先给结论，废话全砍，技术事实一条不丢。用 /caveman 或说 caveman mode、talk like caveman、be brief、less tokens 触发，一直生效到说 stop caveman 或 normal mode。安装量 79.7 万，8 周 -17.3%，是这批里掉得比较明显的一条；四家审计 provider 全 pass。",
+    "usage": "想压 token、或者嫌模型铺垫太多时挂上；连着跑长会话、赶时间只看结论的场景最合适。",
+    "notes": "是文风开关，不增加能力。关掉要显式说 stop caveman 或 normal mode。"
+  },
+  "vercel-labs/agent-skills/web-design-guidelines": {
+    "name_zh": "网页设计审查",
+    "intro": "拿 Web Interface Guidelines 去审 UI 代码：可访问性、UX、跟最佳实践对不对得上。安装量 77.9 万，8 周涨 27.3%。审计四家 pass，但 Socket 给了 warn——在这份榜单里大部分是清一色 pass，这一条值得装前看一眼。",
+    "usage": "上线前过一遍界面代码、被要求「检查一下可访问性」、或者想拿一份外部规范当 review 清单时用。",
+    "notes": "Socket 审计结论 warn。它是审查清单，不生成设计稿。"
+  },
+  "mattpocock/skills/code-review": {
+    "name_zh": "双轴代码评审",
+    "intro": "从固定点（commit、branch、tag 或 merge-base）开始的双轴评审：一条轴看代码符不符合仓库自己写下的规范（Standards），一条轴看改动有没有对上原始 issue / spec（Spec）。两路评审跑在并行子 agent 里，结果并排给出来。安装量 76.7 万，8 周 -6.2%，Snyk 给了 warn。",
+    "usage": "要审一个分支、一个 PR、或者手上没提交完的改动；尤其当你想把「写得规不规范」和「做没做对」分开看时。",
+    "notes": "Snyk 审计结论 warn。Standards 轴要有仓库自己的规范文档才有意义，没有就只剩 Spec 轴在干活。"
+  },
+  "mattpocock/skills/implement": {
+    "name_zh": "按规格实现",
+    "intro": "按 spec 或一组 ticket 把活做出来。带 pointer 标记：这个 SKILL.md 只是转发，真正的实现流程在同仓库别的技能里。安装量 75 万，8 周 -5.4%，三家审计 provider 全 pass。",
+    "usage": "手上已经有写清楚的 spec 或拆好的 ticket、只差执行时用；如果需求还没定，先走 to-spec 或 to-tickets。",
+    "notes": "是转发壳（pointer），单独装它没有实质内容，必须连同它指向的同仓库技能一起装。"
+  },
+  "mattpocock/skills/ask-matt": {
+    "name_zh": "技能路口",
+    "intro": "一个路由器：你说不清该用哪个技能，它来告诉你哪个 skill 或 flow 适合当前情况。description 一句话说明它是这个仓库所有 skill 之上的分流层。安装量 74.5 万，8 周 -4.6%，三家审计 provider 全 pass。",
+    "usage": "刚装完这一整套、面对几十个技能不知道从哪个入口进时用；也可以用来确认某个诉求该走哪条流程。",
+    "notes": "只对 mattpocock 这一套技能有效，装了别家作者的技能它不认识。"
+  },
+  "heygen-com/hyperframes/hyperframes-keyframes": {
+    "name_zh": "关键帧运镜",
+    "intro": "管 HyperFrames 合成里的镜头运动：推拉、变焦、重构画面、Ken Burns、机位移动、视觉匹配与 whip 转场，以及各种 seek-safe 的 2D/3D 关键帧。还覆盖 GSAP、CSS keyframes、Anime.js、WAAPI、FLIP、路径、遮罩、SVG 变形与描边、文字拖尾、3D 景深，以及 hyperframes keyframes 的诊断命令。安装量 73.1 万，8 周涨 151.5%。",
+    "usage": "镜头要动、元素要入场出场、或者成片里某一帧位置不对时用；也可以用来跑 hyperframes keyframes 看关键帧哪里出了问题。",
+    "notes": "不负责整体场景策略、品牌设计、素材来源、字幕和视频规划，那些走 hyperframes 的其他分支。"
+  },
+  "mattpocock/skills/research": {
+    "name_zh": "一手资料调研",
+    "intro": "围绕一个问题去找高可信度的一手来源，把结论落成仓库里的一个 Markdown 文件。可以挂在后台 agent 上跑，让读资料的体力活不占主对话。安装量 71.5 万，8 周 -11.7%，三家审计 provider 全 pass。",
+    "usage": "要查 API 事实、读官方文档、对比几个方案的真实依据，并且希望产出一个能提交进仓库的调研文件时用。",
+    "notes": "来源清单给得越具体，产出越靠得住；它按你的要求去找材料，不替你判断材料可信到哪一步。"
+  },
+  "mattpocock/skills/wayfinder": {
+    "name_zh": "任务地图",
+    "intro": "给「一个 agent 会话装不下」的大块工作做规划：把决策拆成 issue tracker 上的一张张 ticket 组成的地图，然后一张一张解，直到通往目的地的路清楚为止。安装量 69.5 万，8 周 -9.6%，Snyk 给了 warn。",
+    "usage": "任务大到一次讲不清、方向还不明确时用；先建地图再逐个决策，而不是硬写一份假装详细的计划。",
+    "notes": "Snyk 审计结论 warn。需要一个已配置的 issue tracker，否则地图无处可落。"
+  },
+  "mattpocock/skills/to-spec": {
+    "name_zh": "对话转规格",
+    "intro": "把当前对话直接合成一份 spec 并发到项目 issue tracker。不做访谈、不追问需求，只整理你们已经聊过的东西。安装量 69.2 万，8 周 -12.9%，三家审计 provider 全 pass。",
+    "usage": "刚跟模型把需求聊清楚了，想立刻固化成可追踪的 spec 时用；反过来，需求还没聊透就别用它。",
+    "notes": "它不做需求澄清，聊得含糊产出就含糊。要发布必须先有可写的 issue tracker。"
+  },
+  "mattpocock/skills/to-tickets": {
+    "name_zh": "拆追踪工单",
+    "intro": "把计划、spec 或当前对话拆成一组 tracer-bullet ticket，每条自己声明被谁阻塞。本地就写成一条 ticket 一个文件、阻塞关系写在文本里；接了真 tracker 就落成原生的 blocking 链接。安装量 68.7 万，8 周 -8.6%，Snyk 给了 warn。",
+    "usage": "spec 定稿、开工前用它拆活；也适合把一大坨任务切成能并行、能看出先后依赖的小块。",
+    "notes": "Snyk 审计结论 warn。tracer-bullet 指能独立跑通的最小切片，按这个标准切，别改成按文件或按层拆。"
+  },
+  "uizze.sh/ui-taste": {
+    "name_zh": "界面品味",
+    "intro": "给 coding agent 补 UI 品味：靠 Uizze 的反 UI slop 手册，加上可选的真实产品参考，把 web 和 iOS 界面做出来再打磨。description 点名支持 Claude Code、Codex、Cursor、Copilot。安装量 65.7 万，8 周趋势数据缺失，审计里没有任何 provider 给出结论。",
+    "usage": "做新界面、重设计、或者上线前想要一次视觉终审时用；如果你嫌产出「一眼 AI 味」，这正是它主打解决的那件事。",
+    "notes": "审计无结论，装之前自己看一遍正文。真实产品参考是可选项，不给参考时效果会打折。"
+  },
+  "remotion-dev/skills/remotion-best-practices": {
+    "name_zh": "渲染技能路由",
+    "intro": "Remotion 系列技能的入口路由——description 全文就一句「Router for all Remotion skills」，没有更多说明。安装量 64.7 万，8 周涨 162.3%，是这批里增速最高的一档。审计里 Runlayer 给了 fail，其余三家 pass。",
+    "usage": "已经在用 Remotion 做视频、但不确定该进哪个子技能时用它分流；要导出成片走 remotion-render。",
+    "notes": "Runlayer 审计结论 fail，装前务必看正文。description 极薄，仅凭它判断不了内容，前提是已有 Remotion 工程。"
+  },
+  "heygen-com/hyperframes/general-video": {
+    "name_zh": "通用成片",
+    "intro": "没有专门工作流可用时的兜底：自己写或改一套 HyperFrames 合成，或者 BRIEF.md 里写了 flow: companion 时走它。适合长片、多场景、品牌片、sizzle reel、蒙太奇、静态循环、静态标题卡、素材重剪和自由搭建。安装量 64 万，8 周涨 161.5%，三家审计 provider 全 pass。",
+    "usage": "片子比较长、场景多、或者需求太自由没有现成模板时用；但全新创作要先经过 hyperframes 再进到这里。",
+    "notes": "别把它当第一入口：description 明确要求新任务先走 hyperframes 分流。只做一段无旁白的动效单元时改用 motion-graphics。"
+  },
+  "leonxlnx/taste-skill/design-taste-frontend": {
+    "name_zh": "前端设计品味",
+    "intro": "tasteskill v2，主打反 slop 的前端美术指导：方向来自对 247 个精选画廊站点（One Page Love、Awwwards Sites of the Day）的研究，按需给出版式、字体、配色、摄影和分区蓝图，再用真浏览器检查器守一套 house style，并对截图跑反复的看-改循环。安装量 64 万，8 周涨 27.9%，五家审计全 pass。",
+    "usage": "做或改落地页、营销站、作品集、产品页、hero；也用于别人说你的页面「像模板」「一眼 AI 味」时。后台、仪表盘这类 app 界面另有它自己的规则。",
+    "notes": "带 has_references，正文体量偏大。栈不限，HTML/CSS、React、Next.js、Vue、Svelte、Astro、Tailwind 都能用。"
+  },
+  "heygen-com/hyperframes/hyperframes-audio": {
+    "name_zh": "音频混音",
+    "intro": "只管合成里已经放好的音频怎么混：淡入淡出、交叉淡化、轨道增益与音量、音量自动化、ducking、旁白压住音乐（voiceover carve）、轨道效果链（EQ、压缩、限制器、噪声门、饱和、延迟、混响、合唱、相位、bitcrush）、画在音量或效果参数上的自动化曲线，以及用一个 hf-audio-group 带多轨的子混音总线。安装量 63.4 万，8 周涨 142.9%。",
+    "usage": "BGM 压不住人声、转场处声音突然断、要给一堆轨统一加效果和推子时用；混音层面的活基本都在这。",
+    "notes": "不负责找或生成音频（那是 /media-use），也不管片段时序和轨道布局（那是 /hyperframes-core）。"
+  },
+  "prime-skills/runcomfy-agent-skills/video-edit": {
+    "name_zh": "视频改片路由",
+    "intro": "RunComfy 视频改片的选型路由：通用风格重做、换背景、换包装走 Wan 2.7 Edit-Video（保人脸和动作），把参考视频里的动作精确搬到目标角色走 Kling 2.6 Pro Motion Control，轻量且保身份的改风格、换装走 Lucy Edit Restyle。每家都附提示词写法。安装量 62.3 万，8 周 -4.6%。",
+    "usage": "已有一段视频要改，但不知道哪个模型能保住人脸、哪个只搬动作时用；换装、换背景、动作迁移这类需求都先在这分流。",
+    "notes": "需要本地 RunComfy CLI 和账号，实际调的是 runcomfy run <vendor>/<model>/<endpoint>。"
+  },
+  "microsoft/azure-skills/microsoft-foundry": {
+    "name_zh": "微软微调平台",
+    "intro": "在 Microsoft Foundry 上微调模型：SFT 监督微调、DPO 偏好优化、RFT 带 grader 的强化微调，覆盖数据集准备、训练任务提交、部署和评估。description 还划了界——不做不微调的模型部署（走 deploy-model）、不做 agent 创建、不做纯提示词优化。安装量 57 万，8 周 -2.5%，Socket 和 ZeroLeaks 各给了一个 warn。",
+    "usage": "手上有一批标注数据要训出专用模型、要校准 grader、或者微调完要部署和评估时用。",
+    "notes": "Socket、ZeroLeaks 两家审计结论 warn。前提是已有 Azure 订阅和 Foundry 资源，数据集要按它的格式准备。"
+  },
+  "microsoft/azure-skills/azure-diagnostics": {
+    "name_zh": "云端生产排障",
+    "intro": "Azure 生产问题的排障入口：用 AppLens、Azure Monitor、resource health 做安全分诊。覆盖面很宽——App Service 高 CPU、部署失败、Container Apps 的 503 和端口不匹配、Function 遥测在改配置后断掉、AKS、VM 的 RDP / SSH 连不上、NSG 或防火墙拦截、kubectl 连不上、CoreDNS 故障、pod pending、crashloop、节点 NotReady、镜像拉取失败、健康探针失败，以及 Event Hubs / Service Bus 的消息锁丢失与死信。安装量 56.2 万，8 周 +0.7%，ZeroLeaks 给了 warn。",
+    "usage": "线上 Azure 服务出问题、你手上有资源名但不知道先看哪个面板时用；它按症状把人引到对应的诊断路径上。",
+    "notes": "ZeroLeaks 审计结论 warn。会用到 KQL 和 CLI 命令，执行前先确认自己手上的权限范围。"
+  },
+  "microsoft/azure-skills/azure-prepare": {
+    "name_zh": "部署预置",
+    "intro": "把项目准备成能用 azd 部署的形态：生成 azure.yaml、基础设施（Bicep 或 Terraform）和 Dockerfile，对上 Azure Developer CLI 的流程。description 划得很死：只有用户明确要用 azd、或者项目里已经有 azure.yaml 才用它。安装量 56.1 万，8 周 -0.4%，Socket 给了 warn。",
+    "usage": "决定用 azd 当部署工具、要新建 azure.yaml 和 IaC、或者要把现有应用改造成能被 azd 拉起来的时候用。",
+    "notes": "Socket 审计结论 warn。非 azd 部署、Python App Service 纯代码部署、跨云迁移都不归它。"
+  },
+  "microsoft/azure-skills/azure-ai": {
+    "name_zh": "云上智能服务",
+    "intro": "Azure AI 的四块服务：AI Search（向量、混合、语义检索）、Speech（语音转文字、文字转语音、转写）、OpenAI、Document Intelligence（OCR）。description 基本是一份 WHEN 关键词表，靠这些词触发。安装量 56.1 万，8 周 +0.3%，四家审计 provider 全 pass。",
+    "usage": "要给应用接检索、做 OCR、把文字转语音或把录音转文字时用；也能回答这几项服务之间该怎么选。",
+    "notes": "需要 Azure 资源和对应凭据。纯提示词或模型选型的问题它不解决。"
+  },
+  "microsoft/azure-skills/azure-deploy": {
+    "name_zh": "上线执行",
+    "intro": "执行已经准备好的部署：只对已有 .azure/deployment-plan.md 和基础设施文件的项目动手，跑 azd up、azd deploy、terraform apply、az deployment，并带错误恢复。description 反复强调——要新建应用请走 azure-prepare，它还需要 azure-validate 给出通过状态。安装量 56.1 万，8 周 +0.1%，Socket 给了 warn。",
+    "usage": "基础设施和部署计划都已就绪、只差跑 azd up 或 terraform apply 推到 Azure 时用；「创建并部署」这类需求得先过 azure-prepare。",
+    "notes": "Socket 审计结论 warn。没有 .azure/deployment-plan.md 和 validate 的通过状态时它不该被调用。"
+  },
+  "microsoft/azure-skills/azure-validate": {
+    "name_zh": "部署前校验",
+    "intro": "部署前的体检：查配置、查基础设施（Bicep 或 Terraform）、查 RBAC 角色分配、查托管身份权限、查前置条件，还做 what-if 分析。description 把触发词铺得很开，从「检查能不能部署」到「验证 Container Apps 部署」都归它。安装量 56 万，8 周趋势 0，四家审计 provider 全 pass。",
+    "usage": "上云前想先确认权限和资源配得对不对、或者部署失败后要回头找配置问题时用；它也是 azure-deploy 的前置。",
+    "notes": "只做校验不落地，任何改动都要另走部署技能。"
+  },
+  "microsoft/azure-skills/azure-storage": {
+    "name_zh": "存储服务选型",
+    "intro": "Azure 存储的问答型技能：Blob、File Shares、Queue、Table、Data Lake 五类服务，以及访问层 hot / cool / cold / archive 的区别、什么场景用哪一层、层与层怎么比，还讲生命周期管理。description 明确把 SQL、Cosmos DB、Event Hubs / Service Bus 排除在外。安装量 56 万，8 周 0，四家审计 provider 全 pass。",
+    "usage": "要决定文件往哪存、冷数据该沉到哪一层、或者设计生命周期规则时用；也在需要解释几种存储服务差别时用。",
+    "notes": "是知识型技能，不替你建资源。数据库和消息队列的问题去隔壁技能。"
+  },
+  "microsoft/azure-skills/azure-compliance": {
+    "name_zh": "合规体检",
+    "intro": "跑 Azure 合规与安全审计：用 azqr 做最佳实践评估，加上 Key Vault 的到期检查——过期证书、快过期的 secret、孤儿资源、策略与合规校验、安全态势。带 needs_external_cli 标记，azqr 得先装好。安装量 55.9 万，8 周 -0.3%，四家审计 provider 全 pass。",
+    "usage": "例行合规扫描、上线前的安全检查、或者想一次性找出没人管的资源和快过期的证书时用。",
+    "notes": "依赖外部 CLI azqr，没装就跑不动。扫描结果要在有足够读权限的身份下才完整。"
+  },
+  "microsoft/azure-skills/appinsights-instrumentation": {
+    "name_zh": "遥测接入",
+    "intro": "给 webapp 接 Azure Application Insights 的指导：遥测模式、SDK 怎么设、配置项怎么填，description 里还挂着 APM 最佳实践。安装量 55.9 万，8 周 +0.1%，带 has_references，四家审计 provider 全 pass。",
+    "usage": "新项目要加监控、或者现有项目埋点乱成一团想按规范重排时用；也适合确认 App Insights 到底该记哪些东西。",
+    "notes": "偏 SDK 与配置指导，不含具体语言的完整实现。要有 Azure 资源和连接串才能落地。"
+  },
+  "microsoft/azure-skills/azure-resource-lookup": {
+    "name_zh": "资源盘点",
+    "intro": "盘点 Azure 资源：跨订阅或资源组列出 web app、VM、存储账户、container app，按 tag 找资源、做 tag 分析、找孤儿资源和未挂载的磁盘、按类型统计数量，底子是 Azure Resource Graph 查询。description 明确不做部署变更、不做成本优化。安装量 55.9 万，8 周 +0.1%，无 flag，四家审计 provider 全 pass。",
+    "usage": "接手一个环境想先摸清有什么、要找没人认领的资源、或者要回答「我这个订阅里有多少台机器」时用。",
+    "notes": "只读盘点。成本分析和资源变更都不归它。"
+  },
+  "microsoft/azure-skills/entra-app-registration": {
+    "name_zh": "应用注册向导",
+    "intro": "Microsoft Entra ID 应用注册与 OAuth 2.0 / MSAL 接入：建 app registration、配 OAuth、加 API 权限、生成 service principal、给 console app 的 MSAL 写法。安装量 55.9 万，8 周 -0.7%，带 has_references，四家审计 provider 全 pass。",
+    "usage": "要让自己的应用走 Entra ID 登录、或者调试权限不足和拿不到 token 的问题时用；第一次接认证从这儿起步。",
+    "notes": "Key Vault 机密的问题不归它管。需要租户里能建应用注册的权限。"
+  },
+  "microsoft/azure-skills/azure-resource-visualizer": {
+    "name_zh": "架构图生成",
+    "intro": "分析资源组并产出 Mermaid 架构图，把资源之间的依赖关系画出来。description 的触发词就是架构图、可视化资源、看资源关系、画拓扑这一类。安装量 55.9 万，8 周 -0.3%，无 flag，四家审计 provider 全 pass。",
+    "usage": "要给不熟这套环境的人讲清架构、写文档需要一张拓扑图、或者怀疑某两个资源的依赖配错时用。",
+    "notes": "产出是 Mermaid 源码，渲染要靠你的文档工具。资源多了图会很挤，通常得按资源组切开画。"
+  },
+  "microsoft/azure-skills/azure-kusto": {
+    "name_zh": "云日志查询",
+    "intro": "用 KQL 查 Azure Data Explorer（Kusto / ADX）：日志分析、遥测、时序数据、IoT 数据、异常检测。安装量 55.9 万，8 周 +0.1%，Snyk 和 Runlayer 两家都给了 warn——这四个审计里出两个 warn 的比例不算低。",
+    "usage": "日志落在 ADX 里要写查询、或者要从一堆时序数据里找异常点时用；也适合把一句自然语言需求翻成 KQL。",
+    "notes": "Snyk、Runlayer 审计结论均为 warn。要有 ADX 集群的查询权限，否则只能生成语句跑不了。"
+  },
+  "microsoft/azure-skills/azure-aigateway": {
+    "name_zh": "智能网关配置",
+    "intro": "把 Azure API Management 配成 AI Gateway：给模型、MCP 工具和 agent 做网关，涵盖语义缓存、token 限额、内容安全、负载均衡、AI 模型治理、MCP 限流、越狱检测、接 Azure OpenAI 或 AI Foundry 后端、把 OpenAPI 导进网关、把 API 转成 MCP。安装量 55.9 万，8 周 -0.7%，Snyk 给了 warn。",
+    "usage": "多个模型要统一出入口、要给 LLM 调用加限额和内容策略、或者想把已有 API 包成 MCP 让 agent 用时用。",
+    "notes": "Snyk 审计结论 warn。这套策略都落在 APIM 实例上，得先有可用的 APIM。"
+  },
+  "remotion-dev/skills/remotion-render": {
+    "name_zh": "视频导出",
+    "intro": "把 Remotion 项目导出成视频。description 全文只有 Export a Remotion video 这几个词，没有任何参数、分辨率或编码说明。安装量 55.8 万，8 周涨 149.4%，三家审计 provider 全 pass。",
+    "usage": "Remotion 合成写完要出成片时用；也用来排查导出失败、渲染卡住这类问题。",
+    "notes": "description 太薄，导出参数得自己看正文或 Remotion 文档。前提是已有能跑的 Remotion 工程。"
+  },
+  "prime-skills/runcomfy-agent-skills/ai-music": {
+    "name_zh": "生成式配乐",
+    "intro": "RunComfy 上生成 AI 音乐的路由：要人声、要 44.1 kHz 立体声、时长 5 秒到 5 分钟走 ElevenLabs（$0.0083/秒）；要便宜走 ACE Step / ACE Step 1.5（StepFun-AI 开源权重、标签驱动作曲、多语种歌词，$0.0002–0.0003/秒，描述里说约便宜 27 倍）。另有 ACE Step 的 audio-inpaint 重做某段时间、audio-outpaint 前后延长。安装量 55.3 万，8 周 -4.1%。",
+    "usage": "要做带人声的钩子、批量铺 BGM、写多语种歌、修一段难听的副歌，或者把 30 秒小样拉成两分钟时用。",
+    "notes": "要先装本地 runcomfy CLI 并配好账号。价格和倍数是 description 里写的，账单细节看平台。"
+  },
+  "mattpocock/skills/resolving-merge-conflicts": {
+    "name_zh": "冲突收尾",
+    "intro": "处理进行中的 git merge / rebase 冲突。description 只有一句：需要解决正在发生的合并冲突时用它。安装量 55.1 万，Snyk 给了 warn，8 周趋势 -74.7%——是这批 50 条里跌得最狠的一条。",
+    "usage": "merge 或 rebase 卡在冲突里、一堆 <<<<<<< 标记不知道哪些该留时用；冲突已经解完就不必装。",
+    "notes": "Snyk 审计结论 warn。description 极简，具体做法要装上看正文。"
+  },
+  "microsoft/azure-skills/azure-messaging": {
+    "name_zh": "消息队列排障",
+    "intro": "排查 Azure 消息 SDK 的问题：Event Hubs 和 Service Bus 的连接失败、认证错误、消息处理异常、SDK 配置错误。description 的 WHEN 列表很长，AMQP 报错、message lock lost、锁续期、send timeout、receiver disconnected、checkpoint、死信、session lock 过期、link detach、重复事件、offset 重置都在里面。安装量 55 万，8 周 -0.8%，四家审计 provider 全 pass。",
+    "usage": "消息收不到、一直重投、锁老是过期、连接老是断开时用；它按症状对到 SDK 层面的原因。",
+    "notes": "偏排障知识，不替你改代码。说明 SDK 语言（Python / Java / JS / .NET）才能拿到对得上的答案。"
+  },
+  "mattpocock/skills/wizard": {
+    "name_zh": "人工步骤向导",
+    "intro": "生成一个交互式 bash 向导，一步一步带人做完只有人能做的事：开通基础设施、配凭据或 CI secret、走一遍不熟的第三方后台、跑一次性迁移或切换。description 反过来划了界——agent 自己能做的步骤别用它。安装量 53.2 万，8 周 -6.4%，三家审计 provider 全 pass。",
+    "usage": "流程里有一步必须人去后台点、去控制台配的时候用；把这类步骤打成脚本，比让模型一步步口头指挥稳。",
+    "notes": "只适合人工步骤，纯代码能干的活别包装成向导。产物是 bash 脚本，没有 bash 的环境用不了。"
+  },
+  "heygen-com/hyperframes/product-launch-video": {
+    "name_zh": "产品发布片",
+    "intro": "把产品页、营销 URL、现成脚本或 brief 变成发布或宣传视频：SaaS promo、功能揭晓、产品演示、应用和公司发布都算，商业化 URL 默认走它，站点导览和展示也归这条线。安装量 52.2 万，8 周涨 132.9%，带 has_references，Snyk 给了 warn。",
+    "usage": "要发新产品、要一段能放官网首屏的 promo、或者手上只有个链接想直接出片时用。",
+    "notes": "Snyk 审计结论 warn。需求不清楚时 description 让你回到 /hyperframes 重新分流。"
+  },
+  "microsoft/azure-skills/azure-compute": {
+    "name_zh": "虚拟机选型",
+    "intro": "Azure 虚拟机与 VMSS 的选型路由：建机、推荐规格、比价、弹性伸缩集、autoscale、burstable、GPU / HPC / 机器学习负载、负载均衡、Flexible 与 Uniform 编排、成本估算、容量预留（CRG）、机器注册。description 还写明在 VM 创建意图上优先于通用的最佳实践查询，该用 compute_vm_list-skus、list-images、check-quota。安装量 51.5 万，8 周 -0.7%，Snyk 给了 warn。",
+    "usage": "要开机器但不确定选哪个系列和规格、要估算成本、或者要预留容量时用；GPU 和 HPC 这类特殊负载也先在这分流。",
+    "notes": "Snyk 审计结论 warn。是路由层，真正的创建动作落在别的技能上。"
+  },
+  "microsoft/azure-skills/azure-cloud-migrate": {
+    "name_zh": "跨云迁移",
+    "intro": "把别的云上的工作负载评估并迁到 Azure，带报告和代码转换：Lambda 到 Functions，Beanstalk / Heroku / App Engine 到 App Service，Fargate / Kubernetes / Cloud Run / Spring Boot 到 Container Apps。安装量 50.8 万，8 周 -1.1%，四家审计 provider 全 pass。",
+    "usage": "手上有一坨 AWS 或 GCP 的东西要搬过来、需要先评估工作量再动手时用；也用来对照目标服务该怎么映射。",
+    "notes": "只做跨云迁到 Azure 这一个方向。纯 Azure 内部的改造不归它。"
+  },
+  "heygen-com/hyperframes/faceless-explainer": {
+    "name_zh": "无出镜解说",
+    "intro": "把任意文本——文章、笔记、一个话题、一份 brief——变成不出镜的解说视频：没有站点可录也没有素材可用，画面要按场自己造，靠排版、抽象图形、图表和数据可视化撑住。适合话题解说、概念拆解、how-to、清单类内容。安装量 50.5 万，8 周涨 131.7%，带 has_references，三家审计 provider 全 pass。",
+    "usage": "要做知识区那种纯解说、不露脸也不录屏的视频时用；从网页出片的需求得去 product-launch-video。",
+    "notes": "视觉全靠生成、没有素材兜底，所以文案密度和节奏决定成片质量。需求不清楚时先回 /hyperframes。"
+  },
+  "google/agents-cli/google-agents-cli-adk-code": {
+    "name_zh": "智能体编码",
+    "intro": "写 ADK（Agent Development Kit）agent 代码时的速查：agent 类型、tool 定义、编排模式、callback、state 管理、graph Workflow API，还有可研究的参考配方。description 把脚手架和部署划出去——那两件事各有专门的技能。安装量 50.3 万，8 周涨 15%，三家审计 provider 全 pass。",
+    "usage": "项目里已经用 ADK、现在要加 tool、写 callback 或者理清 state 怎么传时用；动手搭骨架前先看它给的模式。",
+    "notes": "只给 API 模式和代码写法，不负责建项目也不负责上线。绑定 ADK 生态，别的 agent 框架用不上。"
+  },
+  "google/agents-cli/google-agents-cli-deploy": {
+    "name_zh": "智能体部署",
+    "intro": "把 agent 部署出去：Agent Runtime、Cloud Run、GKE 三个目标，外加 service account、密钥配置、CI/CD、回滚、生产基础设施，以及把 agent 绑到 Agent Gateway。覆盖 agents-cli 支持的所有框架（ADK、LangChain 等）。安装量 50.2 万，8 周涨 15%，三家审计 provider 全 pass。",
+    "usage": "agent 本地跑通了要上云、要配 CI/CD 和密钥、或者部署挂了要排错时用。",
+    "notes": "不教怎么写 agent 代码，也不管评估和脚手架。需要 GCP 项目和相应权限。"
+  },
+  "google/agents-cli/google-agents-cli-publish": {
+    "name_zh": "智能体发布",
+    "intro": "把 agent 发布并注册出去：发布到 Gemini（原 Gemini Enterprise），在 Agent Registry 里列、改、删已注册的 agent，注册 MCP server，覆盖 ADK 与 A2A 两种注册模式、命令行参数、从部署元数据自动识别，以及 Agent Registry 的批量管理。安装量 50.2 万，8 周涨 15%，三家审计 provider 全 pass。",
+    "usage": "agent 部署完之后要对外发布、要进 Agent Registry 统一管理、或者要登记一个 MCP server 时用。",
+    "notes": "只管发布与注册，部署本身走 google-agents-cli-deploy。"
+  }
+}

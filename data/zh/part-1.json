@@ -1,0 +1,302 @@
+{
+  "vercel-labs/skills/find-skills": {
+    "name_zh": "技能查找",
+    "intro": "让模型在你说「有没有能干这事的技能」时，帮你从 skills.sh 里找出可安装的技能并装上。官方出品，安装量 394 万，是这批 300 条里的第一名；Snyk 给的是 warn / MEDIUM，其余四家审计都是 pass。",
+    "usage": "不知道自己缺什么能力时先问一句；装完新技能想确认是否已收录；给团队环境批量挑选技能。",
+    "notes": "Snyk 判 warn / MEDIUM，其余四家 pass。它只是个检索入口，真正干活的是被搜出来的那个技能。"
+  },
+  "101-skills/superpowers/ai-video-generation": {
+    "name_zh": "视频生成器",
+    "intro": "通过 inference.sh CLI 调 Google Veo、Seedance 2.0、Wan、Grok 等 40 多个模型，做文生视频、图生视频、参考图生视频、唇形同步和视频放大。安装量 357 万，但自有安装只有 81 万，其余是合并 fork 的量；flags 标了 needs_external_cli。",
+    "usage": "做社交媒体短视频、产品演示、口播头像；手上有张图想让它动起来；需要批量试不同模型出片。",
+    "notes": "要走 inference.sh CLI 和对应账号额度；Socket 判 warn。合并 fork 后总量虚高，看自有 81 万更准。"
+  },
+  "101-skills/superpowers/ai-image-generation": {
+    "name_zh": "图像生成器",
+    "intro": "用 inference.sh CLI 接 GPT-Image-2、FLUX、Gemini 3 Pro Image、Seedream 等 50 多个模型，覆盖文生图、图生图、局部重绘、LoRA 和放大。安装量 357 万，自有 81 万；flags 标了 needs_external_cli。",
+    "usage": "出概念图、产品样机图、社媒配图；需要在一个流程里横评多家图像模型；要给已有图做局部修改。",
+    "notes": "依赖 inference.sh CLI 与外网额度；Socket 判 warn。别把它当本地绘图工具，没网就跑不起来。"
+  },
+  "101-skills/superpowers/ai-avatar-video": {
+    "name_zh": "数字人口播",
+    "intro": "走 inference.sh CLI 做数字人头像和口播视频，推荐 P-Video-Avatar（自带 TTS），也可选 OmniHuman、Fabric、PixVerse，配音能接 Inworld、ElevenLabs、Kokoro。安装量 338 万，自有 81 万。",
+    "usage": "做 UGC 广告、讲解视频、虚拟主播；外语口播要换配音；已经录好音只要对口型。",
+    "notes": "需要 inference.sh CLI 和模型额度；Socket 判 warn。人物素材的肖像授权自己确认。"
+  },
+  "101-skills/superpowers/twitter-automation": {
+    "name_zh": "推特自动化",
+    "intro": "通过 inference.sh CLI 调用 x/post-tweet、x/post-create、x/post-like、x/dm-send、x/user-follow 等现成 app，做发推、点赞、转推、私信和关注。安装量 300 万，自有 81 万，8 周涨 76%。",
+    "usage": "需要按计划批量发推；维护账号互动；同步私信和关注列表。",
+    "notes": "要 inference.sh CLI 和 X 账号凭据，写操作会真实落到账号上，先用小号试；Socket 判 warn。"
+  },
+  "vercel-labs/agent-browser/agent-browser": {
+    "name_zh": "浏览器代理",
+    "intro": "给 AI agent 用的浏览器自动化 CLI，能开页、填表、点按钮、截图、抓数据、测 Web 应用，也能驱动 VS Code、Slack 这类 Electron 桌面端。它是转发壳（flags 标 pointer），安装量 174 万；Runlayer 判 fail / HIGH，Snyk 判 warn / MEDIUM。",
+    "usage": "抓网页数据、跑端到端测试、给自家应用做狗粮测试；需要登录后才能操作的流程。",
+    "notes": "转发壳，实际内容在同仓库别处；Runlayer 判 HIGH 风险，接生产账号前先自己读一遍 SKILL.md 和脚本。"
+  },
+  "mattpocock/skills/grill-me": {
+    "name_zh": "挑剔面试官",
+    "intro": "让模型反过来当面试官，把你方案里没想清楚的地方一句句问出来。正文只有一行转发指令，真正的拷问流程在同仓库的 grilling 技能里；安装量 139 万，但 8 周跌了 12.8%，flags 标了 pointer 和 thin_body。",
+    "usage": "方案或设计文档定稿前自检；评审前预演被挑刺；判断一份计划是不是看着完整其实空心。",
+    "notes": "单独装它等于只装了个转发壳，必须同时装 grilling，否则调用后没有内容。"
+  },
+  "open.feishu.cn/lark-doc": {
+    "name_zh": "飞书文档",
+    "intro": "飞书云文档（Docx / Wiki）的读写：读、创建、编辑文档，插入或下载图片附件，操作思维笔记。路由看 URL 路径和 token 而不是域名，doubao.com 的 /docx/、/wiki/ 链接也归它。安装量 126 万；抓取时 skills.sh 接口返回 401，所以没有审计结论。",
+    "usage": "让 AI 读一篇飞书文档再改；把整理好的内容写回云文档；处理文档里嵌的图片附件。",
+    "notes": "需要 lark-cli 与飞书应用授权；元数据抓取失败（401），审计栏是空的，不等于安全。"
+  },
+  "open.feishu.cn/lark-base": {
+    "name_zh": "飞书多维表",
+    "intro": "飞书多维表格（Base）的全套操作：建表、字段、记录、视图、统计、公式与 lookup、表单、仪表盘，以及 BaseApp / AppMode 页面和角色权限。遇到 Base、bitable、/base/ 链接都归它。安装量 126 万，抓取时 401 无审计结论。",
+    "usage": "给业务搭一张多维表格并配视图；批量改记录和字段；做 Base 里的应用页。",
+    "notes": "依赖 lark-cli 和飞书授权；文件导入导出要转 lark-drive。审计数据缺失。"
+  },
+  "open.feishu.cn/lark-shared": {
+    "name_zh": "飞书鉴权",
+    "intro": "管 lark-cli 的登录与授权：auth login / status / logout、用户身份和机器人身份的区别、按业务域（all / docs / drive）申请权限、缺 scope 时怎么补、撤销授权，以及 _notice JSON 怎么读。安装量 126 万。",
+    "usage": "第一次配 lark-cli；调用别的 lark-* 技能报权限不足；要确认当前用的是用户身份还是机器人身份。",
+    "notes": "其他所有飞书技能的前置，装飞书技能组先装它。审计数据抓取失败，当前为空。"
+  },
+  "open.feishu.cn/lark-drive": {
+    "name_zh": "飞书云盘",
+    "intro": "飞书云空间的文件管理：上传下载、建文件夹、复制移动删除、看元数据、查权限、评论订阅、版本和密级标签，还能把 Word / Markdown / Excel / PPTX 导入成 docx、sheet、bitable、slides。安装量 126 万。",
+    "usage": "整理云盘目录；拿到一个云空间链接要判断它到底是什么；把本地 Office 文件导成飞书在线文档。",
+    "notes": "依赖 lark-cli 和授权；文档内容编辑走 lark-doc，表内数据走 lark-sheets / lark-base。审计栏为空。"
+  },
+  "open.feishu.cn/lark-im": {
+    "name_zh": "飞书消息",
+    "intro": "飞书 IM 的收发与群管理：发消息、回复、搜聊天记录、管群成员、传文件和图片、表情回复、应用内和短信电话加急，还能发交互卡片并监听 card.action.trigger 回调。安装量 125 万，抓取时 401。",
+    "usage": "让 agent 代发消息或通知；翻历史聊天记录找结论；做带按钮的卡片机器人。",
+    "notes": "需要 lark-cli 与飞书应用权限；卡片回调要求有公网可达的回调地址。审计数据缺失。"
+  },
+  "open.feishu.cn/lark-sheets": {
+    "name_zh": "飞书表格",
+    "intro": "飞书电子表格的完整操作：工作表与行列结构、单元格读写（值 / 公式 / 样式 / 批注 / 图片）、区域复制排序填充、查找替换、图表、透视表、条件格式、筛选视图、下拉列表、迷你图，还有公式校验和版本回滚。安装量 125 万，flags 标 has_references。",
+    "usage": "做统计汇总与可视化；把 Excel 公式迁到飞书表格；搭财务模型（DCF、三张表、预算）。",
+    "notes": "依赖 lark-cli 与授权；多维表格请改用 lark-base。审计数据缺失。"
+  },
+  "open.feishu.cn/lark-wiki": {
+    "name_zh": "飞书知识库",
+    "intro": "管飞书知识空间：建和查知识空间、管空间成员、管节点层级、在知识库里组织文档和快捷方式，也能移动复制节点。判断依据同样是 URL 路径和 token，doubao.com 的 /wiki/ 也归它。安装量 125 万，flags 标 has_references。",
+    "usage": "在知识库里找文档或新建文档；调整目录树；查谁是某个空间的成员。",
+    "notes": "依赖 lark-cli 和授权；上传文件到节点下走 lark-drive，改内容走 lark-doc / lark-sheets。审计为空。"
+  },
+  "open.feishu.cn/lark-calendar": {
+    "name_zh": "飞书日历",
+    "intro": "飞书日历和会议室：查看与搜索日程、创建和更新日程、管参会人、查忙闲、推荐开会时段、订会议室。安装量 125 万；边界写得很清楚，过去的视频会议记录归 lark-meeting，待办归 lark-task。",
+    "usage": "排会先查所有人忙闲；批量改日程；会议室被占了要找替代时段。",
+    "notes": "需要 lark-cli 和日历权限；审计数据抓取失败（401），当前为空。"
+  },
+  "open.feishu.cn/lark-task": {
+    "name_zh": "飞书任务",
+    "intro": "飞书任务管理：建待办、改状态、拆子任务、组织清单、分配协作成员、传附件，还包括注册注销任务智能体和写智能体的任务记录。安装量 125 万，flags 标 has_references，正文带参考文件。",
+    "usage": "把会议结论转成待办派给人；跟踪项目清单进度；给任务补附件。",
+    "notes": "依赖 lark-cli 与授权；审批待办不属于任务，走 lark-approval。审计为空。"
+  },
+  "open.feishu.cn/lark-whiteboard": {
+    "name_zh": "飞书画板",
+    "intro": "查和改飞书云文档里的画板：导出画板为预览图、导出原始节点结构、用多种格式回写画板内容。安装量 125 万，flags 标 has_references，说明里明确排除了文档正文编辑（归 lark-doc）和文档内嵌表格（归 lark-sheets）。",
+    "usage": "让 agent 看懂一张画板里画了什么；把画板导成图片；按结构化数据重画画板。",
+    "notes": "依赖 lark-cli 与授权；只处理画板本身。审计数据缺失。"
+  },
+  "open.feishu.cn/lark-mail": {
+    "name_zh": "飞书邮箱",
+    "intro": "飞书邮箱的邮件类操作：起草和发送邮件、回复转发、查阅搜索邮件、管文件夹和标签、管联系人、监听新邮件、配收信规则。说明里明确限 mail / email 意图，文档表格日历鉴权都不归它。安装量 124 万。",
+    "usage": "让 agent 起草并发出通知邮件；按规则筛未读邮件；把邮件内容转成摘要。",
+    "notes": "需要 lark-cli 和邮箱权限；触发词只认 mail / email，问联系人不走它。审计为空。"
+  },
+  "open.feishu.cn/lark-contact": {
+    "name_zh": "飞书通讯录",
+    "intro": "按姓名或邮箱查出 open_id，或拿 open_id 反查姓名、部门、邮箱、联系方式、个人状态和签名，也能按关键词搜当前用户可见的机器人。安装量 124 万。边界很硬：部门树遍历和组织架构图不归它，要走原生 OpenAPI。",
+    "usage": "只知道同事名字但要给他发消息或排日程；拿到一串 open_id 想知道是谁。",
+    "notes": "依赖 lark-cli 和通讯录权限；查不到人往往是可见范围不够。审计数据缺失。"
+  },
+  "open.feishu.cn/lark-event": {
+    "name_zh": "飞书事件流",
+    "intro": "订阅并消费飞书实时事件，用 lark-cli event consume <EventKey> 把事件以 NDJSON 流吐出来，覆盖 IM 消息和表情、群变更、审批状态、任务更新、会议开始结束、妙记生成、画板更新。安装量 124 万；支持 --max-events 和 --timeout 做有界运行，靠 stderr 的就绪标记告诉 agent 可以开工。",
+    "usage": "写常驻机器人；把飞书事件接进自己的队列；需要限时长跑一轮就退出的批处理。",
+    "notes": "需要 lark-cli 与事件订阅权限，长跑进程要自己管重连和去重。审计为空。"
+  },
+  "open.feishu.cn/lark-minutes": {
+    "name_zh": "妙记转交",
+    "intro": "已经废弃的转发壳。说明只有一句：仅当用户或上游配置显式指定 lark-minutes 时使用，相关请求统一交由 lark-meeting 处理。安装量 124 万，flags 同时标了 deprecated 和 thin_body，正文里没有任何实际流程。",
+    "usage": "只在旧配置里还写着 lark-minutes 时用它兜底，其他情况直接装 lark-meeting。",
+    "notes": "停止维护，正文极短，本身没有实现；新项目不要装。"
+  },
+  "open.feishu.cn/lark-vc": {
+    "name_zh": "会议转交",
+    "intro": "废弃项。说明是一句转交话：仅当用户或上游配置显式指定 lark-vc 时使用，相关请求统一交由 lark-meeting 处理。安装量 124 万，flags 标 deprecated 和 thin_body，正文没有自己的流程。",
+    "usage": "老配置还指向 lark-vc 时兜底；新需求直接用 lark-meeting。",
+    "notes": "停止维护且正文极短，装了也只是个路标。"
+  },
+  "open.feishu.cn/lark-workflow-meeting-summary": {
+    "name_zh": "纪要汇总",
+    "intro": "一个工作流技能：把指定时间范围内的会议纪要汇总，生成结构化报告，用于整理纪要、出会议周报、回顾一段时间内的会议内容。安装量 124 万，说明里没写它具体依赖哪些底层命令。",
+    "usage": "周五要出一份本周会议周报；复盘一个项目一个月的会议结论。",
+    "notes": "依赖 lark-cli 与妙记数据权限，前提是会议本身有纪要；审计数据缺失。"
+  },
+  "open.feishu.cn/lark-openapi-explorer": {
+    "name_zh": "接口勘探",
+    "intro": "从飞书官方文档库里挖没有 CLI 封装的原生 OpenAPI，用在现有 lark-* 技能和 lark-cli 已注册命令都不够用的时候。安装量 124 万，说明里写清了它的定位是兜底而不是首选。",
+    "usage": "需求撞上 CLI 没有的命令；要确认某个原生接口的参数和权限。",
+    "notes": "依赖 lark-cli；挖出来的接口要自己处理鉴权、分页和错误码。审计数据缺失。"
+  },
+  "open.feishu.cn/lark-workflow-standup-report": {
+    "name_zh": "日程待办摘要",
+    "intro": "一个编排型工作流：把 calendar +agenda 和 task +get-my-tasks 组合起来，输出指定日期的日程加未完成任务摘要。安装量 124 万，说明里直接点出它调用的就是这两条命令。",
+    "usage": "每天早上看一眼今天排了什么；给周会准备本周日程和未完成项。",
+    "notes": "依赖 lark-cli，日历和任务两个权限都要开；审计数据缺失。"
+  },
+  "open.feishu.cn/lark-skill-maker": {
+    "name_zh": "技能工厂",
+    "intro": "给 lark-cli 造自定义 Skill：把一组飞书 API 操作包成可复用的技能，或者把多步流程编排成一个技能。安装量 124 万。它是元技能，产出的是别的技能，自己不直接操作飞书数据。",
+    "usage": "团队反复做同一套飞书操作想固化成技能；把内部流程写成 lark-cli 技能。",
+    "notes": "依赖 lark-cli；写出来的技能要自己维护权限和错误处理。审计为空。"
+  },
+  "open.feishu.cn/lark-approval": {
+    "name_zh": "飞书审批",
+    "intro": "查和处理审批待办、已办和实例，搜索可发起的审批定义、看定义详情并发起原生审批实例。安装量 122 万。说明里特意切开两个易混点：审批待办不是飞书任务，创建审批定义和三方审批定义都不归它。",
+    "usage": "让 agent 批量处理待审单据；查某个审批走到哪一步；按定义发起一个新审批。",
+    "notes": "依赖 lark-cli 和审批权限；非审批类待办走 lark-task。审计数据缺失。"
+  },
+  "open.feishu.cn/lark-slides": {
+    "name_zh": "飞书幻灯片",
+    "intro": "飞书幻灯片技能，安装量 120 万，但输入里 description 是空的，上游没抓到说明。能确定的只有来源 open.feishu.cn、属于飞书那套 lark-* 技能组，以及元数据抓取时接口返回 401、没有审计结论。具体能做什么得自己读 SKILL.md。",
+    "usage": "只有确认它管的是飞书幻灯片、且你确实要在飞书里做 deck 时才装。",
+    "notes": "没有 description，没有审计数据，只有一个名字和安装量能推出来的东西。"
+  },
+  "open.feishu.cn/lark-attendance": {
+    "name_zh": "考勤查询",
+    "intro": "说明只有一句：查询自己的考勤打卡记录。安装量 119 万，是这批飞书技能里描述最短的一条，没写支持哪些参数、能不能查别人的、能不能导出。具体命令怎么写只能自己读 SKILL.md。",
+    "usage": "想确认自己某天到底有没有打卡；月底核对迟到、缺卡这类异常记录。",
+    "notes": "依赖 lark-cli 和考勤权限；说明里只提「自己」，别指望它做全员考勤统计。审计为空。"
+  },
+  "mattpocock/skills/grill-with-docs": {
+    "name_zh": "拷问并留档",
+    "intro": "和 grill-me 同一套拷问流程，区别是边问边产出文档：ADR 和术语表。安装量 119 万，8 周跌 12%；flags 标 pointer 和 thin_body，正文是转发壳，真正的流程在 grilling 里。",
+    "usage": "定架构决策时想顺手把理由记下来；新项目要建立术语表。",
+    "notes": "转发壳，正文极短，需要底层 grilling 技能在位才有内容。"
+  },
+  "open.feishu.cn/lark-okr": {
+    "name_zh": "飞书目标",
+    "intro": "管理飞书 OKR：查看和编辑周期、目标、关键结果、对齐关系、量化指标和进展记录。安装量 116 万，flags 标 has_references。边界写得明白：待办归 lark-task，日程归 lark-calendar，绩效评估不归它。",
+    "usage": "季度初建目标和 KR；查某个目标对齐到了谁；更新 KR 进展。",
+    "notes": "依赖 lark-cli 和 OKR 权限；审计数据抓取失败，当前为空。"
+  },
+  "mattpocock/skills/improve-codebase-architecture": {
+    "name_zh": "架构体检",
+    "intro": "扫一遍代码库找可以深化的地方，出一份可视化 HTML 报告，再对挑中的那一个走拷问流程。安装量 113 万，8 周跌 6%；Gen Agent Trust Hub 和 Snyk 都判 warn / MEDIUM，flags 标了 pointer。",
+    "usage": "接手陌生仓库想快速知道哪里最值得动；给重构排优先级；把架构评审结论做成能分享的报告。",
+    "notes": "转发壳；两家审计判 warn / MEDIUM，跑之前先看它要读哪些文件、会不会往外发东西。"
+  },
+  "open.feishu.cn/lark-markdown": {
+    "name_zh": "飞书纯文本",
+    "intro": "管飞书里的原生 Markdown 文件：查看、创建、上传、编辑，以及比较远端版本和本地草稿。安装量 113 万。边界清楚：纯本地 Markdown 文件操作不触发它，把 Markdown 导入成飞书在线文档也不归它。",
+    "usage": "飞书里存着 md 文件要改；想先 diff 远端版本和本地草稿再覆盖。",
+    "notes": "依赖 lark-cli 和云空间权限；导入成在线文档走 lark-drive。审计为空。"
+  },
+  "heygen-com/hyperframes/hyperframes-cli": {
+    "name_zh": "视频构建命令行",
+    "intro": "HeyGen 那套 HyperFrames 项目的 CLI 开发循环：init、add、catalog、capture、check、render、publish、cloud、doctor 等几十条子命令，覆盖本地、HeyGen 云、AWS Lambda、Google Cloud Run 四种渲染位置。安装量 112 万，8 周涨 137.5%；flags 标 deprecated，validate / inspect / layout 已是废弃别名，改用 check。",
+    "usage": "需要脚本化地跑渲染和发布；排查渲染失败；批量出片。",
+    "notes": "已标 deprecated，长期项目别新建在它上面；Snyk 判 warn / MEDIUM。"
+  },
+  "mattpocock/skills/prototype": {
+    "name_zh": "一次性原型",
+    "intro": "让模型写一个用完就扔的原型，专门回答某个设计问题：验证状态模型和逻辑手感对不对，或者看 UI 该长什么样。安装量 112 万，8 周跌 11.3%，三家审计全 pass。",
+    "usage": "拿不准某个状态机该怎么设计时先跑个假原型；给新界面先做个粗糙版看观感。",
+    "notes": "前提是团队能接受这段代码不合并；产出是丢弃物，别顺手当正式实现。"
+  },
+  "mattpocock/skills/tdd": {
+    "name_zh": "测试先行",
+    "intro": "按 TDD 走红-绿-重构：先写失败的测试，再写实现，再收拾结构。适合让模型在你划好的测试边界内改代码。安装量 111 万，8 周跌 3.4%；flags 标了 pointer，是转发壳。",
+    "usage": "修 bug 想先复现成测试；加功能要求每一步都有测试兜着；补集成测试。",
+    "notes": "转发壳，正文指向同仓库的底层技能；它不会替你判断测试写得对不对。"
+  },
+  "anthropics/skills/frontend-design": {
+    "name_zh": "前端设计品味",
+    "intro": "Anthropic 官方给前端出视觉方案：定审美方向、挑字体、做不一眼看出是模板默认样式的选择。安装量 108 万，curated 和 official 都为真，五家审计全是 pass。",
+    "usage": "新界面开工前先定视觉基调；现有页面看着像脚手架需要改；卡在排版和配色选择上。",
+    "notes": "它给的是设计判断和方向，不产出可直接用的组件代码。"
+  },
+  "heygen-com/hyperframes/hyperframes": {
+    "name_zh": "视频项目入口",
+    "intro": "HyperFrames 的强制入口：凡是要做、改、加动画、渲染视频或动态图形的请求都先读它。输入可以是网址、GitHub PR、Figma 链接、文字或已有素材，它恢复项目状态、装好对应工作流再往下派。安装量 108 万，8 周涨 147.7%。",
+    "usage": "第一次接触 HyperFrames 项目；不确定该用哪个子技能；要接着之前的项目继续做。",
+    "notes": "Snyk 判 warn / MEDIUM；默认输出框架就是 HyperFrames，除非你明确指定别的。"
+  },
+  "open.feishu.cn/lark-vc-agent": {
+    "name_zh": "会议代理转交",
+    "intro": "又一个废弃转发壳。说明只有一句：仅当用户或上游配置显式指定 lark-vc-agent 时使用，相关请求统一交由 lark-meeting 处理。安装量 108 万，flags 标 deprecated 和 thin_body，没有自己的实现。",
+    "usage": "只在旧配置里出现这个名字时兜底，否则直接装 lark-meeting。",
+    "notes": "停止维护、正文极短，装它只是为了让旧配置不报错。"
+  },
+  "mattpocock/skills/setup-matt-pocock-skills": {
+    "name_zh": "技能预配置",
+    "intro": "一次性配置技能：给仓库建好 issue tracker、triage 标签词表和领域文档目录结构，是这一整套工程技能的前置。安装量 103 万，8 周跌 4.8%，说明里要求在用其他工程技能之前先跑一次。",
+    "usage": "刚 clone 下来的仓库第一次上这套技能；团队标签命名不一致需要统一。",
+    "notes": "会往仓库里写配置和目录，跑之前先看清它改哪些文件、动不改得动现有 issue 模板。"
+  },
+  "mattpocock/skills/handoff": {
+    "name_zh": "交接文档",
+    "intro": "把当前对话压成一份交接文档，给另一个 agent 接着干。安装量 103 万，8 周跌 4.5%；flags 标 pointer，正文是转发壳，压缩流程在底层技能里。",
+    "usage": "上下文快满了要把活交给新会话；换模型或换工具继续做同一件事。",
+    "notes": "转发壳，压缩质量取决于底层技能；关键决策和文件路径要自己核一遍。"
+  },
+  "flowkit-labs/skills/reddit-automation": {
+    "name_zh": "红迪获客",
+    "intro": "两步走：先在合适的 subreddit 里找真有人在问、你真答得上的帖子并排序，再按真实经验写简短回复，要求披露身份、只在确实能回答时才提产品，并留人工审核后再发。安装量 101 万，8 周跌 3%；Snyk 判 warn / MEDIUM。",
+    "usage": "想在有真实需求的 Reddit 帖子里露面；需要把 Reddit 讨论转成可审核的回复草稿。",
+    "notes": "官方立场是反对雇水军刷帖，实际执行尺度自己把关；Snyk 判 warn / MEDIUM。"
+  },
+  "open.feishu.cn/lark-apps": {
+    "name_zh": "妙搭应用",
+    "intro": "妙搭（Spark / Miaoda）应用的创建与托管：本地全栈开发、云端生成迭代、UI mockup 与可交互原型、环境变量、协作者和角色权限、日志 Trace 与 PV/UV、定时和 Webhook 触发器。安装量 100 万。链接走 /app/app_ 前缀或 /page/<token>，运行域名为 *.aiforce.cloud。",
+    "usage": "要搭个小工具或内部系统并拿到可分享链接；给现有妙搭应用看线上日志和报错量。",
+    "notes": "依赖 lark-cli 和妙搭权限；普通云盘上传走 lark-drive，飞书文档编辑走 lark-doc。审计为空。"
+  },
+  "heygen-com/hyperframes/media-use": {
+    "name_zh": "素材管家",
+    "intro": "HyperFrames 项目的素材中枢：用 resolve 一条命令把 BGM、音效、图片、图标、品牌 logo、配音、调色 LUT 落成本地文件或可粘贴片段并记账；目录里没有就现场生成，配音、转写、字幕、抠像共用一套音频引擎。安装量 99 万，8 周涨 143.9%。",
+    "usage": "剪片时缺 BGM 或音效；要把一段口播转成字幕；素材想在多个项目里复用。",
+    "notes": "取 BGM 需要 heygen CLI，取音效不需要账号；Socket 和 Snyk 都判 warn。"
+  },
+  "mattpocock/skills/triage": {
+    "name_zh": "议题分诊",
+    "intro": "把 issue 和外部 PR 推进一条分诊状态机：分类、验证、必要时拷问提问人，最后写成 agent 能直接开工的简报。安装量 96 万，8 周跌 6.6%；Gen Agent Trust Hub 和 Snyk 都判 warn / MEDIUM。",
+    "usage": "issue 区被低质量报告淹没需要先分级；外部 PR 想先问清意图再接。",
+    "notes": "两家审计判 warn / MEDIUM；它会给 issue 打标签改状态，仓库写权限别开太大。"
+  },
+  "heygen-com/hyperframes/hyperframes-animation": {
+    "name_zh": "动效配方",
+    "intro": "HyperFrames 的动画知识库：原子动效规则、多段场景蓝本、转场、动效设计手法，以及七套运行时适配（GSAP 默认，另有 Lottie、Three.js、Anime.js、CSS keyframes、Web Animations API、TypeGPU）。安装量 96 万，8 周涨 151.7%，正文含 24 个命名文字动效。",
+    "usage": "要给一个镜头加动效但不知道用哪条规则；查某个运行时的具体 API；审已经做好的动画编排。",
+    "notes": "只对 HyperFrames 项目有效，单时间轴、seek 安全、确定性渲染，脱离这套框架用不上。"
+  },
+  "mattpocock/skills/grilling": {
+    "name_zh": "拷问流程",
+    "intro": "真正干活的那一层：反复追问你的计划、决策或想法，直到站不住的地方都露出来。grill-me 和 grill-with-docs 都是从它转发过去的壳。安装量 94 万，8 周跌 5.9%，三家审计全 pass。",
+    "usage": "方案写到自己都不确定时主动让它挨个追问；评审前预演一遍会被问到哪些难题。",
+    "notes": "过程不舒服，问题密度高；它只负责提问，不会替你改方案。"
+  },
+  "designed-by-ai/skills/design-mobile-apps": {
+    "name_zh": "移动端设计",
+    "intro": "用 Sleek 设计移动应用界面、编辑 Sleek 项目，再把设计实现成 React Native 或 HTML。安装量 91 万，8 周涨 70%；flags 标 needs_api_key，Snyk 判 fail / HIGH，是这批里两个 fail 之一。",
+    "usage": "要从零出移动端界面稿；已有 Sleek 项目要改；设计定了要落成 React Native 代码。",
+    "notes": "需要 Sleek 的 API key；Snyk 判 fail / HIGH，接进项目前先自己审一遍它调什么接口。"
+  },
+  "heygen-com/hyperframes/hyperframes-registry": {
+    "name_zh": "组件库登记",
+    "intro": "在 HyperFrames 组合里搜、装、接现成的区块和组件，约 400 个托管条目，搜索不用先装东西也不用账号。CRT 扫描线、故障、色差、胶片颗粒、地图、终端窗口、彩带这些效果先来这里找，别手搓。安装量 91 万，8 周涨 118.4%。",
+    "usage": "brief 里点名了某个视觉效果；要跑 hyperframes add 或 catalog；把装好的区块接进 index.html。",
+    "notes": "Snyk 判 warn / MEDIUM；条目质量参差，接进项目后要自己看渲染结果。"
+  },
+  "heygen-com/hyperframes/hyperframes-core": {
+    "name_zh": "组合规范",
+    "intro": "HyperFrames 的组合契约：项目结构、data-* timing 属性、class=\"clip\"、轨道、子组合、变量、媒体播放由框架接管、确定性渲染规则和校验。写组合 HTML 之前先读它。安装量 89 万，8 周涨 94.5%，三家审计全 pass。",
+    "usage": "手写 HyperFrames 组合前定结构；动画时间对不齐要查 timing 属性；渲染结果不确定要查确定性规则。",
+    "notes": "只对 HyperFrames 有效，普通网页 HTML 不适用。"
+  }
+}

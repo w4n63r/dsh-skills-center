@@ -1,0 +1,302 @@
+{
+  "leonxlnx/taste-skill/full-output-enforcement": {
+    "name_zh": "防截断输出",
+    "intro": "管住模型偷懒的默认习惯：强制它把代码生成完整，禁止留占位注释和省略号，撞到 token 上限时按界切断、续写干净，而不是草草收尾。description 自己就是这么写的：overrides default LLM truncation behavior。安装量 40.1 万，8 周涨 19.9%，五家审计（Gen Agent Trust Hub、Socket、Snyk、Runlayer、ZeroLeaks）全部 pass。",
+    "usage": "让它一次写完长文件、长迁移脚本或整段配置时用；输出里反复出现「其余同理」这类偷懒省略时的兜底。",
+    "notes": ""
+  },
+  "leonxlnx/taste-skill/gpt-taste": {
+    "name_zh": "网页品味调教",
+    "intro": "给 GPT 和 Codex 用的页面风格技能，需要显式叫出名字才会运行，不会自己插手。description 讲了三件事：布局要有变化、页面段落走严格的 AIDA 结构、滚动动效用 GSAP 实现。安装量 39.9 万，8 周涨 21.3%，四家审计全 pass。",
+    "usage": "用 Codex 生成落地页、产品介绍页时点名调用，想要成型的版式和滚动动效而不是将就的默认布局。",
+    "notes": "opt-in：不点名就不生效，装了也不会改变其它任务的输出。"
+  },
+  "prime-skills/runcomfy-agent-skills/codex-pet": {
+    "name_zh": "桌宠素材生成",
+    "intro": "从一张参考图生成 Codex 的桌宠素材：1536x1872 的精灵图 atlas，8 列 9 行、每格 192x208，覆盖 idle、running、waving、jumping、failed 等 9 个动作状态，放进 `$CODEX_HOME/pets/<name>/` 后 Codex 会当成自定义桌宠加载。只调一次 `runcomfy run openai/gpt-image-2/edit`，9 行动画用 ImageMagick 微变换拼出来。安装量 39.8 万。",
+    "usage": "想给 Codex 加一个自己的桌宠、手上有参考立绘但不清楚精灵图规格时用；也可以当 atlas 规格说明书看。",
+    "notes": "需要本地 RunComfy CLI 和 RUNCOMFY_TOKEN，还要 ImageMagick；不需要 OPENAI_API_KEY，也不用 Codex Pro。"
+  },
+  "obra/superpowers/brainstorming": {
+    "name_zh": "创意前脑暴",
+    "intro": "要求模型在任何创造性工作之前先做一轮头脑风暴：写新功能、搭组件、加功能、改行为、规划新项目，甚至演讲、生意、装修这类非软件的事都算。description 开头就是大写 MUST，语气很硬。安装量 39.8 万，8 周掉 2.3%；审计上 Socket 给 warn，Runlayer 直接 fail / HIGH，是这一片里唯一被判 HIGH 的条目。",
+    "usage": "拿到一句模糊需求正要开工时；评审前想把方案里的分歧点先摆到桌面上。",
+    "notes": "Runlayer 判 fail / HIGH、Socket 判 warn，装之前自己翻一遍 SKILL.md 正文；它会让模型先提问再动手，赶时间的时候会拖慢。"
+  },
+  "leonxlnx/taste-skill/industrial-brutalist-ui": {
+    "name_zh": "工业粗野界面",
+    "intro": "一套明确到有点偏执的界面风格：瑞士字体排版、死板的网格、极大的字号与留白反差、工具化的配色，做出来是硬挺的工业感。和 taste 系列其它条目一样属于 opt-in，不点名调用就不生效。安装量 39.7 万，8 周涨 20.7%，四家审计全 pass。",
+    "usage": "想要一个不像模板站的作品集、活动页或后台界面时点名用它；也适合给过于圆润的产品界面换一种硬口气。",
+    "notes": ""
+  },
+  "microsoft/azure-skills/azure-rbac": {
+    "name_zh": "角色最小权限",
+    "intro": "给某个身份找到权限最小的 Azure RBAC 角色，再生成对应的 CLI 命令和 Bicep 代码去赋值，同时说明授予角色本身需要什么权限。微软官方仓库出品、带 curated 标记，安装量 39.7 万。审计里 Snyk 给 warn / MEDIUM，其余 pass；skills.sh 的详情接口对这个条目返回 401，正文抓不到。",
+    "usage": "不知道该给托管标识分配哪个角色时；要写 role assignment 的 Bicep 又不想给过头权限时。",
+    "notes": "Snyk 判 warn / MEDIUM；本条目的 SKILL.md 因上游 401 抓不到，只能按 description 判断内容。"
+  },
+  "juliusbrussee/caveman/caveman-help": {
+    "name_zh": "野人技能索引",
+    "intro": "caveman 系列三件套的速查卡，把三个技能和它们的命令列在一页里。触发方式只有两个：输入 `/caveman-help`，或者说「caveman help」。它本身不干活，只是索引。安装量 39.6 万，但 8 周掉了 17.5%，是这一片里跌得比较明显的条目之一。",
+    "usage": "已经装了 caveman 系列、但记不住三个命令分别叫什么时查一眼。",
+    "notes": "纯索引，单独装它没有实际功能。"
+  },
+  "heygen-com/hyperframes/talking-head-recut": {
+    "name_zh": "口播视频包装",
+    "intro": "给已经拍好的口播、访谈、播客视频加一层设计过的图文卡片：动态标题、人名条、数据标注、引用块、侧边栏、画中画，时间点跟转写文本对齐，画布可选 16:9 / 9:16 / 4:5，底层视频本身不做改动。安装量 39.5 万，8 周涨 109.9%，是这一片涨幅最高的条目。",
+    "usage": "口播视频剪完、缺信息图层的阶段用；把一段访谈重新包装成短视频平台的竖版物料。",
+    "notes": "不负责普通字幕，那要另走 `/embedded-captions`；带 has_references 标记，正文依赖引用文件。"
+  },
+  "leonxlnx/taste-skill/stitch-design-taste": {
+    "name_zh": "设计规范生成",
+    "intro": "给 Google Stitch 用的风格技能，输出一份给 agent 读的 `DESIGN.md`，把字体、配色、布局写成硬约束而不是形容词。同样是 opt-in，点名才运行；四家审计里 Snyk 和 ZeroLeaks 都给了 LOW 风险，其余 pass。安装量 39.4 万，8 周涨 20.5%。",
+    "usage": "项目还没有设计规范、想让多轮生成的界面保持同一套视觉规则时用。",
+    "notes": "只对 Google Stitch 这条流程有意义，别的生成器里装了也用不上。"
+  },
+  "leonxlnx/taste-skill/brandkit": {
+    "name_zh": "品牌素材包",
+    "intro": "编号上属于 leonxlnx 的 taste 系列，但这条已经搬走了：description 只剩一句「Moved to github.com/Leonxlnx/imagegen-skills」，正文很薄（thin_body）。它标着 opt-in，只在被点名时运行。安装量却有 39.1 万，8 周还涨了 23.1%——存量安装撑起来的数字，别当成内容质量的证据。",
+    "usage": "想找这套品牌素材技能的新位置时，按 description 里的地址去 imagegen-skills 仓库。",
+    "notes": "内容已迁移，装这条只能拿到一句跳转说明；正文薄（thin_body）。"
+  },
+  "shadcn/ui/shadcn": {
+    "name_zh": "组件库管家",
+    "intro": "管 shadcn 项目的组件全流程：新增、搜索、修 bug、调样式、组合成界面，连聊天输入这类现成界面也在范围里。判断依据是项目里有没有 `components.json`，也认 `shadcn init`、`--preset` 这类命令，自带组件文档和项目上下文。安装量 38.8 万（合并 fork 后，本体 27.1 万），8 周涨 16.8%。",
+    "usage": "用 shadcn/ui 建后台或营销站时；换 preset、加注册表里的组件、调组件样式先问它。",
+    "notes": "Socket 判 warn；带 has_references，正文会引用外部文档文件。"
+  },
+  "leonxlnx/taste-skill/image-to-code": {
+    "name_zh": "图片转代码",
+    "intro": "名字指向图片转代码，但这条现在只剩一句迁移说明：description 是「Moved to github.com/Leonxlnx/imagegen-skills. Runs only when called by name.」，正文很薄（thin_body）。来源 leonxlnx，安装量 38.6 万，8 周涨 20.7%；审计里 Socket 给 warn，Snyk pass / LOW。",
+    "usage": "需要这套图转代码能力时，去 description 给的 imagegen-skills 仓库找，而不是装这一条。",
+    "notes": "内容已迁移，正文只有跳转说明；Socket 判 warn。"
+  },
+  "heygen-com/hyperframes/slideshow": {
+    "name_zh": "幻灯片编排",
+    "intro": "用 HyperFrames 做一份可导航的演示稿：离散幻灯片、分片揭示、分支、热点跳转，还带演讲者模式和备注；也能把一个现成页面转成 deck。输出是能点的网页 deck，不是渲染好的 MP4。安装量 38 万，8 周涨 94%，是 HyperFrames 这个仓库里涨得最快的一条。",
+    "usage": "做路演 deck、产品介绍、能点开分支的交互演示时用；把已有落地页改造成演示稿。",
+    "notes": "用户没明确说要 slideshow 时它会先确认；想要的是视频就别用它。"
+  },
+  "leonxlnx/taste-skill/imagegen-frontend-web": {
+    "name_zh": "前端图生成",
+    "intro": "名字指向给前端生成图片，但这条已迁移：description 只剩「Moved to github.com/Leonxlnx/imagegen-skills. Runs only when called by name.」，正文很薄（thin_body）。安装量 38 万，8 周涨 20%；审计里 Socket 给 warn，Snyk pass / LOW。同样是 opt-in，不点名不运行。",
+    "usage": "要用的能力已经不在这一条里，按 description 的地址去 imagegen-skills 仓库安装。",
+    "notes": "内容已迁移；Socket 判 warn。"
+  },
+  "101-skills/superpowers/web-search": {
+    "name_zh": "联网检索",
+    "intro": "通过 inference.sh 的 CLI 调 Tavily 和 Exa 的搜索、内容抽取、直接回答接口，用来做资料检索、事实核对、RAG 取数。要先装外部 CLI 才能跑。安装量 37.9 万（合并 fork 后，本体 10.2 万），8 周涨 75.6%；审计上 Socket 和 Snyk 都给了 warn，Snyk 的风险等级是 MEDIUM。",
+    "usage": "要给模型补一轮外部资料、或者把网页内容抽成干净文本时用。",
+    "notes": "需要装 inference.sh CLI 并配好 key；Socket warn、Snyk warn / MEDIUM，装前先看正文。"
+  },
+  "101-skills/superpowers/python-executor": {
+    "name_zh": "代码沙箱执行",
+    "intro": "在托管沙箱里跑 Python：环境预装 NumPy、Pandas、Matplotlib、requests、BeautifulSoup、Selenium、Playwright、MoviePy、Pillow、OpenCV、trimesh 等上百个库，不用自己在本地装依赖。底层走 inference.sh，需要先装它的 CLI。安装量 37.7 万（本体 10.2 万），8 周涨 75.2%；Socket 与 Snyk 都给 warn，后者 MEDIUM。",
+    "usage": "要用科学计算和图像、视频处理库又不想污染本机环境时；批量处理数据、出图表。",
+    "notes": "依赖 inference.sh CLI 与账号；Snyk 判 warn / MEDIUM；代码离开本机在远端沙箱里跑。"
+  },
+  "prime-skills/runcomfy-agent-skills/runcomfy-cli": {
+    "name_zh": "云端模型命令行",
+    "intro": "RunComfy 命令行的用法说明：一个二进制、一次登录，后面挂几百个模型端点，覆盖出图、改图、生视频、图生视频、对口型、换脸、视频编辑、扩图、ControlNet、重打光、放大、LoRA 训练。技能教的是怎么装、怎么登录、怎么查模型 schema、怎么调用、怎么轮询、怎么用 JSON 输出模式。安装量 37.7 万，8 周跌 4.1%。",
+    "usage": "要写脚本批量调 RunComfy 上的模型，或者第一次配 `runcomfy` 登录时先读它。",
+    "notes": "需要 RunComfy 账号和 token；同仓库十来个细分技能都靠这个 CLI 落地。"
+  },
+  "101-skills/superpowers/agent-tools": {
+    "name_zh": "应用调用手册",
+    "intro": "用 inference.sh 的 CLI 去跑外部 AI 应用：出图、生成视频、调 LLM、搜索、3D、Twitter 自动化，模型清单里点了 FLUX、Veo、Gemini、Grok、Claude、Seedance、OmniHuman、Tavily、Exa、OpenRouter。偏总入口性质的说明。安装量 37.7 万（本体 10.2 万），8 周涨 75.1%；Socket 与 Snyk 均 warn，Snyk 风险 MEDIUM。",
+    "usage": "想知道 inference.sh 上有哪些模型可调、该用哪条命令时当索引查。",
+    "notes": "需要 inference.sh CLI；Snyk 判 warn / MEDIUM。"
+  },
+  "101-skills/superpowers/infsh-cli": {
+    "name_zh": "命令行速查",
+    "intro": "description 和同仓库的 `agent-tools` 一字不差：同样是 inference.sh CLI 跑出图、视频、LLM、搜索、3D 和 Twitter 自动化，模型清单也一样。区别只在 slug 和正文组织——这一条是 `infsh-cli`，明显冲着命令行本身写的。安装量 37.7 万，8 周涨 74.9%，审计里只有 Socket 给 warn。",
+    "usage": "已经在用 infsh 命令、想直接查命令写法时用它；和 `agent-tools` 内容重叠，装一个就够。",
+    "notes": "需要 inference.sh CLI；description 与 `agent-tools` 完全重复，选一个装。"
+  },
+  "prime-skills/runcomfy-agent-skills/face-swap": {
+    "name_zh": "换脸选路",
+    "intro": "在 RunComfy 上换脸，重点在选哪条路：视频里的角色替换走 Wan 2-2 Animate，单张图精修走 GPT Image 2 Edit，批量保身份走 Nano Banana Edit，局部编辑走 Flux Kontext，要复用一段表演的动作则用 Kling 2-6 Motion Control Pro。安装量 37.7 万，8 周跌 4.1%，三家审计全 pass。",
+    "usage": "拿不准该用哪个换脸模型时先让它判断；也适合分清需求是图还是视频、是整角色还是只换五官。",
+    "notes": "走 `runcomfy` CLI，需要 RunComfy 账号；换脸涉及肖像授权，别用在没同意的人身上。"
+  },
+  "prime-skills/runcomfy-agent-skills/video-inpainting": {
+    "name_zh": "视频局部擦除",
+    "intro": "在视频里按区域编辑：擦掉横穿多帧的物体、清理电线和水印这类痕迹、把某块区域换成运动匹配的画面。默认路线是 Wan 2-7 edit-video，身份稳定走 Lucy Edit Restyle，把片子当帧堆叠处理走 Seedream 4-0 edit-sequential。安装量 37.5 万，8 周跌 4.3%，三家审计全 pass。",
+    "usage": "素材里有不该出现的路人、线缆、水印要擦；或者某一小块画面需要替换但整段不能重拍。",
+    "notes": "需要 `runcomfy` CLI 和 token；视频逐帧处理，耗时和费用都不低。"
+  },
+  "prime-skills/runcomfy-agent-skills/image-inpainting": {
+    "name_zh": "图片局部修补",
+    "intro": "用蒙版控制图片的局部重绘：默认走通义 MAI Z-Image Turbo 的专用 inpaint 端点，可以调 strength 和 control-scale；没有蒙版、只能用文字描述区域时，改走 Nano Banana 2 Edit、GPT Image 2 Edit 或 FLUX Kontext Pro 这类保身份编辑模型。用途是去物体、去水印、换区域、修瑕疵。安装量 37.5 万，8 周跌 4.2%。",
+    "usage": "有一块区域必须改、其余像素必须不动时用；电商图去水印、棚拍图修瑕疵。",
+    "notes": "需要 `runcomfy` CLI 和 RunComfy token。"
+  },
+  "prisma/skills/prisma-client-api": {
+    "name_zh": "数据查询参考",
+    "intro": "Prisma 官方的 Client API 参考：模型查询、filter、运算符、client 方法都在里面，写数据库查询、做 CRUD、配 Prisma Client 时该查它。触发词覆盖 prisma query、findMany、`$transaction` 这些具体符号。curated 加 official 双标，安装量 37.5 万，五家审计全 pass，是这一片审计最干净的一条。",
+    "usage": "写 Prisma 查询一时想不起 filter 怎么写，或者要确认 `$transaction` 的用法时查。",
+    "notes": ""
+  },
+  "prime-skills/runcomfy-agent-skills/controlnet-pose": {
+    "name_zh": "姿态控制生成",
+    "intro": "按姿势约束生成，难点同样在选路：把一段参考视频的动作搬到目标角色上走 Kling 2-6 Motion Control Pro / Standard，带音频驱动的角色动画走 Wan 2-2 Animate，从 OpenPose / DWPose / canny / depth 控制图出图走 Z-Image Turbo 的 ControlNet LoRA。安装量 37.4 万，8 周跌 4.1%；审计里 Snyk 给 warn / MEDIUM。",
+    "usage": "想要固定骨架或运镜的去重，或者拿一张姿态图当生成条件时用。",
+    "notes": "需要 `runcomfy` CLI；Snyk 判 warn / MEDIUM。"
+  },
+  "prime-skills/runcomfy-agent-skills/lipsync": {
+    "name_zh": "对口型配音",
+    "intro": "把一张脸对到指定音轨上，按素材类型分路：人像图加音频走 OmniHuman 做全身数字人，已有视频换嘴型走 Sync Labs sync v2 / Pro，想从文本直接生成带口型的视频走 Kling lipsync。安装量 37.4 万，8 周跌 4.1%，三家审计全 pass。",
+    "usage": "已有录好的旁白、要给一段人像配上口型时；或者把一段外语视频改成中文口型。",
+    "notes": "需要 `runcomfy` CLI 和账号；人物肖像的使用授权自己把关。"
+  },
+  "prime-skills/runcomfy-agent-skills/video-extend": {
+    "name_zh": "视频续接",
+    "intro": "把一段已有视频续长：接 Google Veo 3.1 的 `extend-video` 或 `fast/extend-video`，给源视频加一句描述后续发生什么的 prompt，模型在运动、光照和主体一致性上尽量接住。适合手上只有一段短 Veo 片子想变长，或者用同一段种子镜头一段段串成叙事。安装量 37.4 万，8 周跌 4.1%；Snyk 给 warn / MEDIUM。",
+    "usage": "分镜都是一两秒的短片、需要接成十几秒连续镜头时用。",
+    "notes": "需要 `runcomfy` CLI；Snyk warn / MEDIUM；路线绑在 Veo 3.1 的端点上。"
+  },
+  "prime-skills/runcomfy-agent-skills/elevenlabs-music-generation": {
+    "name_zh": "成曲生成",
+    "intro": "用 ElevenLabs Music 生成整首歌或纯伴奏：给一段风格描述加结构化歌词，输出 44.1 kHz 立体声，时长 5 秒到 5 分钟，可按 Intro / Verse / Chorus / Bridge 分段控制，支持多语种人声。实际调用是 `runcomfy run elevenlabs/elevenlabs/music-generation`。安装量 37.4 万，8 周跌 4%。",
+    "usage": "需要一段商用配乐、片头曲、播客开场、游戏循环音时用。",
+    "notes": "需要 `runcomfy` CLI 和 token；同仓库 `ace-step` 按 description 的报价算便宜约 27 倍，对成本敏感可以换。"
+  },
+  "leonxlnx/taste-skill/imagegen-frontend-mobile": {
+    "name_zh": "移动端图生成",
+    "intro": "从名字看是给移动端前端出图的技能，但内容已迁移：description 只剩「Moved to github.com/Leonxlnx/imagegen-skills. Runs only when called by name.」，正文很薄（thin_body）。安装量 37.4 万，8 周涨 20%，三家审计全 pass，是这一组迁移条目里唯一没有 warn 的。",
+    "usage": "要找移动端出图能力时按 description 的地址去 imagegen-skills 仓库。",
+    "notes": "内容已迁移，正文只有跳转说明。"
+  },
+  "prime-skills/runcomfy-agent-skills/image-outpainting": {
+    "name_zh": "图片扩画布",
+    "intro": "把一张图往画布外扩：补上镜头没拍到的部分，或者把方图改成 16:9、横图改竖图而不动原内容。默认走 Nano Banana 2 Edit，要参考图配风格走 GPT Image 2 Edit，最大程度保留原图走 FLUX Kontext Pro，另有 Seedream、Dreamina、Qwen、FLUX 2 几个品牌端点。安装量 37.4 万，8 周跌 4%。",
+    "usage": "一张图换长宽比就得裁掉主体时；需要给海报补边或补背景。",
+    "notes": "需要 `runcomfy` CLI 和 token；扩出来的区域是模型编的，别用在要真实还原的场景。"
+  },
+  "prisma/skills/prisma-database-setup": {
+    "name_zh": "数据库配置别名",
+    "intro": "Prisma 官方的兼容别名，指向 `prisma-orm-setup`。description 写得很直白：只在用户或已有集成明确调用 `prisma-database-setup` 时才用，否则应该选 `prisma-orm-setup`。flags 里带 deprecated。安装量 37.4 万，8 周跌 3.1%，五家审计全 pass。",
+    "usage": "老项目、老文档里还在叫这个名字时为了不报错装它；新项目直接装 `prisma-orm-setup`。",
+    "notes": "已标记 deprecated，只是兼容名，不要当新装首选。"
+  },
+  "prime-skills/runcomfy-agent-skills/relight": {
+    "name_zh": "重打光",
+    "intro": "改一张静物图或人像的光：光位、色温、方向、氛围。专用路线是 Qwen Edit 2509 的 relight LoRA，文字描述够用时也可以退回 Nano Banana 2 Edit、GPT Image 2 Edit、FLUX Kontext Pro 这些保身份编辑端点。安装量 37.4 万，8 周跌 4%，三家审计全 pass。",
+    "usage": "棚拍产品图想改成窗边自然光；人像从阴天调成黄金时刻的色温。",
+    "notes": "需要 `runcomfy` CLI 和 token。"
+  },
+  "prime-skills/runcomfy-agent-skills/video-outpainting": {
+    "name_zh": "视频扩画面",
+    "intro": "扩视频的空间画布：9:16 转 16:9 或反过来，在原画框之外补环境，同时保住画面中央的动作。prompt 型空间扩展走 Wan 2-7 edit-video；接缝质量要求高时，技能会指给 ComfyUI 的专用 outpaint 工作流。安装量 37.3 万，8 周跌 4.2%，三家审计全 pass。",
+    "usage": "竖版素材要上横屏平台、或者横屏片子要切竖版时用。",
+    "notes": "需要 `runcomfy` CLI 和 token；接缝处理是这条里最不确定的部分。"
+  },
+  "prisma/skills/prisma-cli": {
+    "name_zh": "数据库命令参考",
+    "intro": "Prisma ORM 7 的 CLI 参考，覆盖 `prisma init`、`generate`、`migrate`、`db`、`dev`、`studio`、`mcp`。description 划得很清：只适用于已有的 Prisma 7 应用或明确选了 Prisma 7 的流程；装库、修连接、上 Prisma 8 请走 `prisma-orm-setup`；也不是 Prisma Platform 的 CLI。安装量 37.2 万，五家审计全 pass。",
+    "usage": "已经在 Prisma 7 项目里、要查 migrate 子命令或 studio 怎么开时用。",
+    "notes": "版本限定在 Prisma 7；新项目别从这条进；带 has_references。"
+  },
+  "uizze.sh/ios-design": {
+    "name_zh": "苹果界面评审",
+    "intro": "审 iOS 的 UI/UX：SwiftUI、UIKit、React Native 都算，覆盖屏幕改版、导航流程、排版、表单、键盘与安全区、无障碍检查，判断标准是 Apple Human Interface Guidelines，还能接一个可选的 Uizze 连接去查真实产品参考。安装量 37.1 万，趋势数据缺失；这个条目没有审计结论（audit 为 null）。",
+    "usage": "上架前过一遍界面细节；接手的 iPhone 应用需要回头审样式和无障碍时用。",
+    "notes": "没有审计结论可参考；详情接口返回 401，正文抓不到；查参考产品需要可选的 Uizze 连接。"
+  },
+  "emilkowalski/skills/emil-design-eng": {
+    "name_zh": "界面细节手感",
+    "intro": "把 Emil Kowalski 那套关于 UI 打磨的判断写成技能：组件怎么做、动画该不该加、那些让人感觉顺手的隐形细节。description 一句话讲完，没有外部工具依赖。安装量 36.8 万，8 周涨 33.6%，三家审计全 pass。",
+    "usage": "界面做完但用起来别扭、说不清哪里不对时，用它过一遍交互和动效的取舍。",
+    "notes": ""
+  },
+  "prisma/skills/prisma-postgres": {
+    "name_zh": "数据库兼容名",
+    "intro": "又一个 Prisma 兼容别名，指向 `prisma-postgres-setup`：description 明说只在用户或已有集成明确调用 `prisma-postgres` 时才用，否则选 `prisma-postgres-setup`。flags 里带 deprecated。安装量 36.6 万，8 周跌 3.2%；审计里 Runlayer 给 warn / MEDIUM，其余 pass。",
+    "usage": "老脚本、老文档点名要这个名字时装；新接入直接去 `prisma-postgres-setup`。",
+    "notes": "已 deprecated；Runlayer 判 warn / MEDIUM。"
+  },
+  "prime-skills/runcomfy-agent-skills/ace-step": {
+    "name_zh": "廉价成曲",
+    "intro": "用开源权重的 ACE Step 做音乐：标签驱动编曲（曲风、情绪、乐器）、带段落标记的多语种歌词、5 秒到 4 分钟立体声；按 description 的报价每秒 0.0002–0.0003 美元，比 ElevenLabs Music 便宜约 27 倍。四个端点：text-to-audio、1.5 版、audio-inpaint、audio-outpaint。安装量 36.5 万，8 周跌 4%。",
+    "usage": "大量配乐、游戏循环音这类成本敏感的场景；已有曲子只想改某一段或续长时走 inpaint / outpaint。",
+    "notes": "需要 `runcomfy` CLI 和 token；开源权重不等于输出能随便商用，授权自己核。"
+  },
+  "microsoft/azure-skills/azure-cost": {
+    "name_zh": "云花费核查",
+    "intro": "管 Azure 的花费：查账、预测、找浪费——空转的孤儿资源、虚高的 VM、存储和 AKS 成本、突然的账单尖峰。description 还写了不适用范围：部署资源、供给、诊断、安全审计都不归它管。微软官方 curated，安装量 36.3 万，但 8 周跌 89.2%，是这一片里跌得最狠的一条。",
+    "usage": "月底对账、预算突然超了要定位是谁在花钱时用。",
+    "notes": "只做成本相关问题，问部署会被它挡回来；带 has_references。"
+  },
+  "prisma/skills/prisma-driver-adapter-implementation": {
+    "name_zh": "驱动适配实现",
+    "intro": "给 Prisma ORM 7 写 SQL driver adapter 时的必读参考：`SqlDriverAdapter`、`Transaction`、savepoint、结果映射、`DriverAdapterError` 的行为都在里面，还讲了事务生命周期、可选的 savepoint 钩子、原始数据库错误怎么保留，以及怎么验证。官方 curated。安装量 36.1 万，8 周跌 3.1%；Runlayer 给 warn / MEDIUM。",
+    "usage": "自研数据库驱动接 Prisma、或者改动已有 adapter 的事务和错误路径时先读它。",
+    "notes": "需要熟悉 Prisma 7 的 adapter 接口；Runlayer 判 warn / MEDIUM。"
+  },
+  "prisma/skills/prisma-upgrade-v7": {
+    "name_zh": "版本升级指南",
+    "intro": "Prisma ORM v6 升 v7 的迁移指南，把 breaking changes 一次列全：`prisma-client` generator、driver adapter 变成必需、driver adapter required 这类报错怎么处理。flags 里带 deprecated，但 description 讲的是完整升级流程，内容仍然可用。安装量 36 万，8 周跌 2.9%；Runlayer 给 warn / MEDIUM。",
+    "usage": "正在把 v6 项目挪到 v7、或者被 driver adapter required 卡住时查。",
+    "notes": "带 deprecated 标记；Runlayer 判 warn / MEDIUM。"
+  },
+  "prisma/skills/prisma-postgres-setup": {
+    "name_zh": "数据库接入",
+    "intro": "拿一个 Prisma Postgres 数据库并把应用连上去：没有库、想建库、或者跑 `npx create-db` 时用它，v0 和 Vercel Marketplace 环境也算。策略是先用已有的连接，尊重用户显式指定的 provider、driver 或别的 ORM；ORM 配置那部分交给 `prisma-orm-setup`。安装量 36 万，8 周跌 2.9%；Snyk 给 warn / MEDIUM。",
+    "usage": "新项目从零起一个 Postgres 时；已有库只想确认连接怎么配。",
+    "notes": "官方 curated；Snyk 判 warn / MEDIUM。"
+  },
+  "prisma/skills/prisma-compute": {
+    "name_zh": "应用托管部署",
+    "intro": "用 Prisma 8 CLI 在 Prisma Compute 上部署和运维应用：`prisma deploy`、`prisma dev module.ts`、Composer 应用的 `module.ts` 和 `compute()`、预览环境、push 即部署（`prisma git connect`、`prisma/cloud-deploy-action`）、`prisma service` 的日志与回滚、自定义域名、`project env`、`PRISMA_SERVICE_TOKEN`、区域、504、实例休眠、`waitUntil`，连已被移除的 `@prisma/cli app deploy` 都列了。安装量 35.5 万。",
+    "usage": "把 Prisma 应用部署上去，或者排查线上 504 和实例休眠时查。",
+    "notes": "这条没有 curated / official 标记，和其它 Prisma 条目不同；需要 PRISMA_SERVICE_TOKEN。"
+  },
+  "microsoft/azure-skills/azure-hosted-copilot-sdk": {
+    "name_zh": "助手应用上云",
+    "intro": "在 Azure 上建、部署、改 GitHub Copilot SDK 应用。description 标了 MANDATORY：只要 package.json 里出现 `@github/copilot-sdk` 或 `CopilotClient` 就必须用它，并且优先于 `azure-prepare`；范围包括 BYOM、`createSession`、`sendAndWait`、`azd init copilot`。已经准备好的应用要部署则交给 `azure-deploy`。安装量 35.5 万；Snyk 给 warn / MEDIUM。",
+    "usage": "项目里有 Copilot SDK 痕迹、要加功能或上 Azure 时用。",
+    "notes": "Snyk warn / MEDIUM；详情接口返回 401，正文抓不到；Copilot Extensions 和 Foundry agent 不归它管。"
+  },
+  "prisma/skills/prisma-mongodb-upgrade": {
+    "name_zh": "文档库升级",
+    "intro": "讲 MongoDB 项目在 Prisma 上的取舍：v6 的 `provider = \"mongodb\"` 没有到 v7 的升级路径，这条技能就是把能不能升、要往哪走说清楚，包括是否考虑 Prisma 8。安装量 35.4 万，8 周跌 2.9%，三家审计全 pass。",
+    "usage": "手上的 Prisma 项目用 MongoDB、有人提升级到 Prisma 7 时，先查这条再动手。",
+    "notes": "结论是 v7 无升级路径，别照 v7 的迁移指南硬套。"
+  },
+  "mattpocock/skills/setup-ts-deep-modules": {
+    "name_zh": "深模块改造",
+    "intro": "把 dependency-cruiser 接进 TypeScript 仓库，让每个 package 都变成深模块：实现藏在子目录里，外部只能从入口文件访问。description 只给了这一句，另有 pointer 标记——说明这条 SKILL.md 主要是转发到别处，本身不是完整正文。安装量 35.3 万，8 周跌 14%，三家审计全 pass。",
+    "usage": "仓库里模块互相 import 到内部实现、想用 lint 规则把边界焊死时用。",
+    "notes": "带 pointer 标记，正文是转发壳，可能需要同仓库的另一个技能配合；先装好 dependency-cruiser。"
+  },
+  "microsoft/azure-skills/airunway-aks-setup": {
+    "name_zh": "集群模型部署",
+    "intro": "在 AKS 上把 AI Runway 从裸集群配到能跑模型：集群核查、controller 安装、GPU 评估、provider 配置、第一次部署。description 的 WHEN 里点了 KAITO、vLLM、GPU 推理这些具体路径。微软官方 curated，安装量 35.3 万，8 周几乎没动（涨 0.1%），三家审计全 pass。",
+    "usage": "手上有一个空 AKS 集群、要把它变成模型推理环境时按它走。",
+    "notes": "只覆盖 AKS，不是通用 K8s 指南；带 has_references。"
+  },
+  "juliusbrussee/caveman/cavecrew": {
+    "name_zh": "派活给子代理",
+    "intro": "讲什么时候该把活塞给 `cavecrew-investigator`（找代码）、`cavecrew-builder`（改一两个文件）、`cavecrew-reviewer`（看 diff），而不是自己在主上下文里干或者用 `Explore`。理由是这些子代理的输出经过压缩，主上下文能撑更久。安装量 35.2 万，8 周跌 18.6%，三家审计全 pass。",
+    "usage": "长会话里上下文快满了、又得做大范围搜索时，先看它判断该不该派出去。",
+    "notes": "需要同系列三个 cavecrew 子技能一起装才有意义。"
+  },
+  "mattpocock/skills/to-prd": {
+    "name_zh": "会话转需求",
+    "intro": "把当前对话直接整理成一份 PRD，并发布到项目的 issue tracker。description 特别强调不再采访：不追问，只把已经聊过的内容综合成文档。安装量 35.2 万，但 8 周跌 23.8%，是这一片里跌得第二狠的条目，三家审计全 pass。",
+    "usage": "一轮讨论刚聊完、趁热把结论落成需求文档并挂到 issue 里时用。",
+    "notes": "会往 issue tracker 写数据，接之前确认仓库和写权限；它不补问，聊得含糊就只有含糊的 PRD。"
+  },
+  "juliusbrussee/caveman/caveman-stats": {
+    "name_zh": "用量统计",
+    "intro": "查当前 Claude Code 会话记下的输出量和 cache-read token 用量，还能按模式归因；找不到自己的记录时会去定位宿主自带的用量报告。触发方式是 `/caveman-stats`。安装量 35.1 万，8 周跌 19.9%，三家审计全 pass。",
+    "usage": "想看清一轮会话花了多少 token、缓存读省了多少时用。",
+    "notes": "只对 Claude Code 会话有意义，换别的 agent 不一定有数据可查。"
+  },
+  "pbakaus/impeccable/impeccable": {
+    "name_zh": "前端界面打磨",
+    "intro": "前端界面的通用选手：设计、改版、评审、简化、加固、加动效，覆盖网站、落地页、后台面板、组件、表单、设置页、空状态，连 iOS 和 Android 原生界面也算；还管 UX 文案、无障碍、响应式、边界情况，以及把设计系统落成 `DESIGN.md` 和 token。反过来也能把平淡的界面做得更有脾气。安装量 34.5 万，8 周涨 49.8%；Socket 给 warn。",
+    "usage": "界面做完一轮想系统性地过一遍问题清单时；或者从零起一套设计系统。",
+    "notes": "Socket 判 warn；只管界面，纯后端任务不适用；带 has_references。"
+  }
+}

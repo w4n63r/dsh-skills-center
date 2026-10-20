@@ -1,0 +1,302 @@
+{
+  "google/agents-cli/google-agents-cli-workflow": {
+    "name_zh": "智能体开发主线",
+    "intro": "Google 官方的 ADK（Agent Development Kit）总入口，覆盖脚手架、写代码、评测、部署、发布、观测的完整生命周期，还带代码保留规则和模型选型建议。description 说它 Always active，做任何 agent 开发都先读它。安装量约 50.2 万，8 周涨 14.7%；Gen Agent Trust Hub 和 Snyk 给 pass，Socket 给 warn。",
+    "usage": "要用 ADK 从零做一个 agent 项目时先加载它；改别人写的 ADK 工程、或者要给已有 agent 补评测和部署流程时，也从这个入口进。",
+    "notes": "同系列还有 eval、scaffold、observability、deploy 等分技能，这条是总纲，具体命令落在分技能里。Socket 给的是 warn，没有风险等级说明。"
+  },
+  "google/agents-cli/google-agents-cli-eval": {
+    "name_zh": "智能体评测",
+    "intro": "教模型按 Gemini 平台的方法给 ADK agent 建评测：写 eval dataset、跑评测、用 LLM-as-judge 打分、分析失败原因、比对两次结果，description 把它叫 Quality Flywheel。不用框架无关的写法也成立，它说对任何 agents-cli 项目都适用。安装量 50.2 万，8 周涨 14.7%，三家审计全 pass。",
+    "usage": "agent 能跑但说不清有没有变好时；上线前要一份能复现的评测集时；改完 prompt 想确认没有回退时。",
+    "notes": "description 划了边界：ADK 的 API 写法、部署、脚手架都去同系列另外三条技能，它只管评测方法论。"
+  },
+  "google/agents-cli/google-agents-cli-scaffold": {
+    "name_zh": "项目脚手架",
+    "intro": "管 agents-cli scaffold 的三个子命令：create 新建 ADK 项目、enhance 给已有项目加 CI/CD 和部署、upgrade 升级项目模板，description 说它按原型优先的顺序推进，也写了模板选项和各部署目标。安装量 50.2 万，8 周涨 14.7%，三家审计全 pass。",
+    "usage": "开新的 agent 项目时；给现有工程补流水线或部署配置时；把老模板升到新版本时。",
+    "notes": "只覆盖脚手架命令本身，写 agent 业务代码和真正执行部署都由同系列另外两条技能负责。"
+  },
+  "google/agents-cli/google-agents-cli-observability": {
+    "name_zh": "智能体观测",
+    "intro": "给已部署的 agent 配追踪和日志：Cloud Trace、prompt 与 response 落盘、BigQuery Agent Analytics，以及 AgentOps、Phoenix、MLflow 这些第三方接入，另带排障步骤。安装量 50.2 万，8 周涨 14.7%；Snyk 给 warn（MEDIUM），Gen Agent Trust Hub 和 Socket 都是 pass。",
+    "usage": "线上 agent 出事要查调用链时；要给运营留一份可检索的对话日志时；要接第三方观测平台时。",
+    "notes": "Snyk 标了 MEDIUM，用前先读它的结论原文。部署配置和 API 写法在别的分技能里，不要指望它顺手改。"
+  },
+  "heygen-com/hyperframes/motion-graphics": {
+    "name_zh": "动态图形",
+    "intro": "做短的设计驱动动效片：动态文字、数字滚动、图表数据动画、logo 定格、下三分之一字幕条、地图高亮连点、把真人照片的几何融进图表。description 说通常 10 秒内、最长约 30 秒，没有旁白也不拍实拍主体，出 MP4 或透明叠加层。安装量 49.5 万，8 周涨 125.1%；Snyk 给 warn（MEDIUM）。",
+    "usage": "要做十秒上下的品牌动效、数据可视化短片、发布会的数字滚动页时用；超过 30 秒、要旁白、要实拍主体的都不归它。",
+    "notes": "属 heygen-com 的 hyperframes 系列，description 里写满了路由规则：要长片转 general-video，拿不准转 hyperframes。Snyk 标了 MEDIUM。"
+  },
+  "mattpocock/skills/git-guardrails-claude-code": {
+    "name_zh": "提交前护栏",
+    "intro": "配 Claude Code 的 hooks，在 git push、reset --hard、clean、branch -D 这类命令执行前把它拦下来。名字里的 claude-code 说明它写的是 Claude Code 的 hook 配置，不是通用的 git alias。安装量 48.4 万，但 8 周掉了 12.4%；Runlayer 给 warn（MEDIUM），其余四家 pass。",
+    "usage": "让 agent 直接在你的仓库里干活、又怕它手滑清工作区时；给团队统一加一层兜底时。",
+    "notes": "只对 Claude Code 的 hook 机制生效，别的 agent 工具读不到这套配置。Runlayer 标了 MEDIUM，装前看它具体拦了什么。"
+  },
+  "mattpocock/skills/to-questionnaire": {
+    "name_zh": "转成问卷",
+    "intro": "把你自己答不全的决策改写成一份问卷，交给别人填。description 只有一句：Turn a decision you can't fully answer into a questionnaire for someone else to fill in. 安装量 47.7 万，8 周跌 10.2%，三家审计全 pass。",
+    "usage": "需求方说不清要什么、又必须由他拍板时；要拿一份结构化问题清单去问客户或上级时。",
+    "notes": "只解决「问什么」这一步，找人填、填完怎么收口都还得你自己定。"
+  },
+  "heygen-com/hyperframes/remotion-to-hyperframes": {
+    "name_zh": "迁移渲染工程",
+    "intro": "把已有的 Remotion（React）合成源码单向迁到 HyperFrames 的 HTML 写法。description 反复强调只能在你明确要求迁移时用：随口提一句 Remotion、只贴参考代码、或者「做个像我的 Remotion 视频」都算新建，不走这条。安装量 47.5 万，8 周涨 95.8%；Snyk 给 warn（MEDIUM）。",
+    "usage": "手里有一份能跑的 Remotion 工程、已经决定换到 HyperFrames 时；先让它读源码估迁移量时。",
+    "notes": "单向、只认 Remotion，没有迁回去的路。Snyk 标了 MEDIUM。"
+  },
+  "mattpocock/skills/setup-pre-commit": {
+    "name_zh": "提交钩子配置",
+    "intro": "在当前仓库配 Husky pre-commit，挂上 lint-staged（Prettier）、类型检查和测试。安装量 47.4 万，8 周跌 13.7%；Runlayer 给 warn（MEDIUM），Gen Agent Trust Hub、Snyk、ZeroLeaks 都是 pass。",
+    "usage": "新仓库要补提交前检查时；团队里没人愿意手写 husky 配置时；想把 Prettier 和 tsc 挂进 commit 时。",
+    "notes": "绑定的是 Husky + lint-staged + Prettier 这套 JS/TS 工具链，换语言得自己替掉。Runlayer 标了 MEDIUM。"
+  },
+  "mattpocock/skills/writing-beats": {
+    "name_zh": "节拍成稿",
+    "intro": "写作流程里的一步：把攒好的素材拼成一段段有推进感的节拍，每个术语在节拍用到它之前先交代清楚。description 归到 writing / exploit，和 writing-fragments（explore）、writing-shape 是同一条流水线的三段。安装量 46.7 万，8 周跌 13.5%，三家审计全 pass。",
+    "usage": "素材已经有了但串不起来时；长文改到一半发现是一堆并列段落、读起来没有推进时。",
+    "notes": "要先用 writing-fragments 攒到料，它不负责找素材，也不负责逐段落到成稿。"
+  },
+  "lllllllama/rigorpilot-skills/paper-context-resolver": {
+    "name_zh": "论文细节核对",
+    "intro": "给「按 README 复现深度学习仓库」补最后一块拼图：当 README 和仓库文件之间差一个关键细节时，去论文原文里查数据集切分、预处理、评测协议、checkpoint 对应关系或运行时假设，并把冲突记下来。安装量 46.7 万，8 周涨 6220%；Snyk 给 warn（MEDIUM）。",
+    "usage": "复现结果和论文差一截、怀疑是切分或评测口径不一致时；只想查某一条论文细节、不需要通读全文时。",
+    "notes": "description 明确排除通读总结、扫仓库、配环境、跑命令，它只补那一个缺口。Snyk 标了 MEDIUM。"
+  },
+  "mattpocock/skills/writing-shape": {
+    "name_zh": "逐段修形",
+    "intro": "写作流程的收尾段：把素材按段落一段段写成文章该有的样子。description 归到 writing / exploit，和 writing-fragments、writing-beats 是同一条流水线的三步。安装量 46.7 万，8 周跌 13.3%，三家审计全 pass。",
+    "usage": "大纲和素材都定了、要把内容落到成段文字时；结构没问题但每段自己不成形时。",
+    "notes": "是三步里的第三步，前两步不做它拿不到可用素材。"
+  },
+  "mattpocock/skills/writing-fragments": {
+    "name_zh": "素材碎片",
+    "intro": "写作流程的第一步：只挖碎片，先不管结构。description 一句 writing, explore: mine raw fragments, no structure yet. 刻意不做组织，产出就是一堆没排过的想法和句子。安装量 46.6 万，8 周跌 13.7%，三家审计全 pass。",
+    "usage": "动笔前先攒想法、例子、句子时；卡在开头、不知道有什么可写时。",
+    "notes": "产出是零散碎片，得接 writing-beats 才能成篇。"
+  },
+  "lllllllama/rigorpilot-skills/repo-intake-and-plan": {
+    "name_zh": "仓库摸底排期",
+    "intro": "复现流程的第一棒：扫仓库、读 README 和常见项目文件、把里面写明的命令抽出来，分成推理、评测、训练三类候选，最后给主控 agent 一个最小可信的复现计划。安装量 46.6 万，8 周涨 9585.3%，三家审计全 pass。",
+    "usage": "拿到一个陌生深度学习仓库、先要判断哪条命令是入口时；给复现任务排第一步时。",
+    "notes": "description 写明它不装环境、不下资产、不执行命令、不写最终报告，只出计划。"
+  },
+  "lllllllama/rigorpilot-skills/minimal-run-and-audit": {
+    "name_zh": "最小运行取证",
+    "intro": "复现流程里负责跑那一下：按选定的 smoke test 或 README 写明的推理/评测命令跑一次，把证据整理成标准的 repro_outputs/ 文件，改过仓库文件还要附 patch 说明。安装量 46.6 万，8 周涨 10213.5%；Socket 给 warn（无风险等级）。",
+    "usage": "环境备好、要拿第一次运行结果当基线时；换机器后想确认复现没跑偏时。",
+    "notes": "只管跑和记录，训练、装环境、选目标、最终报告都不归它。Socket 给了 warn。"
+  },
+  "lllllllama/rigorpilot-skills/env-and-assets-bootstrap": {
+    "name_zh": "环境与资产",
+    "intro": "复现流程里最保守的一步：按 conda 优先的路子准备环境，把 checkpoint 和数据集路径的假设、缓存位置写清楚，再留一份 setup 记录。安装量 46.6 万，8 周涨 11571.8%，三家审计全 pass。",
+    "usage": "README 写了依赖但没写全、要先搭一个能跑的环境时；数据集和权重放哪要先定下来时。",
+    "notes": "description 限定它只服务某个具体复现目标，泛泛的装环境别用它。"
+  },
+  "mattpocock/skills/scaffold-exercises": {
+    "name_zh": "练习脚手架",
+    "intro": "生成一套练习题的目录结构：分章节、题目、答案和讲解，产出的结构要能过 lint。安装量 46.5 万，8 周跌 13.8%；Gen Agent Trust Hub、Snyk、Runlayer、ZeroLeaks 等五家全 pass。",
+    "usage": "做课程或教程、一次要铺十几道练习题时；给已有课程加新章节时。",
+    "notes": "只管目录骨架和占位内容，题目本身讲什么还得你提供；能过的是它声明的 lint 规则，别人家的 lint 不保证。"
+  },
+  "microsoft/azure-skills/azure-quotas": {
+    "name_zh": "配额查询",
+    "intro": "查和管 Azure 各 provider 的配额与用量，用于部署前容量校验和选区域。description 列的场景包括 vCPU 上限、当前用量、申请提额、配额被打满、区域可用性。微软官方且 curated，安装量 46.3 万，8 周基本持平（-0.2%）；Socket 给 warn。",
+    "usage": "上线前确认目标区域还剩多少 vCPU 时；部署报配额不足、要判断是提额还是换区域时。",
+    "notes": "官方维护、curated。查的是订阅里的真实配额，所以要能读到那个订阅的 Azure 身份。Socket 给了 warn（无等级说明）。"
+  },
+  "mattpocock/skills/migrate-to-shoehorn": {
+    "name_zh": "换测试替身",
+    "intro": "把测试文件里的 as 类型断言换成 @total-typescript/shoehorn 的写法，用在只需要部分测试数据的场景。安装量 46.1 万，8 周跌 13.7%；Runlayer 给 warn（MEDIUM），其余四家 pass。",
+    "usage": "测试里到处 as unknown as Foo 已经看不下去了时；只想要对象的一部分、又不想在测试里撒谎时。",
+    "notes": "只对 TypeScript 项目成立，而且要接受引入 @total-typescript/shoehorn 这个依赖。Runlayer 标了 MEDIUM。"
+  },
+  "leonxlnx/taste-skill/high-end-visual-design": {
+    "name_zh": "高级感界面",
+    "intro": "leonxlnx 的 taste-skill 系列里一个风格技能：柔和对比、大留白、弹簧动效，description 自称 calm, polished。属于 opt-in，只有被点名才会跑。安装量 45.9 万，8 周涨 22.6%，五家审计全 pass。",
+    "usage": "做给客户看的产品首页、要「安静但不便宜」的观感时；手上已有别的风格技能、想临时切这一套时。",
+    "notes": "审美是固定的一套，想要编辑风或者别的路子得换同系列技能；不会自己启动。"
+  },
+  "leonxlnx/taste-skill/redesign-existing-projects": {
+    "name_zh": "改版旧项目",
+    "intro": "description 第一句就是 Retired：改版、换皮、设计评审这些活都归到 design-taste-frontend 了，这条技能只剩一个按名字调用的入口。安装量 45.9 万，8 周涨 26.4%，五家审计全 pass。",
+    "usage": "老项目界面要重做时先确认是不是还走这条入口；新建工程直接去 design-taste-frontend。",
+    "notes": "已 retired，别把它当主力：真正的重设计与评审逻辑在 design-taste-frontend 里。"
+  },
+  "microsoft/azure-skills/azure-upgrade": {
+    "name_zh": "工作负载升级",
+    "intro": "评估并升级 Azure 工作负载的套餐、层级或 SKU，也能把源码里的老 SDK 迁到新包。description 点名的场景：Consumption 升 Flex Consumption、换 Functions 计划、App Service 迁 Container Apps、com.microsoft.azure 迁 com.azure、Redis 迁 Azure Managed Redis。微软官方、curated，安装量 45.6 万；Runlayer 给 warn（MEDIUM）。",
+    "usage": "预算或性能不够要换计划时；把多年没动过的老 Java SDK 依赖迁到 com.azure 时。",
+    "notes": "官方维护、curated。升级会改线上资源，先在非生产订阅试。Runlayer 标了 MEDIUM。"
+  },
+  "supabase/agent-skills/supabase-postgres-best-practices": {
+    "name_zh": "数据库实践",
+    "intro": "Supabase 维护的 Postgres 实践集合，明确说适用于任何地方跑的 Postgres。范围不止性能：建表改列、迁移和 declarative schema、RLS 与验证它的测试、索引、触发器、函数、pg_cron 与 pgmq 队列、pgvector 语义检索、pg_restore 导数据都在里面。安装量 45.2 万，curated 且官方，五家审计全 pass。",
+    "usage": "动数据库之前先加载它，哪怕只加一列；线上慢查询、连接打满、锁等待、行被别的租户看到时也用它。",
+    "notes": "官方维护、curated。规则是 Supabase 的口径，用在别的托管上仍然成立，但扩展能不能用要看你的实例。"
+  },
+  "prime-skills/runcomfy-agent-skills/nano-banana-2": {
+    "name_zh": "香蕉出图",
+    "intro": "在 RunComfy 上调 Google Nano Banana 2（Gemini 系 flash 档文生图），命令是 runcomfy run google/nano-banana-2/text-to-image。正文带这套模型的提示词写法，写它强在快速迭代、图内文字渲染和稳定构图，还写了分辨率分档计价、安全阈值参数，以及何时换 Pro、GPT Image 2、Flux 2 或 Seedream。安装量 44.8 万（含合并 fork，自身 43.5 万），8 周跌 4.2%。",
+    "usage": "要快速出一批带文字的图、海报标题字时；已经在 RunComfy 上、想比裸提示词拿到更稳结果时。",
+    "notes": "必须先装 RunComfy CLI 并登录，否则命令跑不起来；每次调用都消耗额度。"
+  },
+  "mattpocock/skills/writing-for-agents": {
+    "name_zh": "写给模型看",
+    "intro": "写给人看的文档和写给 agent 看的文档不是一个写法，这条技能专讲后者：创建或改 SKILL.md、或者改 AGENTS.md / CLAUDE.md 时用。安装量 44.4 万，8 周跌 9.3%，三家审计全 pass。",
+    "usage": "写新技能的 SKILL.md 时；给仓库补 AGENTS.md、或者发现 agent 老是不照约定做事时。",
+    "notes": "管的是说明文档的写法，不涉及代码风格和工程规范。"
+  },
+  "heygen-com/hyperframes/embedded-captions": {
+    "name_zh": "人像字幕",
+    "intro": "给已经拍好的单人出镜口播视频加字幕，不用重剪素材：可以只是原文字幕，也可以做成藏在人物身后的电影感字幕或带特效的字幕，description 提到一套 35 种样式的目录。转录和人像抠像都在本地跑完。安装量 43.7 万，8 周涨 101.7%，三家审计全 pass。",
+    "usage": "口播视频要多平台投放、需要一套统一字幕样式时；想要人物和字幕有前后遮挡关系时。",
+    "notes": "只吃单个主体、单镜头的素材，多机位或多镜头必须先切开再喂给它。"
+  },
+  "heygen-com/hyperframes/pr-to-video": {
+    "name_zh": "改动讲成片",
+    "intro": "把一条 GitHub PR（URL、owner/repo#N，或者在已 checkout 的仓库里说「这个 PR」）做成讲代码改动的视频：从 diff、commit 和文件里组织发布说明、功能演示、修 bug 或重构讲解。description 强调输入是代码改动而不是网站，产品宣传片和没有 PR 的话题讲解都要转走。安装量 43.5 万，8 周涨 118.9%；Snyk 给 warn（MEDIUM）。",
+    "usage": "每周 changelog 想做成一分钟视频时；讲一次棘手重构、想让人看懂改了哪些文件时。",
+    "notes": "要能读到目标仓库和 PR。Snyk 标了 MEDIUM。"
+  },
+  "prime-skills/runcomfy-agent-skills/image-edit": {
+    "name_zh": "改图路由",
+    "intro": "RunComfy 上改图的总路由：按你的意图在四个模型里挑一个——Nano Banana Edit（批量最多 20 张、默认保身份）、GPT Image 2 Edit（图内多语言文字改写、多参考图）、Flux Kontext Pro（单图局部高保真）、Z-Image Turbo Inpaint（蒙版定点）。正文带各模型的提示词写法。安装量 43.4 万，8 周跌 4.6%，三家审计全 pass。",
+    "usage": "需求是换背景、去物体、改标题字这类、但不知道该用哪个模型时；一次要改一批图时。",
+    "notes": "底层是本地 RunComfy CLI，先装好并登录；每个模型都按次消耗额度。"
+  },
+  "prime-skills/runcomfy-agent-skills/nano-banana-edit": {
+    "name_zh": "香蕉改图",
+    "intro": "用 Google Nano Banana 2 的 image-to-image 端点改图，命令是 runcomfy run google/nano-banana-2/edit。description 列它擅长的四件事：保住主体身份、换背景、用空间语言做局部修改、一次最多 20 张批量改，也写了何时换 GPT Image 2 edit 或 Flux Kontext。安装量 43.4 万，8 周跌 4%。",
+    "usage": "同一批产品图要统一换背景时；只想改局部、又必须保证脸还是那个人时。",
+    "notes": "依赖本地 RunComfy CLI 和账号额度。"
+  },
+  "prime-skills/runcomfy-agent-skills/flux-kontext": {
+    "name_zh": "局部改图",
+    "intro": "调 Black Forest Labs 的 Flux 1 Kontext Pro 做精准局部改图，命令是 runcomfy run blackforestlabs/flux-1-kontext/pro/edit。schema 就是一张图加一段 prompt，正文带这套模型的提示词写法，也写了何时换 Nano Banana Edit 或 Flux 2 Klein。安装量 43.4 万，8 周跌 4.1%，三家审计全 pass。",
+    "usage": "单张参考图、只改一小块又要求保真的场景；提示词能用自然语言描述清楚的局部修改。",
+    "notes": "只吃单图单 prompt，多图合成不归它；需要 RunComfy CLI。"
+  },
+  "prime-skills/runcomfy-agent-skills/wan-2-7": {
+    "name_zh": "万相出片",
+    "intro": "在 RunComfy 上调 Wan 2.7 做文生视频，命令是 runcomfy run wan-ai/wan-2-7/text-to-video。description 写它强在多参考条件、用 audio_url 驱动对口型、过渡更顺，schema 覆盖时长、分辨率、画幅比例，也写了何时换 Seedance 2.0、Kling 或 LTX 2。安装量 43.3 万，8 周跌 4%，三家审计全 pass。",
+    "usage": "要一段带口型的片子时；已经有配音、想让人物对上嘴时；或者要拿多张参考图锁住画面风格时。",
+    "notes": "需要 RunComfy CLI 与额度。description 没给时长上限，别拿别的模型的经验套。"
+  },
+  "microsoft/azure-skills/azure-enterprise-infra-planner": {
+    "name_zh": "企业架构规划",
+    "intro": "从 workload 描述出发设计并落地企业级 Azure 基础设施：网络、身份、安全、合规、多资源拓扑，对齐 WAF，直接产出 Bicep 或 Terraform，description 明确说不用 azd。微软官方、curated，安装量 43.3 万，8 周基本持平（-0.7%）；Snyk 给 warn（MEDIUM）。",
+    "usage": "要设计 hub-spoke 网络、多区域灾备拓扑时；做订阅级 Bicep 部署前的架构方案时。",
+    "notes": "偏底层基础设施，应用型工作流 description 让你改走 azure-prepare。Snyk 标了 MEDIUM。"
+  },
+  "prime-skills/runcomfy-agent-skills/seedance-v2": {
+    "name_zh": "即梦出片",
+    "intro": "调 ByteDance Seedance 2.0 Pro 生成短片，命令是 runcomfy run bytedance/seedance-v2/pro。description 说它能同时吃最多 9 张图、3 段视频、3 段音频作参考，音频在同一个 pass 里同步生成、口型自然，时长 schema 是 4–15 秒，也写了何时换 Wan 2.7 或 Kling。安装量 43.3 万，8 周跌 4%。",
+    "usage": "手里有多张参考图加一段配音、想一次生成带声短片时；做 15 秒以内的广告片段时。",
+    "notes": "超过 15 秒的叙事片得换别的工作流；依赖 RunComfy CLI 与额度。"
+  },
+  "prime-skills/runcomfy-agent-skills/gpt-image-edit": {
+    "name_zh": "保真改图",
+    "intro": "用 OpenAI GPT Image 2 的 /edit 端点改图，命令是 runcomfy run openai/gpt-image-2/edit。description 说它强在保真措辞、图内多语言文字改写、最多 10 张参考图和版式/排版精度，正文带提示词写法，也写了何时换 Nano Banana Edit 或 Flux Kontext。安装量 43.3 万，8 周跌 3.9%；Snyk 给 warn（MEDIUM）。",
+    "usage": "海报或电商图上要改多语言文字、又要求版式不跑时；需要拿多张参考图合成一张时。",
+    "notes": "需要 RunComfy CLI 与额度。Snyk 标了 MEDIUM。"
+  },
+  "prime-skills/runcomfy-agent-skills/happyhorse-1-0": {
+    "name_zh": "欢乐马出片",
+    "intro": "调 HappyHorse 1.0 做文生视频，命令是 runcomfy run happyhorse/happyhorse-1-0/text-to-video。description 说它在 Artificial Analysis Video Arena 排第一、原生 1080p 带同步音轨、多镜头角色一致、支持 6 种语言提示词，也写了何时换 Wan 2.7、Seedance 2 或 LTX 2。安装量 43.3 万，8 周跌 4%，三家审计全 pass。",
+    "usage": "要多镜头但人物不能换脸的品牌短片时；需要 1080p 直接能用的成片时。",
+    "notes": "排名和 1080p 都是 description 里的说法，没给评测细节；依赖 RunComfy CLI 与额度。"
+  },
+  "prime-skills/runcomfy-agent-skills/flux-2-klein": {
+    "name_zh": "极速出图",
+    "intro": "调 Flux 2 的蒸馏快版 Flux 2 Klein 出图，命令是 runcomfy run blackforestlabs/flux-2-klein/9b/text-to-image（也可换 /4b/）。description 写它亚秒级延迟、多参考图品牌风格、要主语前置的声明式提示词，还给了步数策略（4–8 步快速迭代，约 25 步精修）和 9B 与 4B 两档的取舍。安装量 43.3 万，8 周跌 4%。",
+    "usage": "提示词要试几十轮、等不起慢模型时；做品牌风格一致的批量图、需要亚秒级返图时。",
+    "notes": "快是有代价的，出片精度不如 Flux 2 Pro；依赖 RunComfy CLI 与额度。"
+  },
+  "anthropics/skills/skill-creator": {
+    "name_zh": "技能作坊",
+    "intro": "Anthropic 官方做技能的工具：从零建 SKILL.md、改已有技能、跑 eval 测效果、带方差分析做基准、优化 description 让触发更准。curated 且官方，安装量 42.9 万（自身 41 万），8 周跌 3.7%。审计五家里 Runlayer 给 fail（HIGH），Socket 给 warn，另三家 pass。",
+    "usage": "要写第一个技能时；技能装了但老不触发、想改 description 时；想量化一版技能到底有没有变好时。",
+    "notes": "Runlayer 的结论是 fail / HIGH，装之前先看它的具体条目，别只看到 curated 标记就当无事。"
+  },
+  "mattpocock/skills/wait-what": {
+    "name_zh": "重讲一遍",
+    "intro": "description 只有一句：Stop. That last message did not land: re-pitch it. 也就是让模型停下，把上一条没讲清楚的话重新说一遍。安装量 42.7 万，8 周跌 7.4%，三家审计全 pass；flags 标了 thin_body。",
+    "usage": "模型答非所问、或者上一段话你看不懂时直接点名它；长对话里让对方把结论压缩重讲也用它。",
+    "notes": "thin_body：正文极短，作用是换一种说法重讲，不会补出新信息。"
+  },
+  "microsoft/azure-skills/azure-kubernetes": {
+    "name_zh": "集群部署上线",
+    "intro": "把已有的 web 应用或 API 部署到已经跑着的 AKS 集群：认框架、产 Dockerfile 和 K8s manifest、按 AKS Deployment Safeguards 校验、部署后验证。微软官方、curated，安装量 42.7 万，8 周基本持平（-0.1%），四家审计全 pass。",
+    "usage": "Django、Express 或 Spring Boot 应用要上 AKS 时；部署被 safeguard 检查卡住时。",
+    "notes": "flags 标了 needs_external_cli。description 明确不收建集群的活，也不管 Web Apps、Container Apps 这些非 AKS 目标。"
+  },
+  "leonxlnx/taste-skill/minimalist-ui": {
+    "name_zh": "编辑风界面",
+    "intro": "leonxlnx taste-skill 系列里的编辑风产品 UI：暖调单色盘、明显的字体对比、扁平 bento 网格。description 写明是 opt-in，只有被点名才跑。安装量 42.5 万，8 周涨 23.7%，四家审计全 pass。",
+    "usage": "做内容型产品、编辑类界面时；想要干净的 bento 布局、又不想每屏自己算栅格时。",
+    "notes": "一套固定审美，和同系列的 high-end-visual-design 是两种路子，别指望它俩混出第三种。"
+  },
+  "mattpocock/skills/loop-me": {
+    "name_zh": "反问需求",
+    "intro": "让模型就你在这个 workspace 里想搭的工作流，反过来追问 spec 里的空缺。description 一句：Grill me about specs for the workflows I want to build, within this workspace. 安装量 42.4 万，8 周跌 13.2%，三家审计全 pass。",
+    "usage": "要 agent 帮你搭流程、但你自己还没想清楚输入输出时；开工前先把 spec 里的坑问出来时。",
+    "notes": "范围限定在当前 workspace，跨仓库的工作流不在它视野里。"
+  },
+  "heygen-com/hyperframes/hyperframes-studio": {
+    "name_zh": "剪辑台规范",
+    "intro": "在 Studio 里跟人一起做 HyperFrames 项目时的协作规则：先判断这条消息到底是不是要改动（提问、随口想法、说别动，都只给方案不动手），新片给计划、分镜和构建顺序，时间线要一条字幕轨、一类元素一轨、每个场景做成子合成，还写了字幕和关键内容的 safe zone。安装量 42 万，8 周涨 1650.3%，三家审计全 pass。",
+    "usage": "多人一起改同一个 HyperFrames 工程时；要按发布片的结构排一个新片时。",
+    "notes": "单个操作怎么做（切、裁、改速度、换素材）不在这里，得去 hyperframes-core 的 creator-editing-recipes.md。"
+  },
+  "prime-skills/runcomfy-agent-skills/kling-3-0": {
+    "name_zh": "可灵出片",
+    "intro": "调 Kling 3.0（快手第三代多镜头视频模型）在 RunComfy 上出片，覆盖全部六个端点：Standard、Pro、4K 三档乘文生视频、图生视频两种模式，命令形如 runcomfy run kling/kling-3.0/<tier>/<mode>。description 说它原生带同步音频、跨镜头保持人物一致。安装量 41 万，8 周跌 4.2%，三家审计全 pass。",
+    "usage": "要多镜头且人物一致的短片时；要 4K 交付、或者用一张图起手时。",
+    "notes": "档位和模式是组合关系，选错端点等于白花一次额度；依赖 RunComfy CLI 与账号额度。"
+  },
+  "juliusbrussee/caveman/caveman-commit": {
+    "name_zh": "压缩提交信息",
+    "intro": "写 Conventional Commits 的提交信息，但压到只剩意图，不写背景和过程。description 给的触发方式是 write a commit、/commit 或 /caveman-commit。安装量 40.9 万，8 周跌 20.3%，四家审计全 pass。",
+    "usage": "diff 已经写好、只要一行 commit message 时；嫌 agent 生成的提交说明太长时。",
+    "notes": "只出提交信息，不负责拆分 commit，也不改 diff。"
+  },
+  "vercel-labs/agent-skills/vercel-composition-patterns": {
+    "name_zh": "组件组合",
+    "intro": "来自 vercel-labs 的 agent-skills 仓库，被标为官方且 curated，安装量 40.6 万（自身 40.5 万），8 周涨 27.3%，五家审计里 Runlayer 给 warn（MEDIUM）、其余 pass。要注意输入里 description 是空的：抓取时 skills.sh 接口返回 401 authentication_required，detail_error 说 VERCEL_OIDC_TOKEN 缺失或被拒。",
+    "usage": "现在给不出具体使用场景：上游没交 description，正文也没抓到，只能确认它来自 vercel-labs 且被标成官方 curated。",
+    "notes": "description 缺失是上游 401 导致的，不是它本身没内容。Runlayer 标了 MEDIUM，装前自己翻一遍仓库。"
+  },
+  "heygen-com/hyperframes/music-to-video": {
+    "name_zh": "音乐节拍片",
+    "intro": "把一首音乐（音频文件、从视频里抽出来的音轨、或者按情绪描述生成的一段）做成卡点视频：歌词片、幻灯片或动感宣传片。description 说节奏完全由音乐决定，你给的图和视频都切到同一套节拍网格上，而且不给任何素材也能出一条完整片子。安装量 40.6 万，8 周涨 111.2%；Snyk 给 warn（MEDIUM）。",
+    "usage": "有现成 BGM 想出个宣传片时；做歌词视频或音乐号内容时。",
+    "notes": "有旁白的片子不归它，description 让转去 input-matched 的工作流。Snyk 标了 MEDIUM。"
+  },
+  "mattpocock/skills/claude-handoff": {
+    "name_zh": "交给后台",
+    "intro": "把当前对话交给一个新的后台 agent，让它接着往下干。安装量 40.5 万，8 周跌 10.2%，三家审计全 pass；flags 标了 pointer，也就是这条 SKILL.md 只是转发到别的技能，自己没有实现。",
+    "usage": "手里的会话太长、想开一个干净上下文继续同一件事时；要并行开一条后台线时。",
+    "notes": "pointer：单独装它拿不到实现，必须同时装它指向的那个技能。"
+  },
+  "nextlevelbuilder/ui-ux-pro-max-skill/ui-ux-pro-max": {
+    "name_zh": "界面资料库",
+    "intro": "一个可检索的 UI/UX 本地资料库：79 种风格（50 种在用）、192 套产品配色与推理画像、74 组字体搭配、119 条 UX 规范、105 个图标、17 个 GSAP 预设、25 种图表类型、22 个技术栈，覆盖 web、移动端和桌面。安装量 40.5 万，8 周涨 11.9%，五家审计全 pass。",
+    "usage": "要从零定风格、配色、字体搭配时；做图表选型、或者查某条 UX 规范的具体做法时。",
+    "notes": "是查资料用的参考层，具体实现还得接到你项目的技术栈上；数字都是它自己声明的。"
+  },
+  "juliusbrussee/caveman/caveman-review": {
+    "name_zh": "一行式评审",
+    "intro": "压缩过的代码评审：每个发现只占一行，写清位置、问题和改法。description 写的触发是 /caveman-review、review this PR 或 review the diff。安装量 40.4 万，8 周跌 19.5%；Snyk 给 warn（MEDIUM）。",
+    "usage": "review 一个 diff、只想要能照着改的清单时；PR 评论太多想压成一页时。",
+    "notes": "一行一条意味着解释会被砍掉，复杂问题不适合走它。Snyk 标了 MEDIUM。"
+  },
+  "juliusbrussee/caveman/caveman-compress": {
+    "name_zh": "压缩记忆文件",
+    "intro": "把 CLAUDE.md 或待办清单这类记忆文件压成 caveman 格式来省 input token，同时留一份能读的备份。description 明确说它会把文件正文发给你配置的模型服务商。安装量 40.4 万，8 周跌 17.1%；Gen Agent Trust Hub 给 warn（MEDIUM），其余三家 pass。",
+    "usage": "CLAUDE.md 越写越长、每次都要占一大段 context 时；想让待办单只留必要信息时。",
+    "notes": "会把文件正文发给模型服务商，涉密仓库别用。Gen Agent Trust Hub 标了 MEDIUM。"
+  }
+}

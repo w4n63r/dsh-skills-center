@@ -1,0 +1,302 @@
+{
+  "higgsfield-ai/skills/higgsfield-generate": {
+    "name_zh": "生成总入口",
+    "intro": "按技能里写死的默认模型表去调 Higgsfield AI 出东西：图像走 GPT Image 2.5，视频走 Seedance 2.5，卡通角色走 Nano Banana 2，音频走 Seed Audio 1.0，另外带 Marketing Studio 和爆款预测。安装量 20.9 万，8 周掉了 8.2%，Snyk 给 warn、另两家 pass。",
+    "usage": "一句 prompt 就要出图、出视频、建 3D 模型或做音效时；把静态照片做成动图、给视频改比例；跑广告素材或判断一段视频有没有爆款相。",
+    "notes": "Snyk warn（MEDIUM）；描述里明确写要跟同仓库的 higgsfield-soul-id 串起来做脸部一致；品牌手册、YouTube 封面、讲解视频都被划给了别的子技能。"
+  },
+  "mattpocock/skills/design-an-interface": {
+    "name_zh": "并行接口设计",
+    "intro": "一次开多个并行 sub-agent，让同一个模块同时给出几套风格完全不同的接口设计，你要的是横向比形状，而不是在单一方案上反复打磨。安装量 20.9 万，8 周涨 56.8%，Runlayer 给 warn，其余四家 pass。",
+    "usage": "设计 API 前想先看到几种真实取舍；模块边界拿不准、要比较不同拆法；想把 design it twice 真跑两遍而不是嘴上说说。",
+    "notes": "Runlayer warn（MEDIUM）；它只负责铺开方案，收敛到一套得你自己拍板。"
+  },
+  "emilkowalski/skills/improve-animations": {
+    "name_zh": "动效审计师",
+    "intro": "以资深动效顾问的视角扫一遍代码库里的动画代码，产出按优先级排好的审计报告，再给其他 agent（或更便宜的模型）写自包含的实施计划。对源码只读，只出方案不改代码。安装量 20.7 万，8 周涨 23.9%，三家审计全 pass。",
+    "usage": "觉得应用用起来发涩但说不上哪里；要一份动效改进路线图而不是单条 diff 的评审意见；打算把动效活派给便宜模型，先要一份能照着做的计划。",
+    "notes": "只读，不会自己动手改；要落地还得再跑一轮执行。"
+  },
+  "101-skills/superpowers/app-store-screenshots": {
+    "name_zh": "商店截图规格",
+    "intro": "按 App Store 和 Google Play 的真实规格做商店截图：iOS/Android 各自的尺寸、图库排序、设备 mockup、预览视频都覆盖。安装量 20.4 万，其中本仓库自身只有 5.2 万，其余是合并 fork 的量；8 周涨 72.7%，Gen Agent Trust Hub 和 Socket 两家 warn。",
+    "usage": "上架前要出满一套商店截图和一段预览视频；ASO 优化要重排图库顺序；要给应用套设备外观做展示图。",
+    "notes": "needs_external_cli，装之前先备好外部命令行；Gen Agent Trust Hub 与 Socket 两家 warn，只有 Snyk 通过。"
+  },
+  "anthropics/skills/docx": {
+    "name_zh": "文字文档处理",
+    "intro": "Anthropic 官方技能，专管 .docx 和 .dotx：读、改、建都做，目录、标题层级、页码、信头这类格式，插图替换、查找替换、修订记录和批注也在范围内。安装量 20.4 万，8 周跌 7.5%，curated 与 official 都标 true；Socket 给 warn，其余四家 pass。",
+    "usage": "用户丢来一个 .docx 要你调格式或抽内容；要把草稿变成带目录页码的正式 Word 稿；要处理修订记录和批注。",
+    "notes": "Socket warn；描述里明确把 PDF、表格、Google Docs 和纯编码任务划出去了。"
+  },
+  "mattpocock/skills/request-refactor-plan": {
+    "name_zh": "重构计划书",
+    "intro": "用一轮访谈把重构范围问清楚，写成一份切成微小提交的重构计划，最后直接落成一个 GitHub issue。安装量 20.2 万，8 周涨 52.6%，五家审计全 pass，是本片里审计最干净的一批之一。",
+    "usage": "想动一块老代码但不敢一次改完；要写重构 RFC 给别人评审；要把一次大重构拆成能逐个安全合并的小步。",
+    "notes": "产物是 GitHub issue，仓库得接在 GitHub 上。"
+  },
+  "mattpocock/skills/qa": {
+    "name_zh": "对话式质检",
+    "intro": "你像聊天一样描述遇到的 bug，它在后台翻代码库补上下文和领域用词，同时把每条问题整理成 GitHub issue 提上去。安装量 19.9 万，8 周涨 72.2%，四家审计全 pass。",
+    "usage": "手上攒了一堆零散 bug 想一次说完；要给项目补一批格式统一的工单；边体验产品边让 agent 替你记问题。",
+    "notes": "产物是 GitHub issue，需要有可写的 GitHub 仓库。"
+  },
+  "mattpocock/skills/ubiquitous-language": {
+    "name_zh": "统一术语表",
+    "intro": "从当前对话里抽一份 DDD 风格的统一语言表，标出含糊的说法，给出建议的标准术语，存成 UBIQUITOUS_LANGUAGE.md。安装量 19.7 万，8 周涨 31.3%，五家审计全 pass。",
+    "usage": "团队里同一个概念有三四种叫法；动手写领域模型前想把词先定死；接手老项目先摸清黑话。",
+    "notes": "只从当前对话里抽词，对话里没提过的概念不会出现在表里。"
+  },
+  "mattpocock/skills/obsidian-vault": {
+    "name_zh": "笔记库管家",
+    "intro": "在 Obsidian vault 里搜索、新建和整理笔记，带 wikilink 和索引页。安装量 19.6 万，8 周涨 35%，五家审计全 pass。",
+    "usage": "要让 agent 往你的 vault 里补一条会议记录；想让散笔记按索引页归拢；要在一堆旧笔记里翻出某个结论。",
+    "notes": "它直接动你本机的 vault 文件，跑之前确认路径、先备份。"
+  },
+  "emilkowalski/skills/find-animation-opportunities": {
+    "name_zh": "找动效机会",
+    "intro": "扫代码库或界面，找出该动却完全没动的地方，同时把不该加动效的位置挡回去。对源码只读，产出带具体数值的动效建议，不落地实现。安装量 19.2 万，8 周涨 24%，三家审计全 pass。",
+    "usage": "界面用起来像静态网页、想让它活一点；做一轮动效盘点；要区分「这里加过渡」和「这里加了就是噪音」。",
+    "notes": "只读不改；改现有动画请换 improve-animations 或 review-animations。"
+  },
+  "mattpocock/skills/edit-article": {
+    "name_zh": "文章润色编辑",
+    "intro": "按三步改文章：重排章节结构、提升表达清晰度、把句子收紧。属于 mattpocock 那套协作技能，同仓库还有 qa、design-an-interface 等条目。安装量 19.2 万，8 周涨 31.6%，五家审计全 pass。",
+    "usage": "一份稿子自己看腻了需要第二双眼睛；文章太长要砍；逻辑顺序乱、章节要重排。",
+    "notes": ""
+  },
+  "microsoft/playwright-cli/playwright-cli": {
+    "name_zh": "浏览器自动化",
+    "intro": "微软官方技能，用 Playwright 跑浏览器交互和网页测试，也能直接维护 Playwright 测试用例。安装量 19.1 万，8 周跌 7.7%，curated 与 official 都标 true；Socket 和 Snyk 两家 warn。",
+    "usage": "要在真实浏览器里复现前端问题；给页面写或修 Playwright 用例；跑一遍端到端回归。",
+    "notes": "Socket 与 Snyk 都 warn（MEDIUM）；描述只有一句话，具体流程得看正文，别按名字想当然。"
+  },
+  "101-skills/superpowers/landing-page-design": {
+    "name_zh": "落地页设计",
+    "intro": "落地页转化优化的规则集：首屏公式、社会证明放哪、CTA 的心理学、移动端设计、F 型阅读视线。安装量 19.1 万，本仓库自身 5.2 万，其余来自合并的 fork；8 周涨 72.8%，Socket 和 Snyk 两家 warn。",
+    "usage": "新产品的首屏文案和区块顺序要从零定；SaaS 官网转化不理想、想按规则重排；要定 CTA 的位置和措辞。",
+    "notes": "needs_external_cli，装之前先备好外部命令行；Socket 与 Snyk 都 warn。"
+  },
+  "101-skills/superpowers/product-photography": {
+    "name_zh": "产品摄影指导",
+    "intro": "电商产品图的拍法约定：棚拍打光、生活场景图、白底 packshot 规范，覆盖机位、背景、阴影类型、主图选择和平台图片要求。安装量 19 万，8 周涨 71.9%，Socket 给 warn。",
+    "usage": "要出电商列表图、拿不准主图怎么定；写生图 prompt 前需要一套摄影语言把细节说具体；要分清白底图和场景图各干什么用。",
+    "notes": "needs_external_cli；Socket warn。"
+  },
+  "101-skills/superpowers/storyboard-creation": {
+    "name_zh": "分镜头脚本",
+    "intro": "影视分镜的那套语言：镜头类型、机位角度、运镜、180 度轴线规则，加上分镜格排版和标注格式。安装量 19 万，8 周涨 72.5%，Socket 给 warn。",
+    "usage": "拍广告或 MV 前要出分镜和镜头清单；要把脚本拆成逐镜的画面说明；动画前期要定场景切分。",
+    "notes": "needs_external_cli；Socket warn。"
+  },
+  "101-skills/superpowers/competitor-teardown": {
+    "name_zh": "竞品拆解",
+    "intro": "结构化竞品分析：功能矩阵、SWOT、定位图加 UX 走查，还管调研框架、定价对比、评论挖掘和可视化产出。安装量 19 万，8 周涨 72.5%，Socket 与 Snyk 两家 warn。",
+    "usage": "融资材料里要放竞品矩阵；定价要跟同行逐项比；销售前要摸清对手的强弱项。",
+    "notes": "needs_external_cli；Socket 和 Snyk 都 warn；它给的是分析框架，竞品数据和事实仍要你自己补。"
+  },
+  "101-skills/superpowers/character-design-sheet": {
+    "name_zh": "角色设定表",
+    "intro": "让 AI 出图里的角色始终是同一个人：转面图、表情表、色彩板加上 LoRA 手法，还列了风格一致性的做法。安装量 19 万，8 周涨 71.9%，Socket 给 warn。",
+    "usage": "要为一个角色出多角度多表情的参考图；连载插画或漫画里角色老是变脸，想把外形定死；给训练 LoRA 备素材表。",
+    "notes": "needs_external_cli；Socket warn；涉及 LoRA 训练要你自己备环境和算力，技能给的是设定表与方法。"
+  },
+  "101-skills/superpowers/youtube-thumbnail-design": {
+    "name_zh": "封面图设计",
+    "intro": "YouTube 封面图的具体规格：尺寸、对比度规则、手机端小图预览优化，还有安全区、文字摆位、人物表情心理和 A/B 测试。安装量 19 万，8 周涨 73.9%，Socket 给 warn。",
+    "usage": "视频要出封面并想提点击率；封面在手机上糊成一团要重做；要拿两版封面做 A/B 对照。",
+    "notes": "needs_external_cli；Socket warn。"
+  },
+  "101-skills/superpowers/video-ad-specs": {
+    "name_zh": "视频广告规格",
+    "intro": "按平台给视频广告的硬规格：TikTok、Instagram、YouTube、Facebook、LinkedIn 各自的尺寸、时长上限、字幕要求，配 AIDA 结构。安装量 19 万，8 周涨 72.2%，Socket 给 warn。",
+    "usage": "一条素材要投多个平台、得批量改尺寸和时长；投放前核对是否符合平台规格；按 AIDA 排广告叙事顺序。",
+    "notes": "needs_external_cli；Socket warn。"
+  },
+  "101-skills/superpowers/product-hunt-launch": {
+    "name_zh": "产品发布打法",
+    "intro": "Product Hunt 发布的准备清单：tagline 怎么写、图库放什么、maker comment 说什么、发布日怎么排时间，都带具体规格。安装量 19 万，8 周涨 72.7%，Socket 与 Snyk 两家 warn。",
+    "usage": "给 side project 定发布日节奏；PH 上架前写 tagline 和图库文案；发布当天安排 maker 互动。",
+    "notes": "needs_external_cli；Socket 和 Snyk 都 warn。"
+  },
+  "higgsfield-ai/skills/higgsfield-product-photoshoot": {
+    "name_zh": "产品图出图",
+    "intro": "在 GPT Image 2 上做品牌级产品图，摄影 prompt 由后端拼装，不许自己手搓。模式分纯产品图、生活场景、人手特写、moodboard 图钉、hero banner、社媒轮播、广告素材包、虚拟试穿、超现实产品图和换风格。安装量 18.8 万，8 周跌 8.6%，Gen Agent Trust Hub 审计 fail。",
+    "usage": "要出能直接投 Meta 广告的产品素材包；做 Pinterest 图钉或首屏 banner；要虚拟试穿、让模特拿着产品拍。",
+    "notes": "Gen Agent Trust Hub 给了 fail，装前自己读一遍正文；描述明确写 prompt 由后端组装、不支持自由发挥。"
+  },
+  "firebase/agent-skills/firebase-basics": {
+    "name_zh": "开局与登录",
+    "intro": "Firebase 的地基部分：装 firebase-tools、查版本、CLI 登录（含 --no-localhost）、建项目和用 firebase use 切项目、下载 google-services.json 与 GoogleService-Info.plist。安装量 18.7 万，8 周跌 15.1%，Socket 和 ZeroLeaks 两家 warn。",
+    "usage": "新机器要装 Firebase CLI 并完成登录；要新建项目或在环境间切换；要下 Android/iOS 的配置文件。",
+    "notes": "描述把范围限死在 CLI 登录、建/切项目、下配置文件；Hosting、Firestore、Auth 等一概不管。Socket 与 ZeroLeaks 都 warn。"
+  },
+  "firebase/agent-skills/firebase-auth-basics": {
+    "name_zh": "登录认证接入",
+    "intro": "官方技能，讲怎么给应用接上 Firebase Authentication：用户登录、用户管理、用 auth 规则做受控的数据访问。安装量 17.2 万，8 周跌 14.6%，curated 与 official 都标 true；Snyk 给 warn，其余四家 pass。",
+    "usage": "新应用要从零加注册登录；已有登录体系要迁到 Firebase；要给数据访问加身份校验规则。",
+    "notes": "Snyk warn；描述只有一句，Web/iOS/Android 各自的具体步骤得看正文。"
+  },
+  "higgsfield-ai/skills/higgsfield-soul-id": {
+    "name_zh": "脸模训练",
+    "intro": "用一个人的照片训练一个 Soul 角色，也就是给这张脸训练个性化模型，之后在 Higgsfield 出图和出视频时保持一致。训练是一次性的，返回 reference_id，再用 --soul-id 挂到 higgsfield-generate 上。安装量 18.7 万，8 周跌 8.5%，Snyk 给 warn。",
+    "usage": "要把自己的脸固定进后续生成的图和视频；做数字分身或虚拟主播前先训练一次；视频需要身份一致时。",
+    "notes": "Snyk warn；它只做训练，出图要接着用 higgsfield-generate；一次性换脸和虚构角色不在它范围内。"
+  },
+  "higgsfield-ai/skills/higgsfield-marketplace-cards": {
+    "name_zh": "货架卡片",
+    "intro": "描述为空，上游没抓到 SKILL.md。能确认的只有：属于 higgsfield-ai 的系列技能，安装量 18.5 万，8 周跌 8.9%，Gen Agent Trust Hub 审计 fail，Socket 和 Snyk 通过。名字里的 marketplace cards 指向电商货架卡片一类产物，除此之外没有可查的说明。",
+    "usage": "只有在 higgsfield-ai 那套技能里你已确知它的位置时才装；否则先去用同仓库里有完整描述的那几条。",
+    "notes": "无描述、无正文可查；Gen Agent Trust Hub fail；装前务必自己打开 SKILL.md 确认产出。"
+  },
+  "anthropics/skills/xlsx": {
+    "name_zh": "电子表格处理",
+    "intro": "Anthropic 官方技能，凡是表格文件当主要输入或输出就走它：读写改 .xlsx/.xlsm/.xltx/.csv/.tsv，加列、算公式、格式化、画图、清脏数据，也能从零建表或换格式。安装量 18.5 万，8 周跌 0.7%，Socket 给 warn，其余四家 pass。",
+    "usage": "用户甩来一个 xlsx 说要加列或修公式；脏数据要清成能直接用的表；要在表格格式之间互转。",
+    "notes": "Socket warn；描述明确说主产物是 Word、HTML 报告、独立脚本或数据库管道时不该用它。"
+  },
+  "anthropics/skills/webapp-testing": {
+    "name_zh": "本地网页测试",
+    "intro": "Anthropic 官方技能，用 Playwright 跟本地 web 应用打交道：验证前端功能、调 UI 行为、截浏览器图、看浏览器日志。安装量 18.2 万，8 周涨 3.9%，curated 与 official 都标 true；Socket、Snyk、Runlayer 三家 warn。",
+    "usage": "前端改完要真的点一遍确认没坏；要抓控制台报错和截图当证据；复现只在浏览器里出现的问题。",
+    "notes": "三家 warn（Socket、Snyk、Runlayer）；描述只有三句话，细节得看正文；跑起来需要 Playwright 环境。"
+  },
+  "remotion-dev/skills/remotion-create": {
+    "name_zh": "视频工程搭建",
+    "intro": "描述为空，上游没抓到 SKILL.md。站得住的只有来源和数字：remotion-dev 官方仓库出品，安装量 17.9 万，8 周涨 149.8%，Gen Agent Trust Hub、Socket、Snyk 三家全 pass。名字里的 create 指向新建一个 Remotion 工程，同仓库在本片里还有八条同族技能。",
+    "usage": "已经在用 Remotion 做程序化视频、要开新工程时试它；没接触过 Remotion 就先挑同仓库里有正文的那条入手。",
+    "notes": "无描述可查，正文内容未知；三家审计都 pass。"
+  },
+  "remotion-dev/skills/remotion-captions": {
+    "name_zh": "视频字幕",
+    "intro": "描述为空。名字里 captions 就是视频字幕，remotion-dev 官方仓库出品，安装量 17.7 万，8 周涨 153%，三家审计全 pass。除了这个字面意思，输入里没有任何能说明它怎么用的内容：是加字幕组件、给字幕定时长还是别的，无从确认。",
+    "usage": "需要给 Remotion 视频配字幕时先读它自己的 SKILL.md，读完再决定用不用；只看名字装它是碰运气。",
+    "notes": "无描述；三家审计 pass，风险面干净。"
+  },
+  "remotion-dev/skills/remotion-markup": {
+    "name_zh": "排版标记",
+    "intro": "描述为空。markup 在 Remotion 语境下最可能指排版和标记层的写法，但这是从名字推的，输入里没有说明。remotion-dev 官方仓库出品，安装量 17.4 万，8 周涨 158.9%，三家审计全 pass。",
+    "usage": "要找 Remotion 里控制文字与版面的做法时再翻它；把它当排版方向的辅助技能看，别当模板库用。",
+    "notes": "无描述；正文未知。"
+  },
+  "emilkowalski/skills/pick-ui-library": {
+    "name_zh": "选组件库",
+    "intro": "描述为空。名字直说用途：在两个以上 UI 组件库之间做选择。作者 emilkowalski 那套前端技能之一，同仓库的 improve-animations 和 find-animation-opportunities 都有正文。安装量 17 万，8 周涨 21.3%，三家审计全 pass。",
+    "usage": "新项目要定组件库、需要一份能对着比的取舍清单时；和同仓库的动效审计一起用，前端取向会一致。",
+    "notes": "无正文可查，别指望它给出具体版本对比数据；三家审计 pass。"
+  },
+  "remotion-dev/skills/remotion-interactivity": {
+    "name_zh": "交互视频",
+    "intro": "描述为空。interactivity 指向视频里的交互，也就是可点、可输入那一类，remotion-dev 官方仓库出品，安装量 16.9 万，8 周涨 159.6%，三家审计全 pass。这是从名字读出来的，不是文档写的。",
+    "usage": "要做能让人操作的程序化视频或可交互演示时看它；纯渲染成片的场景用不到这一条。",
+    "notes": "无描述可查；三家 pass。"
+  },
+  "firebase/agent-skills/firebase-hosting-basics": {
+    "name_zh": "静态托管部署",
+    "intro": "官方技能，管经典 Firebase Hosting：静态站、SPA、微服务的部署，自定义域名、firebase.json 里的 redirects/rewrites/headers 与多站点配置、preview channel 都在内。安装量 16.8 万，8 周跌 16.3%，Runlayer 给 warn。",
+    "usage": "要把静态站或 SPA 发上线并绑自有域名；要配多站点和重写规则；要给测试环境开临时预览通道。",
+    "notes": "Runlayer warn；描述明确不管 App Hosting（Next.js/SSR）、Auth、Firestore、Data Connect 和 Crashlytics。"
+  },
+  "remotion-dev/skills/remotion-saas": {
+    "name_zh": "宣传片模板",
+    "intro": "描述为空。saas 放在 Remotion 技能里通常指给 SaaS 做宣传视频的模板或约定，也可能是别的东西，输入里没写。remotion-dev 官方仓库出品，安装量 16.7 万，8 周涨 162.2%，三家审计全 pass。",
+    "usage": "要给 SaaS 产品出程序化宣传片、手上有 Remotion 工程时试它；判断不了就先读正文再动。",
+    "notes": "无描述；三家 pass。"
+  },
+  "firebase/agent-skills/firebase-app-hosting-basics": {
+    "name_zh": "全栈应用托管",
+    "intro": "官方技能，用 Firebase App Hosting 部 Next.js 和 Angular 这类带 SSR 的全栈应用：apphosting.yaml、密钥管理、GitHub CI/CD、Blaze 计费要求都覆盖。安装量 16.7 万，8 周跌 16.4%，Runlayer 给 warn。",
+    "usage": "要把 Next.js 或 Angular 的 SSR 应用托管到 Firebase；要接 GitHub 自动部署；要确认 Blaze 计费的前置条件。",
+    "notes": "Runlayer warn；静态托管、Auth、Firestore、Crashlytics、Xcode 都不归它。"
+  },
+  "remotion-dev/skills/remotion-docs": {
+    "name_zh": "框架文档",
+    "intro": "描述为空。同族九条 Remotion 技能里唯一带 warn 的一条：Snyk 给 warn，另两家 pass。安装量 16.6 万，8 周涨 158.7%。名字 docs 大概率是文档方向，也可能指给视频生成文档内容，这里不替它下结论。",
+    "usage": "想弄清 Remotion 技能族之间怎么分工时先读它；要用它生成内容前，先把 Snyk 那条 warn 的指向搞清楚。",
+    "notes": "无描述；Snyk warn，同族里唯一一条。"
+  },
+  "firebase/agent-skills/firebase-data-connect": {
+    "name_zh": "关系数据库接入",
+    "intro": "官方技能，用 Firebase SQL Connect（Data Connect）在 PostgreSQL 上搭后端：设计表与关系、写带授权的 query 和 mutation、配实时数据、生成类型安全 SDK。安装量 16.6 万，8 周跌 15.9%，Socket 给 warn，Runlayer 直接 fail。",
+    "usage": "业务需要关系型数据库而不是 Firestore 时；要给 Postgres 接一层带权限的数据接口；要生成类型安全的客户端 SDK。",
+    "notes": "Runlayer fail 加 Socket warn，是本片里审计最差的官方技能，装前务必自己读正文。"
+  },
+  "sentry/dev/sentry-cli": {
+    "name_zh": "错误上报工具",
+    "intro": "描述为空。能确认的是：sentry 的 dev 仓库出品，名字对应 sentry-cli 这个命令行工具，安装量 16.6 万，8 周涨 39.8%。Gen Agent Trust Hub 和 Snyk 两家审计都是 fail，只有 Socket 通过，是本片里少数被两家直接判 fail 的条目。",
+    "usage": "只有当项目已经在用 sentry-cli 管 source map 和 release 时才考虑；这记录足够让你先跳过它。",
+    "notes": "两家 fail（Gen Agent Trust Hub、Snyk）；正文没抓到无法自查，装前必须自己读。"
+  },
+  "tt-a1i/archify/archify": {
+    "name_zh": "架构图工具",
+    "intro": "描述为空。来源 tt-a1i，安装量 16.3 万，8 周跌 24.9%，是本片跌幅第二。三家里 Socket 给 warn，另两家通过。名字只说明它跟「架构」有关，具体产出是什么形态（代码图、系统图还是别的）从输入里看不出来。",
+    "usage": "要做系统架构或模块关系图、并且愿意先自己读 SKILL.md 确认产出格式时再看它；只冲安装量装容易装错。",
+    "notes": "无描述；Socket warn；8 周跌 24.9%，热度在退。"
+  },
+  "vercel-labs/agent-skills/deploy-to-vercel": {
+    "name_zh": "部署到线上",
+    "intro": "vercel-labs 官方技能，把应用和站点部署到 Vercel：deploy my app、要个链接、推上线、开预览部署这类请求都归它。安装量 16.2 万，8 周涨 43.7%，Snyk 和 Runlayer 两家 warn。",
+    "usage": "本地跑通了要一个能分享的预览地址；想把分支发成 preview deployment；交付时要直接给出线上链接。",
+    "notes": "Snyk 与 Runlayer 都 warn；部署动作直接作用到线上项目，跑之前确认作用的是对的团队。"
+  },
+  "coreyhaines31/marketingskills/marketing-psychology": {
+    "name_zh": "营销心理学",
+    "intro": "描述为空，但来源说明了路线：coreyhaines31 的 marketingskills 仓库，同仓库还有 content-strategy 和 programmatic-seo。安装量 16.1 万，8 周涨 15.6%，五家审计全 pass，是本片里少数审计全清的一条。",
+    "usage": "写落地页、邮件、广告文案前，想给每个卖点补一条心理学依据时；要把话术从「感觉对」变成「有机制解释」。",
+    "notes": "正文没抓到，具体覆盖哪些心理学原理不清楚；好在这条五家审计全 pass。"
+  },
+  "coreyhaines31/marketingskills/content-strategy": {
+    "name_zh": "内容策略",
+    "intro": "描述为空。同属 coreyhaines31 的 marketingskills，名字对应内容策略这块，安装量 15.9 万，8 周涨 13.8%；审计里 Snyk 给 warn，其余四家 pass。",
+    "usage": "要给博客或公众号定选题框架和内容支柱时；跟同仓库的营销心理学搭配，一个管讲什么、一个管为什么这么讲。",
+    "notes": "无正文；Snyk warn；同仓库三条都是空描述，选之前各读一遍。"
+  },
+  "vercel-labs/agent-skills/vercel-react-view-transitions": {
+    "name_zh": "路由转场动画",
+    "intro": "官方技能，讲 React 的 View Transition API：ViewTransition 组件、addTransitionType、CSS view transition 伪元素，用来做页面切换、路由过渡、共享元素动画、列表重排和前进后退的方向感，也覆盖 Next.js 集成。安装量 15.9 万，8 周涨 38.2%，四家审计全 pass。",
+    "usage": "不想引第三方动画库、要用浏览器原生转场做页面切换；列表重排要平滑；要做区分前进/后退方向的路由动画。",
+    "notes": ""
+  },
+  "remotion-dev/skills/remotion-upgrade": {
+    "name_zh": "版本升级",
+    "intro": "描述为空。名字 upgrade 指向版本升级这件事，remotion-dev 官方仓库出品，安装量 15.8 万，8 周涨 163.6%，是本片涨幅第三高。三家审计全 pass。",
+    "usage": "Remotion 主版本要升、担心破坏现有合成时找它；日常写视频用不到这一条。",
+    "notes": "无描述可查；正文未知。"
+  },
+  "microsoft/azure-skills/azure-cost-optimization": {
+    "name_zh": "云成本优化",
+    "intro": "官方技能，读用量和支出数据找省钱点：该删的闲置资源、VM 降配、Redis 和存储怎么省、AKS 成本分析、成本突增与预算告警都覆盖。安装量 15.5 万，trend_pct 是 null（上游没给 8 周增长率），三家审计全 pass。",
+    "usage": "月底要对账、想知道钱花在哪；要出一份降本报告；发现账单突然变高要找原因。",
+    "notes": "needs_external_cli；描述明确说部署资源、通用诊断、安全问题都不归它管；trend 数据缺失。"
+  },
+  "remotion-dev/skills/remotion-multimedia": {
+    "name_zh": "多媒体素材",
+    "intro": "描述为空。名字 multimedia 覆盖音频、视频、图片混用这类场景，remotion-dev 官方仓库出品，安装量 15.3 万，8 周涨 153.4%，三家审计全 pass。具体怎么组织媒体资源，输入里没给。",
+    "usage": "工程里要混排音视频和图片、需要一份媒体处理约定时再看；单纯做动画不需要它。",
+    "notes": "无描述；三家 pass。"
+  },
+  "remotion-dev/skills/remotion-maps": {
+    "name_zh": "地图组件",
+    "intro": "描述为空。名字 maps 对应的应该是视频里的地图，比如轨迹、区域高亮一类，remotion-dev 官方仓库出品，安装量 15.2 万，8 周涨 162.2%，三家审计全 pass。这个解读来自名字，不是文档。",
+    "usage": "视频里要画地图或做地理动画时试它；同族九条里它排最后、安装量也最低。",
+    "notes": "无描述可查。"
+  },
+  "mattpocock/skills/pr": {
+    "name_zh": "拉取请求",
+    "intro": "描述为空，且 8 周涨了 987.4%，是本片涨幅最高的一条，安装量 14.7 万。属于 mattpocock 那套协作技能，同仓库有 qa、design-an-interface、request-refactor-plan 等有正文的条目，三家审计全 pass。名字 pr 只能是 pull request 相关，具体做什么没抓到。",
+    "usage": "需要给改动走 PR 流程时，跟同仓库的 qa、request-refactor-plan 配合着试；正文未知，先读它自己的 SKILL.md 再决定。",
+    "notes": "无描述；涨幅 +987.4% 在本片排第一，装之前先确认正文真的有用。"
+  },
+  "microsoft/azure-skills/azure-app-onboard": {
+    "name_zh": "应用上云接入",
+    "intro": "描述为空。microsoft 官方 azure-skills 仓库出品，名字指向把应用接进 Azure 这件事，安装量 14.7 万，8 周几乎走平（-0.2%），Socket 给 warn、另两家 pass。curated 与 official 都标 false，跟同仓库的 azure-cost-optimization 不一样。",
+    "usage": "已有应用要迁到 Azure、需要一个起点清单时先读它的 SKILL.md；同仓库的成本优化那条有完整描述，可以拿来对照。",
+    "notes": "无描述；Socket warn；出自官方 org 却没被标成 official。"
+  },
+  "coreyhaines31/marketingskills/programmatic-seo": {
+    "name_zh": "程序化页面",
+    "intro": "描述为空。属于 coreyhaines31 的 marketingskills，名字 programmatic-seo 直指用模板批量生成 SEO 落地页这件事，安装量 14.7 万，8 周涨 8.3%，五家审计全 pass。除此之外正文内容不可查。",
+    "usage": "站内要铺几百个长尾关键词页面、需要先定模板和字段结构时；跟同仓库的 content-strategy 搭配规划词群。",
+    "notes": "无正文；五家审计 pass。"
+  }
+}
