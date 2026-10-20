@@ -2,7 +2,7 @@
 // 这层的价值全在「不合格就别写」：线上 catalog-latest.json 一旦被半成品覆盖，下游读到的
 // 是一个既新又残缺的目录，而日志里什么都看不出来。所以这里用假的 put() 验顺序与拒写条件。
 import assert from 'node:assert/strict';
-import { validateCatalog, versionedName, publishCatalog, WEIGHTS } from './publish.mjs';
+import { pruneVersions, validateCatalog, versionedName, publishCatalog, WEIGHTS } from './publish.mjs';
 import { buildCatalog } from './pipeline.mjs';
 
 const makeCatalog = () =>
@@ -121,7 +121,40 @@ assert.equal(noPut.ok, false);
 assert.equal(noPut.stage, 'upload');
 assert.ok(noPut.stats.count === 2, 'even a failed upload reports what the catalog looked like');
 
+// ---- 保留策略：只留最近 N 个版本快照，指针文件与最新 N 个必须活着 ----
+{
+  const snapshots = Array.from({ length: 18 }, (_, i) => ({
+    pathname: `catalog-2026-10-${String(i + 1).padStart(2, '0')}T05-00-00-000Z.json`,
+    url: `https://blob.example/catalog-2026-10-${String(i + 1).padStart(2, '0')}T05-00-00-000Z.json`,
+  }));
+  const listed = [
+    ...snapshots,
+    // 指针不能进这个前缀的过滤里，就算端点把它一起返回了也不许删
+    { pathname: 'catalog-latest.json', url: 'https://blob.example/catalog-latest.json' },
+  ];
+  const deleted = [];
+  const pruneResult = await pruneVersions({
+    list: async () => ({ blobs: listed }),
+    del: async (url) => deleted.push(url),
+    keep: 14,
+    log: () => {},
+  });
+  assert.equal(pruneResult.deleted.length, 4, '18 snapshots with keep=14 leaves 4 to delete');
+  assert.equal(pruneResult.kept, 14);
+  assert.ok(!deleted.some((url) => url.includes('latest')), 'the latest pointer must never be deleted');
+  assert.ok(deleted.every((url) => /catalog-2026-10-0[1-4]T/.test(url)), 'oldest snapshots go first');
+
+  // list/del 缺失时不能报错，也不能假装删过
+  const noApi = await pruneVersions({});
+  assert.deepEqual(noApi.deleted, []);
+  assert.ok(noApi.errors.length > 0);
+  // 端点列不出来时只记错误，绝不阻塞发布
+  const listFails = await pruneVersions({ list: async () => { throw new Error('list 500'); }, del: async () => {} });
+  assert.deepEqual(listFails.deleted, []);
+  assert.match(listFails.errors[0], /list 500/);
+}
+
 console.log(
   `publish ok — ${writes.length} blob writes in order (${writes.map((w) => w.pathname).join(' → ')}), ` +
-    `${okCheck.stats.payload_bytes}B payload, invalid catalogs never reach put()`,
+    `${okCheck.stats.payload_bytes}B payload, invalid catalogs never reach put(), retention keeps the newest 14`,
 );

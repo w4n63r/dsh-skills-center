@@ -13,7 +13,19 @@ export const dynamic = 'force-dynamic';
 
 const PREFIX = process.env.BLOB_PREFIX || 'catalog';
 
+// 固定地址（Blob 上的 catalog-latest.json）。设了就完全不碰 Blob API：
+// 这个路由每次被调用都 list() 一次会算「高级操作」，免费额度每月只有 2,000 次。
+// 换 store 或重建 store 时改这个环境变量即可，插件的地址不用动。
+const LATEST_URL = String(process.env.CATALOG_LATEST_URL || '').trim();
+
 export async function GET() {
+  // 快路径：直接 302 到 Blob 上的固定地址，零 Blob 操作
+  if (/^https?:\/\//.test(LATEST_URL)) {
+    return new Response(null, {
+      status: 302,
+      headers: { location: LATEST_URL, 'cache-control': 'no-store' },
+    });
+  }
   try {
     const { list } = await import('@vercel/blob');
     const { blobs } = await list({ prefix: `${PREFIX}-latest.json`, limit: 1 });

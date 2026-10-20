@@ -334,7 +334,7 @@ assert.notEqual(apiListAsc.body.rows[0].id, apiList.body.rows[0].id, 'direction 
 
 // 安装命令只在 GitHub 来源上给，域名来源（open.feishu.cn 这类）必须为空。
 // 样例目录里全是 github，所以这条直接对 rowOf 下断言，不靠样例数据凑。
-const { rowOf, weeklySum } = await import('../lib/catalog.js');
+const { rowOf, weeklySum, SORT_KEYS } = await import('../lib/catalog.js');
 
 // 「近 30 天安装量」= 8 周周量的最近 4 周之和（上游不给 30 天口径，这是我们自己算的）
 assert.equal(weeklySum([10, 10, 10, 10, 20, 20, 20, 20], 4), 80, 'last four weeks are summed');
@@ -359,6 +359,10 @@ assert.equal(weeklySum(null, 4), null);
     rowOf({ id: 'a/b/c', slug: 'c', source: 'a/b', installs: 1, first_seen: '2026-01-19', score: {} }).first_seen,
     '2026-01-19',
   );
+  // 星标数（仓库级，来自技能页）：有就是数字，没有就是 null，不写 0
+  assert.equal(rowOf({ id: 'a/b/c', slug: 'c', source: 'a/b', installs: 1, stars: 182200, score: {} }).stars, 182200);
+  assert.equal(rowOf({ id: 'a/b/c', slug: 'c', source: 'a/b', installs: 1, score: {} }).stars, null);
+  assert.ok(SORT_KEYS.includes('stars'), 'stars is a sort key');
 }
 assert.match(
   rowOf({ id: 'a/b/c', slug: 'c', source: 'a/b', kind: 'github', installs: 1, score: {} }).install_hint,

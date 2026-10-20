@@ -188,6 +188,7 @@ const PAGE_FIXTURE = {
       audit: { judged: 5, pass: 4, warn: 1, fail: 0 },
       install_hint: 'npx skills add anthropics/skills --skill frontend-design',
       categories: ['design', 'frontend'],
+      stars: 182200,
     },    {
       id: 'x/y/z',
       slug: 'z',
@@ -254,6 +255,7 @@ for (const expected of [
   '+6.4%',
   '评分 66',
   '-33.2%',
+  '★ 182.2K',
   'needs_external_cli',
   'test-v1',
   '已激活 1/50',
@@ -351,7 +353,7 @@ sortMenu.props.onClick();
 assert.ok(countByClass(expand(render()), 'dsc-menu-item') > 0, 'opening the sort menu lists its options');
 const openMenu = textOf(render());
 // 一个浮层三组：排序字段 / 排序方向 / 发布时间范围
-for (const expected of ['排序字段', '排序方向', '发布时间范围', '近 30 天安装量', '最近 30 天', '全部时间', '最近 1 年']) {
+for (const expected of ['排序字段', '排序方向', '发布时间范围', '近 30 天安装量', '星标数', '最近 30 天', '全部时间', '最近 1 年']) {
   assert.ok(openMenu.includes(expected), `grouped sort menu offers 「${expected}」`);
 }
 
@@ -449,6 +451,8 @@ for (const expected of [
   '评分是本插件',
   '唯一标识',
   '来源/仓库/技能名',
+  '星标数',
+  '182,200',
 ]) {
   assert.ok(withDetail.includes(expected), `detail dialog shows 「${expected}」`);
 }

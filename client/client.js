@@ -45,10 +45,18 @@ window.__ModuleLoader__.load({
       range90: '最近 90 天',
       range365: '最近 1 年',
       sortInstalls4w: '近 30 天安装量',
+      sortStars: '星标数',
+      stars: '星标数',
+      starsNote: '星标是仓库级指标：同一个仓库里的技能共用这个数。来自技能页的 GitHub Stars，只有抓过页面详情的条目才有。',
+      tipStars: '星标数：这个技能所在 GitHub 仓库的星数（技能页上的 GitHub Stars）',
       installs4w: '近 30 天安装量',
       installs4wNote: '上游不给「近 30 天」，这一项是我们把技能页上的 8 周周量的最近 4 周加起来得到的（≈28 天）。',
       firstSeenNote: '来自技能页上的 First Seen；只有抓过页面详情的条目才有，上游没有「更新时间」。',
       dateCoverage: '有时间信息',
+      updateAvailable: '有新版本',
+      syncNow: '同步',
+      syncing: '同步中…',
+      syncFailed: '同步失败：',
       categoryHint: '按技能实际功能自动分类（关键词规则，不是 skills.sh 官方字段）；一条技能可能属于多个分类。',
       searchResults: '搜索结果',
       prev: '上一页',
@@ -105,7 +113,7 @@ window.__ModuleLoader__.load({
       helpAuditTitle: '第三方安全检查',
       helpAuditBody: '不是我们审的，是 skills.sh 上五家第三方工具各扫一遍：Gen Agent Trust Hub、Socket、Snyk、Runlayer、ZeroLeaks。结论只有 pass / warn / fail，riskLevel 是它们自己的分级（SAFE / NONE / LOW / MEDIUM / HIGH / CRITICAL 都出现过）。卡片上的「第三方安全检查 4/5」= 5 家里 4 家 pass；fail 计入分母不剔除。pass 不等于安全，只等于这五家没报问题，fail 也可能是误报。',
       helpDataTitle: '安装数 / 8 周趋势',
-      helpDataBody: '安装数是 skills.sh 接口快照；同一份内容被多个 owner 转发时会合并计算，卡片给的是合并后的量，详情里能看到本体量。8 周趋势 = 后四周周均 ÷ 前四周周均 − 1。',
+      helpDataBody: '安装数是 skills.sh 接口快照；同一份内容被多个 owner 转发时会合并计算，卡片给的是合并后的量，详情里能看到本体量。8 周趋势 = 后四周周均 ÷ 前四周周均 − 1。星标数是 GitHub 仓库的星数（技能页上的 GitHub Stars），仓库级指标，同一仓库的技能共用。',
       helpTagsTitle: '卡片上的标签',
       helpTagsBody: '官方 / 精选 = skills.sh 的官方或 curated 标记。中文卡 = 这条有中文介绍（只做了安装量前 300 条）。有正文 = 抓到了 SKILL.md 正文。风险标记见下。',
       helpSourceTitle: '数据多久更新一次',
@@ -155,10 +163,18 @@ window.__ModuleLoader__.load({
       range90: 'Last 90 days',
       range365: 'Last year',
       sortInstalls4w: 'Installs (30d)',
+      sortStars: 'GitHub stars',
+      stars: 'GitHub stars',
+      starsNote: 'Stars are per repository: every skill in the same repo shares the number. Taken from GitHub Stars on the skill page; only rows whose page we fetched have it.',
+      tipStars: 'Stars of the GitHub repository this skill lives in (GitHub Stars on the skill page)',
       installs4w: 'Installs (30d)',
       installs4wNote: 'Upstream has no 30-day figure: this one sums the last four weekly points from the skill page (about 28 days).',
       firstSeenNote: 'Taken from First Seen on the skill page; only rows whose page we fetched have it. Upstream publishes no updated-at.',
       dateCoverage: 'with dates',
+      updateAvailable: 'Update available',
+      syncNow: 'Sync',
+      syncing: 'Syncing…',
+      syncFailed: 'Sync failed: ',
       categoryHint: 'Categories are inferred from what each skill does (keyword rules, not a skills.sh field). A skill can sit in several.',
       searchResults: 'Search results',
       prev: 'Prev',
@@ -214,7 +230,7 @@ window.__ModuleLoader__.load({
       helpAuditTitle: 'Audits (third-party checks)',
       helpAuditBody: 'skills.sh runs five auditors on every skill: Gen Agent Trust Hub, Socket, Snyk, Runlayer, ZeroLeaks. A verdict is pass / warn / fail, and riskLevel is their own scale (SAFE / NONE / LOW / MEDIUM / HIGH / CRITICAL all appear). "Audit 4/5" means four of five passed; fails stay in the denominator. Pass is not the same as safe — it only means none of the five flagged it, and a fail can be a false positive.',
       helpDataTitle: 'Installs / 8-week trend',
-      helpDataBody: 'Installs come from a skills.sh API snapshot; when the same content is republished by several owners the counts are merged, and the card shows the merged figure while the detail shows the canonical one. 8-week trend = average of the last four weeks divided by the previous four, minus 1.',
+      helpDataBody: 'Installs come from a skills.sh API snapshot; when the same content is republished by several owners the counts are merged, and the card shows the merged figure while the detail shows the canonical one. 8-week trend = average of the last four weeks divided by the previous four, minus 1. Stars are the GitHub repository\u2019s count (GitHub Stars on the skill page) and are shared by every skill in that repository.',
       helpTagsTitle: 'Tags on a card',
       helpTagsBody: 'Official / Curated = skills.sh markers. Chinese card = we wrote a Chinese intro (top 300 by installs only). Has body = the SKILL.md body was fetched. Risk flags are listed below.',
       helpSourceTitle: 'How fresh is the data',
@@ -265,6 +281,9 @@ background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font
 cursor:pointer;white-space:nowrap;transition:border-color .12s,background .12s}
 .dsc-btn:hover{border-color:var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2)}
 .dsc-btn[disabled]{opacity:.5;cursor:default}
+.dsc-head-actions{display:flex;align-items:center;gap:8px}
+.dsc-btn-primary{border-color:var(--dsw-alias-brand-primary);color:var(--dsw-alias-brand-primary);font-weight:500}
+.dsc-hint-error{color:var(--dsw-alias-state-error-primary)}
 .dsc-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:center}
 .dsc-chips-sub{margin-top:10px;gap:6px}
 .dsc-chip-label{color:var(--dsw-alias-label-secondary);font-size:12.5px;margin-right:2px}
@@ -391,6 +410,14 @@ white-space:pre-wrap;word-break:break-all}
       return m ? `${m[1]} ${m[2]}:${m[3]}` : raw || t('none');
     };
     const fmtPct = (v) => (v == null ? '—' : `${v > 0 ? '+' : ''}${v}%`);
+    /** 星标用 K/M 紧凑写法（182.2K），和 GitHub、插件市场一致；数字大时比 182,200 好读。 */
+    const fmtStars = (n) => {
+      if (n == null || !Number.isFinite(Number(n))) return '—';
+      const value = Number(n);
+      if (value >= 1e6) return `${(value / 1e6).toFixed(1)}M`;
+      if (value >= 1e3) return `${(value / 1e3).toFixed(1)}K`;
+      return String(value);
+    };
     const trendClass = (v) => (v == null ? '' : v > 0 ? 'dsc-up' : v < 0 ? 'dsc-down' : '');
 
     function field(label, value) {
@@ -618,6 +645,13 @@ white-space:pre-wrap;word-break:break-all}
             { className: trendClass(row.trend_pct), title: t('tipTrend') },
             `${t('trend')} ${fmtPct(row.trend_pct)}`,
           ),
+          // 星标是仓库级指标，没抓过页面的条目没有 → 没有就不占位（不写「0」）
+          row.stars == null
+            ? null
+            : [
+                h('i', { key: 'star-sep' }, '·'),
+                h('span', { key: 'stars', title: t('tipStars') }, `★ ${fmtStars(row.stars)}`),
+              ],
         ),
         tags.length
           ? h(
@@ -673,6 +707,17 @@ white-space:pre-wrap;word-break:break-all}
             field(t('usage'), zh.usage),
             field(t('notes'), zh.notes),
             field(t('installs'), fmtInt(skill.installs ?? row.installs)),
+            (() => {
+              const stars = skill.stars ?? row.stars;
+              if (stars == null) return null;
+              return h(
+                'div',
+                { className: 'dsc-field' },
+                h('span', { className: 'dsc-label' }, t('stars')),
+                h('p', { className: 'dsc-text' }, `${fmtInt(stars)}（★ ${fmtStars(stars)}）`),
+                h('p', { className: 'dsc-note' }, t('starsNote')),
+              );
+            })(),
             (() => {
               const four = skill.installs_4w ?? row.installs_4w;
               if (four == null) return null;
@@ -797,6 +842,7 @@ white-space:pre-wrap;word-break:break-all}
         categories: [],
         classified: 0,
         dated: 0,
+        remote: null,
         error: '',
       });
       const [query, setQuery] = useState('');
@@ -806,6 +852,10 @@ white-space:pre-wrap;word-break:break-all}
       const [category, setCategory] = useState('');
       const [showAllCategories, setShowAllCategories] = useState(false);
       const [since, setSince] = useState(0);
+      const [syncing, setSyncing] = useState(false);
+      const [syncError, setSyncError] = useState('');
+      // 同步成功后靠它触发一次重新取数（改 deps 比手动调 load 更稳）
+      const [refreshKey, setRefreshKey] = useState(0);
       const [page, setPage] = useState(1);
       const [pageSize, setPageSize] = useState(PAGE);
       const [detail, setDetail] = useState({ status: 'idle', id: '', skill: null, row: null });
@@ -846,6 +896,7 @@ white-space:pre-wrap;word-break:break-all}
             categories: Array.isArray(body.categories) ? body.categories : prev.categories,
             classified: body.classified || prev.classified,
             dated: body.dated ?? prev.dated,
+            remote: body.remote || prev.remote,
             error: '',
           }));
         } catch (error) {
@@ -862,7 +913,7 @@ white-space:pre-wrap;word-break:break-all}
       useEffect(() => {
         const timer = setTimeout(() => load(page, pageSize), 200);
         return () => clearTimeout(timer);
-      }, [query, sort, dir, filter, category, since, page, pageSize]);
+      }, [query, sort, dir, filter, category, since, page, pageSize, refreshKey]);
 
       // 换页后把列表滚回顶部，否则翻到下一页还停在上一页的滚动位置。
       useEffect(() => {
@@ -873,6 +924,21 @@ white-space:pre-wrap;word-break:break-all}
       useEffect(() => () => {
         requestId.current += 1;
       }, []);
+
+  /** 同步远端目录：宿主那边是 POST /sync；成功后让 effect 重新拉一次数据。 */
+      const doSync = async () => {
+        setSyncing(true);
+        setSyncError('');
+        try {
+          const response = await fetch(`${API}/sync`, { method: 'POST', headers: { accept: 'application/json' } });
+          const body = await response.json().catch(() => ({}));
+          if (!response.ok || body.ok === false) throw new Error(body.reason || body.error || `http_${response.status}`);
+        } catch (error) {
+          setSyncError(String(error && error.message ? error.message : error));
+        }
+        setSyncing(false);
+        setRefreshKey((n) => n + 1);
+      };
 
       const openDetail = async (row) => {
         setDetail({ status: 'loading', id: row.id, skill: null, row });
@@ -898,6 +964,7 @@ white-space:pre-wrap;word-break:break-all}
         ['S', t('sortScore')],
         ['installs', t('sortInstalls')],
         ['installs4w', t('sortInstalls4w')],
+        ['stars', t('sortStars')],
         ['trend', t('sortTrend')],
         ['name', t('sortName')],
       ];
@@ -952,9 +1019,27 @@ white-space:pre-wrap;word-break:break-all}
               h('h2', { className: 'dsc-title' }, t('title')),
               // 「S 分是什么」「审计是什么」这类问题要能在界面里自己找到答案
               h(
-                'button',
-                { type: 'button', className: 'dsc-btn', onClick: () => setHelp(true) },
-                `? ${t('help')}`,
+                'div',
+                { className: 'dsc-head-actions' },
+                // 远端有新版才出现：宿主每 6 小时 HEAD 一次，不下载正文
+                state.remote?.updateAvailable
+                  ? h(
+                      'button',
+                      {
+                        type: 'button',
+                        className: 'dsc-btn dsc-btn-primary',
+                        disabled: syncing,
+                        onClick: doSync,
+                        title: `${t('updateAvailable')} · ${t('syncNow')}`,
+                      },
+                      syncing ? t('syncing') : `${t('updateAvailable')} · ${t('syncNow')}`,
+                    )
+                  : null,
+                h(
+                  'button',
+                  { type: 'button', className: 'dsc-btn', onClick: () => setHelp(true) },
+                  `? ${t('help')}`,
+                ),
               ),
             ),
             h('div', { className: 'dsc-meta' }, meta),
@@ -1105,6 +1190,7 @@ white-space:pre-wrap;word-break:break-all}
             ),
           ),
           h('div', { className: 'dsc-hint' }, `${t('categoryHint')} ${t('matched')} ${fmtInt(state.matched)}`),
+          syncError ? h('div', { className: 'dsc-hint dsc-hint-error' }, `${t('syncFailed')}${syncError}`) : null,
           since
             ? h(
                 'div',

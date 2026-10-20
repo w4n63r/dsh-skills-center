@@ -186,14 +186,40 @@ export function createClient({ token, base = DEFAULT_BASE, fetchImpl = globalThi
      *   <span>First Seen</span></div><div class="...">Jan 19, 2026</div>
      * 页面里**没有**「更新时间」这类字段（实测扫过 ISO 日期、Updated/Modified/ago 文案都是 0 命中），
      * 所以面板只展示发布时间，不做「更新时间」。
+     * 「GitHub Stars」也在这一页（仓库级指标，同一仓库的每个技能都会重复出现，但不多花请求）。
      * 一次 1 个请求，所以调用方必须把它算进预算。
      */
     async page(id) {
       const path = id.split('/').map(encodeURIComponent).join('/');
       const html = await requestText(`${SITE}/${path}`);
-      return { weekly_series: parseWeeklyInstalls(html), first_seen: parseFirstSeen(html) };
+      return {
+        weekly_series: parseWeeklyInstalls(html),
+        first_seen: parseFirstSeen(html),
+        stars: parseStars(html),
+      };
     },
   };
+}
+
+/**
+ * 技能页上的 GitHub Stars（按仓库统计，所有技能共用仓库的那个数）。
+ * 真实结构（注意数字外面还套了一层 span，svg 里也可能有大量标记）：
+ *   <span>GitHub Stars</span></div><div class="…"><svg …>…</svg><span>182.2K</span></div>
+ * 所以只在标签后 1500 字窗口里找「第一个数字」，再换掉 K/M 后缀；找不到给 null。
+ */
+export function parseStars(html) {
+  const text = String(html || '');
+  const at = text.indexOf('<span>GitHub Stars</span>');
+  if (at < 0) return null;
+  const window = text.slice(at, at + 1500);
+  const m = /(?:<span[^>]*>)?\s*([\d][\d.,]*\s*[KM]?)\s*(?:<\/span>)?/.exec(window.slice(window.indexOf('</svg>') + 6));
+  if (!m) return null;
+  const raw = m[1].replace(/[,\s]/g, '');
+  const suffix = /[KM]$/.exec(raw)?.[0] || '';
+  const value = Number(suffix ? raw.slice(0, -1) : raw);
+  if (!Number.isFinite(value)) return null;
+  const scale = suffix === 'K' ? 1e3 : suffix === 'M' ? 1e6 : 1;
+  return Math.round(value * scale);
 }
 
 const MONTHS = {

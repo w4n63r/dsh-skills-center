@@ -112,14 +112,55 @@ export function versionedName(catalog, prefix = 'catalog') {
 }
 
 /**
+ * 清掉过旧的版本化快照，只留最近 `keep` 个。
+ *
+ * 为什么需要：每次采集都写一个 catalog-<时间戳>.json（~6MB），只写不删的话
+ * Blob 免费额度 1GB 大约 160 天就满。指针文件与最新的 keep 个版本一定保留。
+ * 删不掉不影响采集结果——目录已经传上去了，这里失败只记日志。
+ *
+ * @returns {Promise<{deleted:string[], kept:number, errors:string[]}>}
+ */
+export async function pruneVersions({ list, del, prefix = 'catalog', keep = 14, log = () => {} } = {}) {
+  if (typeof list !== 'function' || typeof del !== 'function') {
+    return { deleted: [], kept: 0, errors: ['list/del not provided'] };
+  }
+  const errors = [];
+  let blobs = [];
+  try {
+    // 只列版本化快照；指针 catalog-latest.json 不在这个前缀里（catalog-<时间戳>）
+    const listed = await list({ prefix: `${prefix}-`, limit: 1000 });
+    blobs = (listed?.blobs || []).filter((blob) => /^catalog-\d{4}-/.test(blob.pathname || ''));
+  } catch (error) {
+    return { deleted: [], kept: 0, errors: [String(error?.message || error)] };
+  }
+  // 新的在前：pathname 里的时间戳是 ISO 变体，字典序即时间序
+  const sorted = blobs.slice().sort((a, b) => String(b.pathname).localeCompare(String(a.pathname)));
+  const doomed = sorted.slice(Math.max(0, keep));
+  const deleted = [];
+  for (const blob of doomed) {
+    try {
+      await del(blob.url);
+      deleted.push(blob.pathname);
+    } catch (error) {
+      errors.push(`${blob.pathname}: ${String(error?.message || error)}`);
+    }
+  }
+  if (deleted.length) log(`pruned ${deleted.length} old snapshot(s), kept ${Math.min(sorted.length, keep)}`);
+  return { deleted, kept: Math.min(sorted.length, keep), errors };
+}
+
+/**
  * 写 Blob。
  * @param {(pathname:string, body:string, opts:object)=>Promise<{url?:string}>} put  @vercel/blob 的 put（可注入以便离线测试）
  */
 export async function publishCatalog({
   catalog,
   put,
+  list,
+  del,
   prefix = 'catalog',
   access = 'public',
+  retain = 14,
   log = () => {},
 } = {}) {
   const check = validateCatalog(catalog);
@@ -159,11 +200,18 @@ export async function publishCatalog({
   });
   log(`wrote ${latestPath}`);
 
+  // 保留策略：删掉更早的版本快照（失败只记日志，不影响本次采集）
+  let pruned = null;
+  if (typeof list === 'function' && typeof del === 'function') {
+    pruned = await pruneVersions({ list, del, prefix, keep: retain, log });
+  }
+
   return {
     ok: true,
     stage: 'upload',
     warnings: check.warnings,
     stats: check.stats,
+    pruned,
     versioned: { pathname: versionedPath, url: versioned?.url ?? null },
     latest: { pathname: latestPath, url: latest?.url ?? null },
   };

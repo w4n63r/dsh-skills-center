@@ -267,8 +267,11 @@ async function run(request, trigger, { resolveToken = resolveOidcToken, loadBlob
     stage = 'upload';
     const catalogStats = { version: catalog.version, count: catalog.count, raw_count: catalog.raw_count };
     let put;
+    let list;
+    let del;
     try {
-      ({ put } = blob ? await Promise.resolve(blob) : await importBlob());
+      const blobApi = blob ? await Promise.resolve(blob) : await importBlob();
+      ({ put, list, del } = blobApi);
     } catch (err) {
       return fail(500, `cannot load @vercel/blob (${err?.message || err}) — the deployment must have it in dependencies`, {
         stage_detail: 'import',
@@ -278,6 +281,10 @@ async function run(request, trigger, { resolveToken = resolveOidcToken, loadBlob
     const published = await publishCatalog({
       catalog,
       put,
+      // 传 list/del 才会触发保留策略：只留最近 keep 个版本快照，避免 Blob 存储无限涨
+      list,
+      del,
+      retain: Number(process.env.CATALOG_RETAIN || 14),
       prefix,
       access,
       log: (msg) => console.log(`[collect] ${msg}`),

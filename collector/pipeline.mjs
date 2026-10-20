@@ -87,6 +87,8 @@ export function normalizeRecord(raw) {
     body_excerpt: raw.body_excerpt || null,
     file_count: raw.file_count ?? null,
     first_seen: raw.firstSeen || raw.first_seen || null,
+    // 星标数：仓库级指标，来自技能页；非数字一律当没有（不编）
+    stars: Number.isFinite(raw.stars) ? raw.stars : null,
   };
 }
 

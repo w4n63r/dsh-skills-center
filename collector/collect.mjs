@@ -70,6 +70,8 @@ export function mergeDetail(record, detail, audit, page = null) {
     weeklyInstalls: page?.weekly_series || detail?.weeklyInstalls || record.weekly_series || null,
     // 发布时间也来自同一页 HTML 的 First Seen（不加请求）；上游没有「更新时间」这种字段。
     firstSeen: page?.first_seen || detail?.firstSeen || record.first_seen || null,
+    // GitHub Stars 同样来自技能页（仓库级指标，同一仓库的技能共用这个数）
+    stars: page?.stars ?? detail?.stars ?? record.stars ?? null,
     curated: Boolean(record.curated),
     official: Boolean(record.official),
   };
