@@ -7,7 +7,13 @@ import { join } from 'node:path';
 
 const home = await mkdtemp(join(tmpdir(), 'dsc-sync-'));
 process.env.DSH_HOME = home;
-const { syncCatalog, checkForUpdate, SYNC_CATALOG, SYNC_META } = await import('../lib/sync.js');
+const { syncCatalog, checkForUpdate, SYNC_CATALOG, SYNC_META, __setCurlRunnerForTests } = await import(
+  '../lib/sync.js',
+);
+// 单测不许打网络：curl 回退直接判失败
+__setCurlRunnerForTests(async () => {
+  throw new Error('curl disabled in tests');
+});
 
 const CATALOG = JSON.stringify({
   version: 'full-2026-10-20T07-02-32-737Z',
@@ -72,25 +78,52 @@ assert.equal(third.changed, true);
 assert.equal(third.version, 'full-2026-10-21T07-00-00-000Z');
 assert.equal(JSON.parse(await readFile(SYNC_META, 'utf8')).etag, '"def"');
 
-// ---- 4) 检查更新：HEAD + If-None-Match，不下载正文 ----
-installFetch(async (url, init) => {
-  assert.equal(init.method, 'HEAD', 'the update check never downloads the body');
-  return { ok: true, status: 304, url, headers: { get: (name) => (name === 'etag' ? '"def"' : null) } };
-});
-const upToDate = await checkForUpdate();
-assert.equal(upToDate.ok, true);
-assert.equal(upToDate.updateAvailable, false);
-assert.equal(upToDate.notModified, true);
+// ---- 4) 检查更新：首选比 meta（~200 字节），HEAD 只作为兜底 ----
+const CHECK_URL = 'https://raw.example/o/r/catalog/catalog.json';
+const CHECK_META = 'https://raw.example/o/r/catalog/catalog-meta.json';
+const localSha = JSON.parse(await readFile(SYNC_META, 'utf8')).sha256;
 
-installFetch(async (url, init) => ({
-  ok: true,
-  status: 200,
-  url,
-  headers: { get: (name) => (name === 'etag' ? '"ghi"' : null) },
-}));
-const stale = await checkForUpdate();
-assert.equal(stale.updateAvailable, true, 'a different etag means a new version is out');
-assert.equal(stale.localVersion, 'full-2026-10-21T07-00-00-000Z');
+// 4a) meta 的 sha256 与本地一致 → 没有新版，而且**不碰 6MB 的对象**
+{
+  const seen = [];
+  installFetch(async (url) => {
+    seen.push(url);
+    return jsonResponse(JSON.stringify({ version: 'full-2026-10-21T07-00-00-000Z', count: 2, sha256: localSha }));
+  });
+  const upToDate = await checkForUpdate({ url: CHECK_URL });
+  assert.equal(upToDate.ok, true);
+  assert.equal(upToDate.updateAvailable, false);
+  assert.equal(upToDate.notModified, true);
+  assert.equal(upToDate.via, 'meta');
+  assert.deepEqual(seen, [CHECK_META], 'only the meta file is requested');
+}
+
+// 4b) meta 的 sha256 不同 → 有新版本，并带上远端版本号
+{
+  installFetch(async (url) =>
+    jsonResponse(JSON.stringify({ version: 'full-2026-10-22T07-00-00-000Z', count: 3, sha256: 'new-sha' })),
+  );
+  const stale = await checkForUpdate({ url: CHECK_URL });
+  assert.equal(stale.updateAvailable, true, 'a different sha256 means a new version is out');
+  assert.equal(stale.remoteVersion, 'full-2026-10-22T07-00-00-000Z');
+  assert.equal(stale.localVersion, 'full-2026-10-21T07-00-00-000Z');
+}
+
+// 4c) meta 拿不到（这里让任何请求都 500）→ 退回 HEAD + If-None-Match
+{
+  installFetch(async (url, init) => ({
+    ok: init.method === 'HEAD',
+    status: init.method === 'HEAD' ? 304 : 500,
+    url,
+    headers: { get: (name) => (name === 'etag' ? '"def"' : null) },
+    text: async () => 'boom',
+    arrayBuffer: async () => new ArrayBuffer(0),
+  }));
+  const fallback = await checkForUpdate();
+  assert.equal(fallback.ok, true);
+  assert.equal(fallback.updateAvailable, false);
+  assert.equal(fallback.notModified, true);
+}
 
 // ---- 5) 记住的地址失效（404）→ 清掉基线，下次重新解析 ----
 installFetch(async (url) => ({ ok: false, status: 404, url, headers: { get: () => null } }));
