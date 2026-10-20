@@ -153,8 +153,8 @@ background:var(--dsw-alias-bg-layer-2)}
 .dsc-scroll{flex:1 1 auto;min-height:0;overflow:auto;padding:14px 18px 18px}
 .dsc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
 .dsc-card{border:1px solid var(--dsw-alias-border-l1);border-radius:12px;background:var(--dsw-alias-bg-layer-1);
-padding:12px 14px;display:flex;flex-direction:column;gap:8px;cursor:pointer;transition:border-color .12s,background .12s}
-.dsc-card:hover{border-color:var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2)}
+padding:13px 15px;display:flex;flex-direction:column;gap:9px;cursor:pointer;transition:border-color .12s,box-shadow .12s,background .12s}
+.dsc-card:hover{border-color:var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2);box-shadow:0 4px 14px rgba(0,0,0,.08)}
 .dsc-card-top{display:flex;align-items:flex-start;gap:10px}
 .dsc-card-name{flex:1 1 auto;min-width:0}
 .dsc-card-name strong{display:block;font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -162,7 +162,7 @@ padding:12px 14px;display:flex;flex-direction:column;gap:8px;cursor:pointer;tran
 .dsc-score{flex:0 0 auto;text-align:right;font-variant-numeric:tabular-nums}
 .dsc-score b{display:block;font-size:14px;font-weight:600}
 .dsc-score span{font-size:10.5px;color:var(--dsw-alias-label-secondary)}
-.dsc-desc{margin:0;font-size:12.5px;line-height:1.5;color:var(--dsw-alias-label-primary);
+.dsc-desc{margin:0;font-size:12.5px;line-height:1.5;color:var(--dsw-alias-label-secondary);
 display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .dsc-desc.dsc-muted{color:var(--dsw-alias-label-secondary);font-style:italic}
 .dsc-facts{display:flex;gap:10px;flex-wrap:wrap;font-size:11.5px;color:var(--dsw-alias-label-secondary)}
