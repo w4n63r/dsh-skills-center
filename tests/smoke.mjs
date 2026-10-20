@@ -252,6 +252,37 @@ const apiCard = await callApi(`/api/dsh-skills-center/card?id=${encodeURICompone
 assert.equal(apiCard.code, 200);
 assert.equal(apiCard.body.id, skill.id);
 
+// ---- GUI 面板的浏览接口：分页、关键词、中文卡过滤、条数硬上限 ----
+const apiList = await callApi('/api/dsh-skills-center/list?limit=2');
+assert.equal(apiList.code, 200);
+assert.equal(apiList.body.total, cat.count);
+assert.equal(apiList.body.maxActive, MAX_ACTIVE);
+assert.ok(Array.isArray(apiList.body.active));
+assert.ok(apiList.body.rows.length <= 2, 'limit is honoured');
+for (const row of apiList.body.rows) {
+  // 面板只靠这些字段画面板，缺一个就渲染成空行
+  for (const key of ['id', 'slug', 'installs', 'trend_pct', 'S', 'verdict', 'flags', 'has_zh']) {
+    assert.ok(key in row, `row carries ${key}`);
+  }
+  assert.equal(typeof row.verdict, 'string');
+}
+
+const apiListQuery = await callApi('/api/dsh-skills-center/list?q=design&limit=5');
+assert.equal(apiListQuery.code, 200);
+assert.ok(apiListQuery.body.matched <= apiListQuery.body.total);
+assert.ok(apiListQuery.body.rows.length > 0, 'keyword search finds rows');
+assert.ok(
+  apiListQuery.body.rows.every((row) => `${row.slug} ${row.name_zh || ''} ${row.description}`.length > 0),
+);
+
+const apiListZh = await callApi('/api/dsh-skills-center/list?zh=1&limit=50');
+assert.equal(apiListZh.code, 200);
+assert.ok(apiListZh.body.rows.every((row) => row.has_zh === true), 'zh=1 keeps only rows with a Chinese card');
+
+const apiListCap = await callApi('/api/dsh-skills-center/list?limit=99999');
+assert.equal(apiListCap.code, 200);
+assert.ok(apiListCap.body.rows.length <= 500, 'limit has a hard cap so one request cannot return the whole catalog');
+
 const api404 = await callApi('/api/dsh-skills-center/nope');
 assert.equal(api404.code, 404);
 assert.equal(api404.body.error, 'not_found');

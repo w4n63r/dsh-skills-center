@@ -216,3 +216,28 @@ f6e6c8c test: cover web api + honest activate when body missing
 2. 中文层只覆盖 300/7572；要扩就重复「切片→写手→合并」，`tools/zh_source.mjs --top N` 能一次切更多（目前只支持从头部取，没有 `--offset`，扩到第 301 名往后要先加这个参数）。
 3. 富集覆盖慢：可以改成"每天优先补未富集的 top 段"，或用 `?limit=` 手动补跑几轮加速。
 4. 用户侧的待办：重启 GUI 看新工具/榜单页（时机他自己定）。
+
+### 9.3 2026-10-20 这一轮的进度（GUI 面板：左侧栏入口 + 主区浏览器）
+
+**起因**：用户重启后说（m01324）「我重启完了 并没有看到技能中心」——插件此前只有工具和 HTTP 路由，GUI 里没有任何入口。查询 `cordis_inspect_list`/`cordis_inspect_query` 拿到 slot 树与契约后补了浏览器半边。
+
+**做了什么**
+
+- 新增 `client/client.js`（手写、无构建）：`window.__ModuleLoader__.load({id:'dsh-skills-center', factory})`，只 `require('react')`；在 `sidebar.panellist` 注册 `{id:'skills-center'}` 画一个 SVG 目录图标，在 `main` 注册 `{key:'skills-center'}` 画面板（**key 必须等于 sidebar 的 id**，宿主靠这个把图标和面板对上）。注册包在 `ctx.slots.inject('sidebar.panellist', …)` 内，缺 slot 时整块不注册。
+- 面板：搜索（服务端搜全目录）、只看有中文卡、表头点击换排序（名称/安装数/8 周/S）、点行在右侧读完整中文卡（介绍/用途/注意事项/安装数/趋势/来源/标记/S 分/id）、顶部一行 `目录 7572 条 · 版本 … · 已激活 n/50`。样式只用 `--dsw-alias-*` token，文案走 locale 服务并带中文兜底。
+- 新增只读接口 `GET /api/dsh-skills-center/list?q=&limit=&offset=&zh=1&sort=`（`lib/catalog.js` 的 `browseSkills` + `rowOf`）：回 `{version,total,matched,offset,limit,active,maxActive,rows[]}`，行里只有面板要用的字段，`limit` 硬上限 500。`searchSkills` 与 `browseSkills` 共用 `matchScore()`，判据不两处漂移。
+- `package.json`：加 `exports["./client"]`、`files` 加 `client`、`dsh.client = {platform:'web', immediately:true, inject:[slots, locale]}`（与 `templates/decoration` 同形）。
+- 测试：`tests/client.test.mjs`（假 `__ModuleLoader__` + 假 react）：模块 id、只 require react、两个 slot 的 id/key 对应、`label()` 是中文、fetch → 表格渲染（`1,003,686` / `+6.4%` / `-33.2%` / 标记位 / `已激活 1/50`）、样式走主题 token。已加入 `npm test`，六套全绿。
+
+**关键坑 / 事实**
+
+- 模块 `id` 与包名不一致，宿主就不会认领；`require` 白名单只给 `react`，`react-dom` 不许 require。
+- 面板不能自己读盘：宿主只把插件的 HTTP 路由暴露给页面，数据必须走 `fetch('/api/dsh-skills-center/…')`。
+- 未展开的子组件在假 react 里不会被调用——`tests/client.test.mjs` 的 `expand()` 手动调用函数型组件，否则断言看不到子组件文字。
+
+**下一个会话该接的**
+
+1. **重启 GUI 才会生效**（`dsh.client` 是启动期从 package.json 读的）。重启后先看左侧栏有没有「技能中心」图标；没有就查该插件在浏览器里的加载错误。
+2. 面板目前只读。要做「点一下就装」，必须先有「把技能正文下载到 `~/.dsh/skills-center/library/<来源>/<slug>/SKILL.md`」的路径（`npx skills` 或自己抓 SKILL.md），否则激活了 provider 也暴露不出来（见 §4 / `DESIGN.md §6`）。
+3. M3 召回钩子仍未做。
+

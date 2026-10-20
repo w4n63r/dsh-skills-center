@@ -13,16 +13,27 @@ skills.sh 有八千多个技能，问题是**你不知道它们存在**，也想
 
 ```bash
 npm run check   # 确认插件入口可加载
-npm test        # 假 ctx 冒烟：provider.list/get、四个工具、50 上限
+npm test        # 冒烟：provider.list/get、四个工具、50 上限、浏览接口、浏览器半边形状
 ```
 
 数据分两层：仓库里带 12 条真实样例（`data/catalog.json`，来自 skills.sh 公开 API + 仓库 SKILL.md 实读）用于跑通链路；线上目录由 `api/collect.js` 每天采集一次，当前 7500+ 条，其中安装量前 300 条带中文卡片（介绍 / 用途 / 使用注意事项）。全量采集见 `DESIGN.md`。
+
+## GUI 面板
+
+装进 DSH 后，**左侧栏出现一个「技能中心」图标**，点开是主区的浏览面板：搜索框（全目录 7500+ 条，不只这一屏）、只看有中文卡、表头点一下换排序（名称 / 安装数 / 8 周趋势 / S 分）、每行带判断与标记，点行在右侧读完整中文卡。
+
+面板是只读的：它只从插件自己的 `/api/dsh-skills-center/list` 与 `/card` 取数据，不写任何状态。要装、要激活还是走工具（`skill_activate`）——GUI 里点一下就能装是下一步的事，得先有「下载正文到库存」的路径，否则按钮按下去只会得到一句「库存里没有正文」。
+
+浏览器半边是手写的 `client/client.js`（无构建、只 `require('react')`、走宿主主题 token 与 locale 服务），manifest 见 `package.json` 的 `dsh.client`。改这个文件后要重启 GUI 才会生效。
+
 
 ## 结构
 
 | 路径 | 作用 |
 |---|---|
-| `lib/index.js` | 插件入口：注册 provider、4 个工具、只读 Web API |
+| `lib/index.js` | 插件入口：注册 provider、4 个工具、只读 Web API（`status`/`search`/`list`/`card`/榜单页） |
+| `lib/page.js` | 只读中文榜单页（`GET /api/dsh-skills-center/`） |
+| `client/client.js` | 浏览器半边：左侧栏图标 + 主区面板（无构建，只 require react） |
 | `lib/provider.js` | 只把「已激活且库存有正文」的技能暴露给 DSH |
 | `lib/catalog.js` | 目录加载、检索、打分、卡片渲染 |
 | `lib/activation.js` | 激活集合读写（原子写、50 上限） |

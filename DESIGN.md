@@ -195,6 +195,17 @@ export function apply(ctx, config) { /* … */ }
 - 贴法是**按 id**（`collector/pipeline.mjs:189-190`）：fork 合并后 `hash` 会随正文变化，`id` 才是稳定身份；老数据按 hash 写的也认，两条路都查一遍。
 - `data/zh.json` 是构建期 `import`，随函数打包；采集时贴到每条记录上（`name_zh` 拍平 + `zh: {intro,usage,notes}` 整块），一起进 Blob。
 
+## 8.3 GUI 面板（浏览器半边）
+
+用户 2026-10-20 反馈「重启后看不到技能中心」——插件此前只有工具和 HTTP 路由，没有任何 UI。补一个 client 半边，契约全部来自 `cordis-plugin-development` 技能与已装的 `dshmarket` / `dsh-skills-manager`：
+
+- **模块形状**：`client/client.js` 手写、不编译，只调 `window.__ModuleLoader__.load({ id, factory })`，`id` **必须逐字等于包名** `dsh-skills-center`（宿主靠它对上 package.json 的 `dsh.client`）；`factory(require)` 只允许 `require('react')`。manifest 在 `package.json`：`exports["./client"]` + `dsh.client = {platform:"web", immediately:true, inject:["@deepseek-ai/dsh-client-ui-slots","@deepseek-ai/dsh-client-locale"]}`。
+- **两个 slot 组成一个入口**：`sidebar.panellist`（list，root）注册 `{id:'skills-center', order, label, locale}` 只负责画图标；`main` 注册 `{key:'skills-center'}` 画画板。**`main.key` 必须等于 `sidebar.id`**，否则点了图标没有面板（`dshmarket` 用 `dsh-market` 这同一套）。注册包在 `ctx.slots.inject('sidebar.panellist', …)` 里，老宿主没有这个 slot 时整块不注册而不是抛错。
+- **数据只走插件自己的只读 JSON**：新增 `GET /api/dsh-skills-center/list?q=&limit=&offset=&zh=1&sort=S|installs|trend|name`，返回 `{version,total,matched,offset,limit,active,maxActive,rows[]}`，每行只有面板要用的字段（`id/slug/name_zh/source/installs/trend_pct/S/verdict/flags/has_zh/description`）——把整条记录连正文发过去，七千多行会撑到几 MB。`limit` 硬上限 500。点行再打 `GET /card?id=` 取整卡。
+- **样式与文案**：颜色只用宿主主题 token（`--dsw-alias-*`），不写死色值；文案走 locale 服务（`ctx.locale.register(ns,'zh'|'en',dict)` + `bind(ns)`），注册失败时 `t()` 直读中文词典兜底，保证面板不会因为 locale 出问题就变一片 key。样式用 `<style>` 元素随组件挂载注入，类名带 `dsc-` 前缀。
+- **面板是只读的**：它不写激活集合、不下载正文。GUI 里「点一下就装」要等库存下载路径落地，否则按钮只会得到「库存里没有正文」（见 §6）。
+- 测试：`tests/client.test.mjs` 用假 `__ModuleLoader__` + 假 react 跑一遍模块形状、两个 slot 的 id/key、以及 fetch → 表格这一趟（含 `+6.4%`/`1,003,686`/标志位这些渲染细节）。
+
 ## 9. 不做
 
 - 不做排行榜网站、评分评论、上传发布
@@ -206,7 +217,7 @@ export function apply(ctx, config) { /* … */ }
 
 - **M0 目录**：Vercel 采集函数 + `catalog.json` 分片，能拉全量 8420 条（含趋势/去重/打分）
 - **M1 中文层**：**只精做 installs top 300**（用户 2026-10-19 定），其余条目留英文 description 占位、点开时再补；这样成本可控且头部质量高 —— **已完成**（300 条已随目录上线，见 §8.2）
-- **M2 插件**：4 个工具（含远端同步）+ provider 激活 + GUI 榜单页
+- **M2 插件**：4 个工具（含远端同步）+ provider 激活 + GUI 榜单页 + GUI 面板（左侧栏入口，见 §8.3）——**已完成**
 - **M3 召回**：钩子注入与 50 上限策略，实测"任务开始自动命中"
 
 M1 依赖 M0 的 hash，M2 可先在本地样例数据上开发（`samples/digest2.json` 已有 12 条真实数据）。

@@ -8,10 +8,12 @@
   "main": "lib/index.js",
   "exports": {
     ".": "./lib/index.js",
+    "./client": "./client/client.js",
     "./package.json": "./package.json"
   },
   "files": [
     "lib",
+    "client",
     "data",
     "cordis.patch.yml",
     "README.md"
@@ -19,6 +21,15 @@
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-settings",
+        "@deepseek-ai/dsh-client-ui-theme"
+      ]
     }
   },
   "engines": {
@@ -30,7 +41,7 @@
   },
   "scripts": {
     "check": "node --input-type=module -e \"import('./lib/index.js').then(m => console.log('exports:', Object.keys(m).sort().join(', ')))\"",
-    "test": "node tests/smoke.mjs && node collector/pipeline.test.mjs && node collector/fetch.test.mjs && node collector/replay.test.mjs && node api/collect.test.mjs",
+    "test": "node tests/smoke.mjs && node tests/client.test.mjs && node collector/pipeline.test.mjs && node collector/fetch.test.mjs && node collector/replay.test.mjs && node api/collect.test.mjs",
     "collect": "node collector/run.mjs",
     "collect:replay": "node collector/run.mjs --replay collector/fixtures/v1-sample.json"
   }
