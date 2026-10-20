@@ -12,6 +12,9 @@ process.env.DSH_HOME = home;
 const { apply, name } = await import('../lib/index.js');
 const { readActivation, setActive } = await import('../lib/activation.js');
 const { MAX_ACTIVE } = await import('../lib/paths.js');
+// 必须在 DSH_HOME 设好之后再动态 import：静态 import 会被提升到模块体之前，
+// 那些模块在 import 时就按「当时的」HOME 算好了路径，会去读真实用户目录。
+const { DEFAULT_CATALOG_URL } = await import('../lib/sync.js');
 
 // ---- 假 ctx：只实现 apply 用到的那几个面 ----
 const captured = { providerFactory: null, tools: new Map(), disposed: 0, routes: [] };
@@ -340,11 +343,25 @@ assertLosslessJson('skill_sync', missingRemote);
 assert.equal(missingRemote.ok, false);
 assert.match(missingRemote.reason, /http_404/);
 
-// 没有来源：明确说 no_url，而不是拿样例数据假装成功
-const noUrl = await syncTool.execute({});
+// 没有来源时不许假装成功：现在缺省地址是插件托管的固定入口，所以「没 url」不再等于失败，
+// 但一定要请求那个默认地址（线上 302 到 Blob 的 catalog-latest.json）。这里把 fetch 换成桩，
+// 断言的正是「到底向哪个地址发请求」，不依赖网络。
+const realFetch = globalThis.fetch;
+let defaultAsked = null;
+globalThis.fetch = async (url) => {
+  defaultAsked = String(url);
+  return new Response(JSON.stringify(remoteCatalog), { status: 200, headers: { 'content-type': 'application/json' } });
+};
+let noUrl;
+try {
+  noUrl = await syncTool.execute({ force: true });
+} finally {
+  globalThis.fetch = realFetch;
+}
 assertLosslessJson('skill_sync', noUrl);
-assert.equal(noUrl.ok, false);
-assert.equal(noUrl.reason, 'no_url');
+assert.equal(defaultAsked, DEFAULT_CATALOG_URL, 'no url argument must fall back to the hosted default endpoint');
+assert.equal(noUrl.ok, true, JSON.stringify(noUrl));
+assert.equal(noUrl.version, remoteCatalog.version, 'the default endpoint is parsed like any other source');
 
 // 本地文件 / file:// 也走同一条代码路径（离线验证采集产物）
 const localCatalogPath = join(fixtureDir, 'catalog.local.json');
