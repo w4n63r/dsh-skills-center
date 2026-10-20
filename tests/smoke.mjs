@@ -157,7 +157,7 @@ assert.equal(blank.results.length, 3, 'empty query lists top scored');
 const card = await captured.tools.get('skill_card').execute({ id: skill.slug });
 assertLosslessJson('skill_card', card);
 assert.ok(card.ok);
-for (const field of ['介绍 —', '用途 —', '使用注意事项 —', '安装数 —', '8 周趋势 —', '来源 —']) {
+for (const field of ['介绍 —', '用途 —', '注意事项 —', '安装数 —', '8 周趋势 —', '来源 —', '评分 —']) {
   assert.ok(card.text.includes(field), `card should expose ${field}`);
 }
 const missing = await captured.tools.get('skill_card').execute({ id: 'nope/nope' });
@@ -184,7 +184,7 @@ assert.ok(partial.ok);
 assert.equal(partial.needsDownload, true);
 assert.match(partial.libraryPath, /library[\\/]/);
 
-// 排序检查：S 分降序即榜单顺序
+// 排序检查：评分降序即榜单顺序
 const top = await searchSkills('', 12);
 assert.deepEqual(
   top.map((s) => s.slug),

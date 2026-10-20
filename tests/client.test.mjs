@@ -131,7 +131,7 @@ function expand(node) {
 const textOf = (tree) => JSON.stringify(expand(tree));
 
 const first = textOf(render());
-for (const expected of ['技能中心', '搜索技能名', '有中文卡', '官方精选', '有风险信号', 'S 分', '安装量']) {
+for (const expected of ['技能中心', '搜索技能名', '有中文卡', '官方精选', '有风险信号', '评分', '安装量']) {
   assert.ok(first.includes(expected), `panel renders 「${expected}」`);
 }
 // 主题 token 必须走变量，不能写死颜色（否则明暗切换会留下死色块）。
@@ -231,7 +231,7 @@ for (const expected of [
   '前卫视觉设计',
   '1,003,686',
   '+6.4%',
-  '0.662',
+  '评分 66',
   '-33.2%',
   'needs_external_cli',
   'test-v1',
@@ -275,16 +275,18 @@ for (const expected of [
   '前卫视觉设计',
   '介绍',
   '用途',
-  '使用注意事项',
-  '审计',
+  '注意事项',
+  '第三方安全检查',
   'Gen Agent Trust Hub',
   'Snyk',
   '自己装（在终端里跑）',
   'npx skills add anthropics/skills --skill frontend-design',
   '关闭',
-  // 审计与 S 分最容易误读，结论旁边必须自带口径说明
+  // 评分与第三方安全检查最容易误读，结论旁边必须自带口径说明
   'pass 不等于安全',
-  'S 分是本插件',
+  '评分是本插件',
+  '唯一标识',
+  '来源/仓库/技能名',
 ]) {
   assert.ok(withDetail.includes(expected), `detail dialog shows 「${expected}」`);
 }
@@ -314,15 +316,15 @@ await new Promise((resolve) => setTimeout(resolve, 0));
 const withHelp = textOf(render());
 for (const expected of [
   '面板里的数字和标签是什么意思',
-  'S = 0.45·H + 0.20·T + 0.20·C + 0.15·A',
+  '评分 = 0.45·热度 + 0.20·趋势 + 0.20·官方 + 0.15·安全检查',
   'Gen Agent Trust Hub',
   'ZeroLeaks',
   'fail 计入分母',
   'pass 不等于安全',
-  'H 热度',
-  'T 势能',
-  'C 官方性',
-  'A 可信',
+  '热度',
+  '趋势',
+  '官方',
+  '安全检查',
   'deprecated',
   'pointer',
   'needs_api_key',
@@ -332,8 +334,8 @@ for (const expected of [
 }
 
 // 卡片上的 S 分与审计标签要带 tooltip，鼠标停一下就能知道是什么（textOf 是 JSON 树，所以断言 JSON 里的 title 字段）
-assert.match(withHelp, /"title":"S 分：/, 'the score pill carries a tooltip');
-assert.match(withHelp, /"title":"审计：/, 'the audit chip carries a tooltip');
+assert.match(withHelp, /"title":"评分：/, 'the score pill carries a tooltip');
+assert.match(withHelp, /"title":"第三方安全检查：/, 'the audit chip carries a tooltip');
 assert.match(withHelp, /"title":"needs_external_cli：/, 'the risk chip carries a per-flag tooltip');
 
 console.log('client ok — module dsh-skills-center | slots: sidebar.panellist#skills-center + main#skills-center | cards + detail rendered');

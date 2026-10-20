@@ -96,13 +96,16 @@ hash 变则重新生成——技能内容改了，旧中文自动失效，不需
 ## 5. 打分
 
 ```
-S = 0.45·H + 0.20·T + 0.20·C + 0.15·A
+S = 0.45·H + 0.20·T + 0.20·C + 0.15·A      # 内部字段叫 score.S（0–1）
+评分 = round(S × 100)                       # 界面上只显示 0–100 的「评分」
 ```
+
+> 命名：用户 2026-10-20 把界面上的「S 分」改成「评分」并要求百分制，把「审计」改成「第三方安全检查」、「使用注意事项」改成「注意事项」、详情里的 `id` 改成「唯一标识」。内部字段名（`score.S`、`audit`、`flags`）保持不变，只改展示层，避免动采集产物格式。
 
 - **H 热度** = `log10(1+installs)` 归一化。必须取对数：头部 139 万与腰部 3 万差 46 倍，线性尺度会让榜单只剩前 20 个。
 - **T 势能** = 8 周序列后半段/前半段的增长率，裁剪到 `[-50%, +200%]` 再归一化。趋势是唯一能反映"正在退场"的指标（`lark-drive` 总量 46 万但八周 −52%）。
 - **C 官方性** = curated 或 owner 属厂商官方（anthropics / vercel-labs / microsoft / supabase / prisma / larksuite…）= 1，否则 0。
-- **A 可信** = 审计 pass 占比；无审计数据记中性 0.5，不给 0（否则非 GitHub 来源被系统性歧视）。
+- **A 可信** = 第三方安全检查 pass 占比；无检查数据记中性 0.5，不给 0（否则非 GitHub 来源被系统性歧视）。界面上这一项叫「安全检查」，卡片徽标是「第三方安全检查 4/5」。
 
 权重还没定死：0.45/0.20/0.20/0.15 是初值，等目录跑起来看榜单观感再调。
 
@@ -123,7 +126,7 @@ S = 0.45·H + 0.20·T + 0.20·C + 0.15·A
 
 ## 7. 卡片文案规范（重要，来自实拍反馈）
 
-**字段固定为 7 项，顺序不变**：`名称` / `介绍` / `用途` / `使用注意事项` / `安装数` / `8 周趋势` / `来源`。
+**字段固定为 7 项，顺序不变**：`名称` / `介绍` / `用途` / `注意事项` / `安装数` / `8 周趋势` / `来源`。（用户 2026-10-20 把第 4 项从「使用注意事项」缩成「注意事项」；详情弹层里另有「评分」「第三方安全检查」「安装命令」「唯一标识」四块补充信息。）
 
 字段固定不等于填表腔。第一版用"一句话 / 什么时候用我 / 它到底给什么 / 依赖风险"这套自造小标题，用户评审结论是**"满满的 AI 味"**。问题出在措辞而非结构，因此字段之外另有五条写法要求：
 
@@ -204,7 +207,7 @@ export function apply(ctx, config) { /* … */ }
 - **数据只走插件自己的只读 JSON**：`GET /api/dsh-skills-center/list?q=&limit=&offset=&zh=1&filter=&sort=S|installs|trend|name&dir=desc|asc`，返回 `{version,total,matched,offset,limit,sort,dir,filter,active,maxActive,rows[]}`。每行只带一张卡要用的字段（`id/slug/name/name_zh/source/source_kind/installs/installs_merged/trend_pct/S/score/verdict/flags/has_zh/description/official/curated/enriched/first_seen/audit/install_hint`）——整条记录连正文发过去，七千多行会撑到几 MB；`limit` 硬上限 500。点卡片再打 `GET /card?id=` 取整卡。
   - `filter` 取值：`zh`（有中文卡）/ `official`（official 或 curated）/ `risky`（有 flags，或审计里出现 warn/fail）/ `enriched`（抓过详情、有 hash）。
   - `install_hint` **只在 `source_kind === 'github'` 时给** `npx skills add <source> --skill <slug>`；域名来源（`open.feishu.cn` 这类）给 null——宁可什么都不显示，也不给一条跑不通的命令。
-  - `audit` 折成计数 `{judged,pass,warn,fail}`：卡片上写「审计 4/5 家通过」，详情弹层里才逐条列 provider 与 riskLevel。
+  - `audit` 折成计数 `{judged,pass,warn,fail}`：卡片上写「第三方安全检查 4/5」，详情弹层里才逐条列 provider 与 riskLevel。
 - **版式**（用户 2026-10-20 拿插件市场截图连提两轮：先是「我想要的是类似这样的」，再是「内容两侧要有自适应留白，加载更多不合适」）：顶部状态行 + 工具条（搜索 / 排序下拉 / 升降切换）+ 筛选胶囊 + **卡片墙** + 底部分页。三条量化后的硬规则：
   - **内容栏限宽 1180px 并居中**（`.dsc-inner{margin:0 auto}`）：页头、卡片墙、底栏共用同一栏，两侧留白随窗口自适应。之前拉满整屏会排成 5 列，实测"像墙"。
   - 卡片最小 360px、间距 20/18 → 常见窗口下 3 列；卡片内边距 19/21、内部间距 13。
