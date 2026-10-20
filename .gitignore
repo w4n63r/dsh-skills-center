@@ -38,3 +38,5 @@ venv/
 
 # Local probe outputs
 live*.json
+run*.json
+cat*.json
