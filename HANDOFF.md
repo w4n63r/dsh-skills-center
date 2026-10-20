@@ -308,6 +308,18 @@ f6e6c8c test: cover web api + honest activate when body missing
   操作系统画的菜单，与面板主题（token 控制的颜色/圆角/字号）完全两套。改法：`更多分类（N）` chips 行内展开；
   排序与每页条数也从 `<select>` 换成自绘 `Menu`（按钮 + 绝对定位浮层 + 点外部/Esc 关闭，颜色走 token）。
   现在 `client/client.js` 里**没有任何 `select` 元素**，测试里也钉了「分类行不许出现原生 select」。
+#### 9.3.8 分发搬到 GitHub（同日，Blob 公开读故障当天）
+
+- 现象：Blob 公共地址对所有对象返回 404 `Store not found`（含新上传的探针文件），
+  鉴权 API 正常；Vercel 状态页说一切正常。curl 与 Node fetch 都一样。
+- 决策：**GitHub raw 做主分发，Blob 保留为回退**（理由与对比见 DESIGN §5.4）。
+- 落地：`collector/publish-github.mjs`（单提交强推 catalog 分支 + catalog-meta.json）、
+  采集端双写（GitHub 失败不回滚 Blob）、插件默认地址换成 raw、同步「小文件先行」、
+  `checkForUpdate` 也走 meta。
+- 实测：首次同步 6.66MB/4.6s；第二次 229ms/0 字节；`If-None-Match` → 304 零字节。
+- 还差：Vercel 环境变量 `GH_TOKEN`（细粒度 contents:write）。GitHub 创建 token 需要 sudo 二次验证，
+  必须由用户本人完成；没配 token 前每天的自动发布只写 Blob，分发内容靠 `tmp/push-catalog-branch.ps1` 手动推。
+
 #### 9.3.7 Vercel 额度实测（同日，用户问「免费额度够用吗」）
 
 Hobby 额度（2026-10-20 查官方文档）：函数 **1M 次调用 + 4 小时 Active CPU + 360 GB-hrs 预置内存**；

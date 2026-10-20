@@ -157,6 +157,34 @@ S = 0.45·H + 0.20·T + 0.20·C + 0.15·A      # 内部字段叫 score.S（0–1
   （按钮 + 绝对定位浮层 + 点外部/Esc 关闭），颜色、圆角、字号全部走宿主 token。
 - **工具侧**：`skill_search` 的每行摘要带上「分类 前端/设计」，让 agent 按功能筛而不是只看名字。
 
+## 5.4 目录分发：GitHub 为主、Blob 回退（2026-10-20）
+
+**起因**：Vercel Blob 的公开读路径当天整体 404（所有对象都返回 16 字节的 `Store not found`，
+而同一 store 的鉴权 API 正常：`vercel blob ls` 能列、`vercel blob put` 能传）。目录分发是插件的命脉，
+不能挂在一个坏起来连状态页都不承认的服务上。
+
+| | Vercel Blob（回退） | GitHub raw（主） |
+|---|---|---|
+| 可用性 | 当天全站 404 | CDN 全球节点，实测 200 |
+| 带宽 | 免费 10GB/月 | 不计流量 |
+| 原子性 | 覆盖写同一 key，实测有几秒 404 窗口 | commit 原子，读者只看到旧版或新版 |
+| 条件请求 | 弱 ETag `W/"…"` | ETag 由内容推导，内容不变永远 304（实测 304 零字节） |
+| 可回溯 | 保留 14 个快照 | 每天一个 commit，可 diff |
+
+- **发布形态**：`catalog` 分支永远只有一个**无父提交**的 commit，包含 `catalog.json`（全量）
+  与 `catalog-meta.json`（~230 字节：version/count/bytes/sha256/generated_at/published_at）。
+  两个文件同一个 commit，避免「meta 说新了、catalog 还是旧的」；无父提交让仓库不会天天 +6MB。
+  实现见 `collector/publish-github.mjs`（Git Data API：blob → tree → commit → 强推 ref）。
+- **插件侧**：默认读 GitHub raw；同步第 0 步先取 meta 比 sha256，一样就返回 `meta_unchanged`、0 字节；
+  不一样才下全量。主地址整条失败 → 依次试 `FALLBACK_CATALOG_URLS`（Vercel 入口），并把实际来源记进 meta。
+  检查更新同样先比 meta（200 字节），HEAD + If-None-Match 只作为兜底。
+- **实测**（2026-10-20）：首次同步 6,656,984B / 4.6s；第二次同步 229ms、**0 字节**；
+  `checkForUpdate` 走 meta，`updateAvailable: false`。
+- **手工兜底**：没有 token 时也能更新分发内容——`tmp/push-catalog-branch.ps1` 用 git 底层命令构造
+  同样的单提交，再用 SSH 远端强推。
+- **仍需一把 token**（细粒度、contents:write，存 Vercel 环境变量 `GH_TOKEN`）才能让每天的采集自动发布；
+  没配时采集照常写 Blob，响应里把 GitHub 那步记成 `skipped`。
+
 ## 5.3 上游数据面盘点（2026-10-20 实测）
 
 用户问「分析一下 API，看看都还能展示哪些东西」。这一节是**已经抓下来、但还没展示**的东西的清单，

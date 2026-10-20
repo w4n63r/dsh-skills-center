@@ -78,7 +78,7 @@ npm test        # 冒烟：provider.list/get、四个工具、50 上限、浏览
 
 ## 远端目录同步
 
-同步地址默认 `https://dsh-skills-center.vercel.app/api/catalog`，可用环境变量 `DSH_SKILLS_CENTER_CATALOG_URL` 覆盖。没有配置或远端没部署时同步会直接失败并说明原因，本地目录不受影响。
+同步地址默认走 **GitHub raw**（`https://raw.githubusercontent.com/w4n63r/dsh-skills-center/catalog/catalog.json`），可用环境变量 `DSH_SKILLS_CENTER_CATALOG_URL` 覆盖；GitHub 整条链失败时自动回退到 Vercel 入口。同步先取 ~230 字节的 `catalog-meta.json` 比 sha256，一样就**一个字节都不下**（6.6MB 的目录只有真变了才下载）。没有配置或远端没部署时同步会直接失败并说明原因，本地目录不受影响。
 
 落盘位置在 `~/.dsh/skills-center/catalog/`：`catalog.json`（当前）、`catalog.prev.json`（上一次，回滚用）、`meta.json`（来源 URL、ETag、拉取时间、条数）。
 
