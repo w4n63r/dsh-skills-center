@@ -57,9 +57,13 @@ export function trendPct(weekly) {
 /** 把 /api/v1 记录归一成内部形状。字段名以实测为准，缺什么就给 null，不编。 */
 export function normalizeRecord(raw) {
   if (!raw || typeof raw.id !== 'string' || !raw.id.includes('/')) return null;
-  const [source, ...rest] = raw.id.split('/');
-  const slug = raw.slug || rest[rest.length - 1];
+  const parts = raw.id.split('/');
+  const slug = raw.slug || parts[parts.length - 1];
   if (!slug) return null;
+  // source 是「id 去掉最后一段」= owner/repo（`vercel-labs/skills`），不是 owner。
+  // 早先只取第一段，导致卡片上的「来源」只剩 `vercel-labs`、安装命令变成
+  // `npx skills add vercel-labs --skill find-skills`（跑不通）。上游 `source` 字段本身就是这个形状。
+  const source = parts.length > 1 ? parts.slice(0, -1).join('/') : parts[0];
   return {
     id: raw.id,
     source,

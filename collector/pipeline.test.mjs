@@ -122,8 +122,11 @@ assert.ok(!bySlug('design-mobile-apps').flags.includes('deprecated'), 'flags mus
 assert.equal(normalizeRecord(null), null);
 assert.equal(normalizeRecord({ id: 'no-slash' }), null, 'id 必须是 source/slug 形状');
 const normalized = normalizeRecord({ id: 'anthropics/skills/frontend-design', installs: 1003686 });
-assert.equal(normalized.source, 'anthropics');
+// source = id 去掉最后一段（owner/repo），卡片上的「来源」和安装命令都靠它
+assert.equal(normalized.source, 'anthropics/skills');
 assert.equal(normalized.slug, 'frontend-design');
 assert.equal(normalized.installs, 1003686);
+// 两段 id（域名来源）不许被切坏
+assert.equal(normalizeRecord({ id: 'open.feishu.cn/lark-drive' }).source, 'open.feishu.cn');
 
 console.log(`pipeline ok — ${scored.count} skills scored, forks merged ${forks.length}→${dedupedForks.length}`);
