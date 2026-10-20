@@ -252,3 +252,13 @@ f6e6c8c test: cover web api + honest activate when body missing
 - 客户端：查询条件（q/sort/dir/filter）变化 → 200ms 防抖重拉第一页，用请求序号丢弃过期响应；`requestId` 在卸载时作废，避免回过头的 setState。
 - 顺手发现的事实：**宿主半边是热加载的**——改完 `lib/catalog.js` / `lib/index.js` 后不重启 GUI，`GET /api/dsh-skills-center/list` 已经返回新字段（实测 `dir`/`filter`/`audit`/`install_hint` 都在）。所以只有 **client 半边**（`package.json` 的 `dsh.client` 与 `client/client.js`）需要刷新页面/重启才能生效。
 
+#### 9.3.2 第二轮版式反馈（同日，仍是「和市场对比」）
+
+用户第二次发市场截图，指出两点：「内容两侧会有智适应的留白」「底部的加载更多不合适」。
+
+- 把截图**按像素量了一遍**（`tmp/measure*.py`、`tmp/measure-preview.py`，都未提交）：市场内容栏最大约 1180px、右侧留白；卡片约 310–380px、间距 11–20px、内边距 12–19px。本插件第一版是**拉满整屏 5 列、卡片 309px、卡内塞 7 块信息**——「拥挤」的根因是信息密度 + 满屏铺开，不是卡片小。
+- 改法：`.dsc-inner{max-width:1180px;margin:0 auto}`（页头 / 卡片墙 / 底栏共用一栏，两侧留白自适应；实测预览 1600px 时左右各约 70px）；卡片最小 360px、网格间距 20/18 → 3 列（实测卡片 380px、列距 19px）；卡内信息砍到「名称 + 来源 + 两行介绍 + 装量/趋势 + 至多两个标签」。
+- 底栏从「加载更多」换成分页：`上一页 / 页码窗口 / 下一页` + 右侧「第 X / Y 页 · 每页 24/48/96/192」（默认 24，取数 `offset=(page-1)*size`）；改条件回第 1 页、换页滚回顶部。页码窗口 = 首末页 + 当前页 ±1，中间省略号（7600 条 / 24 = 319 页）。
+- 视觉迭代方式：`tmp/render-panel.mjs`（假 react 把**真的** `client.js` 渲成静态页，用真实 `/list` 数据）+ headless Chrome 截图 + `claude-vision-skill` 的 `vision.js` 打分。六轮下来 6 分 → 8 分，剩余意见都是细节。**这套 harness 只在 `tmp/`，不是产品代码**。
+- 经验：那个视觉模型对同一张图的评分会上下浮动 1–2 分，只适合当「有没有硬伤」的筛子，不能当验收标准；最终判断还是用户看真机。
+

@@ -224,7 +224,7 @@ render();
 hooks.effects[0](); // 挂载 effect：等防抖 200ms 后发请求
 await new Promise((resolve) => setTimeout(resolve, 300));
 assert.equal(asked.length, 1, 'panel asks the host once for a page of cards');
-assert.match(asked[0], /^\/api\/dsh-skills-center\/list\?limit=60&offset=0&sort=S&dir=desc/);
+assert.match(asked[0], /^\/api\/dsh-skills-center\/list\?limit=24&offset=0&sort=S&dir=desc/);
 
 const loaded2 = textOf(render());
 for (const expected of [
@@ -240,11 +240,18 @@ for (const expected of [
   '官方',
   '中文卡',
   '前端'.replace('前端', '50'), // 审计 4/5 的计数（写成表达式只是为了不改字面量清单）
+  '上一页',
+  '下一页',
+  '每页 24',
 ]) {
   assert.ok(loaded2.includes(expected), `card wall shows 「${expected}」`);
 }
 assert.ok(loaded2.includes('dsc-up'), 'rising trend is coloured by class, not by inline colour');
 assert.ok(loaded2.includes('dsc-card'), 'cards are rendered, not table rows');
+// 底部分页：两条数据只有 1 页，所以上一页/下一页都该是禁用态
+assert.ok(loaded2.includes('dsc-page'), 'footer renders a pager, not a load-more button');
+assert.ok(!loaded2.includes('加载更多'), 'the load-more button is gone');
+assert.match(loaded2, /第 1 \/ 1/, 'pager reports the current page and the total');
 
 // 点卡片 → 详情弹层；弹层里必须有完整中文卡、审计明细与安装命令。
 const collectCards = (node, out) => {

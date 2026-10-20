@@ -16,7 +16,7 @@ window.__ModuleLoader__.load({
     const NAMESPACE = 'skills-center';
     const PANEL_ID = 'skills-center';
     const API = '/api/dsh-skills-center';
-    const PAGE = 60;
+    const PAGE = 24;
 
     const ZH = {
       nav: '技能中心',
@@ -35,6 +35,10 @@ window.__ModuleLoader__.load({
       filterRisky: '有风险信号',
       filterEnriched: '已抓正文',
       searchResults: '搜索结果',
+      prev: '上一页',
+      next: '下一页',
+      page: '第',
+      perPage: '每页',
       loading: '读取中…',
       empty: '没匹配到。换个词试试。',
       failed: '读取失败：',
@@ -86,6 +90,10 @@ window.__ModuleLoader__.load({
       filterRisky: 'Risk signals',
       filterEnriched: 'Has body',
       searchResults: 'Search results',
+      prev: 'Prev',
+      next: 'Next',
+      page: 'Page',
+      perPage: 'Per page',
       loading: 'Loading…',
       empty: 'No match.',
       failed: 'Failed: ',
@@ -157,7 +165,7 @@ transition:border-color .12s,color .12s,background .12s}
 background:var(--dsw-alias-bg-layer-2);font-weight:500}
 .dsc-rule{height:1px;background:var(--dsw-alias-border-l1);margin-top:18px}
 .dsc-scroll{flex:1 1 auto;min-height:0;overflow:auto;padding:0 38px 34px}
-.dsc-inner{max-width:1180px}
+.dsc-inner{max-width:1180px;margin:0 auto}
 .dsc-section{display:flex;align-items:baseline;gap:10px;margin:26px 0 18px}
 .dsc-section h3{margin:0;font-size:15.5px;font-weight:600}
 .dsc-section span{color:var(--dsw-alias-label-secondary);font-size:12.5px}
@@ -191,8 +199,18 @@ color:var(--dsw-alias-label-secondary);white-space:nowrap}
 .dsc-tag.dsc-good{border-color:var(--dsw-alias-state-success-primary);color:var(--dsw-alias-state-success-primary)}
 .dsc-up{color:var(--dsw-alias-state-success-primary)}
 .dsc-down{color:var(--dsw-alias-state-error-primary)}
-.dsc-foot{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:12px;
-padding:20px 38px 26px;color:var(--dsw-alias-label-secondary);font-size:12.5px}
+.dsc-foot{flex:0 0 auto;padding:18px 38px 22px;color:var(--dsw-alias-label-secondary);font-size:12.5px}
+.dsc-foot-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.dsc-pager{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.dsc-page{min-width:32px;height:32px;padding:0 9px;border:1px solid transparent;border-radius:8px;
+background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:13px;cursor:pointer;
+font-variant-numeric:tabular-nums}
+.dsc-page:hover{border-color:var(--dsw-alias-border-l1);color:var(--dsw-alias-label-primary)}
+.dsc-page[data-on="true"]{border-color:var(--dsw-alias-border-l2);color:var(--dsw-alias-label-primary);font-weight:600}
+.dsc-page[disabled]{opacity:.4;cursor:default}
+.dsc-page-info{display:flex;align-items:center;gap:8px;color:var(--dsw-alias-label-secondary);font-size:12.5px}
+.dsc-page-size{height:32px;padding:0 8px;border:1px solid var(--dsw-alias-border-l1);border-radius:8px;
+background:var(--dsw-alias-bg-layer-1);color:inherit;font:inherit;font-size:12.5px;cursor:pointer}
 .dsc-empty{padding:34px 2px;color:var(--dsw-alias-label-secondary);font-size:13px}
 .dsc-overlay{position:fixed;inset:0;z-index:40;background:rgba(15,17,21,.42);display:flex;
 align-items:center;justify-content:center;padding:36px}
@@ -215,6 +233,22 @@ white-space:pre-wrap;word-break:break-all}
 `;
 
     const fmtInt = (n) => (n == null ? '—' : Number(n).toLocaleString('en-US'));
+    /** 页码窗口：首页、末页、当前页与左右各一页，中间用省略号——目录三百多页，全铺放不下。 */
+    function pageNumbers(current, total) {
+      const wanted = new Set([1, total, current, current - 1, current + 1]);
+      if (current <= 3) [2, 3, 4].forEach((n) => wanted.add(n));
+      if (current >= total - 2) [total - 1, total - 2, total - 3].forEach((n) => wanted.add(n));
+      const list = [...wanted].filter((n) => n >= 1 && n <= total).sort((a, b) => a - b);
+      const out = [];
+      let prev = 0;
+      for (const n of list) {
+        if (prev && n - prev > 1) out.push('…');
+        out.push(n);
+        prev = n;
+      }
+      return out;
+    }
+
     /** full-2026-10-20T03-00-49-872Z → 2026-10-20 03:00；看不懂的快照串不该占页头。 */
     const fmtVersion = (v) => {
       const raw = String(v || '').replace(/^(full|dir)-/, '');
@@ -404,65 +438,66 @@ white-space:pre-wrap;word-break:break-all}
         active: [],
         maxActive: 0,
         error: '',
-        loadingMore: false,
       });
       const [query, setQuery] = useState('');
       const [sort, setSort] = useState('S');
       const [dir, setDir] = useState('desc');
       const [filter, setFilter] = useState('');
+      const [page, setPage] = useState(1);
+      const [pageSize, setPageSize] = useState(PAGE);
       const [detail, setDetail] = useState({ status: 'idle', id: '', skill: null, row: null });
       const requestId = useRef(0);
+      const scroller = useRef(null);
 
-      const buildQuery = (offset) => {
-        const params = new URLSearchParams({ limit: String(PAGE), offset: String(offset), sort, dir });
-        if (query.trim()) params.set('q', query.trim());
-        if (filter) params.set('filter', filter);
-        return params.toString();
-      };
-
-      const fetchPage = async (offset, append) => {
+      /** 按页取数：翻页与改条件走同一条路，永远是「替换」而不是「追加」。 */
+      const load = async (targetPage, size) => {
         const token = requestId.current + 1;
         requestId.current = token;
-        if (append) setState((prev) => ({ ...prev, loadingMore: true }));
-        else setState((prev) => ({ ...prev, status: 'loading', error: '' }));
+        setState((prev) => ({ ...prev, status: 'loading', error: '' }));
+        const params = new URLSearchParams({
+          limit: String(size),
+          offset: String((targetPage - 1) * size),
+          sort,
+          dir,
+        });
+        if (query.trim()) params.set('q', query.trim());
+        if (filter) params.set('filter', filter);
         try {
-          const response = await fetch(`${API}/list?${buildQuery(offset)}`, {
+          const response = await fetch(`${API}/list?${params.toString()}`, {
             headers: { accept: 'application/json' },
           });
           const body = await response.json();
           if (requestId.current !== token) return; // 有更新的请求在路上，这一份丢弃
-          setState((prev) => {
-            const rows = append ? prev.rows.concat(body.rows || []) : body.rows || [];
-            const seen = new Set();
-            const unique = rows.filter((row) => (seen.has(row.id) ? false : seen.add(row.id)));
-            return {
-              status: 'ready',
-              rows: unique,
-              matched: body.matched || 0,
-              total: body.total || 0,
-              version: body.version || null,
-              active: Array.isArray(body.active) ? body.active : prev.active,
-              maxActive: body.maxActive || prev.maxActive,
-              error: '',
-              loadingMore: false,
-            };
+          setState({
+            status: 'ready',
+            rows: Array.isArray(body.rows) ? body.rows : [],
+            matched: body.matched || 0,
+            total: body.total || 0,
+            version: body.version || null,
+            active: Array.isArray(body.active) ? body.active : [],
+            maxActive: body.maxActive || 0,
+            error: '',
           });
         } catch (error) {
           if (requestId.current !== token) return;
           setState((prev) => ({
             ...prev,
-            status: prev.rows.length ? 'ready' : 'error',
+            status: 'error',
             error: String(error && error.message ? error.message : error),
-            loadingMore: false,
           }));
         }
       };
 
-      // 查询条件一变就重头拉第一页（防抖 200ms，打字期间不打接口）。
+      // 条件或页码一变就重拉（防抖 200ms，打字期间不打接口）。
       useEffect(() => {
-        const timer = setTimeout(() => fetchPage(0, false), 200);
+        const timer = setTimeout(() => load(page, pageSize), 200);
         return () => clearTimeout(timer);
-      }, [query, sort, dir, filter]);
+      }, [query, sort, dir, filter, page, pageSize]);
+
+      // 换页后把列表滚回顶部，否则翻到下一页还停在上一页的滚动位置。
+      useEffect(() => {
+        if (scroller.current) scroller.current.scrollTop = 0;
+      }, [page]);
 
       // 切面板/卸载时把未完成的响应标记作废，避免回过头的 setState。
       useEffect(() => () => {
@@ -495,6 +530,7 @@ white-space:pre-wrap;word-break:break-all}
         ['trend', t('sortTrend')],
         ['name', t('sortName')],
       ];
+      const pageSizes = [24, 48, 96, 192];
 
       const meta = [
         `${t('catalog')} ${fmtInt(state.total)}`,
@@ -508,7 +544,9 @@ white-space:pre-wrap;word-break:break-all}
       const activeFilterLabel = (filters.find(([value]) => value === filter) || ['', t('filterAll')])[1];
       const sectionTitle = query.trim() ? `${t('searchResults')}·${query.trim()}` : activeFilterLabel;
 
-      const hasMore = state.rows.length < state.matched;
+      const totalPages = Math.max(1, Math.ceil(state.matched / pageSize));
+      const currentPage = Math.min(Math.max(1, page), totalPages);
+      const jump = (next) => setPage(Math.min(Math.max(1, next), totalPages));
 
       return h(
         'div',
@@ -517,8 +555,11 @@ white-space:pre-wrap;word-break:break-all}
         h(
           'div',
           { className: 'dsc-top' },
-          h('div', { className: 'dsc-head' }, h('h2', { className: 'dsc-title' }, t('title'))),
-          h('div', { className: 'dsc-meta' }, meta),
+          h(
+            'div',
+            { className: 'dsc-inner' },
+            h('div', { className: 'dsc-head' }, h('h2', { className: 'dsc-title' }, t('title'))),
+            h('div', { className: 'dsc-meta' }, meta),
           h(
             'div',
             { className: 'dsc-tools' },
@@ -531,7 +572,10 @@ white-space:pre-wrap;word-break:break-all}
                 value: query,
                 placeholder: t('search'),
                 spellCheck: false,
-                onChange: (event) => setQuery(event.target.value),
+                onChange: (event) => {
+                  setQuery(event.target.value);
+                  setPage(1);
+                },
               }),
             ),
             h(
@@ -539,7 +583,10 @@ white-space:pre-wrap;word-break:break-all}
               {
                 className: 'dsc-select',
                 value: sort,
-                onChange: (event) => setSort(event.target.value),
+                onChange: (event) => {
+                  setSort(event.target.value);
+                  setPage(1);
+                },
                 title: t('sort'),
               },
               sorts.map(([value, label]) => h('option', { key: value, value }, label)),
@@ -549,7 +596,10 @@ white-space:pre-wrap;word-break:break-all}
               {
                 type: 'button',
                 className: 'dsc-btn',
-                onClick: () => setDir(dir === 'desc' ? 'asc' : 'desc'),
+                onClick: () => {
+                  setDir(dir === 'desc' ? 'asc' : 'desc');
+                  setPage(1);
+                },
               },
               dir === 'desc' ? t('desc') : t('asc'),
             ),
@@ -565,19 +615,22 @@ white-space:pre-wrap;word-break:break-all}
                   type: 'button',
                   className: 'dsc-chip',
                   'data-on': filter === value ? 'true' : 'false',
-                  onClick: () => setFilter(value),
+                  onClick: () => {
+                    setFilter(value);
+                    setPage(1);
+                  },
                 },
                 label,
               ),
             ),
           ),
-          h('div', { className: 'dsc-rule' }),
+            h('div', { className: 'dsc-rule' }),
+          ),
         ),
         h(
           'div',
-          { className: 'dsc-scroll' },
-          // 内容限宽：市场页就是左对齐一栏最大约 1100px，右边留白；
-          // 拉满整屏会让卡片排到五列，读起来像墙。
+          { className: 'dsc-scroll', ref: scroller },
+          // 内容限宽并居中：两侧留白随窗口自适应；拉满整屏会让卡片排到五列，读起来像墙。
           h(
             'div',
             { className: 'dsc-inner' },
@@ -602,23 +655,66 @@ white-space:pre-wrap;word-break:break-all}
           'div',
           { className: 'dsc-foot' },
           h(
-            'span',
-            null,
-            `${t('showing')} ${fmtInt(state.rows.length)}${state.matched ? ` / ${fmtInt(state.matched)}` : ''}`,
-          ),
-          hasMore
-            ? h(
+            'div',
+            { className: 'dsc-inner dsc-foot-inner' },
+            h(
+              'div',
+              { className: 'dsc-pager' },
+              h(
                 'button',
                 {
                   type: 'button',
-                  className: 'dsc-btn',
-                  disabled: state.loadingMore,
-                  onClick: () => fetchPage(state.rows.length, true),
+                  className: 'dsc-page',
+                  disabled: currentPage <= 1,
+                  onClick: () => jump(currentPage - 1),
                 },
-                state.loadingMore ? t('loading') : t('more'),
-              )
-            : h('span', null, t('noMore')),
-          state.error && state.rows.length ? h('span', null, t('failed') + state.error) : null,
+                t('prev'),
+              ),
+              pageNumbers(currentPage, totalPages).map((item, index) =>
+                item === '…'
+                  ? h('span', { key: `gap-${index}`, className: 'dsc-page-info' }, '…')
+                  : h(
+                      'button',
+                      {
+                        key: `page-${item}`,
+                        type: 'button',
+                        className: 'dsc-page',
+                        'data-on': item === currentPage ? 'true' : 'false',
+                        onClick: () => jump(item),
+                      },
+                      String(item),
+                    ),
+              ),
+              h(
+                'button',
+                {
+                  type: 'button',
+                  className: 'dsc-page',
+                  disabled: currentPage >= totalPages,
+                  onClick: () => jump(currentPage + 1),
+                },
+                t('next'),
+              ),
+            ),
+            h(
+              'div',
+              { className: 'dsc-page-info' },
+              h('span', null, `${t('page')} ${currentPage} / ${totalPages}`),
+              h(
+                'select',
+                {
+                  className: 'dsc-page-size',
+                  value: String(pageSize),
+                  onChange: (event) => {
+                    setPageSize(Number(event.target.value));
+                    setPage(1);
+                  },
+                },
+                pageSizes.map((size) => h('option', { key: size, value: String(size) }, `${t('perPage')} ${size}`)),
+              ),
+              state.error ? h('span', null, t('failed') + state.error) : null,
+            ),
+          ),
         ),
         detail.status === 'idle' ? null : h(Detail, { state: detail, onClose: () => setDetail({ status: 'idle', id: '', skill: null, row: null }) }),
       );
