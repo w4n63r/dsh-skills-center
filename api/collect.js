@@ -16,6 +16,8 @@ import { timingSafeEqual } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { collect, DEFAULTS } from '../collector/collect.mjs';
 import { publishCatalog, validateCatalog } from '../collector/publish.mjs';
+import { publishCatalogToGitHub } from '../collector/publish-github.mjs';
+import { createHash } from 'node:crypto';
 
 // 中文层：data/zh.json 由 tools/zh_merge.mjs 从各分片合并而来（{ entries: { [id]: {name_zh,intro,usage,notes} } }）。
 // 优先走 JSON import（打包器会把它内联进函数），失败再读文件（本地直跑时）。都没有就当空表，不阻塞采集。
@@ -289,6 +291,21 @@ async function run(request, trigger, { resolveToken = resolveOidcToken, loadBlob
       access,
       log: (msg) => console.log(`[collect] ${msg}`),
     });
+    // GitHub 是主分发路径（raw CDN + 单提交分支 + 小文件先行），Blob 留作回退。
+    // 没配 token 就跳过；失败也只记在响应里——Blob 那份可能还在，不回滚。
+    let github = { ok: false, stage: 'skipped', error: 'GH_TOKEN not set' };
+    if (process.env.GH_TOKEN) {
+      github = await publishCatalogToGitHub({
+        catalog,
+        token: process.env.GH_TOKEN,
+        repo: process.env.GH_REPO || 'w4n63r/dsh-skills-center',
+        branch: process.env.GH_BRANCH || 'catalog',
+        sha256: createHash('sha256').update(JSON.stringify(catalog)).digest('hex'),
+        log: (msg) => console.log(`[collect] ${msg}`),
+      });
+      if (!github.ok) console.log(`[collect] github publish failed at ${github.stage}: ${github.error}`);
+    }
+
     if (!published.ok) {
       return fail(500, `blob upload failed: ${(published.errors || []).join('; ')}`, {
         warnings: published.warnings,
@@ -299,7 +316,15 @@ async function run(request, trigger, { resolveToken = resolveOidcToken, loadBlob
     console.log(`[collect] done ${elapsed()}ms → ${published.latest.url}`);
     return json(200, {
       ...summary,
-      uploaded: { versioned: published.versioned, latest: published.latest },
+      uploaded: {
+        // 主分发路径：GitHub raw（插件默认读这个）
+        github: github.ok
+          ? { url: github.url, metaUrl: github.metaUrl, commit: github.commit, bytes: github.bytes }
+          : { skipped: github.stage === 'skipped', stage: github.stage, error: github.error },
+        // 回退路径：Blob（插件在主地址失败时才用）
+        versioned: published.versioned,
+        latest: published.latest,
+      },
       elapsed_ms: elapsed(),
     });
   } catch (err) {

@@ -104,6 +104,64 @@ const noBaseline = await checkForUpdate();
 assert.equal(noBaseline.ok, false);
 assert.equal(noBaseline.reason, 'no_baseline');
 
+// ---- 6) 小文件先行：meta 的 sha256 与本地一致 → 6MB 一个字节都不下 ----
+{
+  const GH = 'https://raw.githubusercontent.com/o/r/catalog/catalog.json';
+  const GH_META = 'https://raw.githubusercontent.com/o/r/catalog/catalog-meta.json';
+  // 先正常同步一次，拿到 sha256 基线
+  installFetch(async (url) => jsonResponse(CATALOG, { url, etag: '"one"' }));
+  const seeded = await syncCatalog({ url: GH, force: true });
+  assert.equal(seeded.ok, true);
+  const localSha = JSON.parse(await readFile(SYNC_META, 'utf8')).sha256;
+
+  const seen = [];
+  installFetch(async (url) => {
+    seen.push(url);
+    if (url === GH_META) {
+      return jsonResponse(JSON.stringify({ version: 'full-2026-10-21T07-00-00-000Z', count: 2, sha256: localSha }));
+    }
+    return jsonResponse(CATALOG, { url, etag: '"two"' });
+  });
+  const unchanged = await syncCatalog({ url: GH });
+  assert.equal(unchanged.ok, true);
+  assert.equal(unchanged.changed, false, 'same sha256 → nothing to write');
+  assert.equal(unchanged.reason, 'meta_unchanged');
+  assert.equal(unchanged.bytes, 0);
+  assert.deepEqual(seen, [GH_META], 'only the tiny meta file was fetched');
+}
+
+// ---- 7) meta 变了 → 才去下 catalog.json ----
+{
+  const GH = 'https://raw.githubusercontent.com/o/r/catalog/catalog.json';
+  const GH_META = 'https://raw.githubusercontent.com/o/r/catalog/catalog-meta.json';
+  const NEW = CATALOG.replace('full-2026-10-20T07-02-32-737Z', 'full-2026-10-22T07-00-00-000Z');
+  const seen = [];
+  installFetch(async (url) => {
+    seen.push(url);
+    if (url === GH_META) return jsonResponse(JSON.stringify({ version: 'full-2026-10-22T07-00-00-000Z', count: 2, sha256: 'different' }));
+    return jsonResponse(NEW, { url, etag: '"three"' });
+  });
+  const changed = await syncCatalog({ url: GH });
+  assert.equal(changed.ok, true);
+  assert.equal(changed.changed, true);
+  assert.equal(changed.version, 'full-2026-10-22T07-00-00-000Z');
+  assert.ok(seen.includes(GH_META) && seen.some((u) => u !== GH_META), 'meta first, then the catalog');
+}
+
+// ---- 8) 主地址整条失败 → 用回退地址（Blob），并记录 fallbackFrom ----
+{
+  const GH = 'https://raw.githubusercontent.com/o/r/catalog/catalog.json';
+  const BLOB = 'https://dsh-skills-center.vercel.app/api/catalog';
+  installFetch(async (url) => {
+    if (url === BLOB) return jsonResponse(CATALOG, { url: BLOB, etag: '"blob"' });
+    return { ok: false, status: 404, url, headers: { get: () => null } };
+  });
+  const viaFallback = await syncCatalog({ url: GH, fallbacks: [BLOB] });
+  assert.equal(viaFallback.ok, true, 'the fallback keeps sync working when GitHub is down');
+  assert.equal(viaFallback.fallbackFrom, GH);
+  assert.equal(JSON.parse(await readFile(SYNC_META, 'utf8')).source, BLOB, 'meta records where the bytes actually came from');
+}
+
 await rm(home, { recursive: true, force: true });
 
 console.log(`sync ok — ${calls.length} 次打桩请求：解析入口 → 304 零字节 → 200 更新 → HEAD 检查 → 404 清基线`);
