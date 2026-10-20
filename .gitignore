@@ -35,3 +35,6 @@ venv/
 
 .vercel
 .env*
+
+# Local probe outputs
+live*.json
