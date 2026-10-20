@@ -327,8 +327,8 @@ font-variant-numeric:tabular-nums}
 .dsc-menu-btn{display:inline-flex;align-items:center;gap:6px}
 .dsc-menu-btn-sm{height:32px;padding:0 11px;font-size:12.5px}
 .dsc-caret{font-size:10px;color:var(--dsw-alias-label-secondary);position:relative;top:-1px}
-.dsc-menu-group{padding:6px 12px 4px;color:var(--dsw-alias-label-secondary);font-size:12px}
-.dsc-menu-sep{height:1px;background:var(--dsw-alias-border-l1);margin:6px 4px}
+.dsc-menu-group{padding:9px 12px 5px;color:var(--dsw-alias-label-secondary);font-size:12px;letter-spacing:.2px}
+.dsc-menu-sep{height:1px;background:var(--dsw-alias-border-l2);margin:8px 2px}
 .dsc-menu-item{display:flex;align-items:center;justify-content:space-between;gap:16px}
 .dsc-menu-check{color:var(--dsw-alias-brand-primary);font-size:12px}
 .dsc-menu-list{position:absolute;z-index:30;top:calc(100% + 6px);right:0;min-width:100%;padding:6px;
