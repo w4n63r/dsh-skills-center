@@ -34,6 +34,9 @@ window.__ModuleLoader__.load({
       filterOfficial: '官方精选',
       filterRisky: '有风险信号',
       filterEnriched: '已抓正文',
+      filterLabel: '筛选',
+      moreCategories: '更多分类',
+      categoryHint: '按技能实际功能自动分类（关键词规则，不是 skills.sh 官方字段）；一条技能可能属于多个分类。',
       searchResults: '搜索结果',
       prev: '上一页',
       next: '下一页',
@@ -128,6 +131,9 @@ window.__ModuleLoader__.load({
       filterOfficial: 'Official picks',
       filterRisky: 'Risk signals',
       filterEnriched: 'Has body',
+      filterLabel: 'Filter',
+      moreCategories: 'More categories',
+      categoryHint: 'Categories are inferred from what each skill does (keyword rules, not a skills.sh field). A skill can sit in several.',
       searchResults: 'Search results',
       prev: 'Prev',
       next: 'Next',
@@ -233,7 +239,12 @@ background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font
 cursor:pointer;white-space:nowrap;transition:border-color .12s,background .12s}
 .dsc-select:hover,.dsc-btn:hover{border-color:var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2)}
 .dsc-btn[disabled]{opacity:.5;cursor:default}
-.dsc-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.dsc-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:center}
+.dsc-chips-sub{margin-top:10px;gap:6px}
+.dsc-chip-label{color:var(--dsw-alias-label-secondary);font-size:12.5px;margin-right:2px}
+.dsc-chip-sm{height:26px;padding:0 11px;font-size:12.5px}
+.dsc-select-sm{height:30px;padding:0 10px;font-size:12.5px}
+.dsc-hint{margin-top:10px;color:var(--dsw-alias-label-secondary);font-size:12px;line-height:1.6}
 .dsc-chip{height:30px;padding:0 15px;border:1px solid var(--dsw-alias-border-l1);border-radius:999px;
 background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:13px;cursor:pointer;
 transition:border-color .12s,color .12s,background .12s}
@@ -651,12 +662,15 @@ white-space:pre-wrap;word-break:break-all}
         version: null,
         active: [],
         maxActive: 0,
+        categories: [],
+        classified: 0,
         error: '',
       });
       const [query, setQuery] = useState('');
       const [sort, setSort] = useState('S');
       const [dir, setDir] = useState('desc');
       const [filter, setFilter] = useState('');
+      const [category, setCategory] = useState('');
       const [page, setPage] = useState(1);
       const [pageSize, setPageSize] = useState(PAGE);
       const [detail, setDetail] = useState({ status: 'idle', id: '', skill: null, row: null });
@@ -677,22 +691,26 @@ white-space:pre-wrap;word-break:break-all}
         });
         if (query.trim()) params.set('q', query.trim());
         if (filter) params.set('filter', filter);
+        if (category) params.set('category', category);
         try {
           const response = await fetch(`${API}/list?${params.toString()}`, {
             headers: { accept: 'application/json' },
           });
           const body = await response.json();
           if (requestId.current !== token) return; // 有更新的请求在路上，这一份丢弃
-          setState({
+          // 这里必须用函数式 setState：分类计数要沿用上一份（响应没带 categories 时不能清空）
+          setState((prev) => ({
             status: 'ready',
             rows: Array.isArray(body.rows) ? body.rows : [],
             matched: body.matched || 0,
             total: body.total || 0,
             version: body.version || null,
-            active: Array.isArray(body.active) ? body.active : [],
-            maxActive: body.maxActive || 0,
+            active: Array.isArray(body.active) ? body.active : prev.active,
+            maxActive: body.maxActive || prev.maxActive,
+            categories: Array.isArray(body.categories) ? body.categories : prev.categories,
+            classified: body.classified || prev.classified,
             error: '',
-          });
+          }));
         } catch (error) {
           if (requestId.current !== token) return;
           setState((prev) => ({
@@ -707,7 +725,7 @@ white-space:pre-wrap;word-break:break-all}
       useEffect(() => {
         const timer = setTimeout(() => load(page, pageSize), 200);
         return () => clearTimeout(timer);
-      }, [query, sort, dir, filter, page, pageSize]);
+      }, [query, sort, dir, filter, category, page, pageSize]);
 
       // 换页后把列表滚回顶部，否则翻到下一页还停在上一页的滚动位置。
       useEffect(() => {
@@ -758,6 +776,16 @@ white-space:pre-wrap;word-break:break-all}
 
       const activeFilterLabel = (filters.find(([value]) => value === filter) || ['', t('filterAll')])[1];
       const sectionTitle = query.trim() ? `${t('searchResults')}·${query.trim()}` : activeFilterLabel;
+
+      // 分类菜单：按条数取前 12 个铺成 chips，其余收进「更多分类」下拉——
+      // 28 个分类全铺会占掉半屏，而长尾分类本来就少人点。
+      // 服务端已把「其他」排到最后：chips 只铺真分类，兜底桶和其他长尾一起进下拉
+      const allCategories = state.categories.filter((c) => c.count > 0 && c.key !== 'other');
+      const topCategories = allCategories.slice(0, 12);
+      const restCategories = [
+        ...allCategories.slice(12),
+        ...state.categories.filter((c) => c.key === 'other' && c.count > 0),
+      ];
 
       const totalPages = Math.max(1, Math.ceil(state.matched / pageSize));
       const currentPage = Math.min(Math.max(1, page), totalPages);
@@ -832,13 +860,68 @@ white-space:pre-wrap;word-break:break-all}
           h(
             'div',
             { className: 'dsc-chips' },
+            h(
+              'button',
+              {
+                type: 'button',
+                className: 'dsc-chip',
+                'data-on': category ? 'false' : 'true',
+                onClick: () => {
+                  setCategory('');
+                  setPage(1);
+                },
+              },
+              `${t('filterAll')} ${fmtInt(state.total)}`,
+            ),
+            topCategories.map((item) =>
+              h(
+                'button',
+                {
+                  key: item.key,
+                  type: 'button',
+                  className: 'dsc-chip',
+                  'data-on': category === item.key ? 'true' : 'false',
+                  title: `${item.label} ${fmtInt(item.count)}`,
+                  onClick: () => {
+                    setCategory(category === item.key ? '' : item.key);
+                    setPage(1);
+                  },
+                },
+                item.label,
+              ),
+            ),
+            restCategories.length
+              ? h(
+                  'select',
+                  {
+                    className: 'dsc-select dsc-select-sm',
+                    value: restCategories.some((c) => c.key === category) ? category : '',
+                    onChange: (event) => {
+                      setCategory(event.target.value);
+                      setPage(1);
+                    },
+                    title: t('moreCategories'),
+                  },
+                  [
+                    h('option', { key: 'none', value: '' }, `${t('moreCategories')}…`),
+                    ...restCategories.map((item) =>
+                      h('option', { key: item.key, value: item.key }, `${item.label}（${fmtInt(item.count)}）`),
+                    ),
+                  ],
+                )
+              : null,
+          ),
+          h(
+            'div',
+            { className: 'dsc-chips dsc-chips-sub' },
+            h('span', { className: 'dsc-chip-label' }, t('filterLabel')),
             filters.map(([value, label]) =>
               h(
                 'button',
                 {
                   key: value || 'all',
                   type: 'button',
-                  className: 'dsc-chip',
+                  className: 'dsc-chip dsc-chip-sm',
                   'data-on': filter === value ? 'true' : 'false',
                   onClick: () => {
                     setFilter(value);
@@ -849,6 +932,7 @@ white-space:pre-wrap;word-break:break-all}
               ),
             ),
           ),
+          h('div', { className: 'dsc-hint' }, `${t('categoryHint')} ${t('matched')} ${fmtInt(state.matched)}`),
             h('div', { className: 'dsc-rule' }),
           ),
         ),

@@ -41,7 +41,7 @@
   },
   "scripts": {
     "check": "node --input-type=module -e \"import('./lib/index.js').then(m => console.log('exports:', Object.keys(m).sort().join(', ')))\"",
-    "test": "node tests/smoke.mjs && node tests/client.test.mjs && node collector/pipeline.test.mjs && node collector/fetch.test.mjs && node collector/replay.test.mjs && node api/collect.test.mjs",
+    "test": "node tests/smoke.mjs && node tests/categories.test.mjs && node tests/client.test.mjs && node collector/pipeline.test.mjs && node collector/fetch.test.mjs && node collector/replay.test.mjs && node api/collect.test.mjs",
     "collect": "node collector/run.mjs",
     "collect:replay": "node collector/run.mjs --replay collector/fixtures/v1-sample.json"
   }

@@ -149,6 +149,7 @@ const search = await captured.tools.get('skill_search').execute({ query: '设计
 assertLosslessJson('skill_search', search);
 assert.ok(search.results.length > 0, 'Chinese keyword should hit the catalog');
 assert.match(search.results[0].line, /装 [\d,]+/);
+assert.match(search.results[0].line, /分类 \S+/, 'search lines carry the function category');
 
 const blank = await captured.tools.get('skill_search').execute({ query: '', limit: 3 });
 assertLosslessJson('skill_search', blank);
@@ -280,8 +281,32 @@ assert.ok(
   apiListQuery.body.rows.every((row) => `${row.slug} ${row.name_zh || ''} ${row.description}`.length > 0),
 );
 
-const apiListZh = await callApi('/api/dsh-skills-center/list?zh=1&limit=50');
-assert.equal(apiListZh.code, 200);
+// 功能分类：菜单随 /list 一起下发（计数按整个目录算），且能按分类过滤
+assert.ok(Array.isArray(apiList.body.categories) && apiList.body.categories.length > 0, 'list returns the category menu');
+assert.ok(apiList.body.categories.every((c) => c.key && c.label && typeof c.count === 'number'));
+assert.equal(typeof apiList.body.classified, 'number');
+for (const row of apiList.body.rows) {
+  assert.ok(Array.isArray(row.categories) && row.categories.length > 0, 'every row carries its categories');
+}
+{
+  const frontend = apiList.body.categories.find((c) => c.key === 'frontend') || apiList.body.categories[0];
+  const apiListCategory = await callApi(`/api/dsh-skills-center/list?category=${frontend.key}&limit=5`);
+  assert.equal(apiListCategory.code, 200);
+  assert.equal(apiListCategory.body.category, frontend.key);
+  assert.ok(apiListCategory.body.matched > 0, 'category filter matches rows');
+  assert.ok(apiListCategory.body.matched <= frontend.count, 'filtered count cannot exceed the menu count');
+  assert.ok(
+    apiListCategory.body.rows.every((row) => row.categories.includes(frontend.key)),
+    'category filter only returns rows in that category',
+  );
+  // 分类计数不随关键词变化：菜单要稳定，否则点一下菜单就洗牌
+  assert.deepEqual(
+    apiListCategory.body.categories.map((c) => c.count),
+    apiList.body.categories.map((c) => c.count),
+  );
+}
+
+const apiListZh = await callApi('/api/dsh-skills-center/list?zh=1&limit=50');assert.equal(apiListZh.code, 200);
 assert.ok(apiListZh.body.rows.every((row) => row.has_zh === true), 'zh=1 keeps only rows with a Chinese card');
 
 const apiListOfficial = await callApi('/api/dsh-skills-center/list?filter=official&limit=20');

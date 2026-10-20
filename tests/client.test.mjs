@@ -145,6 +145,26 @@ const PAGE_FIXTURE = {
   matched: 2,
   maxActive: 50,
   active: ['a/b/c'],
+  // 分类菜单来自服务端：计数按整个目录算，和当前筛选无关
+  categories: [
+    { key: 'other', label: '其他', count: 1866 },
+    { key: 'ai', label: 'AI 与模型', count: 1304 },
+    { key: 'gpu', label: 'GPU 与加速计算', count: 1029 },
+    { key: 'devops', label: '部署与运维', count: 890 },
+    { key: 'design', label: '设计与图像', count: 416 },
+    { key: 'docs', label: '文档与写作', count: 394 },
+    { key: 'backend', label: '后端与数据库', count: 388 },
+    { key: 'collab', label: '协作与沟通', count: 384 },
+    { key: 'data', label: '数据与分析', count: 354 },
+    { key: 'language', label: '语言与框架', count: 333 },
+    { key: 'frontend', label: '前端与界面', count: 327 },
+    { key: 'browser', label: '浏览器与自动化', count: 319 },
+    // 前 12 个之外的分类应该收进「更多分类」下拉
+    { key: 'testing', label: '测试与质量', count: 301 },
+    { key: 'security', label: '安全与合规', count: 296 },
+    { key: 'mobile', label: '移动端', count: 290 },
+  ],
+  classified: 5747,
   rows: [
     {
       id: 'anthropics/skills/frontend-design',
@@ -167,8 +187,8 @@ const PAGE_FIXTURE = {
       first_seen: '2026-03-13',
       audit: { judged: 5, pass: 4, warn: 1, fail: 0 },
       install_hint: 'npx skills add anthropics/skills --skill frontend-design',
-    },
-    {
+      categories: ['design', 'frontend'],
+    },    {
       id: 'x/y/z',
       slug: 'z',
       name: 'z',
@@ -189,6 +209,7 @@ const PAGE_FIXTURE = {
       first_seen: null,
       audit: null,
       install_hint: null,
+      categories: ['other'],
     },
   ],
 };
@@ -248,6 +269,41 @@ for (const expected of [
 }
 assert.ok(loaded2.includes('dsc-up'), 'rising trend is coloured by class, not by inline colour');
 assert.ok(loaded2.includes('dsc-card'), 'cards are rendered, not table rows');
+
+// 分类菜单：全部（带总数）+ 前 12 个分类铺成 chips，长尾收进「更多分类」下拉
+for (const expected of ['全部 7,572', 'AI 与模型', '部署与运维', '设计与图像', '更多分类']) {
+  assert.ok(loaded2.includes(expected), `category chips show 「${expected}」`);
+}
+assert.ok(loaded2.includes('按技能实际功能自动分类'), 'chips carry a hint that categories are inferred');
+
+// 点分类 chip → 带上 category 参数重新取数，并回到第 1 页
+const categoryChip = (function find(node) {
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      const hit = find(child);
+      if (hit) return hit;
+    }
+    return null;
+  }
+  if (!node || typeof node !== 'object') return null;
+  const classes = String(node.props?.className || '').split(/\s+/);
+  if (classes.includes('dsc-chip') && String(node.children?.[0] ?? '') === '前端与界面') return node;
+  const children = node.children || [];
+  for (const child of Array.isArray(children) ? children : [children]) {
+    const hit = find(child);
+    if (hit) return hit;
+  }
+  return null;
+})(expand(render()));
+assert.ok(categoryChip, 'frontend chip is rendered');
+categoryChip.props.onClick();
+render(); // 假 react 只在渲染时才跑 effect，所以点完要再渲一次
+hooks.effects.slice(-3).forEach((effect) => effect());
+await new Promise((resolve) => setTimeout(resolve, 400));
+assert.ok(
+  asked.some((url) => url.includes('category=frontend')),
+  'clicking a category asks the host with category=frontend',
+);
 // 底部分页：两条数据只有 1 页，所以上一页/下一页都该是禁用态
 assert.ok(loaded2.includes('dsc-page'), 'footer renders a pager, not a load-more button');
 assert.ok(!loaded2.includes('加载更多'), 'the load-more button is gone');
