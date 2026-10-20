@@ -182,14 +182,42 @@ export function createClient({ token, base = DEFAULT_BASE, fetchImpl = globalThi
      * 技能页 HTML（https://www.skills.sh/<source>/<slug>）。为什么需要它：
      * /api/v1 的列表项和 detail 都不返回 weeklyInstalls（实测 detail 只有 id/source/slug/installs/hash/files），
      * 「8 周趋势」这个维度只存在于页面上的 aria-label="Weekly installs: …" 里，只能抓 HTML。
+     * 顺手把页面上的「First Seen」也解析出来——同一份 HTML，不加请求：
+     *   <span>First Seen</span></div><div class="...">Jan 19, 2026</div>
+     * 页面里**没有**「更新时间」这类字段（实测扫过 ISO 日期、Updated/Modified/ago 文案都是 0 命中），
+     * 所以面板只展示发布时间，不做「更新时间」。
      * 一次 1 个请求，所以调用方必须把它算进预算。
      */
     async page(id) {
       const path = id.split('/').map(encodeURIComponent).join('/');
       const html = await requestText(`${SITE}/${path}`);
-      return { weekly_series: parseWeeklyInstalls(html) };
+      return { weekly_series: parseWeeklyInstalls(html), first_seen: parseFirstSeen(html) };
     },
   };
+}
+
+const MONTHS = {
+  jan: '01', feb: '02', mar: '03', apr: '04', may: '05', jun: '06',
+  jul: '07', aug: '08', sep: '09', oct: '10', nov: '11', dec: '12',
+};
+
+/**
+ * 页面上的 First Seen（上游自己的首次收录日期）→ ISO 日期；解析不出来给 null，不编。
+ * 不用 `new Date(...)`：`Jan 19, 2026` 会按本地时区解析，再 toISOString() 会退到前一天
+ * （实测时区 +08:00 下 Jan 19 变成 Jan 18）。这里直接按月名映射拼字符串，不经过时区。
+ */
+export function parseFirstSeen(html) {
+  const m = /First Seen<\/span><\/div><div[^>]*>([^<]{3,40})<\/div>/.exec(String(html || ''));
+  if (!m) return null;
+  const text = m[1].trim();
+  const iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text);
+  if (iso) return text;
+  const named = /^([A-Za-z]{3,9})\.?\s+(\d{1,2}),?\s*(\d{4})$/.exec(text);
+  if (!named) return null;
+  const month = MONTHS[named[1].slice(0, 3).toLowerCase()];
+  if (!month) return null;
+  const day = String(Number(named[2])).padStart(2, '0');
+  return `${named[3]}-${month}-${day}`;
 }
 
 /**

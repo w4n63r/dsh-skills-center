@@ -68,7 +68,8 @@ export function mergeDetail(record, detail, audit, page = null) {
     audit: audit?.audits?.length ? audit : record.audit,
     // 趋势只存在于页面 HTML（见 fetch.mjs 的 page()）；detail 里没有这个字段。
     weeklyInstalls: page?.weekly_series || detail?.weeklyInstalls || record.weekly_series || null,
-    firstSeen: detail?.firstSeen || record.first_seen || null,
+    // 发布时间也来自同一页 HTML 的 First Seen（不加请求）；上游没有「更新时间」这种字段。
+    firstSeen: page?.first_seen || detail?.firstSeen || record.first_seen || null,
     curated: Boolean(record.curated),
     official: Boolean(record.official),
   };

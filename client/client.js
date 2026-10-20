@@ -37,6 +37,18 @@ window.__ModuleLoader__.load({
       filterLabel: '筛选',
       moreCategories: '更多分类',
       fewerCategories: '收起',
+      sortField: '排序字段',
+      sortDir: '排序方向',
+      dateRange: '发布时间范围',
+      rangeAll: '全部时间',
+      range30: '最近 30 天',
+      range90: '最近 90 天',
+      range365: '最近 1 年',
+      sortInstalls4w: '近 30 天安装量',
+      installs4w: '近 30 天安装量',
+      installs4wNote: '上游不给「近 30 天」，这一项是我们把技能页上的 8 周周量的最近 4 周加起来得到的（≈28 天）。',
+      firstSeenNote: '来自技能页上的 First Seen；只有抓过页面详情的条目才有，上游没有「更新时间」。',
+      dateCoverage: '有时间信息',
       categoryHint: '按技能实际功能自动分类（关键词规则，不是 skills.sh 官方字段）；一条技能可能属于多个分类。',
       searchResults: '搜索结果',
       prev: '上一页',
@@ -135,6 +147,18 @@ window.__ModuleLoader__.load({
       filterLabel: 'Filter',
       moreCategories: 'More categories',
       fewerCategories: 'Show less',
+      sortField: 'Sort by',
+      sortDir: 'Direction',
+      dateRange: 'First seen',
+      rangeAll: 'Any time',
+      range30: 'Last 30 days',
+      range90: 'Last 90 days',
+      range365: 'Last year',
+      sortInstalls4w: 'Installs (30d)',
+      installs4w: 'Installs (30d)',
+      installs4wNote: 'Upstream has no 30-day figure: this one sums the last four weekly points from the skill page (about 28 days).',
+      firstSeenNote: 'Taken from First Seen on the skill page; only rows whose page we fetched have it. Upstream publishes no updated-at.',
+      dateCoverage: 'with dates',
       categoryHint: 'Categories are inferred from what each skill does (keyword rules, not a skills.sh field). A skill can sit in several.',
       searchResults: 'Search results',
       prev: 'Prev',
@@ -303,6 +327,10 @@ font-variant-numeric:tabular-nums}
 .dsc-menu-btn{display:inline-flex;align-items:center;gap:6px}
 .dsc-menu-btn-sm{height:32px;padding:0 11px;font-size:12.5px}
 .dsc-caret{font-size:10px;color:var(--dsw-alias-label-secondary);position:relative;top:-1px}
+.dsc-menu-group{padding:6px 12px 4px;color:var(--dsw-alias-label-secondary);font-size:12px}
+.dsc-menu-sep{height:1px;background:var(--dsw-alias-border-l1);margin:6px 4px}
+.dsc-menu-item{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.dsc-menu-check{color:var(--dsw-alias-brand-primary);font-size:12px}
 .dsc-menu-list{position:absolute;z-index:30;top:calc(100% + 6px);right:0;min-width:100%;padding:6px;
 border:1px solid var(--dsw-alias-border-l1);border-radius:11px;background:var(--dsw-alias-bg-overlay);
 box-shadow:0 12px 30px rgba(15,17,21,.16);display:flex;flex-direction:column;gap:2px}
@@ -454,7 +482,7 @@ white-space:pre-wrap;word-break:break-all}
      * 自绘下拉菜单。不用原生 <select>：那个展开层是操作系统的 UI，明暗主题、圆角、字号
      * 都不受宿主 token 控制，和面板放一起像两个程序。
      */
-    function Menu({ label, value, options, onChange, compact, title }) {
+    function Menu({ label, sections, compact, title }) {
       const [open, setOpen] = useState(false);
       const box = useRef(null);
 
@@ -474,7 +502,9 @@ white-space:pre-wrap;word-break:break-all}
         };
       });
 
-      const current = options.find((option) => option.value === value);
+      // 按钮上显示第一组（排序字段）的当前值，和截图一致
+      const head = sections[0];
+      const current = head.options.find((option) => option.value === head.value);
 
       return h(
         'div',
@@ -495,27 +525,31 @@ white-space:pre-wrap;word-break:break-all}
           ? h(
               'div',
               { className: 'dsc-menu-list' },
-              options.map((option) =>
-                h(
-                  'button',
-                  {
-                    key: option.value,
-                    type: 'button',
-                    className: 'dsc-menu-item',
-                    'data-on': option.value === value ? 'true' : 'false',
-                    onClick: () => {
-                      onChange(option.value);
-                      setOpen(false);
+              sections.flatMap((section, index) => [
+                index ? h('div', { key: `sep-${section.label}`, className: 'dsc-menu-sep' }) : null,
+                h('div', { key: `group-${section.label}`, className: 'dsc-menu-group' }, section.label),
+                ...section.options.map((option) =>
+                  h(
+                    'button',
+                    {
+                      key: `${section.label}-${option.value}`,
+                      type: 'button',
+                      className: 'dsc-menu-item',
+                      'data-on': option.value === section.value ? 'true' : 'false',
+                      onClick: () => {
+                        section.onChange(option.value);
+                        setOpen(false);
+                      },
                     },
-                  },
-                  option.label,
+                    option.label,
+                    option.value === section.value ? h('span', { className: 'dsc-menu-check' }, '✓') : null,
+                  ),
                 ),
-              ),
+              ]),
             )
           : null,
       );
     }
-
     function SearchIcon() {
       return h(
         'svg',
@@ -639,6 +673,17 @@ white-space:pre-wrap;word-break:break-all}
             field(t('usage'), zh.usage),
             field(t('notes'), zh.notes),
             field(t('installs'), fmtInt(skill.installs ?? row.installs)),
+            (() => {
+              const four = skill.installs_4w ?? row.installs_4w;
+              if (four == null) return null;
+              return h(
+                'div',
+                { className: 'dsc-field' },
+                h('span', { className: 'dsc-label' }, t('installs4w')),
+                h('p', { className: 'dsc-text' }, fmtInt(four)),
+                h('p', { className: 'dsc-note' }, t('installs4wNote')),
+              );
+            })(),
             field(t('trend'), fmtPct(skill.trend_pct ?? row.trend_pct)),
             field(t('source'), skill.source),
             score.S == null
@@ -660,7 +705,17 @@ white-space:pre-wrap;word-break:break-all}
                   ),
                   h('p', { className: 'dsc-note' }, t('scoreNote')),
                 ),
-            skill.first_seen || row.first_seen ? field(t('firstSeen'), skill.first_seen || row.first_seen) : null,
+            (() => {
+              const seen = skill.first_seen || row.first_seen;
+              if (!seen) return null;
+              return h(
+                'div',
+                { className: 'dsc-field' },
+                h('span', { className: 'dsc-label' }, t('firstSeen')),
+                h('p', { className: 'dsc-text' }, seen),
+                h('p', { className: 'dsc-note' }, t('firstSeenNote')),
+              );
+            })(),
             (skill.flags || row.flags || []).length
               ? h(
                   'div',
@@ -741,6 +796,7 @@ white-space:pre-wrap;word-break:break-all}
         maxActive: 0,
         categories: [],
         classified: 0,
+        dated: 0,
         error: '',
       });
       const [query, setQuery] = useState('');
@@ -749,6 +805,7 @@ white-space:pre-wrap;word-break:break-all}
       const [filter, setFilter] = useState('');
       const [category, setCategory] = useState('');
       const [showAllCategories, setShowAllCategories] = useState(false);
+      const [since, setSince] = useState(0);
       const [page, setPage] = useState(1);
       const [pageSize, setPageSize] = useState(PAGE);
       const [detail, setDetail] = useState({ status: 'idle', id: '', skill: null, row: null });
@@ -770,6 +827,7 @@ white-space:pre-wrap;word-break:break-all}
         if (query.trim()) params.set('q', query.trim());
         if (filter) params.set('filter', filter);
         if (category) params.set('category', category);
+        if (since) params.set('since', String(since));
         try {
           const response = await fetch(`${API}/list?${params.toString()}`, {
             headers: { accept: 'application/json' },
@@ -787,6 +845,7 @@ white-space:pre-wrap;word-break:break-all}
             maxActive: body.maxActive || prev.maxActive,
             categories: Array.isArray(body.categories) ? body.categories : prev.categories,
             classified: body.classified || prev.classified,
+            dated: body.dated ?? prev.dated,
             error: '',
           }));
         } catch (error) {
@@ -803,7 +862,7 @@ white-space:pre-wrap;word-break:break-all}
       useEffect(() => {
         const timer = setTimeout(() => load(page, pageSize), 200);
         return () => clearTimeout(timer);
-      }, [query, sort, dir, filter, category, page, pageSize]);
+      }, [query, sort, dir, filter, category, since, page, pageSize]);
 
       // 换页后把列表滚回顶部，否则翻到下一页还停在上一页的滚动位置。
       useEffect(() => {
@@ -838,8 +897,16 @@ white-space:pre-wrap;word-break:break-all}
       const sorts = [
         ['S', t('sortScore')],
         ['installs', t('sortInstalls')],
+        ['installs4w', t('sortInstalls4w')],
         ['trend', t('sortTrend')],
         ['name', t('sortName')],
+      ];
+      // 时间范围按「发布时间（First Seen）」筛；没抓过页面详情的条目没有这个日期
+      const ranges = [
+        [0, t('rangeAll')],
+        [30, t('range30')],
+        [90, t('range90')],
+        [365, t('range365')],
       ];
       const pageSizes = [24, 48, 96, 192];
 
@@ -909,28 +976,43 @@ white-space:pre-wrap;word-break:break-all}
                 },
               }),
             ),
+            // 一个浮层里三组：排序字段 / 排序方向 / 发布时间范围（方向不再单独占一个按钮）
             h(Menu, {
-              label: t('sort'),
+              label: t('sortField'),
               title: t('sort'),
-              value: sort,
-              options: sorts.map(([value, label]) => ({ value, label })),
-              onChange: (next) => {
-                setSort(next);
-                setPage(1);
-              },
-            }),
-            h(
-              'button',
-              {
-                type: 'button',
-                className: 'dsc-btn',
-                onClick: () => {
-                  setDir(dir === 'desc' ? 'asc' : 'desc');
-                  setPage(1);
+              sections: [
+                {
+                  label: t('sortField'),
+                  value: sort,
+                  options: sorts.map(([value, label]) => ({ value, label })),
+                  onChange: (next) => {
+                    setSort(next);
+                    setPage(1);
+                  },
                 },
-              },
-              dir === 'desc' ? t('desc') : t('asc'),
-            ),
+                {
+                  label: t('sortDir'),
+                  value: dir,
+                  options: [
+                    { value: 'desc', label: t('desc') },
+                    { value: 'asc', label: t('asc') },
+                  ],
+                  onChange: (next) => {
+                    setDir(next);
+                    setPage(1);
+                  },
+                },
+                {
+                  label: t('dateRange'),
+                  value: String(since),
+                  options: ranges.map(([value, label]) => ({ value: String(value), label })),
+                  onChange: (next) => {
+                    setSince(Number(next));
+                    setPage(1);
+                  },
+                },
+              ],
+            }),
           ),
           h(
             'div',
@@ -1023,6 +1105,13 @@ white-space:pre-wrap;word-break:break-all}
             ),
           ),
           h('div', { className: 'dsc-hint' }, `${t('categoryHint')} ${t('matched')} ${fmtInt(state.matched)}`),
+          since
+            ? h(
+                'div',
+                { className: 'dsc-hint' },
+                `${t('dateRange')}：${t('dateCoverage')} ${fmtInt(state.dated)} / ${fmtInt(state.total)} · ${t('firstSeenNote')}`,
+              )
+            : null,
             h('div', { className: 'dsc-rule' }),
           ),
         ),
@@ -1103,12 +1192,17 @@ white-space:pre-wrap;word-break:break-all}
                 label: t('perPage'),
                 title: t('perPage'),
                 compact: true,
-                value: String(pageSize),
-                options: pageSizes.map((size) => ({ value: String(size), label: `${t('perPage')} ${size}` })),
-                onChange: (next) => {
-                  setPageSize(Number(next));
-                  setPage(1);
-                },
+                sections: [
+                  {
+                    label: t('perPage'),
+                    value: String(pageSize),
+                    options: pageSizes.map((size) => ({ value: String(size), label: `${t('perPage')} ${size}` })),
+                    onChange: (next) => {
+                      setPageSize(Number(next));
+                      setPage(1);
+                    },
+                  },
+                ],
               }),
               state.error ? h('span', null, t('failed') + state.error) : null,
             ),

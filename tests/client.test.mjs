@@ -349,7 +349,38 @@ const countByClass = (node, cls, out = 0) => {
 assert.equal(countByClass(expand(render()), 'dsc-menu-item'), 0, 'menu options stay closed until clicked');
 sortMenu.props.onClick();
 assert.ok(countByClass(expand(render()), 'dsc-menu-item') > 0, 'opening the sort menu lists its options');
-assert.ok(textOf(render()).includes('安装量'), 'the opened menu shows every sort option');
+const openMenu = textOf(render());
+// 一个浮层三组：排序字段 / 排序方向 / 发布时间范围
+for (const expected of ['排序字段', '排序方向', '发布时间范围', '近 30 天安装量', '最近 30 天', '全部时间', '最近 1 年']) {
+  assert.ok(openMenu.includes(expected), `grouped sort menu offers 「${expected}」`);
+}
+
+// 选「最近 30 天」→ 下一次取数带上 since=30，并回到第 1 页
+const findMenuItem = (node, label) => {
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      const hit = findMenuItem(child, label);
+      if (hit) return hit;
+    }
+    return null;
+  }
+  if (!node || typeof node !== 'object') return null;
+  const classes = String(node.props?.className || '').split(/\s+/);
+  if (classes.includes('dsc-menu-item') && node.children?.[0] === label) return node;
+  const children = node.children || [];
+  for (const child of Array.isArray(children) ? children : [children]) {
+    const hit = findMenuItem(child, label);
+    if (hit) return hit;
+  }
+  return null;
+};
+const range30 = findMenuItem(expand(render()), '最近 30 天');
+assert.ok(range30, 'the 30-day range item is rendered');
+range30.props.onClick();
+render();
+hooks.effects.slice(-3).forEach((effect) => effect());
+await new Promise((resolve) => setTimeout(resolve, 400));
+assert.ok(asked.some((url) => url.includes('since=30')), 'picking a date range asks the host with since=30');
 
 // 点分类 chip → 带上 category 参数重新取数，并回到第 1 页
 const categoryChip = (function find(node) {

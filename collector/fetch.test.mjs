@@ -1,7 +1,25 @@
 // /api/v1 客户端的单测：不联网，用假的 fetch 演一遍分页、429、401、并发失败。
 // 这些是「上线后才发现」的典型坑，必须在没有 token 的时候就能测。
 import assert from 'node:assert/strict';
-import { authHeaders, createClient, flattenCurated, mapLimit, unwrap, PER_PAGE, MIN_INTERVAL_MS } from './fetch.mjs';
+import { authHeaders, createClient, flattenCurated, mapLimit, unwrap, PER_PAGE, MIN_INTERVAL_MS, parseFirstSeen, parseWeeklyInstalls } from './fetch.mjs';
+
+// ---- 技能页 HTML 解析：8 周周量 + First Seen（发布时间）----
+{
+  // 真实页面片段（ascii 结构照抄，值来自活页面实测）
+  const page = '<div class="text-sm font-mono uppercase text-white mb-2"><span>First Seen</span></div>'
+    + '<div class="text-sm font-mono text-foreground">Jan 19, 2026</div>'
+    + '<svg aria-label="Weekly installs: 26,207, 24,029, 22,329, 22,390, 23,150, 24,769, 25,306, 27,828"></svg>';
+  assert.equal(parseFirstSeen(page), '2026-01-19', 'First Seen becomes an ISO date');
+  assert.deepEqual(
+    parseWeeklyInstalls(page),
+    [26207, 24029, 22329, 22390, 23150, 24769, 25306, 27828],
+    'weekly series keeps commas and separators apart',
+  );
+  // 解析不出来必须是 null：宁可没有，也不许编一个日期出来
+  assert.equal(parseFirstSeen('<div>no dates here</div>'), null);
+  assert.equal(parseFirstSeen('<span>First Seen</span></div><div class="x">not a date</div>'), null);
+  assert.equal(parseFirstSeen(''), null);
+}
 
 // ---- 信封兼容 ----
 assert.deepEqual(unwrap([{ a: 1 }]).items.length, 1, 'bare array works');
