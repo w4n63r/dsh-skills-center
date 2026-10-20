@@ -252,19 +252,24 @@ const apiCard = await callApi(`/api/dsh-skills-center/card?id=${encodeURICompone
 assert.equal(apiCard.code, 200);
 assert.equal(apiCard.body.id, skill.id);
 
-// ---- GUI 面板的浏览接口：分页、关键词、中文卡过滤、条数硬上限 ----
+// ---- GUI 面板的浏览接口：分页、关键词、筛选、排序方向、条数硬上限 ----
 const apiList = await callApi('/api/dsh-skills-center/list?limit=2');
 assert.equal(apiList.code, 200);
 assert.equal(apiList.body.total, cat.count);
 assert.equal(apiList.body.maxActive, MAX_ACTIVE);
+assert.equal(apiList.body.dir, 'desc');
 assert.ok(Array.isArray(apiList.body.active));
 assert.ok(apiList.body.rows.length <= 2, 'limit is honoured');
 for (const row of apiList.body.rows) {
-  // 面板只靠这些字段画面板，缺一个就渲染成空行
-  for (const key of ['id', 'slug', 'installs', 'trend_pct', 'S', 'verdict', 'flags', 'has_zh']) {
+  // 面板只靠这些字段画卡片，缺一个就渲染成空行或空标签
+  for (const key of [
+    'id', 'slug', 'name', 'source', 'source_kind', 'installs', 'trend_pct', 'S', 'score',
+    'verdict', 'flags', 'has_zh', 'description', 'official', 'curated', 'enriched', 'audit', 'install_hint',
+  ]) {
     assert.ok(key in row, `row carries ${key}`);
   }
   assert.equal(typeof row.verdict, 'string');
+  assert.equal(typeof row.description, 'string', 'empty description stays an empty string, never undefined');
 }
 
 const apiListQuery = await callApi('/api/dsh-skills-center/list?q=design&limit=5');
@@ -278,6 +283,48 @@ assert.ok(
 const apiListZh = await callApi('/api/dsh-skills-center/list?zh=1&limit=50');
 assert.equal(apiListZh.code, 200);
 assert.ok(apiListZh.body.rows.every((row) => row.has_zh === true), 'zh=1 keeps only rows with a Chinese card');
+
+const apiListOfficial = await callApi('/api/dsh-skills-center/list?filter=official&limit=20');
+assert.equal(apiListOfficial.code, 200);
+assert.equal(apiListOfficial.body.filter, 'official');
+assert.ok(apiListOfficial.body.rows.length > 0, 'the sample catalog has official entries');
+assert.ok(
+  apiListOfficial.body.rows.every((row) => row.official === true || row.curated === true),
+  'filter=official keeps only official/curated rows',
+);
+
+const apiListRisky = await callApi('/api/dsh-skills-center/list?filter=risky&limit=20');
+assert.equal(apiListRisky.code, 200);
+assert.ok(
+  apiListRisky.body.rows.every((row) => row.flags.length > 0 || (row.audit && (row.audit.warn > 0 || row.audit.fail > 0))),
+  'filter=risky keeps only rows with a flag or a warn/fail audit',
+);
+
+// 升序要把最差的排前面：跟降序的第一条不能是同一条
+const apiListAsc = await callApi('/api/dsh-skills-center/list?limit=2&sort=installs&dir=asc');
+assert.equal(apiListAsc.code, 200);
+assert.equal(apiListAsc.body.dir, 'asc');
+assert.ok(apiListAsc.body.rows[0].installs <= apiListAsc.body.rows[1].installs, 'asc really ascends');
+assert.notEqual(apiListAsc.body.rows[0].id, apiList.body.rows[0].id, 'direction actually flips the order');
+
+// 安装命令只在 GitHub 来源上给，域名来源（open.feishu.cn 这类）必须为空。
+// 样例目录里全是 github，所以这条直接对 rowOf 下断言，不靠样例数据凑。
+const { rowOf } = await import('../lib/catalog.js');
+assert.match(
+  rowOf({ id: 'a/b/c', slug: 'c', source: 'a/b', kind: 'github', installs: 1, score: {} }).install_hint,
+  /^npx skills add a\/b --skill c$/,
+);
+assert.equal(
+  rowOf({ id: 'open.feishu.cn/x', slug: 'x', source: 'open.feishu.cn', kind: 'well-known', installs: 1, score: {} })
+    .install_hint,
+  null,
+  'no install command is invented for non-GitHub sources',
+);
+assert.deepEqual(
+  rowOf({ id: 'a/b/c', slug: 'c', source: 'a/b', installs: 1, score: {}, audit: { audits: [{ provider: 'Snyk', status: 'pass' }, { provider: 'Runlayer', status: 'fail' }] } }).audit,
+  { judged: 2, pass: 1, warn: 0, fail: 1 },
+  'audit counts feed the card badge',
+);
 
 const apiListCap = await callApi('/api/dsh-skills-center/list?limit=99999');
 assert.equal(apiListCap.code, 200);

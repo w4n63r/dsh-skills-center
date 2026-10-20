@@ -199,12 +199,16 @@ export function apply(ctx, config) { /* … */ }
 
 用户 2026-10-20 反馈「重启后看不到技能中心」——插件此前只有工具和 HTTP 路由，没有任何 UI。补一个 client 半边，契约全部来自 `cordis-plugin-development` 技能与已装的 `dshmarket` / `dsh-skills-manager`：
 
-- **模块形状**：`client/client.js` 手写、不编译，只调 `window.__ModuleLoader__.load({ id, factory })`，`id` **必须逐字等于包名** `dsh-skills-center`（宿主靠它对上 package.json 的 `dsh.client`）；`factory(require)` 只允许 `require('react')`。manifest 在 `package.json`：`exports["./client"]` + `dsh.client = {platform:"web", immediately:true, inject:["@deepseek-ai/dsh-client-ui-slots","@deepseek-ai/dsh-client-locale"]}`。
+- **模块形状**：`client/client.js` 手写、不编译，只调 `window.__ModuleLoader__.load({ id, factory })`，`id` **必须逐字等于包名** `dsh-skills-center`（宿主靠它对上 package.json 的 `dsh.client`）；`factory(require)` 只允许 `require('react')`。manifest 在 `package.json`：`exports["./client"]` + `dsh.client = {platform:"web", immediately:true, inject:["@deepseek-ai/dsh-client-locale","@deepseek-ai/dsh-client-ui-settings","@deepseek-ai/dsh-client-ui-theme"]}`（照抄 `dshmarket` 那三个**已证实在本 profile 能加载**的包名）。模块自己声明 `inject: ['slots','locale']`。
 - **两个 slot 组成一个入口**：`sidebar.panellist`（list，root）注册 `{id:'skills-center', order, label, locale}` 只负责画图标；`main` 注册 `{key:'skills-center'}` 画画板。**`main.key` 必须等于 `sidebar.id`**，否则点了图标没有面板（`dshmarket` 用 `dsh-market` 这同一套）。注册包在 `ctx.slots.inject('sidebar.panellist', …)` 里，老宿主没有这个 slot 时整块不注册而不是抛错。
-- **数据只走插件自己的只读 JSON**：新增 `GET /api/dsh-skills-center/list?q=&limit=&offset=&zh=1&sort=S|installs|trend|name`，返回 `{version,total,matched,offset,limit,active,maxActive,rows[]}`，每行只有面板要用的字段（`id/slug/name_zh/source/installs/trend_pct/S/verdict/flags/has_zh/description`）——把整条记录连正文发过去，七千多行会撑到几 MB。`limit` 硬上限 500。点行再打 `GET /card?id=` 取整卡。
+- **数据只走插件自己的只读 JSON**：`GET /api/dsh-skills-center/list?q=&limit=&offset=&zh=1&filter=&sort=S|installs|trend|name&dir=desc|asc`，返回 `{version,total,matched,offset,limit,sort,dir,filter,active,maxActive,rows[]}`。每行只带一张卡要用的字段（`id/slug/name/name_zh/source/source_kind/installs/installs_merged/trend_pct/S/score/verdict/flags/has_zh/description/official/curated/enriched/first_seen/audit/install_hint`）——整条记录连正文发过去，七千多行会撑到几 MB；`limit` 硬上限 500。点卡片再打 `GET /card?id=` 取整卡。
+  - `filter` 取值：`zh`（有中文卡）/ `official`（official 或 curated）/ `risky`（有 flags，或审计里出现 warn/fail）/ `enriched`（抓过详情、有 hash）。
+  - `install_hint` **只在 `source_kind === 'github'` 时给** `npx skills add <source> --skill <slug>`；域名来源（`open.feishu.cn` 这类）给 null——宁可什么都不显示，也不给一条跑不通的命令。
+  - `audit` 折成计数 `{judged,pass,warn,fail}`：卡片上写「审计 4/5 家通过」，详情弹层里才逐条列 provider 与 riskLevel。
+- **版式**（用户 2026-10-20 拿着插件市场的截图说「我想要的是类似这样的」）：顶部状态行 + 工具条（搜索 / 排序下拉 / 升降切换）+ 筛选胶囊 + **卡片墙**（`repeat(auto-fill,minmax(300px,1fr))`）+ 底部「已显示 N / 共 M」与「加载更多」（每页 60，按 id 去重）；点卡片弹出居中的详情弹层（Esc、点遮罩、点关闭都能关）。搜索/筛选/排序变化时 200ms 防抖重新拉第一页，并用请求序号丢弃过期响应。
 - **样式与文案**：颜色只用宿主主题 token（`--dsw-alias-*`），不写死色值；文案走 locale 服务（`ctx.locale.register(ns,'zh'|'en',dict)` + `bind(ns)`），注册失败时 `t()` 直读中文词典兜底，保证面板不会因为 locale 出问题就变一片 key。样式用 `<style>` 元素随组件挂载注入，类名带 `dsc-` 前缀。
 - **面板是只读的**：它不写激活集合、不下载正文。GUI 里「点一下就装」要等库存下载路径落地，否则按钮只会得到「库存里没有正文」（见 §6）。
-- 测试：`tests/client.test.mjs` 用假 `__ModuleLoader__` + 假 react 跑一遍模块形状、两个 slot 的 id/key、以及 fetch → 表格这一趟（含 `+6.4%`/`1,003,686`/标志位这些渲染细节）。
+- 测试：`tests/client.test.mjs` 用假 `__ModuleLoader__` + 假 react 跑模块形状、两个 slot 的 id/key、fetch → 卡片墙（`+6.4%`/`1,003,686`/标签）、以及点卡片 → 详情弹层（审计 provider、安装命令、关闭按钮）；`tests/smoke.mjs` 里对 `/list` 的筛选、升降、`install_hint` 与 `audit` 计数各有一条断言。
 
 ## 9. 不做
 

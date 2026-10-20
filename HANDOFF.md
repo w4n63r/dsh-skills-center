@@ -241,3 +241,14 @@ f6e6c8c test: cover web api + honest activate when body missing
 2. 面板目前只读。要做「点一下就装」，必须先有「把技能正文下载到 `~/.dsh/skills-center/library/<来源>/<slug>/SKILL.md`」的路径（`npx skills` 或自己抓 SKILL.md），否则激活了 provider 也暴露不出来（见 §4 / `DESIGN.md §6`）。
 3. M3 召回钩子仍未做。
 
+#### 9.3.1 版式改成卡片墙（2026-10-20 当天，用户拿插件市场截图提的）
+
+用户看完第一版（表格 + 右侧详情栏）说「现在样式并不是我想要的，我想要的是类似截图中的这样的」——指 `dshmarket` 插件市场那种版式。于是把面板整体改成同构的**卡片墙**：
+
+- 顶部状态行（目录/匹配/版本/已激活）+ 工具条（搜索框 / 排序下拉 / 降序·升序切换）+ **筛选胶囊**（全部 / 有中文卡 / 官方精选 / 有风险信号 / 已抓正文）+ 卡片墙（`repeat(auto-fill,minmax(300px,1fr))`）+ 底部「已显示 N / 共 M」与「加载更多」（每页 60，按 id 去重）。
+- 卡片：中文名（没有就 slug）+ `slug · 来源` + 右上角 S 分 + 三行截断的介绍 + `安装数 / 8 周趋势` 事实行 + 标签行（官方 / 精选 / 中文卡 / 有正文 / `审计 4/5 家通过` / flags）。审计标签按 warn/fail 上色。
+- 点卡片 → 居中详情弹层（Esc / 点遮罩 / 点关闭都能关）：完整中文卡、S 分四维、逐条审计（provider + status + riskLevel）、首次收录、id，GitHub 来源还给 `npx skills add <source> --skill <slug>`。
+- 服务端随之扩展：`/list` 新增 `filter`（zh/official/risky/enriched）与 `dir`（asc/desc），行里新增 `name/source_kind/installs_merged/score/official/curated/enriched/first_seen/audit{judged,pass,warn,fail}/install_hint`；`install_hint` 只对 `source_kind === 'github'` 生成。
+- 客户端：查询条件（q/sort/dir/filter）变化 → 200ms 防抖重拉第一页，用请求序号丢弃过期响应；`requestId` 在卸载时作废，避免回过头的 setState。
+- 顺手发现的事实：**宿主半边是热加载的**——改完 `lib/catalog.js` / `lib/index.js` 后不重启 GUI，`GET /api/dsh-skills-center/list` 已经返回新字段（实测 `dir`/`filter`/`audit`/`install_hint` 都在）。所以只有 **client 半边**（`package.json` 的 `dsh.client` 与 `client/client.js`）需要刷新页面/重启才能生效。
+

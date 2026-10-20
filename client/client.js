@@ -1,7 +1,7 @@
 // dsh-skills-center 的浏览器半边。
 //
-// 只做一件事：在左侧栏放一个「技能中心」图标，点开后在主区渲染一个可搜索、可排序、
-// 点开能看中文卡的只读面板。数据全部来自宿主插件自己的只读 JSON 接口
+// 左侧栏一个「技能中心」图标，点开是主区的一张卡片墙：搜索、筛选、排序、翻页，
+// 点卡片弹出完整中文卡。数据全部来自宿主插件自己的只读 JSON 接口
 // （/api/dsh-skills-center/list 与 /card），这里不读盘、不写状态、不碰别人的 DOM。
 //
 // 手写而不是编译：宿主浏览器模块表提供 react，模块只认 window.__ModuleLoader__.load
@@ -11,30 +11,37 @@ window.__ModuleLoader__.load({
   factory(require) {
     const React = require('react');
     const h = React.createElement;
-    const { useState, useEffect, useMemo } = React;
+    const { useState, useEffect, useRef } = React;
 
     const NAMESPACE = 'skills-center';
     const PANEL_ID = 'skills-center';
     const API = '/api/dsh-skills-center';
-    const RENDER_CAP = 400;
+    const PAGE = 60;
 
     const ZH = {
       nav: '技能中心',
       title: '技能中心',
-      search: '搜技能名 / 中文介绍 / 来源（全目录，不只这一屏）',
-      onlyZh: '只看有中文卡',
-      colName: '技能',
-      colInstalls: '安装数',
-      colTrend: '8 周',
-      colScore: 'S',
-      colVerdict: '判断',
+      search: '搜索技能名、中文介绍、来源…',
+      sort: '排序',
+      sortScore: 'S 分',
+      sortInstalls: '安装量',
+      sortTrend: '8 周趋势',
+      sortName: '名称',
+      desc: '降序',
+      asc: '升序',
+      filterAll: '全部',
+      filterZh: '有中文卡',
+      filterOfficial: '官方精选',
+      filterRisky: '有风险信号',
+      filterEnriched: '已抓正文',
       loading: '读取中…',
-      empty: '没匹配到。',
-      pick: '点左边任意一行看完整卡片。',
+      empty: '没匹配到。换个词试试。',
       failed: '读取失败：',
-      directory: '目录',
-      items: '条',
+      more: '加载更多',
+      noMore: '已经到底了',
+      catalog: '目录',
       matched: '匹配',
+      showing: '已显示',
       active: '已激活',
       version: '版本',
       none: '无',
@@ -46,28 +53,45 @@ window.__ModuleLoader__.load({
       source: '来源',
       flags: '标记',
       score: 'S 分',
+      audit: '审计',
+      auditNone: '没有审计结论（不等于安全）',
+      auditPass: '家通过',
       id: 'id',
+      installCmd: '自己装（在终端里跑）',
+      close: '关闭',
+      clickCard: '点卡片看详情',
       noIntro: '上游没给描述，这条目前只有名称、装量、审计结论',
-      capped: '（只画前 %n 行，搜索与排序作用于全部加载结果）',
+      representative: '官方',
+      curated: '精选',
+      cardZh: '中文卡',
+      enriched: '有正文',
+      firstSeen: '首次收录',
     };
 
     const EN = {
       nav: 'Skills Center',
       title: 'Skills Center',
-      search: 'Search name, Chinese intro, or source (whole catalog)',
-      onlyZh: 'Chinese cards only',
-      colName: 'Skill',
-      colInstalls: 'Installs',
-      colTrend: '8 wk',
-      colScore: 'S',
-      colVerdict: 'Verdict',
+      search: 'Search name, Chinese intro, or source…',
+      sort: 'Sort',
+      sortScore: 'Score',
+      sortInstalls: 'Installs',
+      sortTrend: '8-week trend',
+      sortName: 'Name',
+      desc: 'Desc',
+      asc: 'Asc',
+      filterAll: 'All',
+      filterZh: 'Chinese cards',
+      filterOfficial: 'Official picks',
+      filterRisky: 'Risk signals',
+      filterEnriched: 'Has body',
       loading: 'Loading…',
       empty: 'No match.',
-      pick: 'Pick a row to read its card.',
       failed: 'Failed: ',
-      directory: 'Catalog',
-      items: '',
+      more: 'Load more',
+      noMore: 'End of list',
+      catalog: 'Catalog',
       matched: 'matched',
+      showing: 'shown',
       active: 'active',
       version: 'version',
       none: 'none',
@@ -79,9 +103,19 @@ window.__ModuleLoader__.load({
       source: 'Source',
       flags: 'Flags',
       score: 'Score',
+      audit: 'Audit',
+      auditNone: 'No audit verdict (not the same as safe)',
+      auditPass: ' passed',
       id: 'id',
+      installCmd: 'Install it yourself (run in a terminal)',
+      close: 'Close',
+      clickCard: 'Click a card for details',
       noIntro: 'Upstream gave no description; only name, installs and audits are known',
-      capped: ' (first %n rows drawn; search and sort cover everything loaded)',
+      representative: 'Official',
+      curated: 'Curated',
+      cardZh: 'Chinese card',
+      enriched: 'Has body',
+      firstSeen: 'First seen',
     };
 
     // 词典由 apply 里的 locale 服务注册；这里留一个直读中文的兜底，
@@ -93,144 +127,322 @@ window.__ModuleLoader__.load({
     };
 
     const STYLE = `
-.dsc-root{height:100%;min-height:0;display:flex;flex-direction:column;gap:10px;padding:14px 18px 16px;box-sizing:border-box;
+.dsc-root{height:100%;min-height:0;display:flex;flex-direction:column;box-sizing:border-box;
 color:var(--dsw-alias-label-primary);background:var(--dsw-alias-bg-base);
 font:13px/1.55 -apple-system,"Segoe UI","Microsoft YaHei",system-ui,sans-serif}
+.dsc-top{padding:14px 18px 10px;display:flex;flex-direction:column;gap:10px;border-bottom:1px solid var(--dsw-alias-border-l1)}
 .dsc-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
-.dsc-title{margin:0;font-size:15px;font-weight:600}
+.dsc-title{margin:0;font-size:16px;font-weight:600}
 .dsc-meta{color:var(--dsw-alias-label-secondary);font-size:12px}
-.dsc-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.dsc-input{flex:1 1 260px;min-width:180px;padding:6px 10px;border:1px solid var(--dsw-alias-border-l1);border-radius:8px;
-background:var(--dsw-alias-bg-layer-1);color:inherit;font:inherit;outline:none}
-.dsc-input:focus{border-color:var(--dsw-alias-brand-primary)}
-.dsc-check{display:inline-flex;align-items:center;gap:6px;color:var(--dsw-alias-label-secondary);font-size:12px;
-user-select:none;cursor:pointer;white-space:nowrap}
-.dsc-body{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,368px);gap:12px}
-.dsc-scroll{min-height:0;overflow:auto;border:1px solid var(--dsw-alias-border-l1);border-radius:10px;
-background:var(--dsw-alias-bg-layer-1)}
-.dsc-table{width:100%;border-collapse:collapse}
-.dsc-table th{position:sticky;top:0;z-index:1;text-align:left;padding:7px 10px;font-size:12px;font-weight:500;
-color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-bg-layer-2);
-border-bottom:1px solid var(--dsw-alias-border-l1);cursor:pointer;white-space:nowrap}
-.dsc-table td{padding:7px 10px;border-bottom:1px solid var(--dsw-alias-border-l1);vertical-align:top}
-.dsc-row{cursor:pointer}
-.dsc-row:hover td{background:var(--dsw-alias-bg-layer-2)}
-.dsc-row[data-open="true"] td{background:var(--dsw-alias-bg-layer-2);box-shadow:inset 2px 0 0 var(--dsw-alias-brand-primary)}
-.dsc-name{font-weight:600}
-.dsc-sub{color:var(--dsw-alias-label-secondary);font-size:11.5px}
-.dsc-num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dsc-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dsc-search{flex:1 1 280px;min-width:200px;display:flex;align-items:center;gap:8px;padding:7px 12px;
+border:1px solid var(--dsw-alias-border-l1);border-radius:10px;background:var(--dsw-alias-bg-layer-1)}
+.dsc-search:focus-within{border-color:var(--dsw-alias-brand-primary)}
+.dsc-search input{flex:1;min-width:0;border:0;outline:none;background:transparent;color:inherit;font:inherit}
+.dsc-search svg{flex:0 0 auto;color:var(--dsw-alias-label-secondary)}
+.dsc-select,.dsc-btn{appearance:none;padding:7px 12px;border:1px solid var(--dsw-alias-border-l1);border-radius:10px;
+background:var(--dsw-alias-bg-layer-1);color:inherit;font:inherit;cursor:pointer;white-space:nowrap}
+.dsc-select:hover,.dsc-btn:hover{border-color:var(--dsw-alias-border-l2)}
+.dsc-btn[disabled]{opacity:.5;cursor:default}
+.dsc-chips{display:flex;gap:8px;flex-wrap:wrap}
+.dsc-chip{padding:5px 12px;border:1px solid var(--dsw-alias-border-l1);border-radius:999px;
+background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:12px;cursor:pointer}
+.dsc-chip:hover{border-color:var(--dsw-alias-border-l2);color:var(--dsw-alias-label-primary)}
+.dsc-chip[data-on="true"]{border-color:var(--dsw-alias-brand-primary);color:var(--dsw-alias-brand-primary);
+background:var(--dsw-alias-bg-layer-2)}
+.dsc-scroll{flex:1 1 auto;min-height:0;overflow:auto;padding:14px 18px 18px}
+.dsc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.dsc-card{border:1px solid var(--dsw-alias-border-l1);border-radius:12px;background:var(--dsw-alias-bg-layer-1);
+padding:12px 14px;display:flex;flex-direction:column;gap:8px;cursor:pointer;transition:border-color .12s,background .12s}
+.dsc-card:hover{border-color:var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2)}
+.dsc-card-top{display:flex;align-items:flex-start;gap:10px}
+.dsc-card-name{flex:1 1 auto;min-width:0}
+.dsc-card-name strong{display:block;font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dsc-sub{color:var(--dsw-alias-label-secondary);font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dsc-score{flex:0 0 auto;text-align:right;font-variant-numeric:tabular-nums}
+.dsc-score b{display:block;font-size:14px;font-weight:600}
+.dsc-score span{font-size:10.5px;color:var(--dsw-alias-label-secondary)}
+.dsc-desc{margin:0;font-size:12.5px;line-height:1.5;color:var(--dsw-alias-label-primary);
+display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.dsc-desc.dsc-muted{color:var(--dsw-alias-label-secondary);font-style:italic}
+.dsc-facts{display:flex;gap:10px;flex-wrap:wrap;font-size:11.5px;color:var(--dsw-alias-label-secondary)}
+.dsc-facts b{color:var(--dsw-alias-label-primary);font-weight:500}
+.dsc-tags{display:flex;gap:6px;flex-wrap:wrap}
+.dsc-tag{padding:1px 7px;border:1px solid var(--dsw-alias-border-l1);border-radius:6px;font-size:11px;
+color:var(--dsw-alias-label-secondary)}
+.dsc-tag.dsc-brand{border-color:var(--dsw-alias-brand-primary);color:var(--dsw-alias-brand-primary)}
+.dsc-tag.dsc-warn{border-color:var(--dsw-alias-state-warn-primary);color:var(--dsw-alias-state-warn-primary)}
+.dsc-tag.dsc-bad{border-color:var(--dsw-alias-state-error-primary);color:var(--dsw-alias-state-error-primary)}
+.dsc-tag.dsc-good{border-color:var(--dsw-alias-state-success-primary);color:var(--dsw-alias-state-success-primary)}
 .dsc-up{color:var(--dsw-alias-state-success-primary)}
 .dsc-down{color:var(--dsw-alias-state-error-primary)}
-.dsc-flag{display:inline-block;margin:2px 4px 0 0;padding:0 5px;border:1px solid var(--dsw-alias-border-l1);
-border-radius:5px;font-size:11px;color:var(--dsw-alias-label-secondary)}
-.dsc-detail{padding:12px 14px;display:flex;flex-direction:column;gap:9px}
-.dsc-detail h3{margin:0;font-size:14px;line-height:1.4}
-.dsc-label{display:block;color:var(--dsw-alias-label-secondary);font-size:11.5px}
+.dsc-foot{display:flex;align-items:center;gap:12px;padding:12px 18px 16px;color:var(--dsw-alias-label-secondary);font-size:12px}
+.dsc-empty{padding:26px 4px;color:var(--dsw-alias-label-secondary);font-size:12.5px}
+.dsc-overlay{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.38);display:flex;align-items:center;
+justify-content:center;padding:32px}
+.dsc-modal{width:min(720px,100%);max-height:100%;overflow:auto;border-radius:14px;border:1px solid var(--dsw-alias-border-l1);
+background:var(--dsw-alias-bg-overlay);box-shadow:0 18px 48px rgba(0,0,0,.28)}
+.dsc-modal-head{position:sticky;top:0;display:flex;align-items:flex-start;gap:12px;padding:14px 18px;
+border-bottom:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-overlay)}
+.dsc-modal-head h3{margin:0;font-size:15px}
+.dsc-modal-body{padding:14px 18px 18px;display:flex;flex-direction:column;gap:12px}
+.dsc-field{display:flex;flex-direction:column;gap:3px}
+.dsc-label{color:var(--dsw-alias-label-secondary);font-size:11.5px}
 .dsc-text{margin:0;white-space:pre-wrap;word-break:break-word}
-.dsc-empty{padding:18px;color:var(--dsw-alias-label-secondary);font-size:12.5px}
+.dsc-code{margin:0;padding:8px 10px;border:1px solid var(--dsw-alias-border-l1);border-radius:8px;
+background:var(--dsw-alias-bg-layer-2);font-family:ui-monospace,Consolas,monospace;font-size:12px;
+white-space:pre-wrap;word-break:break-all}
+.dsc-audit{display:flex;flex-direction:column;gap:4px}
+.dsc-audit-row{display:flex;gap:8px;align-items:baseline;font-size:12px}
+.dsc-audit-row span:first-child{flex:0 0 auto;min-width:140px;color:var(--dsw-alias-label-secondary)}
 `;
 
     const fmtInt = (n) => (n == null ? '—' : Number(n).toLocaleString('en-US'));
     const fmtPct = (v) => (v == null ? '—' : `${v > 0 ? '+' : ''}${v}%`);
-
-    function trendClass(v) {
-      if (v == null) return 'dsc-sub';
-      return v > 0 ? 'dsc-up' : v < 0 ? 'dsc-down' : 'dsc-sub';
-    }
+    const trendClass = (v) => (v == null ? '' : v > 0 ? 'dsc-up' : v < 0 ? 'dsc-down' : '');
 
     function field(label, value) {
       if (!value) return null;
       return h(
         'div',
-        null,
+        { className: 'dsc-field' },
         h('span', { className: 'dsc-label' }, label),
         h('p', { className: 'dsc-text' }, value),
       );
     }
 
-    function Detail({ state }) {
-      if (state.status === 'idle') return h('div', { className: 'dsc-empty' }, t('pick'));
-      if (state.status === 'loading') return h('div', { className: 'dsc-empty' }, t('loading'));
-      if (state.status === 'error') {
-        return h('div', { className: 'dsc-empty' }, t('failed') + (state.error || ''));
+    function SearchIcon() {
+      return h(
+        'svg',
+        { width: 14, height: 14, viewBox: '0 0 16 16', fill: 'none', 'aria-hidden': true },
+        h('circle', { cx: 7, cy: 7, r: 4.6, stroke: 'currentColor', strokeWidth: 1.4 }),
+        h('path', { d: 'M10.6 10.6 14 14', stroke: 'currentColor', strokeWidth: 1.4, strokeLinecap: 'round' }),
+      );
+    }
+
+    /** 一张技能卡：名称 + S 分 + 介绍 + 事实行 + 标签。 */
+    function Card({ row, onOpen }) {
+      const tags = [];
+      if (row.official) tags.push(['dsc-brand', t('representative')]);
+      if (row.curated && !row.official) tags.push(['dsc-brand', t('curated')]);
+      tags.push([row.has_zh ? 'dsc-good' : '', t('cardZh')]);
+      if (row.enriched) tags.push(['', t('enriched')]);
+      const audit = row.audit;
+      if (audit) {
+        const cls = audit.fail ? 'dsc-bad' : audit.warn ? 'dsc-warn' : 'dsc-good';
+        tags.push([cls, `${t('audit')} ${audit.pass}/${audit.judged} ${t('auditPass')}`]);
       }
+      for (const flag of row.flags || []) tags.push(['dsc-warn', flag]);
+
+      return h(
+        'div',
+        { className: 'dsc-card', onClick: () => onOpen(row), role: 'button', tabIndex: 0 },
+        h(
+          'div',
+          { className: 'dsc-card-top' },
+          h(
+            'div',
+            { className: 'dsc-card-name' },
+            h('strong', null, row.name_zh || row.slug || row.id),
+            h('div', { className: 'dsc-sub' }, `${row.slug || row.id}${row.source ? ` · ${row.source}` : ''}`),
+          ),
+          h(
+            'div',
+            { className: 'dsc-score' },
+            h('b', null, row.S == null ? '—' : Number(row.S).toFixed(3)),
+            h('span', null, 'S'),
+          ),
+        ),
+        h(
+          'p',
+          { className: row.has_zh || row.description ? 'dsc-desc' : 'dsc-desc dsc-muted' },
+          row.description || t('noIntro'),
+        ),
+        h(
+          'div',
+          { className: 'dsc-facts' },
+          h('span', null, `${t('installs')} `, h('b', null, fmtInt(row.installs))),
+          h('span', { className: trendClass(row.trend_pct) }, `${t('trend')} ${fmtPct(row.trend_pct)}`),
+        ),
+        h(
+          'div',
+          { className: 'dsc-tags' },
+          tags.map(([cls, text], index) =>
+            h('span', { key: `${text}-${index}`, className: `dsc-tag ${cls}`.trim() }, text),
+          ),
+        ),
+      );
+    }
+
+    /** 详情弹层：完整中文卡 + 审计明细 + 安装命令。 */
+    function Detail({ state, onClose }) {
+      useEffect(() => {
+        const onKey = (event) => {
+          if (event.key === 'Escape') onClose();
+        };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+      });
+
       const skill = state.skill || {};
       const row = state.row || {};
       const zh = skill.zh || {};
-      const intro = zh.intro || skill.intro_zh || skill.description_en || '';
-      const score = skill.score || {};
+      const score = skill.score || row.score || {};
+      const title = row.name_zh || skill.name_zh || zh.name_zh || row.slug || state.id;
+
       return h(
         'div',
-        { className: 'dsc-detail' },
-        h('h3', null, `${skill.name_zh || zh.name_zh || skill.slug || state.id}`),
-        h('div', { className: 'dsc-sub' }, `${row.verdict || ''}　${skill.id || ''}`),
-        field(t('intro'), intro || t('noIntro')),
-        field(t('usage'), zh.usage),
-        field(t('notes'), zh.notes),
-        field(t('installs'), fmtInt(skill.installs)),
-        field(t('trend'), fmtPct(skill.trend_pct)),
-        field(t('source'), skill.source),
-        field(t('flags'), (skill.flags || []).join('、')),
-        field(
-          t('score'),
-          score.S == null ? '' : `${Number(score.S).toFixed(3)}（H ${score.H} / T ${score.T} / C ${score.C} / A ${score.A}）`,
+        { className: 'dsc-overlay', onClick: onClose },
+        h(
+          'div',
+          { className: 'dsc-modal', onClick: (event) => event.stopPropagation() },
+          h(
+            'div',
+            { className: 'dsc-modal-head' },
+            h(
+              'div',
+              { style: { flex: '1 1 auto', minWidth: 0 } },
+              h('h3', null, title),
+              h('div', { className: 'dsc-sub' }, `${row.verdict || ''}　${skill.id || state.id || ''}`),
+            ),
+            h('button', { type: 'button', className: 'dsc-btn', onClick: onClose }, t('close')),
+          ),
+          h(
+            'div',
+            { className: 'dsc-modal-body' },
+            state.status === 'loading' ? h('div', { className: 'dsc-empty' }, t('loading')) : null,
+            state.status === 'error' ? h('div', { className: 'dsc-empty' }, t('failed') + (state.error || '')) : null,
+            field(t('intro'), zh.intro || skill.intro_zh || skill.description_en || t('noIntro')),
+            field(t('usage'), zh.usage),
+            field(t('notes'), zh.notes),
+            field(t('installs'), fmtInt(skill.installs ?? row.installs)),
+            field(t('trend'), fmtPct(skill.trend_pct ?? row.trend_pct)),
+            field(t('source'), skill.source),
+            field(
+              t('score'),
+              score.S == null
+                ? ''
+                : `${Number(score.S).toFixed(3)}（H ${score.H} / T ${score.T} / C ${score.C} / A ${score.A}）`,
+            ),
+            skill.first_seen || row.first_seen ? field(t('firstSeen'), skill.first_seen || row.first_seen) : null,
+            (skill.flags || row.flags || []).length
+              ? field(t('flags'), (skill.flags || row.flags || []).join('、'))
+              : null,
+            (() => {
+              const audits = skill.audit?.audits || [];
+              if (!audits.length) return field(t('audit'), t('auditNone'));
+              return h(
+                'div',
+                { className: 'dsc-field' },
+                h('span', { className: 'dsc-label' }, t('audit')),
+                h(
+                  'div',
+                  { className: 'dsc-audit' },
+                  audits.map((item, index) =>
+                    h(
+                      'div',
+                      { className: 'dsc-audit-row', key: `${item.provider}-${index}` },
+                      h('span', null, item.provider || item.slug || '—'),
+                      h(
+                        'span',
+                        {
+                          className:
+                            item.status === 'fail' ? 'dsc-down' : item.status === 'warn' ? 'dsc-up' : '',
+                        },
+                        `${item.status || '—'}${item.riskLevel ? ` / ${item.riskLevel}` : ''}`,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            })(),
+            row.install_hint
+              ? h(
+                  'div',
+                  { className: 'dsc-field' },
+                  h('span', { className: 'dsc-label' }, t('installCmd')),
+                  h('pre', { className: 'dsc-code' }, row.install_hint),
+                )
+              : null,            field(t('id'), skill.id || row.id),
+          ),
         ),
-        field(t('id'), skill.id || row.id),
       );
     }
 
     function Panel() {
-      const [list, setList] = useState({
+      const [state, setState] = useState({
         status: 'loading',
         rows: [],
-        total: 0,
         matched: 0,
+        total: 0,
         version: null,
         active: [],
         maxActive: 0,
         error: '',
+        loadingMore: false,
       });
       const [query, setQuery] = useState('');
-      const [onlyZh, setOnlyZh] = useState(false);
-      const [sortKey, setSortKey] = useState('S');
+      const [sort, setSort] = useState('S');
+      const [dir, setDir] = useState('desc');
+      const [filter, setFilter] = useState('');
       const [detail, setDetail] = useState({ status: 'idle', id: '', skill: null, row: null });
+      const requestId = useRef(0);
 
-      useEffect(() => {
-        let cancelled = false;
-        const timer = setTimeout(async () => {
-          try {
-            const params = new URLSearchParams({ limit: String(RENDER_CAP), sort: 'S' });
-            if (query.trim()) params.set('q', query.trim());
-            if (onlyZh) params.set('zh', '1');
-            const response = await fetch(`${API}/list?${params.toString()}`, {
-              headers: { accept: 'application/json' },
-            });
-            const body = await response.json();
-            if (cancelled) return;
-            setList({
+      const buildQuery = (offset) => {
+        const params = new URLSearchParams({ limit: String(PAGE), offset: String(offset), sort, dir });
+        if (query.trim()) params.set('q', query.trim());
+        if (filter) params.set('filter', filter);
+        return params.toString();
+      };
+
+      const fetchPage = async (offset, append) => {
+        const token = requestId.current + 1;
+        requestId.current = token;
+        if (append) setState((prev) => ({ ...prev, loadingMore: true }));
+        else setState((prev) => ({ ...prev, status: 'loading', error: '' }));
+        try {
+          const response = await fetch(`${API}/list?${buildQuery(offset)}`, {
+            headers: { accept: 'application/json' },
+          });
+          const body = await response.json();
+          if (requestId.current !== token) return; // 有更新的请求在路上，这一份丢弃
+          setState((prev) => {
+            const rows = append ? prev.rows.concat(body.rows || []) : body.rows || [];
+            const seen = new Set();
+            const unique = rows.filter((row) => (seen.has(row.id) ? false : seen.add(row.id)));
+            return {
               status: 'ready',
-              rows: Array.isArray(body.rows) ? body.rows : [],
-              total: body.total || 0,
+              rows: unique,
               matched: body.matched || 0,
+              total: body.total || 0,
               version: body.version || null,
-              active: Array.isArray(body.active) ? body.active : [],
-              maxActive: body.maxActive || 0,
+              active: Array.isArray(body.active) ? body.active : prev.active,
+              maxActive: body.maxActive || prev.maxActive,
               error: '',
-            });
-          } catch (error) {
-            if (cancelled) return;
-            setList((prev) => ({
-              ...prev,
-              status: 'error',
-              error: String(error && error.message ? error.message : error),
-            }));
-          }
-        }, 180);
-        return () => {
-          cancelled = true;
-          clearTimeout(timer);
-        };
-      }, [query, onlyZh]);
+              loadingMore: false,
+            };
+          });
+        } catch (error) {
+          if (requestId.current !== token) return;
+          setState((prev) => ({
+            ...prev,
+            status: prev.rows.length ? 'ready' : 'error',
+            error: String(error && error.message ? error.message : error),
+            loadingMore: false,
+          }));
+        }
+      };
+
+      // 查询条件一变就重头拉第一页（防抖 200ms，打字期间不打接口）。
+      useEffect(() => {
+        const timer = setTimeout(() => fetchPage(0, false), 200);
+        return () => clearTimeout(timer);
+      }, [query, sort, dir, filter]);
+
+      // 切面板/卸载时把未完成的响应标记作废，避免回过头的 setState。
+      useEffect(() => () => {
+        requestId.current += 1;
+      }, []);
 
       const openDetail = async (row) => {
         setDetail({ status: 'loading', id: row.id, skill: null, row });
@@ -245,34 +457,30 @@ border-radius:5px;font-size:11px;color:var(--dsw-alias-label-secondary)}
         }
       };
 
-      const rows = useMemo(() => {
-        const copy = list.rows.slice();
-        copy.sort((a, b) => {
-          if (sortKey === 'name') {
-            return String(a.name_zh || a.slug || '').localeCompare(String(b.name_zh || b.slug || ''), 'zh');
-          }
-          if (sortKey === 'installs') return (b.installs ?? -1) - (a.installs ?? -1);
-          if (sortKey === 'trend') return (b.trend_pct ?? -1e9) - (a.trend_pct ?? -1e9);
-          return (b.S ?? -1) - (a.S ?? -1);
-        });
-        return copy.slice(0, RENDER_CAP);
-      }, [list.rows, sortKey]);
+      const filters = [
+        ['', t('filterAll')],
+        ['zh', t('filterZh')],
+        ['official', t('filterOfficial')],
+        ['risky', t('filterRisky')],
+        ['enriched', t('filterEnriched')],
+      ];
+      const sorts = [
+        ['S', t('sortScore')],
+        ['installs', t('sortInstalls')],
+        ['trend', t('sortTrend')],
+        ['name', t('sortName')],
+      ];
 
       const meta = [
-        `${t('directory')} ${fmtInt(list.total)} ${t('items')}`,
-        query.trim() || onlyZh ? `${t('matched')} ${fmtInt(list.matched)}` : '',
-        `${t('version')} ${list.version || t('none')}`,
-        `${t('active')} ${list.active.length}${list.maxActive ? `/${list.maxActive}` : ''}`,
+        `${t('catalog')} ${fmtInt(state.total)}`,
+        state.matched ? `${t('matched')} ${fmtInt(state.matched)}` : '',
+        `${t('version')} ${state.version || t('none')}`,
+        `${t('active')} ${state.active.length}${state.maxActive ? `/${state.maxActive}` : ''}`,
       ]
         .filter(Boolean)
         .join(' · ');
 
-      const header = (key, label, className) =>
-        h(
-          'th',
-          { key, onClick: () => setSortKey(key), className: className || '' },
-          label,
-        );
+      const hasMore = state.rows.length < state.matched;
 
       return h(
         'div',
@@ -280,102 +488,98 @@ border-radius:5px;font-size:11px;color:var(--dsw-alias-label-secondary)}
         h('style', null, STYLE),
         h(
           'div',
-          { className: 'dsc-head' },
-          h('h2', { className: 'dsc-title' }, t('title')),
-          h('span', { className: 'dsc-meta' }, meta),
-        ),
-        h(
-          'div',
-          { className: 'dsc-tools' },
-          h('input', {
-            className: 'dsc-input',
-            type: 'search',
-            value: query,
-            placeholder: t('search'),
-            spellCheck: false,
-            onChange: (event) => setQuery(event.target.value),
-          }),
-          h(
-            'label',
-            { className: 'dsc-check' },
-            h('input', {
-              type: 'checkbox',
-              checked: onlyZh,
-              onChange: (event) => setOnlyZh(event.target.checked),
-            }),
-            t('onlyZh'),
-          ),
-        ),
-        h(
-          'div',
-          { className: 'dsc-body' },
+          { className: 'dsc-top' },
           h(
             'div',
-            { className: 'dsc-scroll' },
+            { className: 'dsc-head' },
+            h('h2', { className: 'dsc-title' }, t('title')),
+            h('span', { className: 'dsc-meta' }, meta),
+          ),
+          h(
+            'div',
+            { className: 'dsc-tools' },
             h(
-              'table',
-              { className: 'dsc-table' },
+              'label',
+              { className: 'dsc-search' },
+              h(SearchIcon),
+              h('input', {
+                type: 'search',
+                value: query,
+                placeholder: t('search'),
+                spellCheck: false,
+                onChange: (event) => setQuery(event.target.value),
+              }),
+            ),
+            h(
+              'select',
+              {
+                className: 'dsc-select',
+                value: sort,
+                onChange: (event) => setSort(event.target.value),
+                title: t('sort'),
+              },
+              sorts.map(([value, label]) => h('option', { key: value, value }, label)),
+            ),
+            h(
+              'button',
+              {
+                type: 'button',
+                className: 'dsc-btn',
+                onClick: () => setDir(dir === 'desc' ? 'asc' : 'desc'),
+              },
+              dir === 'desc' ? t('desc') : t('asc'),
+            ),
+          ),
+          h(
+            'div',
+            { className: 'dsc-chips' },
+            filters.map(([value, label]) =>
               h(
-                'thead',
-                null,
-                h(
-                  'tr',
-                  null,
-                  header('name', t('colName')),
-                  header('installs', t('colInstalls'), 'dsc-num'),
-                  header('trend', t('colTrend'), 'dsc-num'),
-                  header('S', t('colScore'), 'dsc-num'),
-                  h('th', null, t('colVerdict')),
-                ),
-              ),
-              h(
-                'tbody',
-                null,
-                rows.length
-                  ? rows.map((row) =>
-                      h(
-                        'tr',
-                        {
-                          key: row.id,
-                          className: 'dsc-row',
-                          'data-open': detail.id === row.id ? 'true' : 'false',
-                          onClick: () => openDetail(row),
-                        },
-                        h(
-                          'td',
-                          null,
-                          h('div', { className: 'dsc-name' }, row.name_zh || row.slug || row.id),
-                          h('div', { className: 'dsc-sub' }, row.slug || row.id),
-                        ),
-                        h('td', { className: 'dsc-num' }, fmtInt(row.installs)),
-                        h('td', { className: 'dsc-num ' + trendClass(row.trend_pct) }, fmtPct(row.trend_pct)),
-                        h('td', { className: 'dsc-num' }, row.S == null ? '—' : Number(row.S).toFixed(3)),
-                        h(
-                          'td',
-                          null,
-                          h('div', { className: 'dsc-sub' }, row.verdict || ''),
-                          (row.flags || []).map((flag) => h('span', { key: flag, className: 'dsc-flag' }, flag)),
-                        ),
-                      ),
-                    )
-                  : h(
-                      'tr',
-                      null,
-                      h(
-                        'td',
-                        { colSpan: 5, className: 'dsc-empty' },
-                        list.status === 'error'
-                          ? t('failed') + list.error
-                          : list.status === 'loading'
-                            ? t('loading')
-                            : t('empty'),
-                      ),
-                    ),
+                'button',
+                {
+                  key: value || 'all',
+                  type: 'button',
+                  className: 'dsc-chip',
+                  'data-on': filter === value ? 'true' : 'false',
+                  onClick: () => setFilter(value),
+                },
+                label,
               ),
             ),
           ),
-          h('div', { className: 'dsc-scroll' }, h(Detail, { state: detail })),
         ),
+        h(
+          'div',
+          { className: 'dsc-scroll' },
+          state.status === 'loading'
+            ? h('div', { className: 'dsc-empty' }, t('loading'))
+            : state.rows.length
+              ? h(
+                  'div',
+                  { className: 'dsc-grid' },
+                  state.rows.map((row) => h(Card, { key: row.id, row, onOpen: openDetail })),
+                )
+              : h('div', { className: 'dsc-empty' }, state.status === 'error' ? t('failed') + state.error : t('empty')),
+        ),
+        h(
+          'div',
+          { className: 'dsc-foot' },
+          h('span', null, `${t('showing')} ${fmtInt(state.rows.length)}${state.matched ? ` / ${fmtInt(state.matched)}` : ''}`),
+          hasMore
+            ? h(
+                'button',
+                {
+                  type: 'button',
+                  className: 'dsc-btn',
+                  disabled: state.loadingMore,
+                  onClick: () => fetchPage(state.rows.length, true),
+                },
+                state.loadingMore ? t('loading') : t('more'),
+              )
+            : h('span', null, t('noMore')),
+          state.error && state.rows.length ? h('span', null, t('failed') + state.error) : null,
+        ),
+        detail.status === 'idle' ? null : h(Detail, { state: detail, onClose: () => setDetail({ status: 'idle', id: '', skill: null, row: null }) }),
       );
     }
 
