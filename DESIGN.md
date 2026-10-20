@@ -179,11 +179,21 @@ export function apply(ctx, config) { /* … */ }
 
 - 触发：Vercel Cron `0 5 * * *`（Hobby 只允许每天一次）打 `GET /api/collect`；手动补跑用 POST，同一份 `run()`。必须先过 `CRON_SECRET`（缺失 503、错误 401、常量时间比较），否则就是一个谁都能触发烧额度的端点。
 - OIDC：token 只在 handler 内从 `x-vercel-oidc-token` 头或 `getVercelOidcToken()` 取，**模块级不许读 `process.env.VERCEL_OIDC_TOKEN`**（有测试做回归守卫）；上游只认 `Authorization: Bearer`。
-- 两段式：目录段（17 页 ×500 + curated ≈ 18 请求，8420 条全量，永远跑得完）→ 富集段（每目标 detail + audit 两个请求，受 `MAX_REQUESTS`/`MAX_RUNTIME_MS` 双闸门裁剪）。**截断只降富集深度，不丢记录**：没富集的条目保留列表级数据（`score.A=0.5` 中性、无 hash/正文），并如实回 `truncated` + `skipped_budget/skipped_deadline`。
-- Hobby 60s 的现实：300 请求闸门下只够富集约 140 个头部技能；想覆盖 top 300 需要 Pro（或以后做轮转，目前没做）。
+- 两段式：目录段（`LIMIT_RECORDS=3000` 条，按安装量降序 6 页并发 ≈ 8s）→ 富集段（每目标 detail + audit 两个请求，受 `MAX_REQUESTS`/`MAX_RUNTIME_MS` 双闸门裁剪）。**截断只降富集深度，不丢记录**：没富集的条目保留列表级数据（`score.A=0.5` 中性、无 hash/正文），并如实回 `truncated` + `skipped_budget/skipped_deadline`。
+- **实测规模（2026-10-20 线上首次跑通）**：上游 `list_total` 是 **93,043** 条，目录段取前 3000 → 去重 fork 后 **7572** 条（`deduped` 1554）；富集名额一轮只有 497 个（`MAX_REQUESTS=1500` 减去列表 6 + curated 1，约 3 请求/条），每次靠 `previous` 目录继承上一轮已富集的结果（本轮 `inherited_enriched=1217`），覆盖率逐日爬升而不是一次到位。
+- Hobby 的现实：60s 上限下富集 497 个头部要 ~120–200s，靠 `maxDuration` 与 `MAX_RUNTIME_MS` 兜住；想一轮覆盖 top 300 需要 Pro。
+- 产物大小：7572 条 + 300 条中文卡 ≈ **4.3MB**，贴着 4.5MB 响应上限，所以 `catalog-latest.json` 只从 Blob 直出（`/api/catalog` 走 302 重定向，不在函数里转发字节），响应里会给一条 `payload … close to the 4.5MB limit` 警告。
 - 上传：`validateCatalog()` 不过就一个字节都不写；过了先写 `catalog-<ISO>.json`（不可变快照）再写 `catalog-latest.json`（指针）。
 - 失败一律非 2xx + `{ok:false, stage, error, elapsed_ms, stats}`，`stage ∈ config|auth|token|collect|validate|upload`。
 - 富集顺序是 **detail → audit**，不能并发：detail 一 404 就 reject，而 audit 请求还在限流 sleep 里照样会发出去（白烧一次额度，且落地晚于 `collect()` 返回，让 `requests.used` 在 21/22 之间随机）。
+
+## 8.2 中文卡片层（`data/zh.json`）
+
+- 只精做**安装量前 300 条**（用户 2026-10-19 定），其余 7200+ 条卡片如实写「中文卡未覆盖」：有上游 `description_en` 就截断照抄，什么都没有就直说只有名称/装量/审计——不许拿占位符糊过去。
+- 写入流程：`tools/zh_source.mjs` 切 6 片（每片 50 条，带全字段事实）→ 写手产出 `data/zh/part-N.json` → `tools/zh_validate.mjs` 单条校验 → `tools/zh_merge.mjs` 合并成 `data/zh.json`（跨片重复 id / 超长 / 禁用词直接失败，不落盘）。
+- 校验口径：`name_zh` 2–10 字且禁止中英混排，`intro` 60–500、`usage` 20–300、`notes` ≤300；禁用词「专治 / 逼出 / 无死角 / 一站式 / 深度赋能 / 赋能 / 颠覆 / 神器 / 王炸 / 闭眼入 / 碾压 / 吊打」。
+- 贴法是**按 id**（`collector/pipeline.mjs:189-190`）：fork 合并后 `hash` 会随正文变化，`id` 才是稳定身份；老数据按 hash 写的也认，两条路都查一遍。
+- `data/zh.json` 是构建期 `import`，随函数打包；采集时贴到每条记录上（`name_zh` 拍平 + `zh: {intro,usage,notes}` 整块），一起进 Blob。
 
 ## 9. 不做
 
@@ -195,7 +205,7 @@ export function apply(ctx, config) { /* … */ }
 ## 10. 里程碑
 
 - **M0 目录**：Vercel 采集函数 + `catalog.json` 分片，能拉全量 8420 条（含趋势/去重/打分）
-- **M1 中文层**：**只精做 installs top 300**（用户 2026-10-19 定），其余条目留英文 description 占位、点开时再补；这样成本可控且头部质量高
+- **M1 中文层**：**只精做 installs top 300**（用户 2026-10-19 定），其余条目留英文 description 占位、点开时再补；这样成本可控且头部质量高 —— **已完成**（300 条已随目录上线，见 §8.2）
 - **M2 插件**：4 个工具（含远端同步）+ provider 激活 + GUI 榜单页
 - **M3 召回**：钩子注入与 50 上限策略，实测"任务开始自动命中"
 

@@ -158,10 +158,10 @@ f6e6c8c test: cover web api + honest activate when body missing
 1. ~~修 `collector/fetch.mjs` 三处~~ **已完成**（0 起始分页 / 只发 Authorization / curated 摊平 / `audit.audits` + fail 计入分母），`npm test` 现在会一起跑两套 collector 单测。
 2. ~~修样例数据 bug（§3.3）~~ **已完成**（见 §9.1）。
 3. ~~写 `api/collect.js` + `vercel.json`~~ **已完成**，`--replay` 用 fixture 跑通全链路（见 §9.1）。
-4. **等用户部署**（需要他本人登录 Vercel 开 OIDC、建 Blob store、加 `CRON_SECRET`），第一次真实采集。
-5. 插件侧「从远端同步目录」已做完（`skill_sync`）；剩下真实数据下的 **top 300 中文层生成**。
+4. ~~等用户部署~~ **已完成并跑通**（见 §9.2）：`https://dsh-skills-center.vercel.app` 生产环境真实采集一轮，7572 条、Blob 上 `catalog-latest.json` 已更新。
+5. ~~插件侧「从远端同步目录」~~ 已做完；~~top 300 中文层~~ **已完成并上线**（300 条，见 §9.2）。
 
-### 9.1 2026-10-19 这一轮的进度（下一个会话从这里接）
+### 9.1 2026-10-19 这一轮的进度（下一轮已完成，保留作档案）
 
 **数据层（已落盘，`npm test` 全绿）**
 
@@ -186,3 +186,33 @@ f6e6c8c test: cover web api + honest activate when body missing
 - README / DESIGN 已同步（4 个工具、远端同步契约、Vercel 采集决策）。
 
 **部署后必须先验的三件事**：`curl -H "Authorization: Bearer $CRON_SECRET" "https://<项目>/api/collect?dry=1"` 看 `count≈8420`；确认 `catalog-latest.json` 的 `generated_at` / `truncated`；把插件 `DSH_SKILLS_CENTER_CATALOG_URL` 指到 `catalog-latest.json` 后跑一次 `skill_sync`。
+
+### 9.2 2026-10-20 这一轮的进度（线上已跑通 + 中文层上线）
+
+**部署事实（都是真跑出来的，不是推断）**
+
+- 生产域名 `https://dsh-skills-center.vercel.app`，项目 `prj_PavIFSFZ3VMt3EsZSpw5D3x6368c`；Blob store `skills-catalog`（`store_n6OtuGHMwpkpfyQb`，region hkg1，**凭据模式 OIDC**，没有 `BLOB_READ_WRITE_TOKEN`）；`CRON_SECRET` 在 production 环境，`vercel env pull` 拿不到它的值（Secret 类型不可读），本轮**已轮换成新值**并存进本地 `.env.local`（`.env*` 已 gitignore）。
+- `vercel --prod` 每次约 23s；`/api/catalog` 是 **302 到 Blob**，不在函数里转发字节（7572 条 + 300 条中文卡 = 4.3MB，转发会撞 4.5MB 响应上限）。
+- **上游真实规模是 93,043 条**（`list_total`），不是早先估的 8420。目录段按 `LIMIT_RECORDS=3000` 抓前 6 页（≈8s），去重 fork 后 **7572** 条（`deduped` 1554）。
+- 一轮只富集得动 **497 个目标**（`MAX_REQUESTS=1500`，列表 6 + curated 1，约 3 请求/条），失败 1–4 个；靠 `previous` 目录继承上一轮富集结果（本轮 `inherited_enriched=1217`），覆盖率逐日爬升。整轮 125–200s，`truncated_reasons: list_cap:3000/93043, enrich_budget:6179`。
+- 判失败的坑：`requests.max=1500` 但实际 `used=1522` —— 闸门是按"目标数"预算的，尾部几个目标会略微超，不是 bug 但别拿它当硬上限写断言。
+
+**中文卡片层（`data/zh.json`，300 条）**
+
+- 流程：`tools/zh_source.mjs` 切成 6 片（每片 50 条）→ 6 个写手并行产出 `data/zh/part-1..6.json` → `tools/zh_validate.mjs` 单条校验 → `tools/zh_merge.mjs` 合并成 `data/zh.json`（185KB）。合并脚本对**跨片重复 id / 超长 / 禁用词直接失败不落盘**，实测 300 条一次过。
+- 贴法按 **id**（`collector/pipeline.mjs:189-190`，hash 会随正文变化所以不可靠），采集时同时给出 `name_zh`（拍平）和 `zh: {intro,usage,notes}`。
+- 卡片渲染（`lib/catalog.js` `renderCard`）：有中文用中文；没有就从 `description_en` 截 240 字照抄并追一行「中文卡 — 未覆盖（只做安装量前 300 条）」；连英文描述都没有就写「上游没给描述，这条目前只有名称、装量、审计结论」——**不留占位符、不编**。
+- 榜单页（`lib/page.js` + `lib/index.js`）：内联行 = 按 S 前 500 条 ∪ 所有有中文卡的条目（实测 697 行、HTML 292KB），URL 内联不再随目录膨胀到几 MB；`/card` 接口对任意 id 都有效，内联不是能力上限。
+
+**这一轮踩到并修掉的真 bug**
+
+- `lib/page.js` 的 `rankingPayload` 读 `s.intro_zh`，但采集端写的是 `s.zh.intro` → 榜单页中文列全空。改成两条路都认。
+- 榜单页原本内联**全量**目录，7572 条会让 HTML 膨胀到 4MB+ 且卡主线程；改成「前 500 + 全部中文卡」并如实标注「本页列出前 N 条」。
+- 上一轮的 `（缺中文，需生成）` 占位符违反文案规范，本轮换成上面那三种如实说法。
+
+**下一个会话该接的**
+
+1. M3 召回钩子（任务开始自动命中）还没做——`DESIGN.md §6` 里 M3 仍是设计。
+2. 中文层只覆盖 300/7572；要扩就重复「切片→写手→合并」，`tools/zh_source.mjs --top N` 能一次切更多（目前只支持从头部取，没有 `--offset`，扩到第 301 名往后要先加这个参数）。
+3. 富集覆盖慢：可以改成"每天优先补未富集的 top 段"，或用 `?limit=` 手动补跑几轮加速。
+4. 用户侧的待办：重启 GUI 看新工具/榜单页（时机他自己定）。

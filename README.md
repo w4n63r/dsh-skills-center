@@ -16,7 +16,7 @@ npm run check   # 确认插件入口可加载
 npm test        # 假 ctx 冒烟：provider.list/get、四个工具、50 上限
 ```
 
-数据是 12 条真实样例（`data/catalog.json`，来自 skills.sh 公开 API + 仓库 SKILL.md 实读），用来先把链路跑通。全量采集见 `DESIGN.md`。
+数据分两层：仓库里带 12 条真实样例（`data/catalog.json`，来自 skills.sh 公开 API + 仓库 SKILL.md 实读）用于跑通链路；线上目录由 `api/collect.js` 每天采集一次，当前 7500+ 条，其中安装量前 300 条带中文卡片（介绍 / 用途 / 使用注意事项）。全量采集见 `DESIGN.md`。
 
 ## 结构
 
@@ -61,3 +61,20 @@ npm test        # 假 ctx 冒烟：provider.list/get、四个工具、50 上限
 同步地址默认 `https://dsh-skills-center.vercel.app/api/catalog`，可用环境变量 `DSH_SKILLS_CENTER_CATALOG_URL` 覆盖。没有配置或远端没部署时同步会直接失败并说明原因，本地目录不受影响。
 
 落盘位置在 `~/.dsh/skills-center/catalog/`：`catalog.json`（当前）、`catalog.prev.json`（上一次，回滚用）、`meta.json`（来源 URL、ETag、拉取时间、条数）。
+
+## 中文卡片层
+
+目录里 7500+ 条不可能逐条写中文，所以只精做**安装量前 300 条**，其余条目卡片如实写「中文卡未覆盖」，有上游英文描述就照抄，没有就直说没有——不编、不占位。
+
+| 环节 | 文件 | 干什么 |
+|---|---|---|
+| 挑条目 | `tools/zh_source.mjs` | 从同步下来的目录里按安装量取前 300，切 6 片喂给写手，每片带全字段事实（描述、装量、趋势、审计） |
+| 校验 | `tools/zh_validate.mjs` | 单条硬校验：字段长度、禁用词、占位符、中英混排 |
+| 合并 | `tools/zh_merge.mjs` | 6 片并成 `data/zh.json`，跨片重复 id、超长、禁用词直接失败不落盘 |
+| 采集 | `api/collect.js` | 构建时把 `data/zh.json` import 进来，按 id 贴到每条记录上，随目录写进 Blob |
+
+```bash
+node tools/zh_merge.mjs        # 合并 + 校验，输出 data/zh.json（当前 300 条）
+```
+
+分片原文留在 `data/zh/part-1..6.json`（`data/zh.json` 由它们生成，别手工改）。

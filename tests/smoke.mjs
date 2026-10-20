@@ -197,6 +197,28 @@ function getSkillSync(c, id) {
   return c.skills.find((s) => s.id === id);
 }
 
+// 卡片取中文的三条路：有中文卡 / 只有英文描述 / 什么都没有。
+// 这三种都不许出现占位符——文案规范里「只写能验的事实」是靠这里守住的。
+{
+  const base = { id: 'x/y/z', slug: 'z', name: 'z', source: 'x/y', installs: 10, score: {} };
+  const withZh = renderCard({ ...base, zh: { name_zh: '中文名', intro: '中文介绍。', usage: '中文用途。', notes: '注意事项。' } });
+  assert.match(withZh, /^z（中文名） — /);
+  assert.match(withZh, /介绍 — 中文介绍。/);
+  assert.ok(!withZh.includes('中文卡 — 未覆盖'));
+
+  const enOnly = renderCard({ ...base, description_en: 'English description here.' });
+  assert.match(enOnly, /介绍（上游英文原文）— English description here\./);
+  assert.match(enOnly, /中文卡 — 未覆盖（只做安装量前 300 条）/);
+
+  const bare = renderCard({ ...base });
+  assert.match(bare, /介绍 — 上游没给描述/);
+
+  for (const text of [withZh, enOnly, bare]) {
+    assert.ok(!text.includes('缺中文'), `占位符回潮：${text.slice(0, 40)}`);
+    assert.ok(!text.includes('需生成'), `占位符回潮：${text.slice(0, 40)}`);
+  }
+}
+
 // ---- Web API：status / search / card / 404 ----
 const route = captured.routes[0];
 assert.equal(route.kind, 'prefix');
@@ -258,6 +280,21 @@ assert.ok(page.body.includes(skill.slug), 'page inlines catalog rows');
 assert.ok(page.body.includes('"count":' + cat.count), 'page carries the row count');
 // 内联 JSON 里不能出现裸 </script>，否则页面会被截断
 assert.ok(!page.body.includes('</script><'), 'inline data is script-safe');
+
+// 榜单页的中文列必须取 s.zh.intro（采集端写的就是这个字段；
+// 早先这里读 s.intro_zh，线上中文列全空，靠这条守）
+{
+  const { rankingPayload } = await import('../lib/page.js');
+  const payload = rankingPayload({
+    version: 'v',
+    count: 1,
+    shown: 1,
+    active: [],
+    skills: [{ id: 'a/b/c', slug: 'c', name_zh: '中文名', zh: { intro: '中文介绍。' }, installs: 1, score: { S: 0.5 } }],
+  });
+  assert.equal(payload.rows[0].name, '中文名');
+  assert.equal(payload.rows[0].intro, '中文介绍。');
+}
 
 // ---- 远端目录同步（skill_sync）：还没同步过时 status 必须如实说没有 ----
 assert.equal(status.body.synced, null, 'no sync yet → no meta');
