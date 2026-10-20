@@ -131,7 +131,9 @@ def main() -> int:
 
     print(f"wrote data/catalog.json  count={len(rows)}")
     for r in rows:
-        print(f"  {r['score']['S']:.3f}  {r['slug']:36s} inst={r['installs']:>9}  {r['trend_pct']:>7}%  {' '.join(r['flags'])}")
+        inst = "—" if r["installs"] is None else f"{r['installs']:>9}"
+        trend = "      —" if r["trend_pct"] is None else f"{r['trend_pct']:>7}"
+        print(f"  {r['score']['S']:.3f}  {r['slug']:36s} inst={inst:>9}  {trend}%  {' '.join(r['flags'])}")
     return 0
 
 

@@ -24,9 +24,14 @@
   "engines": {
     "node": ">=20"
   },
+  "dependencies": {
+    "@vercel/blob": "^2.8.2",
+    "@vercel/oidc": "^4.0.1"
+  },
   "scripts": {
     "check": "node --input-type=module -e \"import('./lib/index.js').then(m => console.log('exports:', Object.keys(m).sort().join(', ')))\"",
-    "test": "node tests/smoke.mjs && node collector/pipeline.test.mjs && node collector/fetch.test.mjs",
-    "collect": "node collector/run.mjs"
+    "test": "node tests/smoke.mjs && node collector/pipeline.test.mjs && node collector/fetch.test.mjs && node collector/replay.test.mjs && node api/collect.test.mjs",
+    "collect": "node collector/run.mjs",
+    "collect:replay": "node collector/run.mjs --replay collector/fixtures/v1-sample.json"
   }
 }

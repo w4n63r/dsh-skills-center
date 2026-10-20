@@ -28,13 +28,15 @@ export function normalizeRecord(raw) {
     source,
     slug,
     name: raw.name || slug,
-    source_kind: raw.sourceKind || null,
+    source_kind: raw.sourceKind || raw.sourceType || raw.source_kind || raw.kind || null,
     installs: Number.isFinite(raw.installs) ? raw.installs : 0,
     installs_text: raw.installsText || null,
-    trend_pct: trendPct(raw.weeklyInstalls || raw.weekly_series),
+    // normalizeRecord 会被跑两遍（collect.mjs 抓完一次，buildCatalog 再一次），
+    // 所以每个字段都要能从「已归一化」的形状再读一次，否则第二遍会静默清空。
+    trend_pct: trendPct(raw.weeklyInstalls || raw.weekly_series) ?? raw.trend_pct ?? null,
     weekly_series: raw.weeklyInstalls || raw.weekly_series || null,
     hash: raw.hash || null,
-    description_en: raw.description || null,
+    description_en: raw.description || raw.description_en || null,
     curated: Boolean(raw.curated),
     official: Boolean(raw.official),
     audit: raw.audit || null,
@@ -42,7 +44,7 @@ export function normalizeRecord(raw) {
     // 只用于算 flags，不进最终目录（正文摘要可能几十字，没必要发给插件）
     body_excerpt: raw.body_excerpt || null,
     file_count: raw.file_count ?? null,
-    first_seen: raw.firstSeen || null,
+    first_seen: raw.firstSeen || raw.first_seen || null,
   };
 }
 
@@ -135,6 +137,8 @@ export function buildCatalog(records, { version, generatedAt = null, zh = {} } =
       name: rec.name,
       source: rec.source,
       source_kind: rec.source_kind,
+      // DESIGN §3 的产物 schema 用 `kind`（"github"）；两个名字都发，省得消费方猜
+      kind: rec.source_kind || undefined,
       installs: rec.installs,
       installs_merged: rec.installs_merged > rec.installs ? rec.installs_merged : undefined,
       trend_pct: rec.trend_pct,

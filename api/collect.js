@@ -1,0 +1,233 @@
+// Vercel 采集函数：cron 每天打一次，把 skills.sh 全量目录 + 头部详情/审计采下来，写进 Blob。
+//
+// 三个「线上才会踩」的坑，代码按实测结论写死：
+//   1) OIDC token 只在 Request 的 x-vercel-oidc-token 头上（或 @vercel/oidc 的 getVercelOidcToken()，
+//      必须在 handler 内调用）。process.env.VERCEL_OIDC_TOKEN 在运行期不被保证 —— 本文件没有一处模块级读它。
+//   2) 上游只认 Authorization: Bearer <jwt>，把 x-vercel-oidc-token 当上游鉴权头会 401（见 collector/fetch.mjs）。
+//   3) Hobby 函数 60s + 客户端 100ms/次 → 一次最多约 400 个上游请求。所以有 MAX_REQUESTS / TOP_N
+//      两个显式闸门，并把截断情况如实写进响应体，绝不静默少采。
+//
+// 触发鉴权：CRON_SECRET。没设置就直接 503 —— 一个任何人都能触发的采集端点等于开着额度给别人烧。
+
+import { timingSafeEqual } from 'node:crypto';
+import { collect, DEFAULTS } from '../collector/collect.mjs';
+import { publishCatalog, validateCatalog } from '../collector/publish.mjs';
+
+export const runtime = 'nodejs';
+export const maxDuration = 60; // Hobby 上限就是 60；Pro 想放开要同步改这里
+export const dynamic = 'force-dynamic';
+
+const json = (status, body) =>
+  new Response(JSON.stringify(body, null, 2), {
+    status,
+    headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
+  });
+
+const envInt = (name, fallback) => {
+  const raw = process.env[name];
+  if (raw == null || raw === '') return fallback;
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : fallback;
+};
+
+/** 常量时间比较，避免用响应时间探测 secret。长度不同时也走一次比较再返回 false。 */
+function safeEqual(a, b) {
+  const left = Buffer.from(String(a ?? ''), 'utf8');
+  const right = Buffer.from(String(b ?? ''), 'utf8');
+  if (left.length !== right.length) {
+    // timingSafeEqual 要求等长：先跟自身比一次消耗掉同样的时间，再返回不等
+    timingSafeEqual(left, left);
+    return false;
+  }
+  return timingSafeEqual(left, right);
+}
+
+/** cron 带 Authorization: Bearer $CRON_SECRET；手动跑也可以用 x-cron-secret。导出仅为测试。 */
+export function isAuthorized(request, secret) {
+  const auth = request.headers.get('authorization') || '';
+  const bearer = auth.toLowerCase().startsWith('bearer ') ? auth.slice(7).trim() : '';
+  const header = request.headers.get('x-cron-secret') || '';
+  return safeEqual(bearer, secret) || safeEqual(header, secret);
+}
+
+/**
+ * 取上游所需的 OIDC token。正确渠道只有两个，都在 handler 内：
+ *   ① 平台注入到 Request 的 x-vercel-oidc-token 头
+ *   ② `@vercel/oidc` 的 getVercelOidcToken()
+ * 都不要碰 process.env.VERCEL_OIDC_TOKEN（运行期不被保证）。
+ * 导出仅为测试。
+ */
+export async function resolveOidcToken(request) {
+  const fromHeader = request.headers.get('x-vercel-oidc-token');
+  if (fromHeader) return { token: fromHeader.trim(), source: 'x-vercel-oidc-token header' };
+  try {
+    const mod = await import('@vercel/oidc');
+    const token = await mod.getVercelOidcToken();
+    if (token) return { token, source: '@vercel/oidc getVercelOidcToken()' };
+  } catch (err) {
+    return { token: null, source: null, why: `getVercelOidcToken() unavailable: ${err?.message || err}` };
+  }
+  return { token: null, source: null, why: 'no x-vercel-oidc-token header and getVercelOidcToken() returned nothing' };
+}
+
+async function run(request, trigger) {
+  const startedAt = Date.now();
+  const url = new URL(request.url);
+  const elapsed = () => Date.now() - startedAt;
+  let stage = 'auth';
+  let tokenSource = null;
+  let stats = null;
+
+  const fail = (status, error, extra = {}) => {
+    // 失败绝不静默：带上 stage、耗时、以及已经跑出来的统计
+    console.error(`[collect] stage=${stage} status=${status} ${elapsed()}ms error=${error}`);
+    return json(status, {
+      ok: false,
+      stage,
+      error,
+      trigger,
+      oidc_token_source: tokenSource,
+      elapsed_ms: elapsed(),
+      stats,
+      ...extra,
+    });
+  };
+
+  try {
+    // ---- 1) 触发鉴权 ----
+    const secret = process.env.CRON_SECRET;
+    if (!secret) {
+      stage = 'config';
+      return fail(503, 'CRON_SECRET is not set — refusing to run an unauthenticated collection endpoint', {
+        fix: 'Add CRON_SECRET in Vercel → Settings → Environment Variables (any long random string), then redeploy.',
+      });
+    }
+    stage = 'auth';
+    if (!isAuthorized(request, secret)) {
+      return fail(401, 'unauthorized: send "Authorization: Bearer <CRON_SECRET>" or "x-cron-secret: <CRON_SECRET>"');
+    }
+
+    // ---- 2) 参数：查询串覆盖环境变量，便于手动补跑 ----
+    const pick = (name, fallback) => {
+      const raw = url.searchParams.get(name);
+      if (raw == null || raw === '') return fallback;
+      const n = Number(raw);
+      return Number.isFinite(n) ? n : fallback;
+    };
+    const options = {
+      enrich: pick('enrich', envInt('TOP_N', DEFAULTS.enrich)),
+      concurrency: pick('concurrency', envInt('CONCURRENCY', DEFAULTS.concurrency)),
+      maxRequests: pick('maxRequests', envInt('MAX_REQUESTS', DEFAULTS.maxRequests)),
+      maxRuntimeMs: pick('runtimeMs', envInt('MAX_RUNTIME_MS', DEFAULTS.maxRuntimeMs)),
+      view: url.searchParams.get('view') || process.env.SKILLS_VIEW || DEFAULTS.view,
+      stage: url.searchParams.get('stage') === 'list' ? 'list' : 'all',
+    };
+    const dry = url.searchParams.get('dry') === '1';
+    const prefix = process.env.BLOB_PREFIX || 'catalog';
+    const access = process.env.BLOB_ACCESS || 'public';
+
+    // ---- 3) 取 OIDC token（handler 内）----
+    stage = 'token';
+    const { token, source, why } = await resolveOidcToken(request);
+    tokenSource = source;
+    if (!token) {
+      return fail(500, `no Vercel OIDC token: ${why}`, {
+        fix: 'Vercel project → Settings → Security → enable "OIDC Federation", then redeploy.',
+      });
+    }
+
+    // ---- 4) 采集（与 --replay 同一份编排代码）----
+    stage = 'collect';
+    const result = await collect({
+      fetchImpl: globalThis.fetch,
+      token,
+      ...options,
+      log: (msg) => console.log(`[collect] ${msg}`),
+    });
+    const { catalog } = result;
+    stats = result.stats;
+    console.log(
+      `[collect] stage=collect ${elapsed()}ms count=${catalog.count} raw=${catalog.raw_count} ` +
+        `requests=${stats.requests.used}/${stats.requests.max} truncated=${stats.truncated}`,
+    );
+
+    // ---- 5) 上传前的 schema 自检 ----
+    stage = 'validate';
+    const check = validateCatalog(catalog);
+    if (!check.ok) {
+      return fail(500, `catalog failed schema self-check (${check.errors.length} errors); nothing uploaded`, {
+        errors: check.errors,
+        warnings: check.warnings,
+        catalog: check.stats,
+      });
+    }
+
+    const summary = {
+      ok: true,
+      trigger,
+      oidc_token_source: tokenSource,
+      version: catalog.version,
+      generated_at: catalog.generated_at,
+      count: catalog.count,
+      raw_count: catalog.raw_count,
+      deduped: catalog.deduped,
+      max_installs: catalog.max_installs,
+      requests: stats.requests,
+      enrich_targets: stats.enrich_targets,
+      coverage: { with_body: stats.with_body, with_hash: stats.with_hash, with_audit: stats.with_audit, flagged: stats.flagged },
+      truncated: stats.truncated,
+      truncated_reasons: stats.truncated_reasons,
+      warnings: check.warnings,
+      collect_ms: stats.elapsed_ms,
+      elapsed_ms: elapsed(),
+    };
+
+    if (dry) return json(200, { ...summary, dry_run: true, uploaded: null });
+
+    // ---- 6) 版本化文件名 + latest 指针 ----
+    stage = 'upload';
+    const catalogStats = { version: catalog.version, count: catalog.count, raw_count: catalog.raw_count };
+    let put;
+    try {
+      ({ put } = await import('@vercel/blob'));
+    } catch (err) {
+      return fail(500, `cannot load @vercel/blob (${err?.message || err}) — the deployment must have it in dependencies`, {
+        stage_detail: 'import',
+        catalog_stats: catalogStats,
+      });
+    }
+    const published = await publishCatalog({
+      catalog,
+      put,
+      prefix,
+      access,
+      log: (msg) => console.log(`[collect] ${msg}`),
+    });
+    if (!published.ok) {
+      return fail(500, `blob upload failed: ${(published.errors || []).join('; ')}`, {
+        warnings: published.warnings,
+        catalog_stats: catalogStats,
+      });
+    }
+
+    console.log(`[collect] done ${elapsed()}ms → ${published.latest.url}`);
+    return json(200, {
+      ...summary,
+      uploaded: { versioned: published.versioned, latest: published.latest },
+      elapsed_ms: elapsed(),
+    });
+  } catch (err) {
+    // 任何未预期的异常都带着 stage 出去，否则线上只能看到 "Internal Server Error"
+    return fail(500, `${err?.name || 'Error'}: ${err?.message || err}`, { stack: String(err?.stack || '').split('\n').slice(0, 4) });
+  }
+}
+
+/** cron 触发（vercel.json 里的 /api/collect）。 */
+export async function GET(request) {
+  return run(request, 'cron-or-manual-get');
+}
+
+/** 手动补跑用；鉴权与环境变量与 GET 完全一致。 */
+export async function POST(request) {
+  return run(request, 'manual-post');
+}

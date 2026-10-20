@@ -1,6 +1,7 @@
 // 冒烟测试：不装 DSH，用假 ctx 走一遍 apply → provider.list/get → 三个工具。
 // 运行：node tests/smoke.mjs
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import assert from 'node:assert/strict';
@@ -46,7 +47,7 @@ apply(ctx, {});
 
 assert.equal(name, 'dsh-skills-center');
 assert.ok(captured.providerFactory, 'should register a provider factory');
-assert.deepEqual([...captured.tools.keys()].sort(), ['skill_activate', 'skill_card', 'skill_search']);
+assert.deepEqual([...captured.tools.keys()].sort(), ['skill_activate', 'skill_card', 'skill_search', 'skill_sync']);
 assert.equal(captured.routes.length, 1);
 
 // ---- 库存 fixture：挑一条目录里的技能，造出它的 SKILL.md ----
@@ -197,7 +198,7 @@ function getSkillSync(c, id) {
 const route = captured.routes[0];
 assert.equal(route.kind, 'prefix');
 assert.equal(route.path, '/api/dsh-skills-center');
-async function callApi(pathname) {
+async function callApi(pathname, method) {
   let body = '';
   const res = {
     statusCode: 0,
@@ -209,7 +210,7 @@ async function callApi(pathname) {
       body = chunk;
     },
   };
-  await route.handler({ url: pathname }, res);
+  await route.handler({ url: pathname, method }, res);
   return { code: res.statusCode, body: JSON.parse(body) };
 }
 const status = await callApi('/api/dsh-skills-center/status');
@@ -229,6 +230,152 @@ assert.equal(apiCard.body.id, skill.id);
 const api404 = await callApi('/api/dsh-skills-center/nope');
 assert.equal(api404.code, 404);
 assert.equal(api404.body.error, 'not_found');
+
+// ---- 榜单页：GET 根路径给 HTML，目录内联在里面 ----
+async function callRaw(pathname, method) {
+  let body = '';
+  const res = {
+    statusCode: 0,
+    headers: {},
+    setHeader(k, v) {
+      this.headers[k] = v;
+    },
+    end(chunk) {
+      body = chunk;
+    },
+  };
+  await route.handler({ url: pathname, method }, res);
+  return { code: res.statusCode, headers: res.headers, body };
+}
+const page = await callRaw('/api/dsh-skills-center/');
+assert.equal(page.code, 200);
+assert.match(page.headers['content-type'], /text\/html/);
+assert.ok(page.body.includes('<table'), 'ranking page renders a table');
+assert.ok(page.body.includes(skill.slug), 'page inlines catalog rows');
+assert.ok(page.body.includes('"count":' + cat.count), 'page carries the row count');
+// 内联 JSON 里不能出现裸 </script>，否则页面会被截断
+assert.ok(!page.body.includes('</script><'), 'inline data is script-safe');
+
+// ---- 远端目录同步（skill_sync）：还没同步过时 status 必须如实说没有 ----
+assert.equal(status.body.synced, null, 'no sync yet → no meta');
+
+const fixtureDir = join(home, 'fixtures');
+await mkdir(fixtureDir, { recursive: true });
+const remoteCatalog = {
+  version: 'sync-test-1',
+  generatedAt: '2026-10-19T00:00:00.000Z',
+  skills: [
+    {
+      id: 'acme/tools/deploy-helper',
+      slug: 'deploy-helper',
+      name: 'deploy-helper',
+      source: 'acme/tools',
+      installs: 1234,
+      trend_pct: 12.5,
+      score: { S: 0.42, H: 0.3, T: 0.6, C: 1, A: 1 },
+      flags: [],
+      zh: { intro: '把部署脚本收敛成一条命令。', usage: '部署前跑一次。', notes: '需要仓库写权限。' },
+    },
+    {
+      id: 'acme/tools/log-triage',
+      slug: 'log-triage',
+      name: 'log-triage',
+      source: 'acme/tools',
+      installs: 99,
+      trend_pct: null,
+      score: { S: 0.11, H: 0.1, T: 0.1, C: 0, A: 0.5 },
+      flags: ['thin_body'],
+      zh: { intro: '按错误签名给日志分组。', usage: '排障起步。', notes: '' },
+    },
+  ],
+};
+const server = createServer((req, res) => {
+  if (req.url === '/catalog.json') {
+    res.setHeader('content-type', 'application/json; charset=utf-8');
+    res.end(JSON.stringify(remoteCatalog));
+    return;
+  }
+  if (req.url === '/truncated.json') {
+    res.setHeader('content-type', 'application/json; charset=utf-8');
+    res.end('{"version": "broken", "skills": [ {');
+    return;
+  }
+  res.statusCode = 404;
+  res.end('{"error":"nope"}');
+});
+await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+const remoteUrl = `http://127.0.0.1:${server.address().port}/catalog.json`;
+const syncTool = captured.tools.get('skill_sync');
+
+const synced = await syncTool.execute({ url: remoteUrl });
+assertLosslessJson('skill_sync', synced);
+assert.equal(synced.ok, true, `sync should succeed: ${synced.reason}`);
+assert.equal(synced.changed, true);
+assert.equal(synced.count, 2);
+assert.equal(synced.version, 'sync-test-1');
+assert.match(synced.file, /catalog[\\/]catalog\.json$/);
+
+const afterSync = await loadCatalog();
+assert.equal(afterSync.version, 'sync-test-1', 'synced catalog must win over the bundled sample');
+assert.equal(afterSync.count, 2);
+assert.equal(afterSync.skills[1].slug, 'log-triage');
+
+// 同一份内容再拉一次：不重写、不制造无谓的 mtime 变化
+const again = await syncTool.execute({ url: remoteUrl });
+assertLosslessJson('skill_sync', again);
+assert.equal(again.ok, true);
+assert.equal(again.changed, false);
+assert.equal(again.reason, 'unchanged');
+
+// 坏 payload：报错且旧目录原地不动（宁可旧，不可坏）
+const broken = await syncTool.execute({ url: remoteUrl.replace('catalog.json', 'truncated.json') });
+assertLosslessJson('skill_sync', broken);
+assert.equal(broken.ok, false);
+assert.match(broken.reason, /not_json/);
+assert.equal((await loadCatalog()).version, 'sync-test-1', 'a broken payload must not clobber the good catalog');
+
+// 404 也如实报出来，而不是当成成功
+const missingRemote = await syncTool.execute({ url: remoteUrl.replace('catalog.json', 'gone.json') });
+assertLosslessJson('skill_sync', missingRemote);
+assert.equal(missingRemote.ok, false);
+assert.match(missingRemote.reason, /http_404/);
+
+// 没有来源：明确说 no_url，而不是拿样例数据假装成功
+const noUrl = await syncTool.execute({});
+assertLosslessJson('skill_sync', noUrl);
+assert.equal(noUrl.ok, false);
+assert.equal(noUrl.reason, 'no_url');
+
+// 本地文件 / file:// 也走同一条代码路径（离线验证采集产物）
+const localCatalogPath = join(fixtureDir, 'catalog.local.json');
+await writeFile(localCatalogPath, JSON.stringify({ ...remoteCatalog, version: 'sync-test-2' }), 'utf8');
+const fromFile = await syncTool.execute({ url: localCatalogPath });
+assertLosslessJson('skill_sync', fromFile);
+assert.equal(fromFile.ok, true);
+assert.equal(fromFile.via, 'file');
+assert.equal(fromFile.version, 'sync-test-2');
+assert.equal(fromFile.previous.version, 'sync-test-1', 'previous version must be reported');
+
+// 同步后 status 要能查到来源与 hash；POST /sync 路由可用
+const statusAfter = await callApi('/api/dsh-skills-center/status');
+assert.equal(statusAfter.code, 200);
+assert.equal(statusAfter.body.count, 2);
+assert.equal(statusAfter.body.synced.version, 'sync-test-2');
+assert.match(statusAfter.body.synced.sha256, /^[0-9a-f]{64}$/);
+
+const routeGet = await callApi('/api/dsh-skills-center/sync', 'GET');
+assert.equal(routeGet.code, 405, 'sync changes files on disk, so GET must be refused');
+
+const routePost = await callApi(
+  `/api/dsh-skills-center/sync?url=${encodeURIComponent(remoteUrl)}&force=1`,
+  'POST',
+);
+assert.equal(routePost.code, 200);
+assert.equal(routePost.body.ok, true);
+assert.equal(routePost.body.version, 'sync-test-1', 'POST sync pulls the remote catalog again');
+
+await new Promise((resolve) => server.close(resolve));
+
 
 // ---- 恶意/畸形目录：host 的 validateCandidate 会 throw，且不在 list 的 try 里，
 // 一个坏候选能让所有 provider 的目录当场消失。我们的 list 必须自己滤掉。 ----

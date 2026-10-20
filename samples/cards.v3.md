@@ -14,7 +14,7 @@
 **使用注意事项** — 单独装它等于装了个空壳，必须同时装 `grilling`，否则调用后没有任何内容。
 
 **安装数** — 1,385,556
-**8 周趋势** — +19.3%
+**8 周趋势** — -12.8%
 **来源** — `mattpocock/skills`（个人仓库，GitHub 296K 星）
 
 ---
@@ -35,7 +35,7 @@ agent-browser skills get core      # 加 --full 取完整命令参考
 好处是文档永远跟装的版本对齐，坏处是 CLI 没装好时这个技能是空的。
 
 **安装数** — 1,093,187
-**8 周趋势** — -4.4%
+**8 周趋势** — +57.9%
 **来源** — `vercel-labs/agent-browser`（Vercel 官方）
 
 ---
@@ -49,7 +49,7 @@ agent-browser skills get core      # 加 --full 取完整命令参考
 **使用注意事项** — 只给方法论不给代码，落地靠自己。不写前端的人装了用不上。
 
 **安装数** — 1,003,686
-**8 周趋势** — **+105.1%**（这批里涨幅最大的官方技能）
+**8 周趋势** — +6.4%（八周净增 1,621 次，实际是平的）
 **来源** — `anthropics/skills`（Anthropic 官方）
 
 ---
@@ -63,7 +63,7 @@ agent-browser skills get core      # 加 --full 取完整命令参考
 **使用注意事项** — 强绑定 HyperFrames 产品，正文里还引用 `../hyperframes/` 的插件安装规则。不在这个项目里时，只有运动规则那层可复用，蓝图和脚本没有意义。
 
 **安装数** — 943,724
-**8 周趋势** — -5.4%
+**8 周趋势** — **+151.7%**（这批里涨幅最大：32,801 → 148,755）
 **来源** — `heygen-com/hyperframes`（HeyGen 官方）
 
 ---
@@ -77,7 +77,7 @@ agent-browser skills get core      # 加 --full 取完整命令参考
 **使用注意事项** — 要 Sleek 的付费 API Key（`Authorization: Bearer $SLEEK_API_KEY`），只有设备启动和轮询是公开端点。没 key 整个技能不可用。
 
 **安装数** — 897,218
-**8 周趋势** — +22.6%
+**8 周趋势** — +70.0%
 **来源** — `designed-by-ai/skills`（第三方服务商 sleek.design）
 
 ---
@@ -91,7 +91,7 @@ agent-browser skills get core      # 加 --full 取完整命令参考
 **使用注意事项** — 纯文档不联网。规则写在 RSC / App Router 语境里，纯客户端老项目有些条目用不上。
 
 **安装数** — 814,685
-**8 周趋势** — -3.6%
+**8 周趋势** — +22.0%
 **来源** — `vercel-labs/agent-skills`（Vercel 官方）
 
 ---
@@ -105,7 +105,7 @@ agent-browser skills get core      # 加 --full 取完整命令参考
 **使用注意事项** — 要 `belt` CLI 并 `belt login`（付费网关），正文顶部还要求再装 `belt-sh/cli` 技能。另外同一份内容至少 6 个 owner 在发（101-skills 80 万、magentosh 64 万、qu-skills 48 万…整族约 300 万），装之前先确认是不是同一个东西。
 
 **安装数** — 801,414
-**8 周趋势** — **+209.6%**（这批里最高）
+**8 周趋势** — +76.1%（同一份内容在发的 6 个 owner 里它涨得最慢，另 5 个是 +148% 到 +621%）
 **来源** — `101-skills/superpowers`（第三方聚合）
 
 ---
@@ -119,7 +119,7 @@ agent-browser skills get core      # 加 --full 取完整命令参考
 **使用注意事项** — 要 Node 跑 `scripts/draw.mjs`。frontmatter 的 description 是空 YAML 块，任何按描述检索的工具都捞不到它，只能靠正文识别。
 
 **安装数** — 634,387
-**8 周趋势** — -9.3%
+**8 周趋势** — +27.9%
 **来源** — `leonxlnx/taste-skill`（个人仓库）
 
 ---
@@ -133,7 +133,7 @@ agent-browser skills get core      # 加 --full 取完整命令参考
 **使用注意事项** — 要先 `az login`，且账号有读资源配置和 Key Vault 元数据的权限。依赖 MCP 工具（azqr、订阅/资源组列举、Key Vault 项检查），缺一个流程就断。
 
 **安装数** — 558,194
-**8 周趋势** — -7.2%
+**8 周趋势** — -0.3%
 **来源** — `microsoft/azure-skills`（微软官方）
 
 ---
@@ -147,7 +147,7 @@ agent-browser skills get core      # 加 --full 取完整命令参考
 **使用注意事项** — 开始前必须先读同仓库的 `../lark-shared/SKILL.md` 拿认证和权限处理，另需 `lark-cli` 与飞书应用凭证。正文有两条硬规则：导 bitable 必须走 `drive +import --type bitable`（别先切 `lark-base`）；复制在线文档必须走 `drive +copy`（别导出再导入）。
 
 **安装数** — 467,230
-**8 周趋势** — **-52.0%**（这批里跌幅最大，上首页前值得查原因）
+**8 周趋势** — **-33.2%**（这批里跌幅最大，上首页前值得查原因）
 **来源** — `larksuite/cli`（飞书官方）
 
 ---
@@ -161,7 +161,7 @@ agent-browser skills get core      # 加 --full 取完整命令参考
 **使用注意事项** — 纯文档。RLS 和 pgvector 部分对有自己 DBA 的团队偏细。
 
 **安装数** — 450,297
-**8 周趋势** — **+96.1%**
+**8 周趋势** — -6.2%
 **来源** — `supabase/agent-skills`（Supabase 官方）
 
 ---
@@ -178,8 +178,8 @@ agent-browser skills get core      # 加 --full 取完整命令参考
 npx skills add prisma/skills --skill prisma-postgres-setup
 ```
 
-36 万安装、八周还涨 35%，说明安装量单个指标不能用来做推荐。
+36 万安装、八周还在跌 3.2%，说明安装量单个指标不能用来做推荐。
 
 **安装数** — 362,998
-**8 周趋势** — +35.1%
+**8 周趋势** — -3.2%
 **来源** — `prisma/skills`（Prisma 官方）

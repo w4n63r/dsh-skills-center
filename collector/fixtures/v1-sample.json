@@ -1,0 +1,508 @@
+{
+  "_note": [
+    "离线回放 fixture：形状按 HANDOFF.md §3.1 的 curl 实测契约，不是我们希望的形状。",
+    "真实测量值：ai-video-generation 六个 fork 的 id 与 installs（801414/642000/484000/339000/333000/318000）、",
+    "grill-me 1385556、frontend-design 1003686 来自 2026-10-19 的实测；其余 installs 与正文正文均为占位，",
+    "只用来跑通映射与去重，不要当成上游真值引用。",
+    "字段可信度：列表项的字段集合是实测的（无 hash、无审计）；detail 里只有 hash 被实测确认存在，",
+    "files/weeklyInstalls/firstSeen 是按 run.mjs 的读取方式假设的，线上若字段名不同，代码会退化成 null 而不是崩。",
+    "pageSize=5 是 fixture 专用旋钮：真实 per_page 上限 500，13 条数据翻不出第二页，所以这里压小以真的走一遍 0 起始分页。",
+    "lark-drive 故意不给 detail/audit：用来验证单条 404 不会拖垮整轮采集。"
+  ],
+  "pageSize": 5,
+  "list": [
+    {
+      "id": "mattpocock/skills/grill-me",
+      "slug": "grill-me",
+      "name": "grill-me",
+      "source": "mattpocock/skills",
+      "installs": 1385556,
+      "sourceType": "github",
+      "installUrl": "https://skills.sh/mattpocock/skills/grill-me",
+      "url": "https://github.com/mattpocock/skills/tree/main/skills/grill-me",
+      "isDuplicate": false
+    },
+    {
+      "id": "anthropics/skills/frontend-design",
+      "slug": "frontend-design",
+      "name": "frontend-design",
+      "source": "anthropics/skills",
+      "installs": 1003686,
+      "sourceType": "github",
+      "installUrl": "https://skills.sh/anthropics/skills/frontend-design",
+      "url": "https://github.com/anthropics/skills/tree/main/skills/frontend-design",
+      "isDuplicate": false
+    },
+    {
+      "id": "101-skills/superpowers/ai-video-generation",
+      "slug": "ai-video-generation",
+      "name": "ai-video-generation",
+      "source": "101-skills/superpowers",
+      "installs": 801414,
+      "sourceType": "github",
+      "installUrl": "https://skills.sh/101-skills/superpowers/ai-video-generation",
+      "url": "https://github.com/101-skills/superpowers/tree/main/skills/ai-video-generation",
+      "isDuplicate": false
+    },
+    {
+      "id": "magentosh/superpowers/ai-video-generation",
+      "slug": "ai-video-generation",
+      "name": "ai-video-generation",
+      "source": "magentosh/superpowers",
+      "installs": 642000,
+      "sourceType": "github",
+      "installUrl": "https://skills.sh/magentosh/superpowers/ai-video-generation",
+      "url": "https://github.com/magentosh/superpowers/tree/main/skills/ai-video-generation",
+      "isDuplicate": true
+    },
+    {
+      "id": "qu-skills/superpowers/ai-video-generation",
+      "slug": "ai-video-generation",
+      "name": "ai-video-generation",
+      "source": "qu-skills/superpowers",
+      "installs": 484000,
+      "sourceType": "github",
+      "installUrl": "https://skills.sh/qu-skills/superpowers/ai-video-generation",
+      "url": "https://github.com/qu-skills/superpowers/tree/main/skills/ai-video-generation",
+      "isDuplicate": true
+    },
+    {
+      "id": "skills-shell/superpowers/ai-video-generation",
+      "slug": "ai-video-generation",
+      "name": "ai-video-generation",
+      "source": "skills-shell/superpowers",
+      "installs": 339000,
+      "sourceType": "github",
+      "installUrl": "https://skills.sh/skills-shell/superpowers/ai-video-generation",
+      "url": "https://github.com/skills-shell/superpowers/tree/main/skills/ai-video-generation",
+      "isDuplicate": true
+    },
+    {
+      "id": "its-a-skill-issue/superpowers/ai-video-generation",
+      "slug": "ai-video-generation",
+      "name": "ai-video-generation",
+      "source": "its-a-skill-issue/superpowers",
+      "installs": 333000,
+      "sourceType": "github",
+      "installUrl": "https://skills.sh/its-a-skill-issue/superpowers/ai-video-generation",
+      "url": "https://github.com/its-a-skill-issue/superpowers/tree/main/skills/ai-video-generation",
+      "isDuplicate": true
+    },
+    {
+      "id": "bankai-skills/superpowers/ai-video-generation",
+      "slug": "ai-video-generation",
+      "name": "ai-video-generation",
+      "source": "bankai-skills/superpowers",
+      "installs": 318000,
+      "sourceType": "github",
+      "installUrl": "https://skills.sh/bankai-skills/superpowers/ai-video-generation",
+      "url": "https://github.com/bankai-skills/superpowers/tree/main/skills/ai-video-generation",
+      "isDuplicate": true
+    },
+    {
+      "id": "anthropics/skills/pdf",
+      "slug": "pdf",
+      "name": "pdf",
+      "source": "anthropics/skills",
+      "installs": 214300,
+      "sourceType": "github",
+      "installUrl": "https://skills.sh/anthropics/skills/pdf",
+      "url": "https://github.com/anthropics/skills/tree/main/skills/pdf",
+      "isDuplicate": false
+    },
+    {
+      "id": "mattpocock/skills/hyperframes-animation",
+      "slug": "hyperframes-animation",
+      "name": "hyperframes-animation",
+      "source": "mattpocock/skills",
+      "installs": 188400,
+      "sourceType": "github",
+      "installUrl": "https://skills.sh/mattpocock/skills/hyperframes-animation",
+      "url": "https://github.com/mattpocock/skills/tree/main/skills/hyperframes-animation",
+      "isDuplicate": false
+    },
+    {
+      "id": "vercel-labs/agent-skills/find-skills",
+      "slug": "find-skills",
+      "name": "find-skills",
+      "source": "vercel-labs/agent-skills",
+      "installs": 91700,
+      "sourceType": "github",
+      "installUrl": "https://skills.sh/vercel-labs/agent-skills/find-skills",
+      "url": "https://github.com/vercel-labs/agent-skills/tree/main/skills/find-skills",
+      "isDuplicate": false
+    },
+    {
+      "id": "prisma/skills/prisma-postgres",
+      "slug": "prisma-postgres",
+      "name": "prisma-postgres",
+      "source": "prisma/skills",
+      "installs": 42100,
+      "sourceType": "github",
+      "installUrl": "https://skills.sh/prisma/skills/prisma-postgres",
+      "url": "https://github.com/prisma/skills/tree/main/skills/prisma-postgres",
+      "isDuplicate": false
+    },
+    {
+      "id": "larksuite/cli/lark-drive",
+      "slug": "lark-drive",
+      "name": "lark-drive",
+      "source": "larksuite/cli",
+      "installs": 15600,
+      "sourceType": "github",
+      "installUrl": "https://skills.sh/larksuite/cli/lark-drive",
+      "url": "https://github.com/larksuite/cli/tree/main/skills/lark-drive",
+      "isDuplicate": false
+    }
+  ],
+  "curated": {
+    "data": [
+      {
+        "owner": "anthropics",
+        "totalInstalls": 1217986,
+        "featuredRepo": "anthropics/skills",
+        "featuredSkill": "frontend-design",
+        "skills": [
+          {
+            "id": "anthropics/skills/frontend-design",
+            "slug": "frontend-design",
+            "name": "frontend-design",
+            "source": "anthropics/skills",
+            "installs": 1003686,
+            "sourceType": "github",
+            "installUrl": "https://skills.sh/anthropics/skills/frontend-design",
+            "url": "https://github.com/anthropics/skills/tree/main/skills/frontend-design",
+            "isDuplicate": false
+          },
+          {
+            "id": "anthropics/skills/pdf",
+            "slug": "pdf",
+            "name": "pdf",
+            "source": "anthropics/skills",
+            "installs": 214300,
+            "sourceType": "github",
+            "installUrl": "https://skills.sh/anthropics/skills/pdf",
+            "url": "https://github.com/anthropics/skills/tree/main/skills/pdf",
+            "isDuplicate": false
+          }
+        ]
+      },
+      {
+        "owner": "vercel-labs",
+        "totalInstalls": 104200,
+        "featuredRepo": "vercel-labs/agent-skills",
+        "featuredSkill": "find-skills",
+        "skills": [
+          {
+            "id": "vercel-labs/agent-skills/find-skills",
+            "slug": "find-skills",
+            "name": "find-skills",
+            "source": "vercel-labs/agent-skills",
+            "installs": 91700,
+            "sourceType": "github",
+            "installUrl": "https://skills.sh/vercel-labs/agent-skills/find-skills",
+            "url": "https://github.com/vercel-labs/agent-skills/tree/main/skills/find-skills",
+            "isDuplicate": false
+          },
+          {
+            "id": "vercel-labs/agent-skills/writing-docs",
+            "slug": "writing-docs",
+            "name": "writing-docs",
+            "source": "vercel-labs/agent-skills",
+            "installs": 12500,
+            "sourceType": "github",
+            "installUrl": "https://skills.sh/vercel-labs/agent-skills/writing-docs",
+            "url": "https://github.com/vercel-labs/agent-skills/tree/main/skills/writing-docs",
+            "isDuplicate": false
+          }
+        ]
+      },
+      {
+        "owner": "prisma",
+        "totalInstalls": 42100,
+        "featuredRepo": "prisma/skills",
+        "featuredSkill": "prisma-postgres",
+        "skills": [
+          {
+            "id": "prisma/skills/prisma-postgres",
+            "slug": "prisma-postgres",
+            "name": "prisma-postgres",
+            "source": "prisma/skills",
+            "installs": 42100,
+            "sourceType": "github",
+            "installUrl": "https://skills.sh/prisma/skills/prisma-postgres",
+            "url": "https://github.com/prisma/skills/tree/main/skills/prisma-postgres",
+            "isDuplicate": false
+          }
+        ]
+      }
+    ],
+    "totalOwners": 3,
+    "totalSkills": 5,
+    "generatedAt": "2026-10-19T04:00:00.000Z"
+  },
+  "details": {
+    "mattpocock/skills/grill-me": {
+      "id": "mattpocock/skills/grill-me",
+      "source": "mattpocock/skills",
+      "slug": "grill-me",
+      "hash": "4b1f8d2c7a90e5b6c3d4a1f0e9b8c7d6a5f4e3d2c1b0a9f8e7d6c5b4a3f2e1d0",
+      "description": "A thin forwarding shell that hands the task to the grilling skill.",
+      "weeklyInstalls": [25000, 25000, 25000, 25000, 21000, 21800, 22000, 22400],
+      "firstSeen": "2026-06-02T00:00:00.000Z",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "contents": "Call the Skill tool with \"grilling\"."
+        }
+      ]
+    },
+    "anthropics/skills/frontend-design": {
+      "id": "anthropics/skills/frontend-design",
+      "source": "anthropics/skills",
+      "slug": "frontend-design",
+      "hash": "9a7c6e5d4b3a2918f7e6d5c4b3a29188f7e6d5c4b3a29188f7e6d5c4b3a2918",
+      "description": "Design-forward frontend guidance: pick a direction, then defend it.",
+      "weeklyInstalls": [50000, 51000, 52000, 53000, 54000, 55000, 56000, 57000],
+      "firstSeen": "2026-05-14T00:00:00.000Z",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "contents": "# Frontend design\n\nAnswer three questions before writing any component: what the product is, who reads it, and which single tradeoff this screen makes. Name the tradeoff out loud. Then pick one type scale, one spacing scale, and one accent color, and write them down before markup.\n\nReject the template look: centered hero, three equal cards, purple gradient. If the brief genuinely calls for that, say why. Otherwise the layout has to be earned by the content.\n\nWhen reviewing your own work, list what you avoided deciding. That list is usually longer than the design notes, and it is where the redesign starts.\n\nChecklist before shipping a screen:\n- the primary action is visually unambiguous\n- body text is at least 15px and line length 60-80 characters\n- every interactive element has a visible focus state\n- no color carries meaning alone\n"
+        },
+        {
+          "path": "references/type-scales.md",
+          "contents": "Modular scales: 1.125, 1.2, 1.25, 1.333, 1.5."
+        },
+        {
+          "path": "references/layout-patterns.md",
+          "contents": "Split, stacked, overlaid, and asymmetric two-column patterns."
+        }
+      ]
+    },
+    "101-skills/superpowers/ai-video-generation": {
+      "id": "101-skills/superpowers/ai-video-generation",
+      "source": "101-skills/superpowers",
+      "slug": "ai-video-generation",
+      "hash": "1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d",
+      "description": "Generate AI videos from still images and text prompts.",
+      "weeklyInstalls": [23000, 25000, 26000, 26000, 40000, 43000, 45000, 48100],
+      "firstSeen": "2026-04-21T00:00:00.000Z",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "contents": "# AI video generation\n\nTurn a still image or a short prompt into a video clip. Pick a provider, write the prompt, submit, then verify the clip before reporting success.\n\nWorkflow:\n1. Ask what the clip is for (ad, explainer, social) and how long it should be. Duration drives provider choice more than quality does.\n2. Write the prompt as scene, subject, motion, camera, then style. Keep motion to one verb.\n3. Submit the job and poll until it leaves the queue. Do not invent a job id.\n4. When the file lands, check duration, resolution and that the subject is still on screen at the end.\n5. Save the finished clip next to the source prompt so the run can be repeated.\n\nCosts and failure modes:\n- Most providers bill per second of output; a 30s retry is not free.\n- Text rendering inside generated video is still unreliable. If the clip needs legible words, composite them afterwards.\n- Faces hold up for a few seconds, then drift. Cut before the drift.\n"
+        },
+        {
+          "path": "references/providers.md",
+          "contents": "Provider matrix: model, max duration, aspect ratios, per-second price."
+        },
+        {
+          "path": "references/prompt-patterns.md",
+          "contents": "Prompt skeletons for product shots, b-roll, and character motion."
+        },
+        {
+          "path": "scripts/poll-job.sh",
+          "contents": "#!/usr/bin/env bash\nset -euo pipefail\necho poll\n"
+        }
+      ]
+    },
+    "anthropics/skills/pdf": {
+      "id": "anthropics/skills/pdf",
+      "source": "anthropics/skills",
+      "slug": "pdf",
+      "hash": "2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c",
+      "description": "Read, split, merge and fill PDF files.",
+      "firstSeen": "2026-05-14T00:00:00.000Z",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "contents": "# PDF\n\nRead text and tables out of PDFs, split or merge files, and fill form fields. Prefer extracting text over rendering pages to images: rendering is slower and loses selectability. When a table crosses a page break, paste the two fragments back together before quoting numbers.\n"
+        },
+        {
+          "path": "scripts/fill_form.py",
+          "contents": "print('form filler')\n"
+        }
+      ]
+    },
+    "mattpocock/skills/hyperframes-animation": {
+      "id": "mattpocock/skills/hyperframes-animation",
+      "source": "mattpocock/skills",
+      "slug": "hyperframes-animation",
+      "hash": "3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d",
+      "description": "Frame-accurate animation timelines for product demos.",
+      "weeklyInstalls": [5000, 5000, 5000, 5000, 12000, 12500, 12800, 13040],
+      "firstSeen": "2026-07-08T00:00:00.000Z",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "contents": "# Hyperframes animation\n\nBuild a timeline where every frame is addressable. Decide the beat length first, then place keyframes on whole beats so the result can be re-timed later.\n"
+        }
+      ]
+    },
+    "vercel-labs/agent-skills/find-skills": {
+      "id": "vercel-labs/agent-skills/find-skills",
+      "source": "vercel-labs/agent-skills",
+      "slug": "find-skills",
+      "hash": "5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f",
+      "description": "Search an installed skill catalog and activate a match.",
+      "firstSeen": "2026-05-30T00:00:00.000Z",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "contents": "# Find skills\n\nSearch the local skill catalog for the task at hand, then load the best match. Search by capability, not by name: the user rarely knows the skill's name. Report the top match with one line on why it fits, and say so when nothing fits instead of forcing the closest option.\n"
+        }
+      ]
+    },
+    "vercel-labs/agent-skills/writing-docs": {
+      "id": "vercel-labs/agent-skills/writing-docs",
+      "source": "vercel-labs/agent-skills",
+      "slug": "writing-docs",
+      "hash": "6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a",
+      "description": "Write reference docs that answer the question the page was opened for.",
+      "firstSeen": "2026-08-11T00:00:00.000Z",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "contents": "# Writing docs\n\nLead with the answer, then the exception. One example beats three paragraphs of prose. Put the failure mode next to the instruction it belongs to, not in a troubleshooting page nobody opens.\n"
+        }
+      ]
+    },
+    "prisma/skills/prisma-postgres": {
+      "id": "prisma/skills/prisma-postgres",
+      "source": "prisma/skills",
+      "slug": "prisma-postgres",
+      "hash": "7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b",
+      "description": "Deprecated pointer kept for links from older docs.",
+      "firstSeen": "2026-03-02T00:00:00.000Z",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "contents": "This compatibility entry contains no setup recipes."
+        }
+      ]
+    }
+  },
+  "audits": {
+    "mattpocock/skills/grill-me": {
+      "id": "mattpocock/skills/grill-me",
+      "source": "mattpocock/skills",
+      "slug": "grill-me",
+      "audits": [
+        {
+          "provider": "agent-trust-hub",
+          "slug": "gen-agent-trust-hub",
+          "status": "pass",
+          "summary": "No tool escalation beyond the declared scope.",
+          "auditedAt": "2026-10-17T00:00:00.000Z",
+          "riskLevel": "SAFE"
+        },
+        {
+          "provider": "socket",
+          "slug": "socket",
+          "status": "pass",
+          "summary": "No install-time scripts.",
+          "auditedAt": "2026-10-17T00:00:00.000Z"
+        },
+        {
+          "provider": "snyk",
+          "slug": "snyk",
+          "status": "fail",
+          "summary": "Forwards to another skill without naming its source.",
+          "auditedAt": "2026-10-17T00:00:00.000Z",
+          "categories": ["transparency"]
+        }
+      ]
+    },
+    "101-skills/superpowers/ai-video-generation": {
+      "id": "101-skills/superpowers/ai-video-generation",
+      "source": "101-skills/superpowers",
+      "slug": "ai-video-generation",
+      "audits": [
+        {
+          "provider": "agent-trust-hub",
+          "slug": "gen-agent-trust-hub",
+          "status": "pass",
+          "summary": "Scope limited to media generation.",
+          "auditedAt": "2026-10-16T00:00:00.000Z",
+          "riskLevel": "SAFE"
+        },
+        {
+          "provider": "socket",
+          "slug": "socket",
+          "status": "pass",
+          "summary": "Shell helper only polls a job id.",
+          "auditedAt": "2026-10-16T00:00:00.000Z"
+        },
+        {
+          "provider": "snyk",
+          "slug": "snyk",
+          "status": "warn",
+          "summary": "Reads provider API keys from the environment.",
+          "auditedAt": "2026-10-16T00:00:00.000Z",
+          "categories": ["secrets"]
+        },
+        {
+          "provider": "runlayer",
+          "slug": "runlayer",
+          "status": "pass",
+          "summary": "No network calls beyond the declared provider.",
+          "auditedAt": "2026-10-16T00:00:00.000Z"
+        },
+        {
+          "provider": "zeroleaks",
+          "slug": "zeroleaks",
+          "status": "pass",
+          "summary": "No credential exfiltration patterns.",
+          "auditedAt": "2026-10-16T00:00:00.000Z"
+        }
+      ]
+    },
+    "anthropics/skills/frontend-design": {
+      "id": "anthropics/skills/frontend-design",
+      "source": "anthropics/skills",
+      "slug": "frontend-design",
+      "audits": [
+        { "provider": "agent-trust-hub", "slug": "gen-agent-trust-hub", "status": "pass", "summary": "Read-only guidance.", "auditedAt": "2026-10-15T00:00:00.000Z", "riskLevel": "SAFE" },
+        { "provider": "socket", "slug": "socket", "status": "pass", "summary": "No dependencies.", "auditedAt": "2026-10-15T00:00:00.000Z" },
+        { "provider": "snyk", "slug": "snyk", "status": "pass", "summary": "No code execution.", "auditedAt": "2026-10-15T00:00:00.000Z" },
+        { "provider": "runlayer", "slug": "runlayer", "status": "pass", "summary": "No outbound calls.", "auditedAt": "2026-10-15T00:00:00.000Z" },
+        { "provider": "zeroleaks", "slug": "zeroleaks", "status": "pass", "summary": "Clean.", "auditedAt": "2026-10-15T00:00:00.000Z" }
+      ]
+    },
+    "mattpocock/skills/hyperframes-animation": {
+      "id": "mattpocock/skills/hyperframes-animation",
+      "source": "mattpocock/skills",
+      "slug": "hyperframes-animation",
+      "audits": [
+        { "provider": "socket", "slug": "socket", "status": "pass", "summary": "No install scripts.", "auditedAt": "2026-10-12T00:00:00.000Z" },
+        { "provider": "snyk", "slug": "snyk", "status": "pass", "summary": "Documentation only.", "auditedAt": "2026-10-12T00:00:00.000Z" }
+      ]
+    },
+    "vercel-labs/agent-skills/find-skills": {
+      "id": "vercel-labs/agent-skills/find-skills",
+      "source": "vercel-labs/agent-skills",
+      "slug": "find-skills",
+      "audits": [
+        { "provider": "agent-trust-hub", "slug": "gen-agent-trust-hub", "status": "warn", "summary": "Reads the local skill catalog.", "auditedAt": "2026-10-11T00:00:00.000Z", "riskLevel": "SAFE" },
+        { "provider": "socket", "slug": "socket", "status": "pass", "summary": "No install scripts.", "auditedAt": "2026-10-11T00:00:00.000Z" }
+      ]
+    },
+    "vercel-labs/agent-skills/writing-docs": {
+      "id": "vercel-labs/agent-skills/writing-docs",
+      "source": "vercel-labs/agent-skills",
+      "slug": "writing-docs",
+      "audits": [
+        { "provider": "socket", "slug": "socket", "status": "pass", "summary": "Documentation only.", "auditedAt": "2026-10-10T00:00:00.000Z" }
+      ]
+    },
+    "prisma/skills/prisma-postgres": {
+      "id": "prisma/skills/prisma-postgres",
+      "source": "prisma/skills",
+      "slug": "prisma-postgres",
+      "audits": [
+        { "provider": "snyk", "slug": "snyk", "status": "fail", "summary": "Deprecated entry with no maintained content.", "auditedAt": "2026-09-30T00:00:00.000Z", "categories": ["maintenance"] }
+      ]
+    }
+  }
+}

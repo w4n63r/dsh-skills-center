@@ -24,10 +24,10 @@
 
 | 层 | 状态 |
 | --- | --- |
-| M0 插件骨架 | **已完成并真机验证**：provider 注册、3 个工具、Web API 4 路由、50 上限、lossless JSON |
-| M0 数据 | **只有 12 条样例** `data/catalog.json`（version `sample-2026-10-19`），全部来自手工采样 |
+| M0 插件骨架 | **已完成并真机验证**：provider 注册、4 个工具（含 `skill_sync`）、Web API 5 路由（含榜单页 `/`）、50 上限、lossless JSON |
+| M0 数据 | **只有 12 条样例** `data/catalog.json`（version `sample-2026-10-19`），趋势数字已按 `samples/weekly.json` 真实回填（§9.1） |
 | M1 中文层 | 只有那 12 条的中文卡片（人工写的），**没有生成流水线** |
-| 采集端 | **进行中**：`collector/` 已写 3 个文件 + 2 套单测（通过），但 venv 之外的网络层还没按最新 API 契约改完 |
+| 采集端 | **代码已完成、等部署验证**：`api/collect.js` + `vercel.json` + `collector/{collect,publish,replay}.mjs` + fixture，`--replay` 全链路与 5 套测试全绿 |
 | 装到 DSH | 已手工挂进 `desktop` profile，用户已重启验证过 |
 
 ### 2.1 已验证可用（真机，不是推断）
@@ -156,7 +156,33 @@ f6e6c8c test: cover web api + honest activate when body missing
 ## 9. 建议的开工顺序
 
 1. ~~修 `collector/fetch.mjs` 三处~~ **已完成**（0 起始分页 / 只发 Authorization / curated 摊平 / `audit.audits` + fail 计入分母），`npm test` 现在会一起跑两套 collector 单测。
-2. 修样例数据 bug（§3.3），`npm test` + 重建 `data/catalog.json`，向用户报告趋势数字变化。
-3. 写 `api/collect.js` + `vercel.json`，`--replay` 用真实 fixture 跑通全链路。
-4. 让用户部署（需要他本人登录 Vercel 开 OIDC、建公共 Blob store），第一次真实采集。
-5. 插件加「从远端 URL 同步目录」的能力（目前只读本地 `data/catalog.json`），再做真实数据下的 top 300 中文层生成。
+2. ~~修样例数据 bug（§3.3）~~ **已完成**（见 §9.1）。
+3. ~~写 `api/collect.js` + `vercel.json`~~ **已完成**，`--replay` 用 fixture 跑通全链路（见 §9.1）。
+4. **等用户部署**（需要他本人登录 Vercel 开 OIDC、建 Blob store、加 `CRON_SECRET`），第一次真实采集。
+5. 插件侧「从远端同步目录」已做完（`skill_sync`）；剩下真实数据下的 **top 300 中文层生成**。
+
+### 9.1 2026-10-19 这一轮的进度（下一个会话从这里接）
+
+**数据层（已落盘，`npm test` 全绿）**
+
+- `samples/digest.json` 的 20 条 `trend_pct` / `weekly_series` 按 `samples/weekly.json` 逐条回填；`samples/cards.v3.md` 的 12 条趋势行同步改。**趋势定义实测反推出来**：skills.sh 的 trend = 后半周均安装 / 前半周均安装 − 1，20/20 条目从序列反算都落在 ±0.05。
+- `tools/probe_catalog.py` 的安装量解析原来按逗号裸 split，会把 `1,234,567` 碎成 16 段；改成 `\\d{1,3}(?:,\\d{3})*` 逐个数匹配 + 捕获止于属性引号。
+- `data/catalog.json` 重建：head 换成 `hyperframes-animation`（S 0.757，+151.7%）、`frontend-design` 掉到第 3（S 0.662，+6.4%）、`prisma-postgres` 变 `deprecated`（−3.2%，S 0.312）。
+- **坑（已踩）**：teammate 跑 `collector/run.mjs --replay` 时忘了 `--out`，默认输出覆盖了 `data/catalog.json`，它又 `git checkout` 恢复成 HEAD，把上面这份重建结果冲掉了 —— 已重跑 `python tools/build_catalog.py` 复原。**以后跑 collector 一律带 `--out` 指到临时目录。**
+
+**采集端（已写完，只能部署后才知道对不对）**
+
+- `api/collect.js`：GET(cron)/POST(手动) 共用 `run()`；`CRON_SECRET` 缺失直接 503、带错 401（常量时间比较）；OIDC token 只在 handler 内从 `x-vercel-oidc-token` 头或 `getVercelOidcToken()` 取（**代码里零处读 `process.env.VERCEL_OIDC_TOKEN`，有测试守**）；`maxRequests`/`maxRuntimeMs` 双闸门；上传前 `validateCatalog()` 自检，过了才写 `catalog-<ISO>.json` → `catalog-latest.json`。
+- `collector/collect.mjs`（编排）、`collector/publish.mjs`（自检+版本化写入）、`collector/replay.mjs`（fixture → fetchImpl）、`collector/fixtures/v1-sample.json`。
+- `vercel.json`：`{"crons":[{"path":"/api/collect","schedule":"0 5 * * *"}]}`（Hobby 只允许每天一次）。
+- **Hobby 60s 的真实天花板**：目录段 17 页 + curated ≈ 18 个请求随便跑完（8420 条全量）；富集每目标 2 个请求，300 闸门下只够覆盖**约 140 个**头部技能，其余只有列表级数据（无 hash/正文/审计）。响应会标 `truncated:true`、`skipped_budget`。
+- 修掉 3 个真 bug：`normalizeRecord` 非幂等（第二遍静默清空 `source_kind`/`trend_pct`/`description_en`/`first_seen`）、`mergeDetail` 丢掉 `detail.description`、列表项字段其实是 `sourceType`（现兼容并同时输出 `kind`）。
+- **fleet 侧还修了一个 flake**：富集段原来用 `Promise.all([detail, audit])`，detail 一 404 就 reject，而 audit 请求还在限流 sleep 里、照样发出去 —— 白烧一次额度，而且落地时间晚于 `collect()` 返回，让 `requests.used` 在 21/22 之间随机（约 1/60 复现）。改成先 `detail` 成功再发 `audit`，连续 30 次单测 + 5 次 `npm test` 全绿。
+
+**插件侧**
+
+- 新增 `lib/sync.js` + `skill_sync` 工具：`DSH_SKILLS_CENTER_CATALOG_URL` > `meta.json` 里记录的 sourceUrl > 默认 `https://dsh-skills-center.vercel.app/api/catalog`；先校验再写 `catalog.prev.json`、最后原子替换 `catalog.json`；只有 `mode:'replace'`（不 merge，避免留僵尸条目）；fetch 失败有 curl 回退。
+- 新增 `lib/page.js` + `GET /api/dsh-skills-center/`：插件自己吐一张只读榜单页（表头可点排序、行点开看完整卡片），无前端构建、无外部资源。
+- README / DESIGN 已同步（4 个工具、远端同步契约、Vercel 采集决策）。
+
+**部署后必须先验的三件事**：`curl -H "Authorization: Bearer $CRON_SECRET" "https://<项目>/api/collect?dry=1"` 看 `count≈8420`；确认 `catalog-latest.json` 的 `generated_at` / `truncated`；把插件 `DSH_SKILLS_CENTER_CATALOG_URL` 指到 `catalog-latest.json` 后跑一次 `skill_sync`。

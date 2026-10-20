@@ -1,29 +1,37 @@
 #!/usr/bin/env node
-// 全量采集入口：/api/v1 → data/catalog.json
+// 采集入口（CLI）：/api/v1 → catalog.json
 //
-//   node collector/run.mjs                       # 需要 VERCEL_OIDC_TOKEN（Vercel 里由平台注入）
-//   node collector/run.mjs --enrich 300          # 只给 top 300（并入 curated）抓详情与审计
-//   node collector/run.mjs --replay fixture.json # 离线跑同一条代码路径，不联网
-//   node collector/run.mjs --stage list          # 只跑第一段，便于在函数时限内分片
+//   node collector/run.mjs                                  # 需要 VERCEL_OIDC_TOKEN / SKILLS_API_TOKEN（Vercel 外拿不到）
+//   node collector/run.mjs --replay collector/fixtures/v1-sample.json   # 离线跑同一条代码路径
+//   node collector/run.mjs --stage list                      # 只跑目录段（17 个请求，任何套餐都跑得完）
+//   node collector/run.mjs --enrich 300 --max-requests 300 --runtime-ms 42000
 //
-// 为什么要分「目录层」和「详情层」：列表接口一次就能给 8420 条（17 个请求），但 hash、
-// 正文、审计要逐条打 detail+audit。全量 8420 条 = 1.7 万个请求，既超时限也没必要——
-// 真正需要中文卡片与红旗判断的只有头部。所以：全量只做目录，头部做详情。
+// 线上跑的是 api/collect.js，它调用的也是 collector/collect.mjs，所以 --replay 验证过的就是线上的编排逻辑；
+// 唯一差别是 token 从哪来（CLI 读环境变量，函数读 Request 头）。
 
-import { writeFile, readFile, mkdir } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
+import { writeFile, mkdir } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
-import { createClient, mapLimit, PER_PAGE, MIN_INTERVAL_MS } from './fetch.mjs';
-import { buildCatalog, normalizeRecord } from './pipeline.mjs';
+import { collect, DEFAULTS } from './collect.mjs';
+import { loadReplayFixture } from './replay.mjs';
 
 function parseArgs(argv) {
-  const args = { out: 'data/catalog.json', enrich: 300, concurrency: 4, stage: 'all', view: 'all-time' };
+  const args = {
+    out: 'data/catalog.json',
+    enrich: DEFAULTS.enrich,
+    concurrency: DEFAULTS.concurrency,
+    maxRequests: DEFAULTS.maxRequests,
+    maxRuntimeMs: DEFAULTS.maxRuntimeMs,
+    stage: 'all',
+    view: DEFAULTS.view,
+  };
   for (let i = 2; i < argv.length; i += 1) {
     const key = argv[i];
     const next = () => argv[++i];
     if (key === '--out') args.out = next();
     else if (key === '--enrich') args.enrich = Number(next());
     else if (key === '--concurrency') args.concurrency = Number(next());
+    else if (key === '--max-requests') args.maxRequests = Number(next());
+    else if (key === '--runtime-ms') args.maxRuntimeMs = Number(next());
     else if (key === '--stage') args.stage = next();
     else if (key === '--view') args.view = next();
     else if (key === '--replay') args.replay = next();
@@ -35,141 +43,72 @@ function parseArgs(argv) {
 }
 
 const log = (msg) => process.stderr.write(`${new Date().toISOString().slice(11, 19)} ${msg}\n`);
-const stamp = () => new Date().toISOString().slice(0, 10).replace(/-/g, '');
-
-/** 预聚类：详情还没抓，先用 slug 归并同名技能，避免 fork 挤占 top 名额。 */
-function preCluster(records) {
-  const byKey = new Map();
-  for (const rec of records) {
-    const key = `${rec.slug}|${(rec.name || '').toLowerCase()}`;
-    if (!byKey.has(key)) byKey.set(key, []);
-    byKey.get(key).push(rec);
-  }
-  const clusters = [...byKey.values()].map((members) => {
-    members.sort((a, b) => b.installs - a.installs);
-    return { lead: members[0], members, merged: members.reduce((s, m) => s + m.installs, 0) };
-  });
-  clusters.sort((a, b) => b.merged - a.merged);
-  return clusters;
-}
-
-async function loadReplay(path) {
-  const raw = JSON.parse(await readFile(path, 'utf8'));
-  const calls = [];
-  const fetchImpl = async (url) => {
-    calls.push(url);
-    const u = new URL(url);
-    let body = {};
-    if (u.pathname === '/api/v1/skills') {
-      const page = Number(u.searchParams.get('page') || 1);
-      const per = Number(u.searchParams.get('per_page') || PER_PAGE);
-      const slice = (raw.list || []).slice((page - 1) * per, page * per);
-      body = { skills: slice, total: (raw.list || []).length };
-    } else if (u.pathname === '/api/v1/skills/curated') {
-      body = { skills: raw.curated || [] };
-    } else if (u.pathname.startsWith('/api/v1/skills/audit/')) {
-      const id = decodeURIComponent(u.pathname.slice('/api/v1/skills/audit/'.length));
-      body = (raw.audits || {})[id] || {};
-    } else if (u.pathname.startsWith('/api/v1/skills/')) {
-      const id = decodeURIComponent(u.pathname.slice('/api/v1/skills/'.length));
-      body = (raw.details || {})[id] || {};
-    }
-    return { ok: true, status: 200, statusText: '', headers: { get: () => null }, json: async () => body };
-  };
-  fetchImpl.calls = calls;
-  return fetchImpl;
-}
-
-/** detail + audit 的返回揉成一条记录，字段名对不上就留空，绝不瞎猜。 */
-function mergeDetail(record, detail, audit) {
-  const files = Array.isArray(detail?.files) ? detail.files : [];
-  const skillMd = files.find((f) => /(^|\/)SKILL\.md$/i.test(f.path || '')) || files[0];
-  const body = typeof skillMd?.contents === 'string' ? skillMd.contents : null;
-  return {
-    ...record,
-    hash: detail?.hash || record.hash || null,
-    bodyLength: body ? body.length : null,
-    body_excerpt: body ? body.slice(0, 4000) : null,
-    file_count: files.length || null,
-    audit: audit?.audits?.length ? audit : record.audit,
-    weeklyInstalls: detail?.weeklyInstalls || record.weekly_series || null,
-    firstSeen: detail?.firstSeen || record.first_seen || null,
-    curated: record.curated,
-    official: record.official,
-  };
-}
 
 async function main() {
   const args = parseArgs(process.argv);
   if (args.help) {
     process.stdout.write(
-      `usage: node collector/run.mjs [--out data/catalog.json] [--enrich 300] [--replay fixture.json] [--stage all|list|enrich] [--view all-time]\n`,
+      'usage: node collector/run.mjs [--out data/catalog.json] [--enrich 300] [--max-requests 300] ' +
+        '[--runtime-ms 42000] [--concurrency 4] [--stage all|list] [--view all-time] [--replay fixture.json]\n',
     );
     return;
   }
-  const outPath = resolve(args.out);
-  const replay = args.replay ? await loadReplay(resolve(args.replay)) : null;
+
+  let fetchImpl = globalThis.fetch;
+  let fixtureLabel = null;
+  if (args.replay) {
+    const { fetchImpl: replayFetch } = await loadReplayFixture(resolve(args.replay));
+    fetchImpl = replayFetch;
+    fixtureLabel = args.replay;
+    log(`replay ${args.replay} (offline; no token needed)`);
+  }
+
+  // token 只在 CLI 这一侧读环境变量；函数里必须从 Request 头取（见 api/collect.js）
   const token = process.env.VERCEL_OIDC_TOKEN || process.env.SKILLS_API_TOKEN || null;
-  if (!replay && !token) {
+  if (!fetchImpl) throw new Error('no fetch available (node >= 18)');
+  if (!args.replay && !token) {
     throw new Error(
-      'VERCEL_OIDC_TOKEN is not set. /api/v1 needs a Vercel OIDC token, which the platform only injects inside a deployment ' +
-        '(enable OIDC Federation on the Vercel project). For an offline dry run, use --replay <fixture.json>.',
+      'VERCEL_OIDC_TOKEN is not set. /api/v1 needs a Vercel OIDC token, which the platform injects inside a deployment ' +
+        '(enable OIDC Federation on the Vercel project, Settings → Security). For an offline dry run use ' +
+        '--replay collector/fixtures/v1-sample.json.',
     );
   }
-  const client = createClient({ token, fetchImpl: replay });
 
-  log(`listing ${args.view} …`);
-  const listRaw = await client.listAll({
+  const { catalog, stats } = await collect({
+    fetchImpl,
+    token,
     view: args.view,
-    onPage: (p) => log(`  page ${p.page}: +${p.got} (${p.accumulated}${p.total ? `/${p.total}` : ''})`),
+    enrich: args.enrich,
+    concurrency: args.concurrency,
+    maxRequests: args.maxRequests,
+    maxRuntimeMs: args.maxRuntimeMs,
+    stage: args.stage,
+    log,
   });
-  log(`list: ${listRaw.length} records`);
 
-  log('fetching curated …');
-  const curatedRaw = await client.curated();
-  log(`curated: ${curatedRaw.length} records`);
-
-  const curatedIds = new Set(curatedRaw.map((r) => r.id));
-  const records = [...listRaw, ...curatedRaw].map((raw) => normalizeRecord(raw)).filter(Boolean);
-  for (const rec of records) rec.curated = curatedIds.has(rec.id) ? true : rec.curated;
-  // 列表里已标 curated 的也算
-  const catalogStage = buildCatalog(records, { version: `dir-${stamp()}`, generatedAt: new Date().toISOString() });
-  log(`directory stage: ${catalogStage.count} entries after dedupe (${catalogStage.deduped} merged)`);
-
-  if (args.stage === 'list') {
-    await mkdir(dirname(outPath), { recursive: true });
-    await writeFile(outPath, `${JSON.stringify(catalogStage, null, 0)}\n`, 'utf8');
-    log(`wrote ${outPath} (list-only)`);
-    return;
-  }
-
-  // 详情层：按「预聚类后的合并安装量」取头部，并强制并入所有 curated
-  const clusters = preCluster(records);
-  const enrichTargets = new Map();
-  for (const cluster of clusters.slice(0, args.enrich)) enrichTargets.set(cluster.lead.id, cluster.lead);
-  for (const rec of records) if (rec.curated) enrichTargets.set(rec.id, rec);
-  const targets = [...enrichTargets.values()];
-  const calls = targets.length * 2;
-  log(`enrich: ${targets.length} ids → ~${calls} requests ≈ ${Math.ceil((calls * MIN_INTERVAL_MS) / 1000)}s`);
-
-  const enriched = new Map();
-  await mapLimit(targets, args.concurrency, async (rec) => {
-    const [detail, audit] = await Promise.all([client.detail(rec.id), client.audit(rec.id).catch(() => null)]);
-    enriched.set(rec.id, mergeDetail(rec, detail, audit));
-  });
-  log(`enrich done: ${enriched.size}/${targets.length} ids (${targets.length - enriched.size} failed, kept list-level data)`);
-
-  const finalRecords = records.map((rec) => enriched.get(rec.id) || rec);
-  const catalog = buildCatalog(finalRecords, {
-    version: `full-${stamp()}`,
-    generatedAt: new Date().toISOString(),
-  });
+  const outPath = resolve(args.out);
   await mkdir(dirname(outPath), { recursive: true });
   await writeFile(outPath, `${JSON.stringify(catalog, null, 0)}\n`, 'utf8');
-  log(
-    `wrote ${outPath}: ${catalog.count} entries, ${catalog.deduped} merged, ` +
-      `${finalRecords.filter((r) => r.body_length).length} with body, ${catalog.skills.filter((s) => s.flags?.length).length} flagged`,
-  );
+
+  const summary = {
+    out: outPath,
+    fixture: fixtureLabel,
+    version: catalog.version,
+    count: catalog.count,
+    raw_count: catalog.raw_count,
+    deduped: catalog.deduped,
+    max_installs: catalog.max_installs,
+    requests: stats.requests,
+    enrich_targets: stats.enrich_targets,
+    with_body: stats.with_body,
+    with_hash: stats.with_hash,
+    with_audit: stats.with_audit,
+    flagged: stats.flagged,
+    truncated: stats.truncated,
+    truncated_reasons: stats.truncated_reasons,
+    elapsed_ms: stats.elapsed_ms,
+  };
+  process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
 }
 
 main().catch((err) => {

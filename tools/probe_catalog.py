@@ -61,18 +61,25 @@ def text_of(fragment: str) -> str:
     return html.unescape(re.sub(r"\s+", " ", fragment)).strip()
 
 
+WEEKLY_NUMS = re.compile(r"\d{1,3}(?:,\d{3})*")
+
+
 def extract(page: str) -> dict:
     """Pull the fields a Chinese card needs out of one skill page."""
-    out: dict = {}
+    out: dict = {"trend_pct": None, "weekly_series": []}
 
     # installs headline, e.g. <span>Installs</span></div><div ...>3.9M</div>
     m = re.search(r"Installs</span></div><div[^>]*>([\d.,]+[KMB]?)</div>", page)
     out["installs_text"] = m.group(1) if m else None
 
     # weekly install series -> trend signal
-    m = re.search(r'aria-label="Weekly installs: ([\d,\s]+)"', page)
+    # The label reads `Weekly installs: 65,310, 62,524, …`: the commas are both
+    # thousands separators and field separators, so splitting on "," shatters
+    # 65310 into 65 + 310. Match whole grouped numbers instead, and keep the
+    # capture inside the attribute so a second label cannot bleed in.
+    m = re.search(r'aria-label="Weekly installs:([^"]*)"', page)
     if m:
-        series = [int(x.replace(",", "")) for x in m.group(1).split(",") if x.strip()]
+        series = [int(x.replace(",", "")) for x in WEEKLY_NUMS.findall(m.group(1))][:8]
         out["weekly_series"] = series
         if len(series) >= 4 and series[-1]:
             first_half = sum(series[: len(series) // 2]) / max(1, len(series) // 2)
@@ -149,8 +156,9 @@ def main() -> int:
 
     print(f"\nwrote samples/digest.json with {len(records)} records")
     for rec in records:
+        trend = rec.get("trend_pct")
         print(
-            f"  {rec.get('installs') or 0:>9}  trend={rec.get('trend_pct')}%  "
+            f"  {rec.get('installs') or 0:>9}  trend={'—' if trend is None else f'{trend}%'}  "
             f"audit={len(rec.get('audit_partners') or [])}  {rec['id']}"
         )
     return 0

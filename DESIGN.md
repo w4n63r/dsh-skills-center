@@ -154,16 +154,36 @@ export const inject = ['tools', 'skills', 'webServer'];
 export function apply(ctx, config) { /* … */ }
 ```
 
-**工具清单**（刻意只有 3 个，避免工具列表膨胀）：
+**工具清单**（刻意压到 4 个，避免工具列表膨胀）：
 
 | 工具 | 用途 |
 |---|---|
 | `skill_search` | 在本地全量目录里检索（含中文名/中文简介），返回 `id + 中文一句话 + verdict + S` |
 | `skill_card` | 取某技能完整中文卡片（含依赖、告警、fork 情况） |
 | `skill_activate` | 把库存技能加入激活集合（受 50 上限约束），并落盘到 `library/` |
+| `skill_sync` | 从远端快照拉新目录替换本地副本（`mode: 'replace'`），返回条数/快照时间/来源 |
+
+**远端同步契约**（`lib/sync.js`）：
+
+- 目录来源：`DSH_SKILLS_CENTER_CATALOG_URL` > 落盘 `meta.json` 里记录的 sourceUrl > 默认 `https://dsh-skills-center.vercel.app/api/catalog`。
+- 落盘：`~/.dsh/skills-center/catalog/catalog.json` + `catalog.prev.json` + `meta.json`（sourceUrl、etag、fetchedAt、count、sha256）。读取顺序 prev → current → 内置 `data/catalog.json`，首次同步时 `prev` 不存在也不影响。
+- 事务：先校验（JSON 可解析、`skills` 数组、条数 >0、字段扫描、≤64MB），再写 prev、再原子写 current（tmp + rename）。远端 304 时不落盘、不动缓存。
+- 只有 `mode: 'replace'`，不做 merge——远端是 skill id 全集，合并会留下已下架的僵尸条目。
+- 网络失败（fetch throw）时若本机有 `curl`，回退用 curl 再试一次，并把失败原因带上。
 
 **Web API**：`ctx.webServer.register({kind:'prefix', path:'/api/dsh-skills-center'})`，供 GUI 浏览榜单与卡片。
+路由：`/`（榜单页，`lib/page.js` 现场渲染，目录内联、无前端构建）、`/status`、`/search`、`/card`、`/sync`（仅 POST）。
 **审批**：`ctx.on('tools/pre-execute')` 对 `skill_activate` 要求确认（会改变系统提示内容）。
+
+## 8.1 采集端（`api/collect.js` + `collector/`）
+
+- 触发：Vercel Cron `0 5 * * *`（Hobby 只允许每天一次）打 `GET /api/collect`；手动补跑用 POST，同一份 `run()`。必须先过 `CRON_SECRET`（缺失 503、错误 401、常量时间比较），否则就是一个谁都能触发烧额度的端点。
+- OIDC：token 只在 handler 内从 `x-vercel-oidc-token` 头或 `getVercelOidcToken()` 取，**模块级不许读 `process.env.VERCEL_OIDC_TOKEN`**（有测试做回归守卫）；上游只认 `Authorization: Bearer`。
+- 两段式：目录段（17 页 ×500 + curated ≈ 18 请求，8420 条全量，永远跑得完）→ 富集段（每目标 detail + audit 两个请求，受 `MAX_REQUESTS`/`MAX_RUNTIME_MS` 双闸门裁剪）。**截断只降富集深度，不丢记录**：没富集的条目保留列表级数据（`score.A=0.5` 中性、无 hash/正文），并如实回 `truncated` + `skipped_budget/skipped_deadline`。
+- Hobby 60s 的现实：300 请求闸门下只够富集约 140 个头部技能；想覆盖 top 300 需要 Pro（或以后做轮转，目前没做）。
+- 上传：`validateCatalog()` 不过就一个字节都不写；过了先写 `catalog-<ISO>.json`（不可变快照）再写 `catalog-latest.json`（指针）。
+- 失败一律非 2xx + `{ok:false, stage, error, elapsed_ms, stats}`，`stage ∈ config|auth|token|collect|validate|upload`。
+- 富集顺序是 **detail → audit**，不能并发：detail 一 404 就 reject，而 audit 请求还在限流 sleep 里照样会发出去（白烧一次额度，且落地晚于 `collect()` 返回，让 `requests.used` 在 21/22 之间随机）。
 
 ## 9. 不做
 
@@ -176,14 +196,14 @@ export function apply(ctx, config) { /* … */ }
 
 - **M0 目录**：Vercel 采集函数 + `catalog.json` 分片，能拉全量 8420 条（含趋势/去重/打分）
 - **M1 中文层**：**只精做 installs top 300**（用户 2026-10-19 定），其余条目留英文 description 占位、点开时再补；这样成本可控且头部质量高
-- **M2 插件**：3 个工具 + provider 激活 + GUI 榜单页
+- **M2 插件**：4 个工具（含远端同步）+ provider 激活 + GUI 榜单页
 - **M3 召回**：钩子注入与 50 上限策略，实测"任务开始自动命中"
 
 M1 依赖 M0 的 hash，M2 可先在本地样例数据上开发（`samples/digest2.json` 已有 12 条真实数据）。
 
 ## 11. 未决
 
-1. 采集挂 Vercel Cron 还是 GitHub Action——用户有 Vercel 账号，倾向 Vercel（能顺带托管 `catalog.json` 供插件 CDN 拉取）。
+1. ~~采集挂 Vercel Cron 还是 GitHub Action~~ → 已定 Vercel：`api/collect.js` 由 Vercel Cron 定时触发，OIDC 拿 `skills.sh` 鉴权，目录写 Vercel Blob，同一份文件既做快照又给插件当 CDN 拉取源。
 
 ## 12. 已验证的插件契约
 

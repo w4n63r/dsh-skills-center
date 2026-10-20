@@ -11,7 +11,7 @@
       "source_kind": "github",
       "official": false,
       "installs": 1385556,
-      "trend_pct": 19.3,
+      "trend_pct": -12.8,
       "description_en": "A relentless interview to sharpen a plan or design.",
       "skill_md_path": "skills/productivity/grill-me/SKILL.md",
       "body_chars": 39,
@@ -26,9 +26,9 @@
         "notes": "单独装它等于装了个空壳，必须同时装 `grilling`，否则调用后没有任何内容。"
       },
       "score": {
-        "S": 0.5804,
+        "S": 0.5548,
         "H": 1.0,
-        "T": 0.2772,
+        "T": 0.1488,
         "C": 0.0,
         "A": 0.5
       }
@@ -42,7 +42,7 @@
       "source_kind": "github",
       "official": true,
       "installs": 1093187,
-      "trend_pct": -4.4,
+      "trend_pct": 57.9,
       "description_en": "Browser automation CLI for AI agents. Use when the user needs to interact with websites, including navigating pages, filling forms, clicking buttons, taking screenshots, extracting data, testing web apps, or automating any browser task. Triggers include requests to \\",
       "skill_md_path": "skills/agent-browser/SKILL.md",
       "body_chars": 2412,
@@ -57,9 +57,9 @@
         "notes": "主 `SKILL.md` 是发现桩，原文写明 `This file is a discovery stub, not the usage guide.`。真文档要从 CLI 取：\n```\nnpm i -g agent-browser && agent-browser install\nagent-browser skills get core      # 加 --full 取完整命令参考\n```\n好处是文档永远跟装的版本对齐，坏处是 CLI 没装好时这个技能是空的。"
       },
       "score": {
-        "S": 0.6819,
+        "S": 0.7317,
         "H": 0.8231,
-        "T": 0.1824,
+        "T": 0.4316,
         "C": 1.0,
         "A": 0.5
       }
@@ -73,7 +73,7 @@
       "source_kind": "github",
       "official": true,
       "installs": 1003686,
-      "trend_pct": 105.1,
+      "trend_pct": 6.4,
       "description_en": "Guidance for distinctive, intentional visual design when building new UI or reshaping an existing one. Helps with aesthetic direction, typography, and making choices that don't read as templated defaults.",
       "skill_md_path": "skills/frontend-design/SKILL.md",
       "body_chars": 9077,
@@ -85,9 +85,9 @@
         "notes": "只给方法论不给代码，落地靠自己。不写前端的人装了用不上。"
       },
       "score": {
-        "S": 0.7408,
+        "S": 0.6618,
         "H": 0.7593,
-        "T": 0.6204,
+        "T": 0.2256,
         "C": 1.0,
         "A": 0.5
       }
@@ -101,7 +101,7 @@
       "source_kind": "github",
       "official": true,
       "installs": 943724,
-      "trend_pct": -5.4,
+      "trend_pct": 151.7,
       "description_en": "Discover and install skills for AI agents.",
       "skill_md_path": "skills/hyperframes-animation/SKILL.md",
       "body_chars": 19690,
@@ -115,9 +115,9 @@
         "notes": "强绑定 HyperFrames 产品，正文里还引用 `../hyperframes/` 的插件安装规则。不在这个项目里时，只有运动规则那层可复用，蓝图和脚本没有意义。"
       },
       "score": {
-        "S": 0.6317,
+        "S": 0.7573,
         "H": 0.7133,
-        "T": 0.1784,
+        "T": 0.8068,
         "C": 1.0,
         "A": 0.5
       }
@@ -131,7 +131,7 @@
       "source_kind": "github",
       "official": true,
       "installs": 897218,
-      "trend_pct": 22.6,
+      "trend_pct": 70.0,
       "description_en": "Design mobile app screens with Sleek, edit Sleek projects, and implement their designs in React Native or HTML.",
       "skill_md_path": "skills/design-mobile-apps/SKILL.md",
       "body_chars": 8273,
@@ -145,9 +145,9 @@
         "notes": "要 Sleek 的付费 API Key（`Authorization: Bearer $SLEEK_API_KEY`），只有设备启动和轮询是公开端点。没 key 整个技能不可用。"
       },
       "score": {
-        "S": 0.6371,
+        "S": 0.675,
         "H": 0.6756,
-        "T": 0.2904,
+        "T": 0.48,
         "C": 1.0,
         "A": 0.5
       }
@@ -161,7 +161,7 @@
       "source_kind": "github",
       "official": true,
       "installs": 814685,
-      "trend_pct": -3.6,
+      "trend_pct": 22.0,
       "description_en": "React and Next.js performance optimization guidelines from Vercel Engineering. This skill should be used when writing, reviewing, or refactoring React/Next.js code to ensure optimal performance patterns. Triggers on tasks involving React components, Next.js pages, data fetching, bundle optimization, or performance improvements.",
       "skill_md_path": "skills/react-best-practices/SKILL.md",
       "body_chars": 6808,
@@ -175,9 +175,9 @@
         "notes": "纯文档不联网。规则写在 RSC / App Router 语境里，纯客户端老项目有些条目用不上。"
       },
       "score": {
-        "S": 0.5837,
+        "S": 0.6042,
         "H": 0.6035,
-        "T": 0.1856,
+        "T": 0.288,
         "C": 1.0,
         "A": 0.5
       }
@@ -191,7 +191,7 @@
       "source_kind": "github",
       "official": false,
       "installs": 801414,
-      "trend_pct": 209.6,
+      "trend_pct": 76.1,
       "description_en": "Discover and install skills for AI agents.",
       "skill_md_path": "tools/video/ai-video-generation/SKILL.md",
       "body_chars": 6569,
@@ -205,9 +205,9 @@
         "notes": "要 `belt` CLI 并 `belt login`（付费网关），正文顶部还要求再装 `belt-sh/cli` 技能。另外同一份内容至少 6 个 owner 在发（101-skills 80 万、magentosh 64 万、qu-skills 48 万…整族约 300 万），装之前先确认是不是同一个东西。"
       },
       "score": {
-        "S": 0.5411,
+        "S": 0.442,
         "H": 0.5913,
-        "T": 1.0,
+        "T": 0.5044,
         "C": 0.0,
         "A": 0.5
       }
@@ -221,7 +221,7 @@
       "source_kind": "github",
       "official": false,
       "installs": 634387,
-      "trend_pct": -9.3,
+      "trend_pct": 27.9,
       "description_en": "design-taste-frontend — an installable skill for AI agents.",
       "skill_md_path": "skills/taste-skill/SKILL.md",
       "body_chars": 37400,
@@ -235,9 +235,9 @@
         "notes": "要 Node 跑 `scripts/draw.mjs`。frontmatter 的 description 是空 YAML 块，任何按描述检索的工具都捞不到它，只能靠正文识别。"
       },
       "score": {
-        "S": 0.2951,
+        "S": 0.3249,
         "H": 0.4168,
-        "T": 0.1628,
+        "T": 0.3116,
         "C": 0.0,
         "A": 0.5
       }
@@ -251,7 +251,7 @@
       "source_kind": "github",
       "official": true,
       "installs": 558194,
-      "trend_pct": -7.2,
+      "trend_pct": -0.3,
       "description_en": "Run Azure compliance and security audits with azqr plus Key Vault expiration checks. Covers best-practice assessment, resource review, policy/compliance validation, and security posture checks. WHEN: compliance scan, security audit, BEFORE running azqr (compliance cli tool), Azure best practices, Key Vault expiration check, expired certificates, expiring secrets, orphaned resources, compliance assessment.",
       "skill_md_path": "skills/azure-compliance/SKILL.md",
       "body_chars": 3458,
@@ -266,9 +266,9 @@
         "notes": "要先 `az login`，且账号有读资源配置和 Key Vault 元数据的权限。依赖 MCP 工具（azqr、订阅/资源组列举、Key Vault 项检查），缺一个流程就断。"
       },
       "score": {
-        "S": 0.4538,
+        "S": 0.4593,
         "H": 0.3213,
-        "T": 0.1712,
+        "T": 0.1988,
         "C": 1.0,
         "A": 0.5
       }
@@ -282,7 +282,7 @@
       "source_kind": "github",
       "official": true,
       "installs": 467230,
-      "trend_pct": -52.0,
+      "trend_pct": -33.2,
       "description_en": "飞书云空间（云盘/云存储）：管理 Drive 文件和文件夹，包含上传/下载、创建文件夹、复制/移动/删除、查看元数据、查询权限设置、评论/权限/订阅、标题、版本、飞书文档密级标签（secure labels）和本地文件导入。用户需要整理云盘目录、处理云空间资源 URL/token、判断链接类型/真实 token/标题，或导入 Word/Markdown/Excel/CSV/PPTX/.base 为 docx/sheet/bitable/slides 时使用；doubao.com 云空间 URL/token 也按资源路径和 token 路由，不回退 WebFetch。不负责：文档内容编辑（走 lark-doc）、表格/Base 表内数据操作（走 lark-sheets/lark-base）、知识空间节点/成员管理（走 lark-wiki）、原生 Markdown 文件读写/patch/diff（走 lark-markdown）。",
       "skill_md_path": "skills/lark-drive/SKILL.md",
       "body_chars": 15783,
@@ -297,9 +297,9 @@
         "notes": "开始前必须先读同仓库的 `../lark-shared/SKILL.md` 拿认证和权限处理，另需 `lark-cli` 与飞书应用凭证。正文有两条硬规则：导 bitable 必须走 `drive +import --type bitable`（别先切 `lark-base`）；复制在线文档必须走 `drive +copy`（别导出再导入）。"
       },
       "score": {
-        "S": 0.3598,
+        "S": 0.3732,
         "H": 0.1885,
-        "T": 0.0,
+        "T": 0.0672,
         "C": 1.0,
         "A": 0.5
       }
@@ -313,7 +313,7 @@
       "source_kind": "github",
       "official": true,
       "installs": 450297,
-      "trend_pct": 96.1,
+      "trend_pct": -6.2,
       "description_en": "Discover and install skills for AI agents.",
       "skill_md_path": "skills/supabase-postgres-best-practices/SKILL.md",
       "body_chars": 1768,
@@ -327,9 +327,9 @@
         "notes": "纯文档。RLS 和 pgvector 部分对有自己 DBA 的团队偏细。"
       },
       "score": {
-        "S": 0.4643,
+        "S": 0.3824,
         "H": 0.1609,
-        "T": 0.5844,
+        "T": 0.1752,
         "C": 1.0,
         "A": 0.5
       }
@@ -343,7 +343,7 @@
       "source_kind": "github",
       "official": true,
       "installs": 362998,
-      "trend_pct": 35.1,
+      "trend_pct": -3.2,
       "description_en": "Deprecated compatibility name for prisma-postgres-setup. Use only when a user or existing integration explicitly invokes prisma-postgres; otherwise select prisma-postgres-setup.",
       "skill_md_path": "prisma-postgres/SKILL.md",
       "body_chars": 369,
@@ -356,12 +356,12 @@
       "zh": {
         "intro": "空的。正文 369 字，没有一条 setup 步骤，原文写着 `This compatibility entry contains no setup recipes.` 它只为兼容旧调用名存在，把请求转到 `prisma-postgres-setup`。",
         "usage": "只有用户或既有集成显式点名 `prisma-postgres` 时才需要；其他情况直接选 `prisma-postgres-setup`。",
-        "notes": "别装。要装的是：\n```\nnpx skills add prisma/skills --skill prisma-postgres-setup\n```\n36 万安装、八周还涨 35%，说明安装量单个指标不能用来做推荐。"
+        "notes": "别装。要装的是：\n```\nnpx skills add prisma/skills --skill prisma-postgres-setup\n```\n36 万安装、八周还在跌 3.2%，说明安装量单个指标不能用来做推荐。"
       },
       "score": {
-        "S": 0.3431,
+        "S": 0.3124,
         "H": 0.0,
-        "T": 0.3404,
+        "T": 0.1872,
         "C": 1.0,
         "A": 0.5
       }
