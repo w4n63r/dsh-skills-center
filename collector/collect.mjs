@@ -311,6 +311,8 @@ export async function collect({
     with_body: finalRecords.filter((r) => r.bodyLength).length,
     with_hash: finalRecords.filter((r) => r.hash).length,
     with_audit: finalRecords.filter((r) => r.audit).length,
+    // 趋势查得到多少条：这一维只来自页面 HTML，抓不到就是没有（不拿 installs 假装趋势）
+    with_trend: finalRecords.filter((r) => r.trend_pct != null).length,
     flagged: catalog.skills.filter((s) => s.flags?.length).length,
     truncated: truncatedReasons.length > 0,
     truncated_reasons: truncatedReasons,

@@ -1,0 +1,52 @@
+{
+  "ok": true,
+  "trigger": "cron-or-manual-get",
+  "oidc_token_source": "x-vercel-oidc-token header",
+  "version": "full-2026-10-20T01-31-25-253Z",
+  "generated_at": "2026-10-20T01:31:25.253Z",
+  "count": 6137,
+  "raw_count": 7529,
+  "limit_records": 1000,
+  "list_total": 93043,
+  "previous": {
+    "url": "https://n6otughmwpkpfyqb.public.blob.vercel-storage.com/catalog-latest.json",
+    "version": "full-2026-10-20T01-20-59-278Z",
+    "count": 7343,
+    "error": null
+  },
+  "inherited_enriched": 733,
+  "deduped": 1392,
+  "max_installs": 3940391,
+  "requests": {
+    "list": 2,
+    "curated": 1,
+    "enrich": 1513,
+    "used": 1516,
+    "max": 1500
+  },
+  "enrich_targets": {
+    "desired": 6282,
+    "already_enriched": 441,
+    "selected": 499,
+    "completed": 499,
+    "failed": 0,
+    "skipped_budget": 5783,
+    "skipped_deadline": 0
+  },
+  "coverage": {
+    "with_body": 498,
+    "with_hash": 1318,
+    "with_audit": 1199,
+    "flagged": 48
+  },
+  "truncated": true,
+  "truncated_reasons": [
+    "list_cap:1000/93043",
+    "enrich_budget:5783"
+  ],
+  "warnings": [],
+  "collect_ms": 138468,
+  "elapsed_ms": 142046,
+  "dry_run": true,
+  "uploaded": null
+}
