@@ -2,8 +2,13 @@
 // 输入是 /api/v1 的原始记录，输出是 data/catalog.json 的形状（插件只认这一份）。
 
 export const SCORE_WEIGHTS = { H: 0.45, T: 0.2, C: 0.2, A: 0.15 };
+export const ENRICH_VERSION = 2; // 2 = 描述来自 SKILL.md frontmatter + 趋势来自页面 HTML
 export const TREND_CLIP = [-50, 200]; // 8 周增长率裁剪区间（%）
 export const NO_AUDIT_SCORE = 0.5; // 无审计数据给中位，不给 0：否则系统性歧视非 GitHub 来源
+
+// 富集结果带上「是哪一版抓的」。为什么需要：上一版目录里的 hash 不能当作「已经抓全」的证据——
+// 抓取逻辑升级后（比如开始解析 SKILL.md frontmatter），旧记录有 hash 却没有 description，
+// 如果只按 hash 跳过，这些头部技能会永远缺描述。升这个号 = 下一轮全部重抓一遍。
 
 /**
  * SKILL.md 的 YAML frontmatter → {name, description}。
@@ -68,6 +73,7 @@ export function normalizeRecord(raw) {
     trend_pct: trendPct(raw.weeklyInstalls || raw.weekly_series) ?? raw.trend_pct ?? null,
     weekly_series: raw.weeklyInstalls || raw.weekly_series || null,
     hash: raw.hash || null,
+    enrich_v: Number.isFinite(raw.enrich_v) ? raw.enrich_v : null,
     description_en: raw.description || raw.description_en || null,
     curated: Boolean(raw.curated),
     official: Boolean(raw.official),
@@ -176,6 +182,7 @@ export function buildCatalog(records, { version, generatedAt = null, zh = {} } =
       trend_pct: rec.trend_pct,
       weekly_series: rec.weekly_series || undefined,
       hash: rec.hash || undefined,
+      enrich_v: rec.enrich_v || undefined,
       description_en: rec.description_en || undefined,
       name_zh: zh[rec.hash || rec.id]?.name_zh || undefined,
       zh: zh[rec.hash || rec.id] || undefined,

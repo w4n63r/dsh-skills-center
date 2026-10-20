@@ -11,7 +11,7 @@
 // 并把裁掉了多少写进 stats（truncated / truncated_reason），绝不让超时表现为「静默少了几百条」。
 
 import { createClient, PER_PAGE } from './fetch.mjs';
-import { buildCatalog, normalizeRecord, parseFrontmatter } from './pipeline.mjs';
+import { buildCatalog, normalizeRecord, parseFrontmatter, ENRICH_VERSION } from './pipeline.mjs';
 
 /** 默认值按 Hobby 安全值给：Pro（300s）用环境变量放开即可。 */
 export const DEFAULTS = Object.freeze({
@@ -57,6 +57,8 @@ export function mergeDetail(record, detail, audit, page = null) {
     ...record,
     // hash 只在这里出现：列表项没有 hash（实测），所以去重的强身份只有抓过 detail 的记录才有
     hash: detail?.hash || record.hash || null,
+    // 这一版抓取逻辑的版本号：空描述≠没抓过，只有版本号能区分「抓过但没描述」和「旧逻辑抓的」
+    enrich_v: ENRICH_VERSION,
     // 说明的唯一真实来源是 SKILL.md frontmatter（detail 顶层没有 description 字段，实测只有
     // id/source/slug/installs/hash/files）；拿不到就保持 null，不编。
     description: meta?.description || detail?.description || record.description || null,
@@ -187,6 +189,7 @@ export async function collect({
       if (!rec.weekly_series && Array.isArray(prev.weekly_series)) rec.weekly_series = prev.weekly_series;
       if (rec.trend_pct == null && prev.trend_pct != null) rec.trend_pct = prev.trend_pct;
       if (prev.hash) inherited += 1;
+      if (Number.isFinite(prev.enrich_v)) rec.enrich_v = prev.enrich_v;
     }
     log(`inherited ${inherited} enriched records from previous catalog (${priors.size} known ids)`);
   }
@@ -236,7 +239,8 @@ export async function collect({
     if (queued.has(rec.id)) continue;
     queued.add(rec.id);
     // 上一版已经抓过 detail（有 hash）的就不再花 2 个请求；refreshEnrich 时全部重抓
-    if (rec.hash && !refreshEnrich) {
+    // 只有「已经按当前逻辑抓过」的才跳过；旧版本的 hash 不算数
+    if (rec.enrich_v === ENRICH_VERSION && !refreshEnrich) {
       alreadyEnriched += 1;
       continue;
     }

@@ -148,11 +148,14 @@ export async function publishCatalog({
   log(`wrote ${versionedPath} (${Buffer.byteLength(body)}B)`);
 
   // 指针最后写：只要这一行没执行，线上 latest 就还是上一个完整版本
+  // 指针必须短缓存：公共 Blob 默认按 immutable 长缓存，实测覆盖上传后仍返回上一版（count 7343 vs 7579），
+  // 插件读到的就是旧目录。60s 足够吸收同步抖动，也不会让用户等一天。
   const latest = await put(latestPath, body, {
     access,
     allowOverwrite: true,
     contentType: 'application/json',
     addRandomSuffix: false,
+    cacheControlMaxAge: 60,
   });
   log(`wrote ${latestPath}`);
 
