@@ -1,0 +1,60 @@
+{
+  "ok": true,
+  "trigger": "cron-or-manual-get",
+  "oidc_token_source": "x-vercel-oidc-token header",
+  "version": "full-2026-10-20T01-20-59-278Z",
+  "generated_at": "2026-10-20T01:20:59.278Z",
+  "count": 7343,
+  "raw_count": 9126,
+  "limit_records": 3000,
+  "list_total": 93043,
+  "previous": {
+    "url": null,
+    "version": null,
+    "count": 0,
+    "error": null
+  },
+  "inherited_enriched": 0,
+  "deduped": 1783,
+  "max_installs": 3940391,
+  "requests": {
+    "list": 6,
+    "curated": 1,
+    "enrich": 1533,
+    "used": 1540,
+    "max": 1500
+  },
+  "enrich_targets": {
+    "desired": 7172,
+    "already_enriched": 0,
+    "selected": 746,
+    "completed": 739,
+    "failed": 7,
+    "skipped_budget": 6426,
+    "skipped_deadline": 0
+  },
+  "coverage": {
+    "with_body": 735,
+    "with_hash": 1279,
+    "with_audit": 706,
+    "flagged": 217
+  },
+  "truncated": true,
+  "truncated_reasons": [
+    "list_cap:3000/93043",
+    "enrich_budget:6426"
+  ],
+  "warnings": [],
+  "collect_ms": 192660,
+  "elapsed_ms": 199841,
+  "uploaded": {
+    "versioned": {
+      "pathname": "catalog-2026-10-20T01-20-59-278Z.json",
+      "url": "https://n6otughmwpkpfyqb.public.blob.vercel-storage.com/catalog-2026-10-20T01-20-59-278Z.json"
+    },
+    "latest": {
+      "pathname": "catalog-latest.json",
+      "url": "https://n6otughmwpkpfyqb.public.blob.vercel-storage.com/catalog-latest.json"
+    }
+  }
+}

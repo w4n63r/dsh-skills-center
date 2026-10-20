@@ -3,6 +3,7 @@
 // 本地要验证的是上游 JSON → catalog.json 的映射，靠 --replay 走同样的代码路径。
 
 export const DEFAULT_BASE = 'https://skills.sh';
+export const SITE = 'https://www.skills.sh'; // 页面（HTML）站点和 API 同域但不同主机名，实测两个都能解析
 // 文档允许的上限是 500，实测 1000 会被夹回 500。全量 93036 条 → 187 页，
 // 所以「抓多少页」必须是显式参数（见 collect.mjs 的 limitRecords），不能默认全量。
 export const PER_PAGE = 500;
@@ -87,6 +88,18 @@ export function createClient({ token, base = DEFAULT_BASE, fetchImpl = globalThi
     throw lastError;
   }
 
+  /** 同一个限流器与计数器的文本请求（页面 HTML 用）。不解析 JSON，也不吃 /api/v1 的鉴权头。 */
+  async function requestText(url) {
+    if (!fetchImpl) throw new Error('no fetch available');
+    const wait = lastCallAt + MIN_INTERVAL_MS - Date.now();
+    if (wait > 0) await sleep(wait);
+    lastCallAt = Date.now();
+    calls += 1;
+    const res = await fetchImpl(url, { headers: { accept: 'text/html' } });
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText || ''} on ${url}`);
+    return res.text();
+  }
+
   return {
     request,
     get stats() {
@@ -165,7 +178,29 @@ export function createClient({ token, base = DEFAULT_BASE, fetchImpl = globalThi
     async audit(id) {
       return request(`/api/v1/skills/audit/${id.split('/').map(encodeURIComponent).join('/')}`);
     },
+    /**
+     * 技能页 HTML（https://www.skills.sh/<source>/<slug>）。为什么需要它：
+     * /api/v1 的列表项和 detail 都不返回 weeklyInstalls（实测 detail 只有 id/source/slug/installs/hash/files），
+     * 「8 周趋势」这个维度只存在于页面上的 aria-label="Weekly installs: …" 里，只能抓 HTML。
+     * 一次 1 个请求，所以调用方必须把它算进预算。
+     */
+    async page(id) {
+      const path = id.split('/').map(encodeURIComponent).join('/');
+      const html = await requestText(`${SITE}/${path}`);
+      return { weekly_series: parseWeeklyInstalls(html) };
+    },
   };
+}
+
+/**
+ * 从技能页 HTML 里抠出 8 周安装量序列。
+ * 逗号既是千分位又是分隔符的老坑：先用「1-3 位 + 若干组 ,ddd」整体匹配数字，再逐个数。
+ */
+export function parseWeeklyInstalls(html) {
+  const m = /aria-label="Weekly installs:([^"]*)"/.exec(String(html || ''));
+  if (!m) return null;
+  const nums = (m[1].match(/\d{1,3}(?:,\d{3})*/g) || []).map((x) => Number(x.replace(/,/g, '')));
+  return nums.length ? nums.slice(0, 8) : null;
 }
 
 /** 并发跑一批任务，但把并发压在 limit 内；单个失败不拖垮整批（返回 null）。 */

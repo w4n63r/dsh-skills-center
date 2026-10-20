@@ -18,6 +18,7 @@ const ok = (body, status = 200) => ({
   statusText: status === 404 ? 'Not Found' : '',
   headers: { get: () => null },
   json: async () => body,
+  text: async () => (typeof body === 'string' ? body : JSON.stringify(body)),
 });
 
 /** 造一个假的 fetch。`impl.calls` 记录每个请求的 url 与 headers，供测试断言。 */
@@ -29,6 +30,14 @@ export function createReplayFetch(fixture, { log = () => {} } = {}) {
   const impl = async (url, init = {}) => {
     calls.push({ url: String(url), headers: init?.headers || {} });
     const u = new URL(String(url));
+
+    // 技能页面（HTML）：只有这里能拿到 8 周安装量，趋势就靠它
+    if (u.hostname === 'www.skills.sh') {
+      const id = decodeURIComponent(u.pathname.replace(/^\//, ''));
+      const weekly = fixture?.pages?.[id];
+      if (!weekly) return ok('<html>no weekly installs</html>', 404);
+      return ok(`<html><span aria-label="Weekly installs:${weekly.map((n) => ` ${n.toLocaleString('en-US')}`)}"></span></html>`);
+    }
 
     if (u.pathname === '/api/v1/skills') {
       // 契约：page 默认 0，per_page 1–500 默认 100；这里缺省值取 per_page=500 与客户端一致

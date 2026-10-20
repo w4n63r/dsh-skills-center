@@ -5,6 +5,38 @@ export const SCORE_WEIGHTS = { H: 0.45, T: 0.2, C: 0.2, A: 0.15 };
 export const TREND_CLIP = [-50, 200]; // 8 周增长率裁剪区间（%）
 export const NO_AUDIT_SCORE = 0.5; // 无审计数据给中位，不给 0：否则系统性歧视非 GitHub 来源
 
+/**
+ * SKILL.md 的 YAML frontmatter → {name, description}。
+ * 为什么必须自己解析：/api/v1 的 detail 只返回 id/source/slug/installs/hash/files，
+ * 全链路唯一的「这个技能到底干什么」的证据就是 SKILL.md 的 frontmatter description。
+ * 只支持常见子集（key: value / 折叠块 > 与 |），解析不了就返回 null，绝不猜。
+ */
+export function parseFrontmatter(text) {
+  const m = /^---\r?\n([\s\S]*?)\r?\n---/.exec(String(text || ''));
+  if (!m) return null;
+  const out = {};
+  const lines = m[1].split(/\r?\n/);
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i];
+    const kv = /^([A-Za-z_][\w-]*):\s*(.*)$/.exec(line);
+    if (!kv) continue;
+    const key = kv[1];
+    let value = kv[2].trim();
+    if (value === '>' || value === '|' || value === '>-' || value === '|-') {
+      const block = [];
+      while (i + 1 < lines.length && /^\s+\S/.test(lines[i + 1])) {
+        i += 1;
+        block.push(lines[i].trim());
+      }
+      value = block.join(' ');
+    } else if (/^['"].*['"]$/.test(value)) {
+      value = value.slice(1, -1);
+    }
+    if (value) out[key] = value;
+  }
+  return Object.keys(out).length ? out : null;
+}
+
 /** 8 周安装量序列 → 前后半段增长率（%）。数据不足返回 null，别硬算。 */
 export function trendPct(weekly) {
   if (!Array.isArray(weekly) || weekly.length < 4) return null;

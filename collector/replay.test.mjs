@@ -89,9 +89,15 @@ assert.ok(
   fetchImpl.calls.every((c) => c.headers['x-vercel-oidc-token'] === undefined),
   'must never send x-vercel-oidc-token upstream (401s in production)',
 );
+// 页面 HTML（www.skills.sh）是公开的，不该带 token；/api/v1 的每个请求都必须带。
+const apiCalls = fetchImpl.calls.filter((c) => !c.url.includes('www.skills.sh'));
 assert.ok(
-  fetchImpl.calls.every((c) => c.headers.Authorization === `Bearer ${TOKEN}`),
-  'every request carries Authorization: Bearer',
+  apiCalls.length > 0 && apiCalls.every((c) => c.headers.Authorization === `Bearer ${TOKEN}`),
+  'every /api/v1 request carries Authorization: Bearer',
+);
+assert.ok(
+  fetchImpl.calls.filter((c) => c.url.includes('www.skills.sh')).every((c) => c.headers.Authorization === undefined),
+  'never leak the upstream token to the public HTML site',
 );
 const curatedCalls = fetchImpl.calls.filter((c) => c.url.endsWith('/api/v1/skills/curated'));
 assert.equal(curatedCalls.length, 1, 'curated is a single request (it is owner-grouped, not paginated)');
@@ -108,12 +114,13 @@ assert.deepEqual(scores, [...scores].sort((a, b) => b - a));
 const tight = await loadReplayFixture(FIXTURE);
 const budgeted = await collect({ fetchImpl: tight.fetchImpl, token: TOKEN, maxRequests: 8, ...quiet });
 assert.ok(budgeted.stats.requests.used <= 8, `used ${budgeted.stats.requests.used} must stay within budget 8`);
-assert.equal(budgeted.stats.enrich_targets.selected, 2, '3 list + 1 curated leaves 4 calls = 2 targets');
+// 每个目标现在要 3 个请求（detail + audit + 页面 HTML 拿趋势），所以 4 个剩余额度只能覆盖 1 个
+assert.equal(budgeted.stats.enrich_targets.selected, 1, '3 list + 1 curated leaves 4 calls = 1 target at 3 calls each');
 assert.ok(budgeted.stats.enrich_targets.skipped_budget > 0);
 assert.equal(budgeted.stats.truncated, true);
 assert.ok(budgeted.stats.truncated_reasons.some((r) => r.startsWith('enrich_budget:')), budgeted.stats.truncated_reasons.join());
 assert.equal(budgeted.catalog.count, 9, 'truncation must not drop records — it only leaves them list-level');
-assert.equal(budgeted.stats.with_body, 2);
+assert.equal(budgeted.stats.with_body, 1);
 
 // ---- 5b) 时间闸门：到点后不再发新请求 ----
 const deadlined = await collect({ fetchImpl: (await loadReplayFixture(FIXTURE)).fetchImpl, token: TOKEN, maxRuntimeMs: -1, ...quiet });

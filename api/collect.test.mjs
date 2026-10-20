@@ -109,7 +109,7 @@ assert.equal(dryBody.oidc_token_source, 'x-vercel-oidc-token header');
 assert.equal(dryBody.count, 9, 'the handler really ran collect() over the fixture');
 assert.equal(dryBody.raw_count, 14);
 assert.equal(dryBody.deduped, 5);
-assert.equal(dryBody.requests.used, 21);
+assert.equal(dryBody.requests.used, 29, '3 list + 1 curated + 8 targets x 3 calls (detail/audit/page)');
 assert.equal(dryBody.requests.max, 1500, 'default request budget covers 6 list pages + 600 enrich targets');
 assert.equal(dryBody.limit_records, 3000, 'the catalog is capped at the top 3000 by installs by default');
 assert.equal(dryBody.list_total, 13, 'pagination.total from the fixture is surfaced, not hidden');
@@ -137,6 +137,6 @@ assert.ok(/export async function GET/.test(source), 'cron needs a GET export');
 assert.ok(/export async function POST/.test(source), 'manual re-runs need POST');
 
 console.log(
-  'api ok — CRON_SECRET gate (503/401), OIDC via Request header, fixture end-to-end to ?dry=1 (9 entries, 21 requests, ' +
+  'api ok — CRON_SECRET gate (503/401), OIDC via Request header, fixture end-to-end to ?dry=1 (9 entries, 29 requests, ' +
     'limit_records=3000), upload failure is loud and carries catalog_stats',
 );

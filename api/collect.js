@@ -139,6 +139,9 @@ async function run(request, trigger, { resolveToken = resolveOidcToken, loadBlob
       view: url.searchParams.get('view') || process.env.SKILLS_VIEW || DEFAULTS.view,
       stage: url.searchParams.get('stage') === 'list' ? 'list' : 'all',
       refreshEnrich: url.searchParams.get('refreshEnrich') === '1',
+      // 趋势只能从技能页 HTML 抓（/api/v1 不返回 weeklyInstalls），每个目标多 1 个请求；
+      // 想省额度就传 trend=0，代价是这一维全空。
+      fetchTrend: url.searchParams.get('trend') !== '0' && process.env.FETCH_TREND !== '0',
     };
     const dry = url.searchParams.get('dry') === '1';
     const prefix = process.env.BLOB_PREFIX || 'catalog';

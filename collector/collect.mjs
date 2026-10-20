@@ -11,7 +11,7 @@
 // 并把裁掉了多少写进 stats（truncated / truncated_reason），绝不让超时表现为「静默少了几百条」。
 
 import { createClient, PER_PAGE } from './fetch.mjs';
-import { buildCatalog, normalizeRecord } from './pipeline.mjs';
+import { buildCatalog, normalizeRecord, parseFrontmatter } from './pipeline.mjs';
 
 /** 默认值按 Hobby 安全值给：Pro（300s）用环境变量放开即可。 */
 export const DEFAULTS = Object.freeze({
@@ -24,6 +24,7 @@ export const DEFAULTS = Object.freeze({
   concurrency: 8, // 详情/审计的并发；实测 8 路无 429，每个约 0.3–0.6s
   maxRequests: 1500, // 上游请求总数闸门（目录 6 + curated 1 + 详情/审计 1200 + 余量）
   maxRuntimeMs: 250000, // 采集段的时间闸门；函数上限 300s，留 ~50s 给上传与响应
+  fetchTrend: true, // 每个目标多 1 个请求去抓页面 HTML，换「8 周趋势」这一维
 });
 
 const isoStamp = (d = new Date()) => d.toISOString().replace(/[:.]/g, '-');
@@ -45,21 +46,26 @@ export function preCluster(records) {
 }
 
 /** detail + audit 的返回揉成一条记录；字段名对不上就留空，绝不瞎猜。 */
-export function mergeDetail(record, detail, audit) {
+export function mergeDetail(record, detail, audit, page = null) {
   const files = Array.isArray(detail?.files) ? detail.files : [];
   const skillMd = files.find((f) => /(^|\/)SKILL\.md$/i.test(f.path || '')) || files[0];
   const body = typeof skillMd?.contents === 'string' ? skillMd.contents : null;
+  // detail 没有 description 字段（实测只有 id/source/slug/installs/hash/files），
+  // 唯一的说明来源就是 SKILL.md 的 frontmatter。
+  const meta = parseFrontmatter(body);
   return {
     ...record,
     // hash 只在这里出现：列表项没有 hash（实测），所以去重的强身份只有抓过 detail 的记录才有
     hash: detail?.hash || record.hash || null,
-    // detail 才是唯一有描述的来源（列表项没有 description 字段）；没有就保持 null，不编
-    description: detail?.description || record.description || null,
+    // 说明的唯一真实来源是 SKILL.md frontmatter（detail 顶层没有 description 字段，实测只有
+    // id/source/slug/installs/hash/files）；拿不到就保持 null，不编。
+    description: meta?.description || detail?.description || record.description || null,
     bodyLength: body ? body.length : null,
     body_excerpt: body ? body.slice(0, 4000) : null,
     file_count: files.length || null,
     audit: audit?.audits?.length ? audit : record.audit,
-    weeklyInstalls: detail?.weeklyInstalls || record.weekly_series || null,
+    // 趋势只存在于页面 HTML（见 fetch.mjs 的 page()）；detail 里没有这个字段。
+    weeklyInstalls: page?.weekly_series || detail?.weeklyInstalls || record.weekly_series || null,
     firstSeen: detail?.firstSeen || record.first_seen || null,
     curated: Boolean(record.curated),
     official: Boolean(record.official),
@@ -92,6 +98,7 @@ export async function collect({
   concurrency = DEFAULTS.concurrency,
   maxRequests = DEFAULTS.maxRequests,
   maxRuntimeMs = DEFAULTS.maxRuntimeMs,
+  fetchTrend = DEFAULTS.fetchTrend,
   stage = 'all', // 'all' | 'list'
   previous = null, // 上一版目录的 skills[]：抓过 detail/audit 的条目直接继承，不再重复花请求
   refreshEnrich = false, // true = 无视上一版，全部重抓（内容可能变了，但要花满 600 个请求）
@@ -238,7 +245,8 @@ export async function collect({
   if (alreadyEnriched > 0) log(`enrich: ${alreadyEnriched} head targets already enriched → skipped`);
 
   const remaining = Math.max(0, maxRequests - requests);
-  const affordable = Math.floor(remaining / 2); // 每个目标 = detail + audit
+  const costPerTarget = fetchTrend ? 3 : 2; // detail + audit（+ 页面 HTML 拿趋势）
+  const affordable = Math.floor(remaining / costPerTarget);
   const selected = candidates.slice(0, Math.min(candidates.length, affordable));
   const skippedBudget = candidates.length - selected.length;
   if (skippedBudget > 0) truncatedReasons.push(`enrich_budget:${skippedBudget}`);
@@ -261,7 +269,9 @@ export async function collect({
     // 让 requests.used 在 21/22 之间随机（实测约 1/60 的复现率）。
     const detail = await client.detail(rec.id);
     const audit = await client.audit(rec.id).catch(() => null); // 审计缺数据/404 不该拖垮整个目标
-    enriched.set(rec.id, mergeDetail(rec, detail, audit));
+    // 趋势是可选维度：页面抓失败（改版/限流）就当没有，不影响这条记录落地
+    const page = fetchTrend ? await client.page(rec.id).catch(() => null) : null;
+    enriched.set(rec.id, mergeDetail(rec, detail, audit, page));
   }, () => (failed += 1));
   if (skippedDeadline > 0) truncatedReasons.push(`enrich_deadline:${skippedDeadline}`);
 

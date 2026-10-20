@@ -24,6 +24,7 @@ function parseArgs(argv) {
     concurrency: DEFAULTS.concurrency,
     maxRequests: DEFAULTS.maxRequests,
     maxRuntimeMs: DEFAULTS.maxRuntimeMs,
+    fetchTrend: DEFAULTS.fetchTrend,
     stage: 'all',
     view: DEFAULTS.view,
   };
@@ -35,6 +36,7 @@ function parseArgs(argv) {
     else if (key === '--list-concurrency') args.listConcurrency = Number(next());
     else if (key === '--previous') args.previous = next();
     else if (key === '--refresh-enrich') args.refreshEnrich = true;
+    else if (key === '--no-trend') args.fetchTrend = false;
     else if (key === '--enrich') args.enrich = Number(next());
     else if (key === '--concurrency') args.concurrency = Number(next());
     else if (key === '--max-requests') args.maxRequests = Number(next());
@@ -55,7 +57,7 @@ async function main() {
   const args = parseArgs(process.argv);
   if (args.help) {
     process.stdout.write(
-      'usage: node collector/run.mjs [--out data/catalog.json] [--enrich 300] [--max-requests 300] ' +
+      'usage: node collector/run.mjs [--out data/catalog.json] [--enrich 600] [--max-requests 1500] [--no-trend] ' +
         '[--runtime-ms 42000] [--concurrency 4] [--stage all|list] [--view all-time] [--replay fixture.json]\n',
     );
     return;
@@ -100,6 +102,7 @@ async function main() {
     concurrency: args.concurrency,
     maxRequests: args.maxRequests,
     maxRuntimeMs: args.maxRuntimeMs,
+    fetchTrend: args.fetchTrend,
     stage: args.stage,
     log,
   });

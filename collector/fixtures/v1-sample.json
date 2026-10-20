@@ -248,7 +248,16 @@
       "slug": "grill-me",
       "hash": "4b1f8d2c7a90e5b6c3d4a1f0e9b8c7d6a5f4e3d2c1b0a9f8e7d6c5b4a3f2e1d0",
       "description": "A thin forwarding shell that hands the task to the grilling skill.",
-      "weeklyInstalls": [25000, 25000, 25000, 25000, 21000, 21800, 22000, 22400],
+      "weeklyInstalls": [
+        25000,
+        25000,
+        25000,
+        25000,
+        21000,
+        21800,
+        22000,
+        22400
+      ],
       "firstSeen": "2026-06-02T00:00:00.000Z",
       "files": [
         {
@@ -263,7 +272,16 @@
       "slug": "frontend-design",
       "hash": "9a7c6e5d4b3a2918f7e6d5c4b3a29188f7e6d5c4b3a29188f7e6d5c4b3a2918",
       "description": "Design-forward frontend guidance: pick a direction, then defend it.",
-      "weeklyInstalls": [50000, 51000, 52000, 53000, 54000, 55000, 56000, 57000],
+      "weeklyInstalls": [
+        50000,
+        51000,
+        52000,
+        53000,
+        54000,
+        55000,
+        56000,
+        57000
+      ],
       "firstSeen": "2026-05-14T00:00:00.000Z",
       "files": [
         {
@@ -286,7 +304,16 @@
       "slug": "ai-video-generation",
       "hash": "1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d",
       "description": "Generate AI videos from still images and text prompts.",
-      "weeklyInstalls": [23000, 25000, 26000, 26000, 40000, 43000, 45000, 48100],
+      "weeklyInstalls": [
+        23000,
+        25000,
+        26000,
+        26000,
+        40000,
+        43000,
+        45000,
+        48100
+      ],
       "firstSeen": "2026-04-21T00:00:00.000Z",
       "files": [
         {
@@ -331,7 +358,16 @@
       "slug": "hyperframes-animation",
       "hash": "3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d",
       "description": "Frame-accurate animation timelines for product demos.",
-      "weeklyInstalls": [5000, 5000, 5000, 5000, 12000, 12500, 12800, 13040],
+      "weeklyInstalls": [
+        5000,
+        5000,
+        5000,
+        5000,
+        12000,
+        12500,
+        12800,
+        13040
+      ],
       "firstSeen": "2026-07-08T00:00:00.000Z",
       "files": [
         {
@@ -383,6 +419,28 @@
       ]
     }
   },
+  "pages": {
+    "mattpocock/skills/grill-me": [
+      1000,
+      1100,
+      1200,
+      1300,
+      1400,
+      1500,
+      1600,
+      1700
+    ],
+    "anthropics/skills/frontend-design": [
+      2000,
+      1900,
+      1800,
+      1700,
+      1650,
+      1600,
+      1550,
+      1500
+    ]
+  },
   "audits": {
     "mattpocock/skills/grill-me": {
       "id": "mattpocock/skills/grill-me",
@@ -410,7 +468,9 @@
           "status": "fail",
           "summary": "Forwards to another skill without naming its source.",
           "auditedAt": "2026-10-17T00:00:00.000Z",
-          "categories": ["transparency"]
+          "categories": [
+            "transparency"
+          ]
         }
       ]
     },
@@ -440,7 +500,9 @@
           "status": "warn",
           "summary": "Reads provider API keys from the environment.",
           "auditedAt": "2026-10-16T00:00:00.000Z",
-          "categories": ["secrets"]
+          "categories": [
+            "secrets"
+          ]
         },
         {
           "provider": "runlayer",
@@ -463,11 +525,42 @@
       "source": "anthropics/skills",
       "slug": "frontend-design",
       "audits": [
-        { "provider": "agent-trust-hub", "slug": "gen-agent-trust-hub", "status": "pass", "summary": "Read-only guidance.", "auditedAt": "2026-10-15T00:00:00.000Z", "riskLevel": "SAFE" },
-        { "provider": "socket", "slug": "socket", "status": "pass", "summary": "No dependencies.", "auditedAt": "2026-10-15T00:00:00.000Z" },
-        { "provider": "snyk", "slug": "snyk", "status": "pass", "summary": "No code execution.", "auditedAt": "2026-10-15T00:00:00.000Z" },
-        { "provider": "runlayer", "slug": "runlayer", "status": "pass", "summary": "No outbound calls.", "auditedAt": "2026-10-15T00:00:00.000Z" },
-        { "provider": "zeroleaks", "slug": "zeroleaks", "status": "pass", "summary": "Clean.", "auditedAt": "2026-10-15T00:00:00.000Z" }
+        {
+          "provider": "agent-trust-hub",
+          "slug": "gen-agent-trust-hub",
+          "status": "pass",
+          "summary": "Read-only guidance.",
+          "auditedAt": "2026-10-15T00:00:00.000Z",
+          "riskLevel": "SAFE"
+        },
+        {
+          "provider": "socket",
+          "slug": "socket",
+          "status": "pass",
+          "summary": "No dependencies.",
+          "auditedAt": "2026-10-15T00:00:00.000Z"
+        },
+        {
+          "provider": "snyk",
+          "slug": "snyk",
+          "status": "pass",
+          "summary": "No code execution.",
+          "auditedAt": "2026-10-15T00:00:00.000Z"
+        },
+        {
+          "provider": "runlayer",
+          "slug": "runlayer",
+          "status": "pass",
+          "summary": "No outbound calls.",
+          "auditedAt": "2026-10-15T00:00:00.000Z"
+        },
+        {
+          "provider": "zeroleaks",
+          "slug": "zeroleaks",
+          "status": "pass",
+          "summary": "Clean.",
+          "auditedAt": "2026-10-15T00:00:00.000Z"
+        }
       ]
     },
     "mattpocock/skills/hyperframes-animation": {
@@ -475,8 +568,20 @@
       "source": "mattpocock/skills",
       "slug": "hyperframes-animation",
       "audits": [
-        { "provider": "socket", "slug": "socket", "status": "pass", "summary": "No install scripts.", "auditedAt": "2026-10-12T00:00:00.000Z" },
-        { "provider": "snyk", "slug": "snyk", "status": "pass", "summary": "Documentation only.", "auditedAt": "2026-10-12T00:00:00.000Z" }
+        {
+          "provider": "socket",
+          "slug": "socket",
+          "status": "pass",
+          "summary": "No install scripts.",
+          "auditedAt": "2026-10-12T00:00:00.000Z"
+        },
+        {
+          "provider": "snyk",
+          "slug": "snyk",
+          "status": "pass",
+          "summary": "Documentation only.",
+          "auditedAt": "2026-10-12T00:00:00.000Z"
+        }
       ]
     },
     "vercel-labs/agent-skills/find-skills": {
@@ -484,8 +589,21 @@
       "source": "vercel-labs/agent-skills",
       "slug": "find-skills",
       "audits": [
-        { "provider": "agent-trust-hub", "slug": "gen-agent-trust-hub", "status": "warn", "summary": "Reads the local skill catalog.", "auditedAt": "2026-10-11T00:00:00.000Z", "riskLevel": "SAFE" },
-        { "provider": "socket", "slug": "socket", "status": "pass", "summary": "No install scripts.", "auditedAt": "2026-10-11T00:00:00.000Z" }
+        {
+          "provider": "agent-trust-hub",
+          "slug": "gen-agent-trust-hub",
+          "status": "warn",
+          "summary": "Reads the local skill catalog.",
+          "auditedAt": "2026-10-11T00:00:00.000Z",
+          "riskLevel": "SAFE"
+        },
+        {
+          "provider": "socket",
+          "slug": "socket",
+          "status": "pass",
+          "summary": "No install scripts.",
+          "auditedAt": "2026-10-11T00:00:00.000Z"
+        }
       ]
     },
     "vercel-labs/agent-skills/writing-docs": {
@@ -493,7 +611,13 @@
       "source": "vercel-labs/agent-skills",
       "slug": "writing-docs",
       "audits": [
-        { "provider": "socket", "slug": "socket", "status": "pass", "summary": "Documentation only.", "auditedAt": "2026-10-10T00:00:00.000Z" }
+        {
+          "provider": "socket",
+          "slug": "socket",
+          "status": "pass",
+          "summary": "Documentation only.",
+          "auditedAt": "2026-10-10T00:00:00.000Z"
+        }
       ]
     },
     "prisma/skills/prisma-postgres": {
@@ -501,7 +625,16 @@
       "source": "prisma/skills",
       "slug": "prisma-postgres",
       "audits": [
-        { "provider": "snyk", "slug": "snyk", "status": "fail", "summary": "Deprecated entry with no maintained content.", "auditedAt": "2026-09-30T00:00:00.000Z", "categories": ["maintenance"] }
+        {
+          "provider": "snyk",
+          "slug": "snyk",
+          "status": "fail",
+          "summary": "Deprecated entry with no maintained content.",
+          "auditedAt": "2026-09-30T00:00:00.000Z",
+          "categories": [
+            "maintenance"
+          ]
+        }
       ]
     }
   }
