@@ -3,7 +3,9 @@
 // 本地要验证的是上游 JSON → catalog.json 的映射，靠 --replay 走同样的代码路径。
 
 export const DEFAULT_BASE = 'https://skills.sh';
-export const PER_PAGE = 500; // 文档允许的上限；17 页覆盖全量约 8420 条
+// 文档允许的上限是 500，实测 1000 会被夹回 500。全量 93036 条 → 187 页，
+// 所以「抓多少页」必须是显式参数（见 collect.mjs 的 limitRecords），不能默认全量。
+export const PER_PAGE = 500;
 export const RATE_LIMIT_PER_MIN = 600; // 文档写明的 (team, project) 级限额
 export const MIN_INTERVAL_MS = Math.ceil(60000 / RATE_LIMIT_PER_MIN);
 
@@ -17,11 +19,14 @@ export function authHeaders(token) {
 
 /** 响应信封：{data:[…], pagination:{page, perPage, total, hasMore}}；search 那套是老形状，一并兼容。 */
 export function unwrap(payload) {
-  if (Array.isArray(payload)) return { items: payload, total: payload.length, hasMore: false };
+  if (Array.isArray(payload)) return { items: payload, total: payload.length, hasMore: false, perPage: payload.length };
   const items = payload?.data ?? payload?.skills ?? payload?.items ?? payload?.results ?? [];
   const total = payload?.pagination?.total ?? payload?.total ?? payload?.count ?? (items.length || 0);
   const hasMore = payload?.pagination?.hasMore ?? payload?.hasMore ?? null;
-  return { items: Array.isArray(items) ? items : [], total, hasMore };
+  // 服务端会把自己的 perPage 回显出来：算「还要几页」必须用它，不能用手上请求的那个 per_page。
+  // 实测 per_page=1000 会被夹回 500；fixture 也会钉一个更小的 pageSize，两者都靠这个字段暴露。
+  const perPage = Number(payload?.pagination?.perPage) || null;
+  return { items: Array.isArray(items) ? items : [], total, hasMore, perPage };
 }
 
 /** curated 是「按 owner 分组」的形状：{data:[{owner, skills:[…], totalInstalls}]}，必须摊平。 */
@@ -106,6 +111,49 @@ export function createClient({ token, base = DEFAULT_BASE, fetchImpl = globalThi
         if (Number.isFinite(total) && all.length >= total) break;
       }
       return all;
+    },
+    /**
+     * 取「前 maxPages 页」，页与页之间并发。
+     *
+     * 为什么必须并发：实测列表接口单次固定约 7s（per_page=1 也是 7.5s，与载荷无关），
+     * 一页一个请求串行取 6 页就是 42s —— 直接吃掉 Vercel Hobby 的 60s。并发 6~8 实测无 429，
+     * 8 页并发总耗时 8.4s（≈ 单次延迟）。所以延迟是服务端每次查询的固定成本，并发是唯一的解法。
+     *
+     * 终止条件：先取第 0 页拿 pagination.total，再按 total 和 maxPages 取小值决定真正要几页，
+     * 绝不闷头翻到 hasMore 变 false（全量 187 页）。
+     */
+    async listPages({ view = 'all-time', perPage = PER_PAGE, maxPages = 6, concurrency = 6, onPage } = {}) {
+      const first = await this.listPage({ view, page: 0, perPage });
+      const all = [...first.items];
+      const total = first.total;
+      // 用服务端回显的每页大小算页数（见 unwrap 的注释）
+      const effectivePerPage = first.perPage || perPage;
+      onPage?.({ page: 0, got: first.items.length, total, accumulated: all.length });
+      if (!first.items.length) return { items: all, total, pages: 1, failed: [] };
+
+      const byTotal = Number.isFinite(total) && total > 0 ? Math.ceil(total / effectivePerPage) : maxPages;
+      const pages = Math.max(1, Math.min(maxPages, byTotal));
+      const wanted = [];
+      for (let page = 1; page < pages; page += 1) wanted.push(page);
+
+      const results = await mapLimit(wanted, concurrency, async (page) => {
+        const { items, total: t } = await this.listPage({ view, page, perPage });
+        return { page, items, total: t };
+      });
+      const failed = [];
+      // 并发跑完后按页号排序拼回去，保证记录顺序等于服务端顺序（后续 preCluster 依赖安装量降序）
+      const ordered = results
+        .map((r, i) => r || { page: wanted[i], items: null })
+        .sort((a, b) => a.page - b.page);
+      for (const entry of ordered) {
+        if (!entry.items) {
+          failed.push(entry.page);
+          continue;
+        }
+        all.push(...entry.items);
+        onPage?.({ page: entry.page, got: entry.items.length, total: entry.total ?? total, accumulated: all.length });
+      }
+      return { items: all, total, pages, failed };
     },
     async curated() {
       // curated 是按 owner 分组的形状，必须摊平后才和列表项同构

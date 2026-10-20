@@ -3,13 +3,14 @@
 //
 //   node collector/run.mjs                                  # 需要 VERCEL_OIDC_TOKEN / SKILLS_API_TOKEN（Vercel 外拿不到）
 //   node collector/run.mjs --replay collector/fixtures/v1-sample.json   # 离线跑同一条代码路径
-//   node collector/run.mjs --stage list                      # 只跑目录段（17 个请求，任何套餐都跑得完）
-//   node collector/run.mjs --enrich 300 --max-requests 300 --runtime-ms 42000
+//   node collector/run.mjs --limit 3000                      # 目录只收安装量前 3000（6 页，默认）
+//   node collector/run.mjs --limit 93036                     # 全量 187 页，本地约 3-4 分钟（并发 6）
+//   node collector/run.mjs --previous data/catalog.json      # 继承上一版已抓的详情/审计，少花 600 个请求
 //
 // 线上跑的是 api/collect.js，它调用的也是 collector/collect.mjs，所以 --replay 验证过的就是线上的编排逻辑；
 // 唯一差别是 token 从哪来（CLI 读环境变量，函数读 Request 头）。
 
-import { writeFile, mkdir } from 'node:fs/promises';
+import { writeFile, readFile, mkdir } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { collect, DEFAULTS } from './collect.mjs';
 import { loadReplayFixture } from './replay.mjs';
@@ -17,6 +18,8 @@ import { loadReplayFixture } from './replay.mjs';
 function parseArgs(argv) {
   const args = {
     out: 'data/catalog.json',
+    limitRecords: DEFAULTS.limitRecords,
+    listConcurrency: DEFAULTS.listConcurrency,
     enrich: DEFAULTS.enrich,
     concurrency: DEFAULTS.concurrency,
     maxRequests: DEFAULTS.maxRequests,
@@ -28,6 +31,10 @@ function parseArgs(argv) {
     const key = argv[i];
     const next = () => argv[++i];
     if (key === '--out') args.out = next();
+    else if (key === '--limit') args.limitRecords = Number(next());
+    else if (key === '--list-concurrency') args.listConcurrency = Number(next());
+    else if (key === '--previous') args.previous = next();
+    else if (key === '--refresh-enrich') args.refreshEnrich = true;
     else if (key === '--enrich') args.enrich = Number(next());
     else if (key === '--concurrency') args.concurrency = Number(next());
     else if (key === '--max-requests') args.maxRequests = Number(next());
@@ -74,10 +81,21 @@ async function main() {
     );
   }
 
+  let previous = null;
+  if (args.previous) {
+    const prev = JSON.parse(await readFile(resolve(args.previous), 'utf8'));
+    previous = Array.isArray(prev?.skills) ? prev.skills : null;
+    log(`previous catalog ${args.previous}: ${previous ? previous.length : 0} skills`);
+  }
+
   const { catalog, stats } = await collect({
     fetchImpl,
     token,
     view: args.view,
+    limitRecords: args.limitRecords,
+    listConcurrency: args.listConcurrency,
+    previous,
+    refreshEnrich: Boolean(args.refreshEnrich),
     enrich: args.enrich,
     concurrency: args.concurrency,
     maxRequests: args.maxRequests,
@@ -96,6 +114,9 @@ async function main() {
     version: catalog.version,
     count: catalog.count,
     raw_count: catalog.raw_count,
+    limit_records: stats.limit_records,
+    list_total: stats.list_total,
+    inherited_enriched: stats.inherited_enriched,
     deduped: catalog.deduped,
     max_installs: catalog.max_installs,
     requests: stats.requests,

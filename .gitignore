@@ -32,3 +32,6 @@ venv/
 # Local agent / tool state
 .dsh/
 .claude/
+
+.vercel
+.env*

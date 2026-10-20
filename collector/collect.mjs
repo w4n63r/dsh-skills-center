@@ -10,15 +10,19 @@
 // 因此：先生成「候选 enrich 目标」的完整清单，再按剩余请求预算与剩余时间裁掉尾巴，
 // 并把裁掉了多少写进 stats（truncated / truncated_reason），绝不让超时表现为「静默少了几百条」。
 
-import { createClient, MIN_INTERVAL_MS } from './fetch.mjs';
+import { createClient, PER_PAGE } from './fetch.mjs';
 import { buildCatalog, normalizeRecord } from './pipeline.mjs';
 
 /** 默认值按 Hobby 安全值给：Pro（300s）用环境变量放开即可。 */
 export const DEFAULTS = Object.freeze({
   view: 'all-time',
+  // 目录规模：93036 条全量要 187 页（每页固定约 7s），Hobby 的 60s 根本装不下。
+  // 所以默认只收「按安装量降序的前 3000 条」（6 页，安装量 ≳ 6700）。要更宽就调这个数。
+  limitRecords: 3000,
+  listConcurrency: 6,
   enrich: 300, // 预算内最多给多少个「预聚类后的头部」抓详情
-  concurrency: 4,
-  maxRequests: 300, // 上游请求总数闸门（目录 + curated + 详情/审计）
+  concurrency: 8, // 详情/审计的并发；实测 8 路无 429，每个约 0.3–0.6s
+  maxRequests: 900, // 上游请求总数闸门（目录 6 + curated 1 + 详情/审计 600 + 余量）
   maxRuntimeMs: 42000, // 采集段的时间闸门，留 ~18s 给上传与函数收尾
 });
 
@@ -82,11 +86,15 @@ export async function collect({
   fetchImpl = globalThis.fetch,
   token = null,
   view = DEFAULTS.view,
+  limitRecords = DEFAULTS.limitRecords,
+  listConcurrency = DEFAULTS.listConcurrency,
   enrich = DEFAULTS.enrich,
   concurrency = DEFAULTS.concurrency,
   maxRequests = DEFAULTS.maxRequests,
   maxRuntimeMs = DEFAULTS.maxRuntimeMs,
   stage = 'all', // 'all' | 'list'
+  previous = null, // 上一版目录的 skills[]：抓过 detail/audit 的条目直接继承，不再重复花请求
+  refreshEnrich = false, // true = 无视上一版，全部重抓（内容可能变了，但要花满 600 个请求）
   now = Date.now,
   log = () => {},
 } = {}) {
@@ -110,21 +118,27 @@ export async function collect({
 
   const client = createClient({ token, fetchImpl: countedFetch });
 
-  // ---- 目录段：全量榜单（8420 条约 17 个请求，永远跑得完）----
+  // ---- 目录段：按安装量降序取前 limitRecords 条（并发分页，见 client.listPages）----
+  const maxPages = Math.max(1, Math.ceil(limitRecords / PER_PAGE));
   let listTotal = null;
-  log(`listing ${view} …`);
-  const listRaw = await client.listAll({
+  log(`listing ${view} … (≤${maxPages} pages / ${limitRecords} records)`);
+  const listed = await client.listPages({
     view,
+    maxPages,
+    concurrency: listConcurrency,
     onPage: (p) => {
       if (Number.isFinite(p.total)) listTotal = p.total;
       log(`  page ${p.page}: +${p.got} (${p.accumulated}${p.total ? `/${p.total}` : ''})`);
     },
   });
+  const listRaw = listed.items;
   const listRequests = client.stats.calls;
+  if (listed.failed.length) truncatedReasons.push(`list_pages_failed:${listed.failed.join(',')}`);
+  // 「目录只收头部」是产品决策，但必须让下游看得见这个截断，否则会误以为这是全量
   if (Number.isFinite(listTotal) && listRaw.length < listTotal) {
-    truncatedReasons.push(`list:${listRaw.length}/${listTotal}`);
+    truncatedReasons.push(`list_cap:${listRaw.length}/${listTotal}`);
   }
-  log(`list: ${listRaw.length} records (${listRequests} requests)`);
+  log(`list: ${listRaw.length}/${listTotal ?? '?'} records (${listRequests} requests, ${listed.pages} pages)`);
 
   // ---- curated：摊平后与列表合并（curated 端点按 owner 分组，client 已摊平）----
   log('fetching curated …');
@@ -146,6 +160,30 @@ export async function collect({
     records.push(rec);
   }
   const dupIds = listRaw.length + curatedRaw.length - records.length;
+
+  // ---- 继承上一版的富集结果 ----
+  // 详情/审计每个目标 2 个请求，一次 cron 跑不完 300 个；而描述、hash、审计结论变化很慢，
+  // 所以「每次 cron 只看新的头部」比「每次全量重抓」现实得多。继承是显式的，命中多少条写进 stats。
+  const priors = new Map();
+  for (const skill of Array.isArray(previous) ? previous : []) {
+    if (skill && typeof skill.id === 'string') priors.set(skill.id, skill);
+  }
+  let inherited = 0;
+  if (!refreshEnrich && priors.size) {
+    for (const rec of records) {
+      const prev = priors.get(rec.id);
+      if (!prev) continue;
+      if (!rec.hash && prev.hash) rec.hash = prev.hash;
+      if (!rec.description_en && prev.description_en) rec.description_en = prev.description_en;
+      if (!rec.audit && prev.audit) rec.audit = prev.audit;
+      if (!rec.first_seen && prev.first_seen) rec.first_seen = prev.first_seen;
+      if (!rec.weekly_series && Array.isArray(prev.weekly_series)) rec.weekly_series = prev.weekly_series;
+      if (rec.trend_pct == null && prev.trend_pct != null) rec.trend_pct = prev.trend_pct;
+      if (prev.hash) inherited += 1;
+    }
+    log(`inherited ${inherited} enriched records from previous catalog (${priors.size} known ids)`);
+  }
+
   log(`records: ${records.length} normalized (${dupIds} duplicate ids dropped, ${curatedIds.size} curated)`);
 
   const directoryVersion = `dir-${isoStamp()}`;
@@ -155,8 +193,13 @@ export async function collect({
   const baseStats = () => ({
     view,
     stage,
+    // 目录只收头部：limit_records 是产品决策，list_total 是上游真实规模，两个都写出来
+    limit_records: limitRecords,
     list_total: listTotal,
+    list_pages: listed.pages,
+    list_failed_pages: listed.failed,
     list_records: listRaw.length,
+    inherited_enriched: inherited,
     curated_records: curatedRaw.length,
     records: records.length,
     directory: { count: catalogStage.count, deduped: catalogStage.deduped, raw_count: catalogStage.raw_count },
@@ -181,11 +224,18 @@ export async function collect({
   const headRecords = clusters.slice(0, Math.max(0, enrich)).map((c) => c.lead);
   const candidates = [];
   const queued = new Set();
+  let alreadyEnriched = 0;
   for (const rec of interleave(curatedRecords, headRecords)) {
     if (queued.has(rec.id)) continue;
     queued.add(rec.id);
+    // 上一版已经抓过 detail（有 hash）的就不再花 2 个请求；refreshEnrich 时全部重抓
+    if (rec.hash && !refreshEnrich) {
+      alreadyEnriched += 1;
+      continue;
+    }
     candidates.push(rec);
   }
+  if (alreadyEnriched > 0) log(`enrich: ${alreadyEnriched} head targets already enriched → skipped`);
 
   const remaining = Math.max(0, maxRequests - requests);
   const affordable = Math.floor(remaining / 2); // 每个目标 = detail + audit
@@ -194,7 +244,7 @@ export async function collect({
   if (skippedBudget > 0) truncatedReasons.push(`enrich_budget:${skippedBudget}`);
   log(
     `enrich: ${selected.length}/${candidates.length} targets → ≤${selected.length * 2} requests ` +
-      `(budget ${remaining} left; ~${Math.ceil((selected.length * 2 * MIN_INTERVAL_MS) / 1000)}s at ${MIN_INTERVAL_MS}ms/call)`,
+      `(budget ${remaining} left; concurrency ${concurrency}, ~${Math.ceil((selected.length * 2 * 400) / (concurrency * 1000))}s at ~0.4s/call)`,
   );
 
   const enriched = new Map();
@@ -240,6 +290,7 @@ export async function collect({
     requests: { list: listRequests, curated: curatedRequests, enrich: requests - listRequests - curatedRequests, used: requests, max: maxRequests },
     enrich_targets: {
       desired: candidates.length,
+      already_enriched: alreadyEnriched,
       selected: selected.length,
       completed: enriched.size,
       failed,

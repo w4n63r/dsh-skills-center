@@ -4,8 +4,11 @@
 //   1) OIDC token 只在 Request 的 x-vercel-oidc-token 头上（或 @vercel/oidc 的 getVercelOidcToken()，
 //      必须在 handler 内调用）。process.env.VERCEL_OIDC_TOKEN 在运行期不被保证 —— 本文件没有一处模块级读它。
 //   2) 上游只认 Authorization: Bearer <jwt>，把 x-vercel-oidc-token 当上游鉴权头会 401（见 collector/fetch.mjs）。
-//   3) Hobby 函数 60s + 客户端 100ms/次 → 一次最多约 400 个上游请求。所以有 MAX_REQUESTS / TOP_N
-//      两个显式闸门，并把截断情况如实写进响应体，绝不静默少采。
+//   3) Hobby 函数 60s；列表接口实测每次固定约 7s（per_page=1 也是 7.5s），全量 93036 条 = 187 页。
+//      所以目录默认只收「按安装量降序的前 LIMIT_RECORDS=3000 条」（6 页并发 ≈ 8s），
+//      详情/审计再按 MAX_REQUESTS / MAX_RUNTIME_MS 两个闸门裁尾，截断原因如实写进响应体。
+//   4) 详情/审计很贵（每目标 2 个请求），所以会先把上一版 catalog-latest.json 读回来继承富集结果；
+//      只有 refreshEnrich=1 才全部重抓。
 //
 // 触发鉴权：CRON_SECRET。没设置就直接 503 —— 一个任何人都能触发的采集端点等于开着额度给别人烧。
 
@@ -70,7 +73,18 @@ export async function resolveOidcToken(request) {
   return { token: null, source: null, why: 'no x-vercel-oidc-token header and getVercelOidcToken() returned nothing' };
 }
 
-async function run(request, trigger) {
+/**
+ * 依赖注入点：生产路径全部走默认值；测试用它把「拿 token」「加载 @vercel/blob」换成桩，
+ * 否则本机有缓存的 OIDC token 时，这些分支根本走不到（测了个假绿）。
+ */
+export function makeHandler(overrides = {}) {
+  return {
+    GET: (request) => run(request, 'cron-or-manual-get', overrides),
+    POST: (request) => run(request, 'manual-post', overrides),
+  };
+}
+
+async function run(request, trigger, { resolveToken = resolveOidcToken, loadBlob = null } = {}) {
   const startedAt = Date.now();
   const url = new URL(request.url);
   const elapsed = () => Date.now() - startedAt;
@@ -115,12 +129,15 @@ async function run(request, trigger) {
       return Number.isFinite(n) ? n : fallback;
     };
     const options = {
+      limitRecords: pick('limit', envInt('LIMIT_RECORDS', DEFAULTS.limitRecords)),
+      listConcurrency: pick('listConcurrency', envInt('LIST_CONCURRENCY', DEFAULTS.listConcurrency)),
       enrich: pick('enrich', envInt('TOP_N', DEFAULTS.enrich)),
       concurrency: pick('concurrency', envInt('CONCURRENCY', DEFAULTS.concurrency)),
       maxRequests: pick('maxRequests', envInt('MAX_REQUESTS', DEFAULTS.maxRequests)),
       maxRuntimeMs: pick('runtimeMs', envInt('MAX_RUNTIME_MS', DEFAULTS.maxRuntimeMs)),
       view: url.searchParams.get('view') || process.env.SKILLS_VIEW || DEFAULTS.view,
       stage: url.searchParams.get('stage') === 'list' ? 'list' : 'all',
+      refreshEnrich: url.searchParams.get('refreshEnrich') === '1',
     };
     const dry = url.searchParams.get('dry') === '1';
     const prefix = process.env.BLOB_PREFIX || 'catalog';
@@ -128,7 +145,7 @@ async function run(request, trigger) {
 
     // ---- 3) 取 OIDC token（handler 内）----
     stage = 'token';
-    const { token, source, why } = await resolveOidcToken(request);
+    const { token, source, why } = await resolveToken(request);
     tokenSource = source;
     if (!token) {
       return fail(500, `no Vercel OIDC token: ${why}`, {
@@ -136,11 +153,42 @@ async function run(request, trigger) {
       });
     }
 
+    // ---- 3.5) 读回上一版目录，继承已经抓过的详情/审计（每个目标省 2 个请求）----
+    // 失败不致命：拿不到就当成第一次跑，只是这一轮要多花请求。但要在响应里说清楚。
+    let blob = null;
+    let previousSkills = null;
+    let previousInfo = { url: null, version: null, count: 0, error: null };
+    stage = 'previous';
+    const importBlob = loadBlob || (() => import('@vercel/blob'));
+    try {
+      blob = await importBlob();
+      const { blobs } = await blob.list({ prefix: `${prefix}-latest.json`, limit: 1 });
+      const target = blobs?.[0];
+      if (target?.url) {
+        const res = await fetch(target.url, { cache: 'no-store' });
+        if (res.ok) {
+          const prev = await res.json();
+          if (Array.isArray(prev?.skills)) {
+            previousSkills = prev.skills;
+            previousInfo = { url: target.url, version: prev.version || null, count: prev.skills.length, error: null };
+          } else {
+            previousInfo = { url: target.url, version: prev?.version || null, count: 0, error: 'previous catalog has no skills[]' };
+          }
+        } else {
+          previousInfo = { url: target.url, version: null, count: 0, error: `GET previous catalog ${res.status}` };
+        }
+      }
+    } catch (err) {
+      previousInfo = { url: null, version: null, count: 0, error: `previous catalog unavailable: ${err?.message || err}` };
+    }
+    console.log(`[collect] previous: ${previousInfo.count} skills${previousInfo.error ? ` (${previousInfo.error})` : ''}`);
+
     // ---- 4) 采集（与 --replay 同一份编排代码）----
     stage = 'collect';
     const result = await collect({
       fetchImpl: globalThis.fetch,
       token,
+      previous: previousSkills,
       ...options,
       log: (msg) => console.log(`[collect] ${msg}`),
     });
@@ -170,6 +218,10 @@ async function run(request, trigger) {
       generated_at: catalog.generated_at,
       count: catalog.count,
       raw_count: catalog.raw_count,
+      limit_records: stats.limit_records,
+      list_total: stats.list_total,
+      previous: previousInfo,
+      inherited_enriched: stats.inherited_enriched,
       deduped: catalog.deduped,
       max_installs: catalog.max_installs,
       requests: stats.requests,
@@ -189,7 +241,7 @@ async function run(request, trigger) {
     const catalogStats = { version: catalog.version, count: catalog.count, raw_count: catalog.raw_count };
     let put;
     try {
-      ({ put } = await import('@vercel/blob'));
+      ({ put } = blob ? await Promise.resolve(blob) : await importBlob());
     } catch (err) {
       return fail(500, `cannot load @vercel/blob (${err?.message || err}) — the deployment must have it in dependencies`, {
         stage_detail: 'import',

@@ -2,7 +2,7 @@
 // 这一层的 bug 后果最重——端点一旦不限人，谁都能触发一次烧额度的采集。
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { GET, POST, isAuthorized, resolveOidcToken } from './collect.js';
+import { GET, POST, isAuthorized, makeHandler, resolveOidcToken } from './collect.js';
 
 const SECRET = 'cron-secret-for-tests';
 const called = (url, headers = {}) => new Request(url, { headers });
@@ -24,9 +24,19 @@ const withHeader = await resolveOidcToken(called('https://x/api/collect', { 'x-v
 assert.equal(withHeader.token, 'jwt-abc');
 assert.equal(withHeader.source, 'x-vercel-oidc-token header');
 
-const withoutHeader = await resolveOidcToken(called('https://x/api/collect', {}));
-assert.equal(withoutHeader.token, null, 'no header and no @vercel/oidc locally → honestly null');
-assert.ok(withoutHeader.why, 'must explain why the token is missing');
+// 没头时才会走 @vercel/oidc。本机装了 @vercel/oidc 且 .env 里有 dev token 时它会真的取到值，
+// 所以这里不赌「一定 null」，只赌「要么拿到 token，要么老实说明为什么没有」——两种都是合法结果。
+// 注入一个「本机没有 token」的 getter，才是真的在测失败分支（本机缓存了 dev token 时它反而会取到值）
+const withoutHeader = await resolveOidcToken(called('https://x/api/collect', {}), {
+  getToken: async () => {
+    throw new Error('no cached token');
+  },
+});
+if (withoutHeader.token) {
+  assert.equal(withoutHeader.source, '@vercel/oidc getVercelOidcToken()');
+} else {
+  assert.ok(withoutHeader.why, 'must explain why the token is missing');
+}
 
 // ---- CRON_SECRET 没配 → 503，且拒绝执行（不是 401，这是配置问题）----
 const previous = process.env.CRON_SECRET;
@@ -50,7 +60,11 @@ const wrong = await POST(called('https://x/api/collect', { authorization: 'Beare
 assert.equal(wrong.status, 401);
 
 // ---- 过了鉴权但拿不到 OIDC token → 500 + stage=token + 明确的修复指引 ----
-const noToken = await GET(called('https://x/api/collect', { authorization: `Bearer ${SECRET}` }));
+// 用 makeHandler 注桩：本机缓存着 dev token，不注桩这条分支永远走不到
+const noTokenHandler = makeHandler({
+  resolveToken: async () => ({ token: null, source: null, why: 'test: no token available' }),
+});
+const noToken = await noTokenHandler.GET(called('https://x/api/collect', { authorization: `Bearer ${SECRET}` }));
 assert.equal(noToken.status, 500);
 const noTokenBody = await noToken.json();
 assert.equal(noTokenBody.ok, false);
@@ -74,7 +88,13 @@ console.log = () => {};
 
 const dry = await GET(called('https://x/api/collect?dry=1', { authorization: `Bearer ${SECRET}`, 'x-vercel-oidc-token': 'jwt-abc' }));
 const dryBody = await dry.json();
-const forReal = await GET(called('https://x/api/collect', { authorization: `Bearer ${SECRET}`, 'x-vercel-oidc-token': 'jwt-abc' }));
+const failBlob = makeHandler({
+  resolveToken: async () => ({ token: 'jwt-abc', source: 'x-vercel-oidc-token header' }),
+  loadBlob: async () => {
+    throw new Error('test: @vercel/blob is not installed');
+  },
+});
+const forReal = await failBlob.GET(called('https://x/api/collect', { authorization: `Bearer ${SECRET}` }));
 const forRealBody = await forReal.json();
 
 globalThis.fetch = realFetch;
@@ -90,12 +110,18 @@ assert.equal(dryBody.count, 9, 'the handler really ran collect() over the fixtur
 assert.equal(dryBody.raw_count, 14);
 assert.equal(dryBody.deduped, 5);
 assert.equal(dryBody.requests.used, 21);
+assert.equal(dryBody.requests.max, 900, 'default request budget covers 6 list pages + 300 enrich targets');
+assert.equal(dryBody.limit_records, 3000, 'the catalog is capped at the top 3000 by installs by default');
+assert.equal(dryBody.list_total, 13, 'pagination.total from the fixture is surfaced, not hidden');
+assert.ok(dryBody.previous, 'the response must report what happened when reading the previous catalog');
+assert.equal(dryBody.previous.count, 0);
+assert.equal(dryBody.inherited_enriched, 0);
 assert.equal(dryBody.truncated, false);
 assert.ok(dryBody.version.startsWith('full-'), dryBody.version);
 
 assert.equal(forReal.status, 500, 'a missing upload dependency must not be reported as success');
 assert.equal(forRealBody.stage, 'upload', 'collect and the schema gate passed; only the blob upload is blocked');
-assert.match(forRealBody.error, /@vercel\/blob/);
+assert.match(forRealBody.error, /blob/i, 'the upload failure must name the blob layer');
 assert.equal(forRealBody.catalog_stats.count, 9, 'the failure still reports what was collected');
 
 // ---- 回归守卫：函数里不许模块级读 process.env.VERCEL_OIDC_TOKEN ----
@@ -111,6 +137,6 @@ assert.ok(/export async function GET/.test(source), 'cron needs a GET export');
 assert.ok(/export async function POST/.test(source), 'manual re-runs need POST');
 
 console.log(
-  'api ok — CRON_SECRET gate (503/401), OIDC via Request header, fixture end-to-end to ?dry=1 (9 entries, 21 requests), ' +
-    'upload failure is loud and carries catalog_stats',
+  'api ok — CRON_SECRET gate (503/401), OIDC via Request header, fixture end-to-end to ?dry=1 (9 entries, 21 requests, ' +
+    'limit_records=3000), upload failure is loud and carries catalog_stats',
 );
