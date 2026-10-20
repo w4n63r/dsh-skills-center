@@ -71,6 +71,40 @@ window.__ModuleLoader__.load({
       cardZh: '中文卡',
       enriched: '有正文',
       firstSeen: '首次收录',
+      // 说明面板：用户问过「S 分是什么」「审计是什么」，这些解释要能自己看见，不能只留在聊天里
+      help: '说明',
+      helpTitle: '面板里的数字和标签是什么意思',
+      helpIntro: '这个面板只做一件事：把 skills.sh 上几万个技能里值得看的挑出来，并把判断依据摊开。所有原始数字都来自上游，本插件只做汇总、去重和排序。',
+      helpScoreTitle: 'S 分（默认排序依据）',
+      helpScoreBody: 'S = 0.45·H + 0.20·T + 0.20·C + 0.15·A，四项都在 0～1。它不是 skills.sh 官方的分数，是本插件按「安装量 + 8 周趋势 + 官方身份 + 审计」合成的排序分；权重目前是初值。',
+      helpH: 'H 热度 = 安装量取对数后归一化。头部 394 万与腰部 3 万差 100 倍，不取对数榜单就只剩前 20 名。',
+      helpT: 'T 势能 = 8 周趋势裁剪到 −50% ～ +200% 再归一化。这是唯一能看出「正在退场」的指标；上游没给趋势时按 0% 算，会略低于中性。',
+      helpC: 'C 官方性 = 官方或精选（curated）记 1，其余 0。',
+      helpA: 'A 可信 = 五家第三方审计里 pass 的比例。没有审计数据给中性 0.5，不给 0——否则非 GitHub 来源会被系统性歧视。',
+      helpAuditTitle: '审计（第三方安全检查）',
+      helpAuditBody: '每个技能在 skills.sh 上会被五家工具各扫一遍：Gen Agent Trust Hub、Socket、Snyk、Runlayer、ZeroLeaks。结论只有 pass / warn / fail，riskLevel 是它们自己的分级（SAFE / NONE / LOW / MEDIUM / HIGH 都出现过）。卡片上的「审计 4/5」= 5 家里 4 家 pass；fail 计入分母不剔除。pass 不等于安全，只等于这五家没报问题，fail 也可能是误报。',
+      helpDataTitle: '安装数 / 8 周趋势',
+      helpDataBody: '安装数是 skills.sh 接口快照；同一份内容被多个 owner 转发时会合并计算，卡片给的是合并后的量，详情里能看到本体量。8 周趋势 = 后四周周均 ÷ 前四周周均 − 1。',
+      helpTagsTitle: '卡片上的标签',
+      helpTagsBody: '官方 / 精选 = skills.sh 的官方或 curated 标记。中文卡 = 这条有中文介绍（只做了安装量前 300 条）。有正文 = 抓到了 SKILL.md 正文。风险标记见下。',
+      helpSourceTitle: '数据多久更新一次',
+      helpSourceBody: '线上目录由 Vercel 定时任务每天采一次，面板顶部显示的版本就是那次快照的时间；中文卡随目录一起下发，所以换版本时中文内容也会一起更新。',
+      tipScore: 'S 分：安装量 + 8 周趋势 + 官方身份 + 审计 的合成排序分，点右上「说明」看算法',
+      tipAudit: '审计：skills.sh 上五家第三方工具（Gen Agent Trust Hub / Socket / Snyk / Runlayer / ZeroLeaks）的结论；pass 不等于安全',
+      tipFlags: '风险标记：deprecated 已废弃 / pointer 只是转发壳 / needs_api_key 要付费 key / needs_external_cli 要先装命令行工具 / thin_body 正文极短 / has_references 带引用文件',
+      tipInstalls: '安装数：来自 skills.sh 接口快照；同一份内容被多个 owner 转发时合并计算',
+      tipTrend: '8 周趋势：后四周周均 ÷ 前四周周均 − 1；上游没给趋势时显示 —',
+      auditNote: '结论来自 skills.sh 的第三方审计，不是我们审的。pass 不等于安全，fail 也可能是误报。',
+      scoreNote: 'S 分是本插件按「安装量 + 趋势 + 官方 + 审计」合成的排序分，不是 skills.sh 官方的分数。',
+      tipZh: '中文卡：这条有我们写的中文介绍，目前只覆盖安装量前 300 条',
+      tipOfficial: '官方 / 精选：skills.sh 给的 official 或 curated 标记',
+      tipEnriched: '有正文：已抓到 SKILL.md 正文（详情与风险标记靠它算出来）',
+      flagDeprecated: '已废弃或只是兼容占位，别新装',
+      flagPointer: '转发壳：正文让你去用另一个技能，单装没内容',
+      flagNeedsApiKey: '要付费 API key 才能用',
+      flagNeedsExternalCli: '要先在本机装好某个命令行工具',
+      flagThinBody: '正文极短（不到 500 字），信息量有限',
+      flagHasReferences: '带一堆引用文件，正文不是全部',
     };
 
     const EN = {
@@ -126,6 +160,39 @@ window.__ModuleLoader__.load({
       cardZh: 'Chinese card',
       enriched: 'Has body',
       firstSeen: 'First seen',
+      help: 'Help',
+      helpTitle: 'What the numbers and tags mean',
+      helpIntro: 'This panel picks the skills worth looking at out of the tens of thousands on skills.sh and shows the evidence. Every raw number comes from upstream; this plugin only merges, dedupes and ranks.',
+      helpScoreTitle: 'S score (default sort key)',
+      helpScoreBody: 'S = 0.45·H + 0.20·T + 0.20·C + 0.15·A, each term in 0..1. It is not a skills.sh number: this plugin composes it from installs, 8-week trend, official status and audits. The weights are still a first pass.',
+      helpH: 'H heat = installs, log-normalised. The head has 3.94M installs against 30k in the middle — a 100x spread that would leave only the top 20 on the list.',
+      helpT: 'T momentum = 8-week trend clipped to -50%..+200%, then normalised. It is the only signal that shows a skill fading; when upstream has no trend we treat it as 0%, slightly below neutral.',
+      helpC: 'C official = 1 for official or curated, otherwise 0.',
+      helpA: 'A trust = share of pass verdicts among the five third-party audits. Missing audit data scores a neutral 0.5, never 0, or non-GitHub sources would be penalised systematically.',
+      helpAuditTitle: 'Audits (third-party checks)',
+      helpAuditBody: 'skills.sh runs five auditors on every skill: Gen Agent Trust Hub, Socket, Snyk, Runlayer, ZeroLeaks. A verdict is pass / warn / fail, and riskLevel is their own scale (SAFE / NONE / LOW / MEDIUM / HIGH all appear). "Audit 4/5" means four of five passed; fails stay in the denominator. Pass is not the same as safe — it only means none of the five flagged it, and a fail can be a false positive.',
+      helpDataTitle: 'Installs / 8-week trend',
+      helpDataBody: 'Installs come from a skills.sh API snapshot; when the same content is republished by several owners the counts are merged, and the card shows the merged figure while the detail shows the canonical one. 8-week trend = average of the last four weeks divided by the previous four, minus 1.',
+      helpTagsTitle: 'Tags on a card',
+      helpTagsBody: 'Official / Curated = skills.sh markers. Chinese card = we wrote a Chinese intro (top 300 by installs only). Has body = the SKILL.md body was fetched. Risk flags are listed below.',
+      helpSourceTitle: 'How fresh is the data',
+      helpSourceBody: 'A Vercel cron collects the catalog once a day; the version in the panel header is that snapshot time. Chinese cards ship with the catalog, so they update together.',
+      tipScore: 'S score: installs + 8-week trend + official status + audits, composed by this plugin. See Help for the formula.',
+      tipAudit: 'Audit: verdicts from five third-party tools on skills.sh (Gen Agent Trust Hub / Socket / Snyk / Runlayer / ZeroLeaks). Pass is not the same as safe.',
+      tipFlags: 'Risk flags: deprecated / pointer (forwarding shell) / needs_api_key / needs_external_cli / thin_body / has_references',
+      tipInstalls: 'Installs: a skills.sh API snapshot; republished copies by several owners are merged',
+      tipTrend: '8-week trend: last four weeks vs the previous four, minus 1; — when upstream has none',
+      auditNote: 'Verdicts come from third-party audits on skills.sh, not from us. Pass is not safe; a fail can be a false positive.',
+      scoreNote: 'The S score is this plugin\u2019s own ranking (installs + trend + official + audits), not a skills.sh number.',
+      tipZh: 'Chinese card: we wrote a Chinese intro for this one (top 300 by installs)',
+      tipOfficial: 'Official / Curated: the marker skills.sh publishes',
+      tipEnriched: 'Has body: the SKILL.md body was fetched (risk flags and detail depend on it)',
+      flagDeprecated: 'Deprecated or a compatibility placeholder — do not install it fresh',
+      flagPointer: 'Forwarding shell: the body tells you to use another skill',
+      flagNeedsApiKey: 'Needs a paid API key to work',
+      flagNeedsExternalCli: 'Needs a command-line tool installed locally first',
+      flagThinBody: 'Body is under 500 characters — little to read',
+      flagHasReferences: 'Ships a pile of reference files; the body is not the whole story',
     };
 
     // 词典由 apply 里的 locale 服务注册；这里留一个直读中文的兜底，
@@ -140,7 +207,7 @@ window.__ModuleLoader__.load({
 color:var(--dsw-alias-label-primary);background:var(--dsw-alias-bg-base);
 font:14px/1.6 -apple-system,"Segoe UI","Microsoft YaHei",system-ui,sans-serif}
 .dsc-top{padding:24px 38px 0;flex:0 0 auto}
-.dsc-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.dsc-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .dsc-meta{margin-top:7px}
 .dsc-title{margin:0;font-size:17px;font-weight:600;letter-spacing:.2px}
 .dsc-meta{color:var(--dsw-alias-label-secondary);font-size:13px;line-height:1.6;letter-spacing:.1px}
@@ -227,6 +294,14 @@ border-bottom:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg
 .dsc-code{margin:0;padding:10px 12px;border:1px solid var(--dsw-alias-border-l1);border-radius:9px;
 background:var(--dsw-alias-bg-layer-2);font-family:ui-monospace,Consolas,monospace;font-size:12.5px;
 white-space:pre-wrap;word-break:break-all}
+.dsc-note{margin:2px 0 0;color:var(--dsw-alias-label-secondary);font-size:12px;line-height:1.6}
+.dsc-help-section{display:flex;flex-direction:column;gap:8px;padding-top:16px;border-top:1px solid var(--dsw-alias-border-l1)}
+.dsc-help-section:first-child{padding-top:0;border-top:0}
+.dsc-help-h{margin:0;font-size:13.5px;font-weight:600;color:var(--dsw-alias-label-primary)}
+.dsc-help-p{margin:0;font-size:13px;line-height:1.8;color:var(--dsw-alias-label-secondary);max-width:62ch}
+.dsc-help-row{display:flex;gap:12px;align-items:baseline;font-size:13px;line-height:1.75}
+.dsc-help-row b{flex:0 0 auto;min-width:104px;color:var(--dsw-alias-label-primary);font-weight:600}
+.dsc-help-row span{color:var(--dsw-alias-label-secondary);max-width:56ch}
 .dsc-audit{display:flex;flex-direction:column;gap:7px}
 .dsc-audit-row{display:flex;gap:10px;align-items:baseline;font-size:13px}
 .dsc-audit-row span:first-child{flex:0 0 auto;min-width:150px;color:var(--dsw-alias-label-secondary)}
@@ -268,6 +343,81 @@ white-space:pre-wrap;word-break:break-all}
       );
     }
 
+    /** 风险标记 → 一句解释；卡片 tooltip、详情弹层、说明弹层都用同一份，避免三处说不一样。 */
+    const FLAG_KEYS = {
+      deprecated: 'flagDeprecated',
+      pointer: 'flagPointer',
+      needs_api_key: 'flagNeedsApiKey',
+      needs_external_cli: 'flagNeedsExternalCli',
+      thin_body: 'flagThinBody',
+      has_references: 'flagHasReferences',
+    };
+    const explainFlag = (flag) => t(FLAG_KEYS[flag] || flag);
+
+    /** 「说明」弹层：S 分、审计、标签、数据口径一次讲清，省得每次都要人解释。 */
+    function Help({ onClose }) {
+      useEffect(() => {
+        const onKey = (event) => {
+          if (event.key === 'Escape') onClose();
+        };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+      });
+
+      const section = (title, body, rows) =>
+        h(
+          'div',
+          { className: 'dsc-help-section' },
+          h('h4', { className: 'dsc-help-h' }, title),
+          h('p', { className: 'dsc-help-p' }, body),
+          rows || null,
+        );
+      const rows = (list) =>
+        h(
+          'div',
+          { className: 'dsc-audit' },
+          list.map(([name, body]) => h('div', { className: 'dsc-help-row', key: name }, h('b', null, name), h('span', null, body))),
+        );
+
+      return h(
+        'div',
+        { className: 'dsc-overlay', onClick: onClose },
+        h(
+          'div',
+          { className: 'dsc-modal', onClick: (event) => event.stopPropagation() },
+          h(
+            'div',
+            { className: 'dsc-modal-head' },
+            h('div', { style: { flex: '1 1 auto', minWidth: 0 } }, h('h3', null, t('helpTitle'))),
+            h('button', { type: 'button', className: 'dsc-btn', onClick: onClose }, t('close')),
+          ),
+          h(
+            'div',
+            { className: 'dsc-modal-body' },
+            h('div', { className: 'dsc-help-section' }, h('p', { className: 'dsc-help-p' }, t('helpIntro'))),
+            section(
+              t('helpScoreTitle'),
+              t('helpScoreBody'),
+              rows([
+                ['H', t('helpH')],
+                ['T', t('helpT')],
+                ['C', t('helpC')],
+                ['A', t('helpA')],
+              ]),
+            ),
+            section(t('helpDataTitle'), t('helpDataBody')),
+            section(t('helpAuditTitle'), t('helpAuditBody')),
+            section(
+              t('helpTagsTitle'),
+              t('helpTagsBody'),
+              rows(Object.keys(FLAG_KEYS).map((flag) => [flag, explainFlag(flag)])),
+            ),
+            section(t('helpSourceTitle'), t('helpSourceBody')),
+          ),
+        ),
+      );
+    }
+
     function SearchIcon() {
       return h(
         'svg',
@@ -280,20 +430,28 @@ white-space:pre-wrap;word-break:break-all}
     /** 一张技能卡：中文名 + 来源 + 两行介绍 + 装量/趋势 + 最多两个标签。 */
     function Card({ row, onOpen }) {
       const tags = [];
-      if (row.official) tags.push(['dsc-brand', t('representative')]);
-      else if (row.curated) tags.push(['dsc-brand', t('curated')]);
+      if (row.official) tags.push(['dsc-brand', t('representative'), t('tipOfficial')]);
+      else if (row.curated) tags.push(['dsc-brand', t('curated'), t('tipOfficial')]);
       const audit = row.audit;
       if (audit) {
         // 「4/5 通过」既可能是 4 pass + 1 warn，也可能是 4 pass + 1 fail，
         // 用颜色区分只会让人误读，所以一律中性；只有真的出现 fail 才单独标红。
-        tags.push([audit.fail ? 'dsc-bad' : '', audit.fail
-          ? `${t('audit')} ${audit.pass}/${audit.judged}（${audit.fail} fail）`
-          : `${t('audit')} ${audit.pass}/${audit.judged}`]);
+        tags.push([
+          audit.fail ? 'dsc-bad' : '',
+          audit.fail
+            ? `${t('audit')} ${audit.pass}/${audit.judged}（${audit.fail} fail）`
+            : `${t('audit')} ${audit.pass}/${audit.judged}`,
+          t('tipAudit'),
+        ]);
       }
       // 标签只留最该看见的两类（身份 + 审计结论），其余风险压成一个计数：
       // 卡片上铺六七个胶囊正是上一版显得拥挤的原因。
       const flags = row.flags || [];
-      if (flags.length) tags.push(['dsc-warn', flags.length === 1 ? flags[0] : `${flags[0]} +${flags.length - 1}`]);
+      if (flags.length) {
+        const text = flags.length === 1 ? flags[0] : `${flags[0]} +${flags.length - 1}`;
+        tags.push(['dsc-warn', text, flags.map((flag) => `${flag}：${explainFlag(flag)}`).join('\n')]);
+      }
+      if (row.has_zh) tags.push(['dsc-good', t('cardZh'), t('tipZh')]);
 
       return h(
         'div',
@@ -307,7 +465,11 @@ white-space:pre-wrap;word-break:break-all}
             h('strong', null, row.name_zh || row.slug || row.id),
             h('div', { className: 'dsc-sub' }, `${row.slug || row.id}${row.source ? ` · ${row.source}` : ''}`),
           ),
-          h('span', { className: 'dsc-pill' }, `S ${row.S == null ? '—' : Number(row.S).toFixed(3)}`),
+          h(
+            'span',
+            { className: 'dsc-pill', title: t('tipScore') },
+            `S ${row.S == null ? '—' : Number(row.S).toFixed(3)}`,
+          ),
         ),
         h(
           'p',
@@ -317,16 +479,20 @@ white-space:pre-wrap;word-break:break-all}
         h(
           'div',
           { className: 'dsc-facts' },
-          h('span', null, `${t('installs')} `, h('b', null, fmtInt(row.installs))),
+          h('span', { title: t('tipInstalls') }, `${t('installs')} `, h('b', null, fmtInt(row.installs))),
           h('i', null, '·'),
-          h('span', { className: trendClass(row.trend_pct) }, `${t('trend')} ${fmtPct(row.trend_pct)}`),
+          h(
+            'span',
+            { className: trendClass(row.trend_pct), title: t('tipTrend') },
+            `${t('trend')} ${fmtPct(row.trend_pct)}`,
+          ),
         ),
         tags.length
           ? h(
               'div',
               { className: 'dsc-tags' },
-              tags.map(([cls, text], index) =>
-                h('span', { key: `${text}-${index}`, className: `dsc-tag ${cls}`.trim() }, text),
+              tags.map(([cls, text, tip], index) =>
+                h('span', { key: `${text}-${index}`, className: `dsc-tag ${cls}`.trim(), title: tip || undefined }, text),
               ),
             )
           : null,
@@ -377,15 +543,38 @@ white-space:pre-wrap;word-break:break-all}
             field(t('installs'), fmtInt(skill.installs ?? row.installs)),
             field(t('trend'), fmtPct(skill.trend_pct ?? row.trend_pct)),
             field(t('source'), skill.source),
-            field(
-              t('score'),
-              score.S == null
-                ? ''
-                : `${Number(score.S).toFixed(3)}（H ${score.H} / T ${score.T} / C ${score.C} / A ${score.A}）`,
-            ),
+            score.S == null
+              ? null
+              : h(
+                  'div',
+                  { className: 'dsc-field' },
+                  h('span', { className: 'dsc-label' }, t('score')),
+                  h(
+                    'p',
+                    { className: 'dsc-text' },
+                    `${Number(score.S).toFixed(3)}（H ${score.H} / T ${score.T} / C ${score.C} / A ${score.A}）`,
+                  ),
+                  h('p', { className: 'dsc-note' }, t('scoreNote')),
+                ),
             skill.first_seen || row.first_seen ? field(t('firstSeen'), skill.first_seen || row.first_seen) : null,
             (skill.flags || row.flags || []).length
-              ? field(t('flags'), (skill.flags || row.flags || []).join('、'))
+              ? h(
+                  'div',
+                  { className: 'dsc-field' },
+                  h('span', { className: 'dsc-label' }, t('flags')),
+                  h(
+                    'div',
+                    { className: 'dsc-audit' },
+                    (skill.flags || row.flags || []).map((flag) =>
+                      h(
+                        'div',
+                        { className: 'dsc-audit-row', key: flag },
+                        h('span', null, flag),
+                        h('span', null, explainFlag(flag)),
+                      ),
+                    ),
+                  ),
+                )
               : null,
             (() => {
               const audits = skill.audit?.audits || [];
@@ -413,6 +602,8 @@ white-space:pre-wrap;word-break:break-all}
                     ),
                   ),
                 ),
+                // 审计是最容易被误读的一栏：pass 常被当成「安全」，这里把口径写在结论旁边
+                h('p', { className: 'dsc-note' }, t('auditNote')),
               );
             })(),
             row.install_hint
@@ -422,7 +613,8 @@ white-space:pre-wrap;word-break:break-all}
                   h('span', { className: 'dsc-label' }, t('installCmd')),
                   h('pre', { className: 'dsc-code' }, row.install_hint),
                 )
-              : null,            field(t('id'), skill.id || row.id),
+              : null,
+            field(t('id'), skill.id || row.id),
           ),
         ),
       );
@@ -446,6 +638,7 @@ white-space:pre-wrap;word-break:break-all}
       const [page, setPage] = useState(1);
       const [pageSize, setPageSize] = useState(PAGE);
       const [detail, setDetail] = useState({ status: 'idle', id: '', skill: null, row: null });
+      const [help, setHelp] = useState(false);
       const requestId = useRef(0);
       const scroller = useRef(null);
 
@@ -558,7 +751,17 @@ white-space:pre-wrap;word-break:break-all}
           h(
             'div',
             { className: 'dsc-inner' },
-            h('div', { className: 'dsc-head' }, h('h2', { className: 'dsc-title' }, t('title'))),
+            h(
+              'div',
+              { className: 'dsc-head' },
+              h('h2', { className: 'dsc-title' }, t('title')),
+              // 「S 分是什么」「审计是什么」这类问题要能在界面里自己找到答案
+              h(
+                'button',
+                { type: 'button', className: 'dsc-btn', onClick: () => setHelp(true) },
+                `? ${t('help')}`,
+              ),
+            ),
             h('div', { className: 'dsc-meta' }, meta),
           h(
             'div',
@@ -717,6 +920,7 @@ white-space:pre-wrap;word-break:break-all}
           ),
         ),
         detail.status === 'idle' ? null : h(Detail, { state: detail, onClose: () => setDetail({ status: 'idle', id: '', skill: null, row: null }) }),
+        help ? h(Help, { onClose: () => setHelp(false) }) : null,
       );
     }
 

@@ -262,3 +262,14 @@ f6e6c8c test: cover web api + honest activate when body missing
 - 视觉迭代方式：`tmp/render-panel.mjs`（假 react 把**真的** `client.js` 渲成静态页，用真实 `/list` 数据）+ headless Chrome 截图 + `claude-vision-skill` 的 `vision.js` 打分。六轮下来 6 分 → 8 分，剩余意见都是细节。**这套 harness 只在 `tmp/`，不是产品代码**。
 - 经验：那个视觉模型对同一张图的评分会上下浮动 1–2 分，只适合当「有没有硬伤」的筛子，不能当验收标准；最终判断还是用户看真机。
 
+#### 9.3.3 把「这些数字是什么意思」放进界面（同日）
+
+用户连着问了「S 分是什么东西」「审计是什么」，说明光在聊天里解释不够。做法：
+
+- 页头加 `? 说明` 按钮 → 弹层分节讲清：总览 / S 分算法（H 热度、T 势能、C 官方性、A 可信逐项）/ 安装数与趋势口径 / 审计（五家 provider 名单、pass·warn·fail、fail 计入分母、pass ≠ 安全、fail 也可能是误报）/ 卡片标签（官方·精选·中文卡·有正文 + 六个风险标记逐条）/ 数据更新频率。
+- 卡片 tooltip：S 分、审计、风险标记（按 flag 列解释）、装量、趋势各带悬停提示。
+- 详情弹层：S 分下面加「不是 skills.sh 官方的分数」，审计结论下面加「pass 不等于安全」，flags 从一行拼接改成 `flag — 解释` 的逐条列表。
+- 文案全部进 `client/client.js` 的 ZH/EN 词典（`help*` / `tip*` / `flag*` / `auditNote` / `scoreNote`），中英各一份。
+- 测试：`tests/client.test.mjs` 新增「点说明按钮 → 弹层里必须出现公式、五家 provider、六个 flag、更新频率」与三条 tooltip 断言。
+- 说明弹层用 `tmp/render-panel.mjs`（现在会同时出「面板」和「说明打开」两张预览）+ 视觉复核，从「层级不清、行宽过宽」改到 8 分。
+

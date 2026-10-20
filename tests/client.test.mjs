@@ -282,8 +282,58 @@ for (const expected of [
   '自己装（在终端里跑）',
   'npx skills add anthropics/skills --skill frontend-design',
   '关闭',
+  // 审计与 S 分最容易误读，结论旁边必须自带口径说明
+  'pass 不等于安全',
+  'S 分是本插件',
 ]) {
   assert.ok(withDetail.includes(expected), `detail dialog shows 「${expected}」`);
 }
+
+// 「说明」按钮：S 分 / 审计 / 标签 / 数据口径都要能在界面里查到，不能只留在聊天记录里。
+const helpButton = (function find(node) {
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      const hit = find(child);
+      if (hit) return hit;
+    }
+    return null;
+  }
+  if (!node || typeof node !== 'object') return null;
+  if (typeof node.props?.onClick === 'function' && String(node.children?.[0] ?? '').startsWith('? ')) return node;
+  const children = node.children || [];
+  for (const child of Array.isArray(children) ? children : [children]) {
+    const hit = find(child);
+    if (hit) return hit;
+  }
+  return null;
+})(expand(render()));
+assert.ok(helpButton, 'header carries a help button');
+
+helpButton.props.onClick();
+await new Promise((resolve) => setTimeout(resolve, 0));
+const withHelp = textOf(render());
+for (const expected of [
+  '面板里的数字和标签是什么意思',
+  'S = 0.45·H + 0.20·T + 0.20·C + 0.15·A',
+  'Gen Agent Trust Hub',
+  'ZeroLeaks',
+  'fail 计入分母',
+  'pass 不等于安全',
+  'H 热度',
+  'T 势能',
+  'C 官方性',
+  'A 可信',
+  'deprecated',
+  'pointer',
+  'needs_api_key',
+  '数据多久更新一次',
+]) {
+  assert.ok(withHelp.includes(expected), `help dialog explains 「${expected}」`);
+}
+
+// 卡片上的 S 分与审计标签要带 tooltip，鼠标停一下就能知道是什么（textOf 是 JSON 树，所以断言 JSON 里的 title 字段）
+assert.match(withHelp, /"title":"S 分：/, 'the score pill carries a tooltip');
+assert.match(withHelp, /"title":"审计：/, 'the audit chip carries a tooltip');
+assert.match(withHelp, /"title":"needs_external_cli：/, 'the risk chip carries a per-flag tooltip');
 
 console.log('client ok — module dsh-skills-center | slots: sidebar.panellist#skills-center + main#skills-center | cards + detail rendered');
