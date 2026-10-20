@@ -34,6 +34,7 @@ window.__ModuleLoader__.load({
       filterOfficial: '官方精选',
       filterRisky: '有风险信号',
       filterEnriched: '已抓正文',
+      searchResults: '搜索结果',
       loading: '读取中…',
       empty: '没匹配到。换个词试试。',
       failed: '读取失败：',
@@ -84,6 +85,7 @@ window.__ModuleLoader__.load({
       filterOfficial: 'Official picks',
       filterRisky: 'Risk signals',
       filterEnriched: 'Has body',
+      searchResults: 'Search results',
       loading: 'Loading…',
       empty: 'No match.',
       failed: 'Failed: ',
@@ -126,78 +128,99 @@ window.__ModuleLoader__.load({
       return value && value !== key ? value : ZH[key] || key;
     };
 
-    const STYLE = `
-.dsc-root{height:100%;min-height:0;display:flex;flex-direction:column;box-sizing:border-box;
+    const STYLE = `.dsc-root{height:100%;min-height:0;display:flex;flex-direction:column;box-sizing:border-box;
 color:var(--dsw-alias-label-primary);background:var(--dsw-alias-bg-base);
-font:13px/1.55 -apple-system,"Segoe UI","Microsoft YaHei",system-ui,sans-serif}
-.dsc-top{padding:14px 18px 10px;display:flex;flex-direction:column;gap:10px;border-bottom:1px solid var(--dsw-alias-border-l1)}
-.dsc-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
-.dsc-title{margin:0;font-size:16px;font-weight:600}
-.dsc-meta{color:var(--dsw-alias-label-secondary);font-size:12px}
-.dsc-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.dsc-search{flex:1 1 280px;min-width:200px;display:flex;align-items:center;gap:8px;padding:7px 12px;
-border:1px solid var(--dsw-alias-border-l1);border-radius:10px;background:var(--dsw-alias-bg-layer-1)}
+font:14px/1.6 -apple-system,"Segoe UI","Microsoft YaHei",system-ui,sans-serif}
+.dsc-top{padding:24px 38px 0;flex:0 0 auto}
+.dsc-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.dsc-meta{margin-top:7px}
+.dsc-title{margin:0;font-size:17px;font-weight:600;letter-spacing:.2px}
+.dsc-meta{color:var(--dsw-alias-label-secondary);font-size:13px;line-height:1.6;letter-spacing:.1px}
+.dsc-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:18px}
+.dsc-search{flex:1 1 320px;min-width:220px;display:flex;align-items:center;gap:9px;height:38px;padding:0 13px;
+border:1px solid var(--dsw-alias-border-l1);border-radius:9px;background:var(--dsw-alias-bg-layer-1);
+color:var(--dsw-alias-label-secondary)}
 .dsc-search:focus-within{border-color:var(--dsw-alias-brand-primary)}
-.dsc-search input{flex:1;min-width:0;border:0;outline:none;background:transparent;color:inherit;font:inherit}
-.dsc-search svg{flex:0 0 auto;color:var(--dsw-alias-label-secondary)}
-.dsc-select,.dsc-btn{appearance:none;padding:7px 12px;border:1px solid var(--dsw-alias-border-l1);border-radius:10px;
-background:var(--dsw-alias-bg-layer-1);color:inherit;font:inherit;cursor:pointer;white-space:nowrap}
-.dsc-select:hover,.dsc-btn:hover{border-color:var(--dsw-alias-border-l2)}
+.dsc-search input{flex:1;min-width:0;border:0;outline:none;background:transparent;color:var(--dsw-alias-label-primary);
+font:inherit;font-size:13.5px}
+.dsc-select,.dsc-btn{height:38px;padding:0 14px;border:1px solid var(--dsw-alias-border-l1);border-radius:9px;
+background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font:inherit;font-size:13.5px;
+cursor:pointer;white-space:nowrap;transition:border-color .12s,background .12s}
+.dsc-select:hover,.dsc-btn:hover{border-color:var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2)}
 .dsc-btn[disabled]{opacity:.5;cursor:default}
-.dsc-chips{display:flex;gap:8px;flex-wrap:wrap}
-.dsc-chip{padding:5px 12px;border:1px solid var(--dsw-alias-border-l1);border-radius:999px;
-background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:12px;cursor:pointer}
+.dsc-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.dsc-chip{height:30px;padding:0 15px;border:1px solid var(--dsw-alias-border-l1);border-radius:999px;
+background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:13px;cursor:pointer;
+transition:border-color .12s,color .12s,background .12s}
 .dsc-chip:hover{border-color:var(--dsw-alias-border-l2);color:var(--dsw-alias-label-primary)}
 .dsc-chip[data-on="true"]{border-color:var(--dsw-alias-brand-primary);color:var(--dsw-alias-brand-primary);
-background:var(--dsw-alias-bg-layer-2)}
-.dsc-scroll{flex:1 1 auto;min-height:0;overflow:auto;padding:14px 18px 18px}
-.dsc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
-.dsc-card{border:1px solid var(--dsw-alias-border-l1);border-radius:12px;background:var(--dsw-alias-bg-layer-1);
-padding:13px 15px;display:flex;flex-direction:column;gap:9px;cursor:pointer;transition:border-color .12s,box-shadow .12s,background .12s}
-.dsc-card:hover{border-color:var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2);box-shadow:0 4px 14px rgba(0,0,0,.08)}
-.dsc-card-top{display:flex;align-items:flex-start;gap:10px}
+background:var(--dsw-alias-bg-layer-2);font-weight:500}
+.dsc-rule{height:1px;background:var(--dsw-alias-border-l1);margin-top:18px}
+.dsc-scroll{flex:1 1 auto;min-height:0;overflow:auto;padding:0 38px 34px}
+.dsc-inner{max-width:1180px}
+.dsc-section{display:flex;align-items:baseline;gap:10px;margin:26px 0 18px}
+.dsc-section h3{margin:0;font-size:15.5px;font-weight:600}
+.dsc-section span{color:var(--dsw-alias-label-secondary);font-size:12.5px}
+.dsc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:20px 18px}
+.dsc-card{border:1px solid var(--dsw-alias-border-l1);border-radius:14px;background:var(--dsw-alias-bg-layer-1);
+padding:19px 21px 17px;display:flex;flex-direction:column;gap:13px;cursor:pointer;
+transition:border-color .14s,box-shadow .14s,background .14s}
+.dsc-card:hover{border-color:var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2);
+box-shadow:0 6px 18px rgba(15,17,21,.07)}
+.dsc-card-top{display:flex;align-items:flex-start;gap:12px}
 .dsc-card-name{flex:1 1 auto;min-width:0}
-.dsc-card-name strong{display:block;font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.dsc-sub{color:var(--dsw-alias-label-secondary);font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.dsc-score{flex:0 0 auto;text-align:right;font-variant-numeric:tabular-nums}
-.dsc-score b{display:block;font-size:14px;font-weight:600}
-.dsc-score span{font-size:10.5px;color:var(--dsw-alias-label-secondary)}
-.dsc-desc{margin:0;font-size:12.5px;line-height:1.5;color:var(--dsw-alias-label-secondary);
-display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.dsc-desc.dsc-muted{color:var(--dsw-alias-label-secondary);font-style:italic}
-.dsc-facts{display:flex;gap:10px;flex-wrap:wrap;font-size:11.5px;color:var(--dsw-alias-label-secondary)}
-.dsc-facts b{color:var(--dsw-alias-label-primary);font-weight:500}
-.dsc-tags{display:flex;gap:6px;flex-wrap:wrap}
-.dsc-tag{padding:1px 7px;border:1px solid var(--dsw-alias-border-l1);border-radius:6px;font-size:11px;
+.dsc-card-name strong{display:block;font-size:15.5px;font-weight:600;line-height:1.45;
+overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dsc-sub{color:var(--dsw-alias-label-secondary);font-size:12px;overflow:hidden;
+text-overflow:ellipsis;white-space:nowrap}
+.dsc-pill{flex:0 0 auto;padding:3px 10px;border-radius:999px;border:1px solid var(--dsw-alias-border-l2);
+color:var(--dsw-alias-label-primary);font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dsc-desc{margin:0;font-size:13.5px;line-height:1.75;color:var(--dsw-alias-label-primary);opacity:.82;
+display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.dsc-desc.dsc-muted{font-style:italic}
+.dsc-facts{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;font-size:13px;
 color:var(--dsw-alias-label-secondary)}
-.dsc-tag.dsc-brand{border-color:var(--dsw-alias-brand-primary);color:var(--dsw-alias-brand-primary)}
+.dsc-facts b{color:var(--dsw-alias-label-primary);font-weight:600;font-variant-numeric:tabular-nums}
+.dsc-facts i{font-style:normal;color:var(--dsw-alias-border-l2)}
+.dsc-tags{display:flex;gap:7px;flex-wrap:wrap}
+.dsc-tag{padding:3px 10px;border:1px solid var(--dsw-alias-border-l1);border-radius:7px;font-size:12px;
+color:var(--dsw-alias-label-secondary);white-space:nowrap}
+.dsc-tag.dsc-brand{border-color:var(--dsw-alias-border-l2);color:var(--dsw-alias-label-primary);font-weight:500}
 .dsc-tag.dsc-warn{border-color:var(--dsw-alias-state-warn-primary);color:var(--dsw-alias-state-warn-primary)}
 .dsc-tag.dsc-bad{border-color:var(--dsw-alias-state-error-primary);color:var(--dsw-alias-state-error-primary)}
 .dsc-tag.dsc-good{border-color:var(--dsw-alias-state-success-primary);color:var(--dsw-alias-state-success-primary)}
 .dsc-up{color:var(--dsw-alias-state-success-primary)}
 .dsc-down{color:var(--dsw-alias-state-error-primary)}
-.dsc-foot{display:flex;align-items:center;gap:12px;padding:12px 18px 16px;color:var(--dsw-alias-label-secondary);font-size:12px}
-.dsc-empty{padding:26px 4px;color:var(--dsw-alias-label-secondary);font-size:12.5px}
-.dsc-overlay{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.38);display:flex;align-items:center;
-justify-content:center;padding:32px}
-.dsc-modal{width:min(720px,100%);max-height:100%;overflow:auto;border-radius:14px;border:1px solid var(--dsw-alias-border-l1);
-background:var(--dsw-alias-bg-overlay);box-shadow:0 18px 48px rgba(0,0,0,.28)}
-.dsc-modal-head{position:sticky;top:0;display:flex;align-items:flex-start;gap:12px;padding:14px 18px;
+.dsc-foot{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:12px;
+padding:20px 38px 26px;color:var(--dsw-alias-label-secondary);font-size:12.5px}
+.dsc-empty{padding:34px 2px;color:var(--dsw-alias-label-secondary);font-size:13px}
+.dsc-overlay{position:fixed;inset:0;z-index:40;background:rgba(15,17,21,.42);display:flex;
+align-items:center;justify-content:center;padding:36px}
+.dsc-modal{width:min(760px,100%);max-height:100%;overflow:auto;border-radius:15px;
+border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-overlay);
+box-shadow:0 24px 60px rgba(15,17,21,.28)}
+.dsc-modal-head{position:sticky;top:0;display:flex;align-items:flex-start;gap:14px;padding:18px 22px;
 border-bottom:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-overlay)}
-.dsc-modal-head h3{margin:0;font-size:15px}
-.dsc-modal-body{padding:14px 18px 18px;display:flex;flex-direction:column;gap:12px}
-.dsc-field{display:flex;flex-direction:column;gap:3px}
-.dsc-label{color:var(--dsw-alias-label-secondary);font-size:11.5px}
-.dsc-text{margin:0;white-space:pre-wrap;word-break:break-word}
-.dsc-code{margin:0;padding:8px 10px;border:1px solid var(--dsw-alias-border-l1);border-radius:8px;
-background:var(--dsw-alias-bg-layer-2);font-family:ui-monospace,Consolas,monospace;font-size:12px;
+.dsc-modal-head h3{margin:0;font-size:16px;line-height:1.45}
+.dsc-modal-body{padding:18px 22px 22px;display:flex;flex-direction:column;gap:16px}
+.dsc-field{display:flex;flex-direction:column;gap:5px}
+.dsc-label{color:var(--dsw-alias-label-secondary);font-size:12px}
+.dsc-text{margin:0;font-size:13.5px;line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.dsc-code{margin:0;padding:10px 12px;border:1px solid var(--dsw-alias-border-l1);border-radius:9px;
+background:var(--dsw-alias-bg-layer-2);font-family:ui-monospace,Consolas,monospace;font-size:12.5px;
 white-space:pre-wrap;word-break:break-all}
-.dsc-audit{display:flex;flex-direction:column;gap:4px}
-.dsc-audit-row{display:flex;gap:8px;align-items:baseline;font-size:12px}
-.dsc-audit-row span:first-child{flex:0 0 auto;min-width:140px;color:var(--dsw-alias-label-secondary)}
+.dsc-audit{display:flex;flex-direction:column;gap:7px}
+.dsc-audit-row{display:flex;gap:10px;align-items:baseline;font-size:13px}
+.dsc-audit-row span:first-child{flex:0 0 auto;min-width:150px;color:var(--dsw-alias-label-secondary)}
 `;
 
     const fmtInt = (n) => (n == null ? '—' : Number(n).toLocaleString('en-US'));
+    /** full-2026-10-20T03-00-49-872Z → 2026-10-20 03:00；看不懂的快照串不该占页头。 */
+    const fmtVersion = (v) => {
+      const raw = String(v || '').replace(/^(full|dir)-/, '');
+      const m = /^(\d{4}-\d{2}-\d{2})T(\d{2})-(\d{2})/.exec(raw);
+      return m ? `${m[1]} ${m[2]}:${m[3]}` : raw || t('none');
+    };
     const fmtPct = (v) => (v == null ? '—' : `${v > 0 ? '+' : ''}${v}%`);
     const trendClass = (v) => (v == null ? '' : v > 0 ? 'dsc-up' : v < 0 ? 'dsc-down' : '');
 
@@ -220,19 +243,23 @@ white-space:pre-wrap;word-break:break-all}
       );
     }
 
-    /** 一张技能卡：名称 + S 分 + 介绍 + 事实行 + 标签。 */
+    /** 一张技能卡：中文名 + 来源 + 两行介绍 + 装量/趋势 + 最多两个标签。 */
     function Card({ row, onOpen }) {
       const tags = [];
       if (row.official) tags.push(['dsc-brand', t('representative')]);
-      if (row.curated && !row.official) tags.push(['dsc-brand', t('curated')]);
-      tags.push([row.has_zh ? 'dsc-good' : '', t('cardZh')]);
-      if (row.enriched) tags.push(['', t('enriched')]);
+      else if (row.curated) tags.push(['dsc-brand', t('curated')]);
       const audit = row.audit;
       if (audit) {
-        const cls = audit.fail ? 'dsc-bad' : audit.warn ? 'dsc-warn' : 'dsc-good';
-        tags.push([cls, `${t('audit')} ${audit.pass}/${audit.judged} ${t('auditPass')}`]);
+        // 「4/5 通过」既可能是 4 pass + 1 warn，也可能是 4 pass + 1 fail，
+        // 用颜色区分只会让人误读，所以一律中性；只有真的出现 fail 才单独标红。
+        tags.push([audit.fail ? 'dsc-bad' : '', audit.fail
+          ? `${t('audit')} ${audit.pass}/${audit.judged}（${audit.fail} fail）`
+          : `${t('audit')} ${audit.pass}/${audit.judged}`]);
       }
-      for (const flag of row.flags || []) tags.push(['dsc-warn', flag]);
+      // 标签只留最该看见的两类（身份 + 审计结论），其余风险压成一个计数：
+      // 卡片上铺六七个胶囊正是上一版显得拥挤的原因。
+      const flags = row.flags || [];
+      if (flags.length) tags.push(['dsc-warn', flags.length === 1 ? flags[0] : `${flags[0]} +${flags.length - 1}`]);
 
       return h(
         'div',
@@ -246,12 +273,7 @@ white-space:pre-wrap;word-break:break-all}
             h('strong', null, row.name_zh || row.slug || row.id),
             h('div', { className: 'dsc-sub' }, `${row.slug || row.id}${row.source ? ` · ${row.source}` : ''}`),
           ),
-          h(
-            'div',
-            { className: 'dsc-score' },
-            h('b', null, row.S == null ? '—' : Number(row.S).toFixed(3)),
-            h('span', null, 'S'),
-          ),
+          h('span', { className: 'dsc-pill' }, `S ${row.S == null ? '—' : Number(row.S).toFixed(3)}`),
         ),
         h(
           'p',
@@ -262,15 +284,18 @@ white-space:pre-wrap;word-break:break-all}
           'div',
           { className: 'dsc-facts' },
           h('span', null, `${t('installs')} `, h('b', null, fmtInt(row.installs))),
+          h('i', null, '·'),
           h('span', { className: trendClass(row.trend_pct) }, `${t('trend')} ${fmtPct(row.trend_pct)}`),
         ),
-        h(
-          'div',
-          { className: 'dsc-tags' },
-          tags.map(([cls, text], index) =>
-            h('span', { key: `${text}-${index}`, className: `dsc-tag ${cls}`.trim() }, text),
-          ),
-        ),
+        tags.length
+          ? h(
+              'div',
+              { className: 'dsc-tags' },
+              tags.map(([cls, text], index) =>
+                h('span', { key: `${text}-${index}`, className: `dsc-tag ${cls}`.trim() }, text),
+              ),
+            )
+          : null,
       );
     }
 
@@ -474,11 +499,14 @@ white-space:pre-wrap;word-break:break-all}
       const meta = [
         `${t('catalog')} ${fmtInt(state.total)}`,
         state.matched ? `${t('matched')} ${fmtInt(state.matched)}` : '',
-        `${t('version')} ${state.version || t('none')}`,
+        `${t('version')} ${state.version ? fmtVersion(state.version) : t('none')}`,
         `${t('active')} ${state.active.length}${state.maxActive ? `/${state.maxActive}` : ''}`,
       ]
         .filter(Boolean)
         .join(' · ');
+
+      const activeFilterLabel = (filters.find(([value]) => value === filter) || ['', t('filterAll')])[1];
+      const sectionTitle = query.trim() ? `${t('searchResults')}·${query.trim()}` : activeFilterLabel;
 
       const hasMore = state.rows.length < state.matched;
 
@@ -489,12 +517,8 @@ white-space:pre-wrap;word-break:break-all}
         h(
           'div',
           { className: 'dsc-top' },
-          h(
-            'div',
-            { className: 'dsc-head' },
-            h('h2', { className: 'dsc-title' }, t('title')),
-            h('span', { className: 'dsc-meta' }, meta),
-          ),
+          h('div', { className: 'dsc-head' }, h('h2', { className: 'dsc-title' }, t('title'))),
+          h('div', { className: 'dsc-meta' }, meta),
           h(
             'div',
             { className: 'dsc-tools' },
@@ -547,24 +571,41 @@ white-space:pre-wrap;word-break:break-all}
               ),
             ),
           ),
+          h('div', { className: 'dsc-rule' }),
         ),
         h(
           'div',
           { className: 'dsc-scroll' },
-          state.status === 'loading'
-            ? h('div', { className: 'dsc-empty' }, t('loading'))
-            : state.rows.length
-              ? h(
-                  'div',
-                  { className: 'dsc-grid' },
-                  state.rows.map((row) => h(Card, { key: row.id, row, onOpen: openDetail })),
-                )
-              : h('div', { className: 'dsc-empty' }, state.status === 'error' ? t('failed') + state.error : t('empty')),
+          // 内容限宽：市场页就是左对齐一栏最大约 1100px，右边留白；
+          // 拉满整屏会让卡片排到五列，读起来像墙。
+          h(
+            'div',
+            { className: 'dsc-inner' },
+            h(
+              'div',
+              { className: 'dsc-section' },
+              h('h3', null, sectionTitle),
+              h('span', null, `${t('matched')} ${fmtInt(state.matched)}`),
+            ),
+            state.status === 'loading'
+              ? h('div', { className: 'dsc-empty' }, t('loading'))
+              : state.rows.length
+                ? h(
+                    'div',
+                    { className: 'dsc-grid' },
+                    state.rows.map((row) => h(Card, { key: row.id, row, onOpen: openDetail })),
+                  )
+                : h('div', { className: 'dsc-empty' }, state.status === 'error' ? t('failed') + state.error : t('empty')),
+          ),
         ),
         h(
           'div',
           { className: 'dsc-foot' },
-          h('span', null, `${t('showing')} ${fmtInt(state.rows.length)}${state.matched ? ` / ${fmtInt(state.matched)}` : ''}`),
+          h(
+            'span',
+            null,
+            `${t('showing')} ${fmtInt(state.rows.length)}${state.matched ? ` / ${fmtInt(state.matched)}` : ''}`,
+          ),
           hasMore
             ? h(
                 'button',
