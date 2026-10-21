@@ -17,7 +17,7 @@ const { MAX_ACTIVE } = await import('../lib/paths.js');
 const { DEFAULT_CATALOG_URL } = await import('../lib/sync.js');
 
 // ---- 假 ctx：只实现 apply 用到的那几个面 ----
-const captured = { providerFactory: null, tools: new Map(), disposed: 0, routes: [] };
+const captured = { providerFactory: null, tools: new Map(), disposed: 0, routes: [], sections: [] };
 const ctx = {
   effect(fn) {
     const dispose = fn();
@@ -38,6 +38,15 @@ const ctx = {
       return () => {};
     },
   },
+  get(name) {
+    if (name !== 'systemPrompt') return undefined;
+    return {
+      section(section) {
+        captured.sections.push(section);
+        return () => {};
+      },
+    };
+  },
   webServer: {
     register(route) {
       captured.routes.push(route);
@@ -52,6 +61,14 @@ assert.equal(name, 'dsh-skills-center');
 assert.ok(captured.providerFactory, 'should register a provider factory');
 assert.deepEqual([...captured.tools.keys()].sort(), ['skill_activate', 'skill_card', 'skill_search', 'skill_sync']);
 assert.equal(captured.routes.length, 1);
+
+// 召回提示：静态文本是有意的（动态 provider 每次组装都重跑，会让 prompt cache 逐步失效）
+assert.equal(captured.sections.length, 1, 'should register exactly one recall hint section');
+assert.equal(captured.sections[0].name, 'dsh-skills-center');
+assert.equal(typeof captured.sections[0].text, 'string', '召回提示必须是静态字符串');
+assert.equal(Number.isFinite(captured.sections[0].order), true, 'order 必须是有限数');
+assert.match(captured.sections[0].text, /skill_search/, '提示里必须点名工具，否则等于没说');
+assert.match(captured.sections[0].text, /Do not claim a skill exists/, '要明确禁止凭空声称技能存在');
 
 // ---- 库存 fixture：挑一条目录里的技能，造出它的 SKILL.md ----
 const { loadCatalog, searchSkills, getSkill, renderCard } = await import('../lib/catalog.js');
