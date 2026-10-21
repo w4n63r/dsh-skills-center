@@ -342,15 +342,16 @@ async function run(request, trigger, { resolveToken = resolveOidcToken, loadBlob
           store: 'blob',
         };
       }
-      // 一个都没落成的那些，目录不许声称它有正文：把 body 整块抹掉（不是只抹 v）。
-      // 只抹 v 的话它会留在目录里、却取不到正文；整块抹掉后它这轮就不在目录里，
-      // 下一轮因为 body_v 为空会被重新抓取并上传（每轮上限见 GH_BODIES_MAX）。
+      // 一个都没落成的那些：抹掉 v，保留 length/sha256。body.length/sha256 说明「上游确实有这份
+      // 正文」，是收录标准的依据；整块抹掉会让下一轮 buildCatalog 把它当成没正文的条目丢掉，而每轮
+      // 只传得完 GH_BODIES_MAX 份 → 目录会越跑越小。v 才是「文件已经躺在我们的存储里」，抹掉它
+      // 就是面板不假装能看正文，下一轮也会因为 body_v 为空而重抓重传。
       if (bodyUpload.failed.length) {
         const bad = new Set(bodyUpload.failed);
         for (const skill of catalog.skills) {
-          if (skill.body?.sha256 && bad.has(skill.body.sha256)) delete skill.body;
+          if (skill.body?.sha256 && bad.has(skill.body.sha256)) delete skill.body.v;
         }
-        console.log(`[collect] bodies: ${bodyUpload.failed.length} not stored → those entries dropped from this catalog`);
+        console.log(`[collect] bodies: ${bodyUpload.failed.length} not stored → v cleared, retried next round`);
       }
       console.log(`[collect] bodies: ${bodyUpload.uploaded} stored via ${bodyUpload.store}`);
     }

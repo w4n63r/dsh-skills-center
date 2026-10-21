@@ -206,13 +206,18 @@ assert.equal(partial.status, 200, `one unstorable body must not fail the run: ${
 assert.equal(partialBody.bodies.failed, 1, 'the uploader reports exactly the body it could not store');
 const partialCatalog = JSON.parse(puts2.find((p) => p.pathname.startsWith('catalog-') && p.pathname.endsWith('.json')).body);
 assert.ok(
-  partialCatalog.skills.every((s) => !s.body || s.body.v === BODY_VERSION),
-  '目录里带 body 的必须都是真入库的，落不成的整块 body 都不许有',
+  partialCatalog.skills.every((s) => !s.body || !s.body.v || s.body.v === BODY_VERSION),
+  'v 是「文件在我们的存储里」的印章：落不成的条目不许带 v',
+);
+assert.equal(
+  partialCatalog.skills.filter((s) => s.body && s.body.v).length,
+  partialBody.bodies.uploaded,
+  '落成几份正文，目录里就有几条带 v',
 );
 assert.equal(
   partialCatalog.skills.filter((s) => s.body).length,
-  partialBody.bodies.uploaded,
-  '落成几份正文，目录里就有几条带 body',
+  goodBody.bodies.count,
+  'length/sha256 是「上游有这份正文」的证据，抹 v 不该连它一起抹掉',
 );
 
 // ---- 回归守卫：Blob 挂了也要能读回上一版目录（2026-10-21 真事故：blob.list() 抛 → 整目录 coverage 崩到 14%）----

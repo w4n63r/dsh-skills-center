@@ -123,7 +123,7 @@ export function bodyGateStats(records, waterline = 2000) {
   // 分成两个数是 2026-10-21 的迁移现实：正文存储从 Blob 换到 GitHub bodies 分支，v1 旧印章作废，
   // head_stored 会先掉到接近 0 再随每轮上传（GH_BODIES_MAX=70）慢慢爬回来。若拿 stored 当门禁，
   // 严格收录会被关掉、目录一下涨回八千条（含大量根本没抓过正文的），所以门禁只管「有没有正文」。
-  const headStored = head.filter((r) => r.body_length && r.body_sha256 && r.body_v).length;
+  const headStored = head.filter((r) => r.body_length && r.body_sha256 && Number(r.body_v) >= BODY_VERSION).length;
   const coverage = head.length ? Math.round((headWithBody / head.length) * 1000) / 1000 : 0;
   const storedCoverage = head.length ? Math.round((headStored / head.length) * 1000) / 1000 : 0;
   return {
