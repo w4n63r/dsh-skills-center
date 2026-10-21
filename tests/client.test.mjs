@@ -17,6 +17,8 @@ globalThis.window = {
   },
   innerHeight: 900,
   innerWidth: 1400,
+  // 卸载前要弹一次确认框；测试里一律点「确定」
+  confirm: () => true,
   addEventListener(type, fn) {
     listeners.push({ type, fn });
   },
@@ -233,9 +235,92 @@ const STATUS_FIXTURE = {
   coverage: { total: 7572, installs: 7572, installs_4w: 0, stars: 93, trend_pct: 2313, first_seen: 915, s: 7572, name: 7572 },
 };
 
-globalThis.fetch = async (url) => {
-  asked.push(String(url));
-  if (String(url).includes('/status')) {
+// 「本地」页签用的一份假数据；空态那条用例会临时把它换成一份空清单
+const LOCAL_FIXTURE = {
+  ok: true,
+  project: 'C:/work/demo',
+  projectSource: 'query',
+  home: 'C:/Users/me',
+  roots: [
+    { id: 'project-agents', scope: 'project', rank: 200, dir: 'C:/work/demo/.agents/skills', managed: true, exists: true },
+    { id: 'global-agents', scope: 'global', rank: 100, dir: 'C:/Users/me/.agents/skills', managed: true, exists: true },
+    { id: 'claude-project', scope: 'project', rank: 90, dir: 'C:/work/demo/.claude/skills', managed: false, exists: false },
+  ],
+  skills: [
+    {
+      name: 'hello',
+      dir: 'C:/work/demo/.agents/skills/hello',
+      scope: 'project',
+      rootId: 'project-agents',
+      rank: 200,
+      managed: true,
+      description: '打个招呼的示例技能。',
+      source: 'acme/skills',
+      catalogId: 'acme/skills/hello',
+      installs_total: 1234,
+      inCatalog: true,
+      hasBody: false,
+      breakdown: { project: ['C:/work/demo/.agents/skills/hello'], global: [] },
+    },
+    {
+      name: 'world',
+      dir: 'C:/Users/me/.agents/skills/world',
+      scope: 'global',
+      rootId: 'global-agents',
+      rank: 100,
+      managed: true,
+      description: null,
+      source: null,
+      catalogId: null,
+      installs_total: null,
+      inCatalog: false,
+      hasBody: false,
+      breakdown: { project: ['C:/work/demo/.agents/skills/world'], global: ['C:/Users/me/.agents/skills/world'] },
+    },
+  ],
+};
+let localPayload = LOCAL_FIXTURE;
+
+// 安装 / 卸载是「用户点一下才发生」的写请求：方法和 body 都留痕，断言才有据可查
+const posted = [];
+
+globalThis.fetch = async (url, options = {}) => {
+  const target = String(url);
+  asked.push(target);
+  if (options.method === 'POST') {
+    const payload = JSON.parse(options.body || '{}');
+    posted.push({ url: target, body: payload });
+    if (target.includes('/install')) {
+      return {
+        ok: true,
+        json: async () => ({
+          ok: true,
+          scope: payload.scope,
+          dir: 'C:/work/demo/.agents/skills/frontend-design',
+          id: payload.id,
+          name: 'frontend-design',
+        }),
+      };
+    }
+    if (target.includes('/uninstall')) {
+      return {
+        ok: true,
+        json: async () => ({
+          ok: true,
+          scope: payload.scope,
+          removed: ['C:/work/demo/.agents/skills/hello'],
+          stillInstalledElsewhere: [],
+        }),
+      };
+    }
+  }
+  if (target.includes('/body')) {
+    return { ok: true, text: async () => '---\nname: frontend-design\n---\n\n正文第一行\n正文第二行\n' };
+  }
+  if (target.includes('/local')) {
+    return { ok: true, json: async () => localPayload };
+  }
+  if (target.includes('/status')) {
     return { ok: true, json: async () => STATUS_FIXTURE };
   }
   if (String(url).includes('/card?')) {
@@ -459,9 +544,10 @@ assert.ok(
   'the disabled sort item is styled as greyed out with a theme token',
 );
 range30.props.onClick();
+// 点完要重渲一次，再把这一轮新挂上的 effect 跑一遍：假 react 不会自己跑 effect
+const rangeMark = hooks.effects.length;
 render();
-// 每次渲染挂 4 个 effect：取数 / 取覆盖统计 / 回滚顶部 / 卸载作废
-hooks.effects.slice(-4).forEach((effect) => effect());
+hooks.effects.slice(rangeMark).forEach((effect) => effect());
 await new Promise((resolve) => setTimeout(resolve, 400));
 assert.ok(asked.some((url) => url.includes('since=30')), 'picking a date range asks the host with since=30');
 
@@ -486,8 +572,10 @@ const categoryChip = (function find(node) {
 })(expand(render()));
 assert.ok(categoryChip, 'frontend chip is rendered');
 categoryChip.props.onClick();
-render(); // 假 react 只在渲染时才跑 effect，所以点完要再渲一次
-hooks.effects.slice(-4).forEach((effect) => effect());
+// 同上：点完渲一次，并把这一轮的 effect 跑一遍
+const categoryMark = hooks.effects.length;
+render();
+hooks.effects.slice(categoryMark).forEach((effect) => effect());
 await new Promise((resolve) => setTimeout(resolve, 400));
 assert.ok(
   asked.some((url) => url.includes('category=frontend')),
@@ -588,4 +676,134 @@ assert.match(withHelp, /"title":"评分：/, 'the score pill carries a tooltip')
 assert.match(withHelp, /"title":"第三方安全检查：/, 'the audit chip carries a tooltip');
 assert.match(withHelp, /"title":"needs_external_cli：/, 'the risk chip carries a per-flag tooltip');
 
-console.log('client ok — module dsh-skills-center | slots: sidebar.panellist#skills-center + main#skills-center | cards + detail rendered');
+// --- 「本地」页签：看本机装了什么，并在这里装 / 卸 / 看正文 ---
+
+/** 收集所有 className 含 target 的节点（children 可能不是数组）。 */
+const findByClass = (node, target, out = []) => {
+  if (Array.isArray(node)) {
+    node.forEach((child) => findByClass(child, target, out));
+    return out;
+  }
+  if (!node || typeof node !== 'object') return out;
+  if (String(node.props?.className || '').split(/\s+/).includes(target)) out.push(node);
+  const children = node.children || [];
+  (Array.isArray(children) ? children : [children]).forEach((child) => findByClass(child, target, out));
+  return out;
+};
+
+/** 按可见文字找按钮：精确匹配，免得「安装」命中「安装到全局」。 */
+const findButton = (node, label) => {
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      const hit = findButton(child, label);
+      if (hit) return hit;
+    }
+    return null;
+  }
+  if (!node || typeof node !== 'object') return null;
+  if (node.type === 'button' && nodeText(node) === label) return node;
+  const children = node.children || [];
+  for (const child of Array.isArray(children) ? children : [children]) {
+    const hit = findButton(child, label);
+    if (hit) return hit;
+  }
+  return null;
+};
+
+const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
+// 点完重渲一次，再跑这一轮新挂上的 effect
+const settle = async () => {
+  const mark = hooks.effects.length;
+  render();
+  hooks.effects.slice(mark).forEach((effect) => effect());
+  await flush();
+};
+// 整张卡片可点，安装 / 作用域按钮都会 stopPropagation，所以喂一个假事件
+const clickThrough = (node) => node.props.onClick({ stopPropagation() {} });
+const rowOf = (tree, name) =>
+  findByClass(tree, 'dsc-local-row').find((row) => nodeText(row).includes(name));
+const firstInstallBar = () => findByClass(collectCards(expand(render()), [])[0], 'dsc-install')[0];
+
+// ① 切到「本地」：请求 /local，并按作用域把已装技能连同徽标列出来
+const viewButtons = findByClass(expand(render()), 'dsc-view');
+assert.equal(viewButtons.length, 2, 'the header carries a two-state view switch');
+assert.deepEqual(viewButtons.map((button) => nodeText(button)), ['目录', '本地']);
+assert.equal(viewButtons[0].props['data-on'], 'true', 'the catalog view stays the default');
+
+clickThrough(viewButtons[1]);
+await settle();
+assert.ok(asked.some((url) => url.includes('/local')), 'switching to the local view asks the host for /local');
+
+const localTree = expand(render());
+const localText = JSON.stringify(localTree);
+assert.ok(localText.includes('本机已装 2'), 'the local view says how many skills are installed');
+assert.ok(localText.includes('C:/work/demo/.agents/skills'), 'the roots that were scanned are listed');
+assert.ok(!localText.includes('C:/work/demo/.claude/skills'), 'a root that does not exist is not listed');
+
+const helloRow = rowOf(localTree, 'hello');
+const worldRow = rowOf(localTree, 'world');
+assert.ok(helloRow && worldRow, 'every installed skill is listed');
+const helloText = JSON.stringify(helloRow);
+assert.ok(helloText.includes('项目级'), 'a project-scope skill is badged 项目级');
+assert.ok(!helloText.includes('全局'), 'a skill installed only in the project is not badged 全局');
+assert.ok(helloText.includes('打个招呼的示例技能。'), 'the local description is shown');
+assert.ok(helloText.includes('在目录里') && helloText.includes('1,234'), 'a catalog match shows the formatted install count');
+assert.ok(helloText.includes('查看详情'), 'a catalog match opens the existing detail dialog');
+const worldText = JSON.stringify(worldRow);
+assert.ok(worldText.includes('项目级') && worldText.includes('全局'), 'a skill installed in both scopes carries both badges');
+assert.ok(worldText.includes('本地 SKILL.md 没写描述'), 'a missing description is stated, not invented');
+assert.ok(worldText.includes('不在目录里'), 'a skill the catalog does not know says so');
+
+// ② 目录视图点「安装」→ 先问作用域 → 选「全局」→ POST /install，body 里带 scope:"global"
+clickThrough(findByClass(expand(render()), 'dsc-view')[0]);
+await settle();
+assert.ok(findButton(firstInstallBar(), '安装'), 'a catalog card offers an install button');
+clickThrough(findButton(firstInstallBar(), '安装'));
+await settle();
+assert.ok(findButton(firstInstallBar(), '项目级') && findButton(firstInstallBar(), '全局'), 'the card asks which scope first');
+clickThrough(findButton(firstInstallBar(), '全局'));
+await flush();
+const installCall = posted.find((call) => call.url.includes('/install'));
+assert.ok(installCall, 'choosing a scope posts to /install');
+assert.equal(installCall.body.scope, 'global', 'the chosen scope travels in the request body');
+assert.equal(installCall.body.id, 'anthropics/skills/frontend-design', 'the catalog id travels in the request body');
+assert.equal(installCall.body.project, 'C:/work/demo', 'the current project dir travels too');
+assert.ok(JSON.stringify(firstInstallBar()).includes('已装到全局'), 'the card flips to 已装到全局 after the install');
+
+// ③ 详情弹层：「看正文」→ GET /body，原文进 <pre>
+const bodyButton = findButton(expand(render()), '看正文');
+assert.ok(bodyButton, 'the detail dialog offers a body preview');
+clickThrough(bodyButton);
+await flush();
+assert.ok(
+  asked.some((url) => url.includes('/body') && url.includes('id=')),
+  'previewing a body asks the host for /body with the catalog id',
+);
+const pre = findByClass(expand(render()), 'dsc-body')[0];
+assert.ok(pre && pre.type === 'pre', 'the body text lands in a <pre> block');
+assert.ok(JSON.stringify(pre).includes('正文第一行'), 'the raw markdown is rendered as-is');
+
+// ④ 本地视图点「卸载」→ 确认后 POST /uninstall
+clickThrough(findByClass(expand(render()), 'dsc-view')[1]);
+await settle();
+const uninstallButton = findButton(rowOf(expand(render()), 'hello'), '卸载');
+assert.ok(uninstallButton, 'an installed skill offers an uninstall button');
+clickThrough(uninstallButton);
+await flush();
+const uninstallCall = posted.find((call) => call.url.includes('/uninstall'));
+assert.ok(uninstallCall, 'uninstalling posts to /uninstall');
+assert.equal(uninstallCall.body.name, 'hello', 'the uninstalled name travels in the request body');
+assert.equal(uninstallCall.body.scope, 'project', 'the scope travels in the request body');
+
+// ⑤ 一条都没装时给空态，不编数据；宿主给的默认目录要提示可以改
+localPayload = { ok: true, project: 'C:/work/demo', projectSource: 'host', home: 'C:/Users/me', roots: [], skills: [] };
+clickThrough(findByClass(expand(render()), 'dsc-view')[0]);
+await settle();
+clickThrough(findByClass(expand(render()), 'dsc-view')[1]);
+await settle();
+const emptyText = JSON.stringify(expand(render()));
+assert.ok(emptyText.includes('本机还没装任何技能'), 'an empty machine says so plainly');
+assert.ok(emptyText.includes('去『目录』里挑一个装'), 'and points at the catalog view');
+assert.ok(emptyText.includes('项目目录来自宿主默认值'), 'a host-provided project dir is flagged as changeable');
+
+console.log('client ok — module dsh-skills-center | slots: sidebar.panellist#skills-center + main#skills-center | cards + detail rendered | local view: /local + install + uninstall + body');

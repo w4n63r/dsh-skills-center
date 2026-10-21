@@ -170,7 +170,7 @@ assert.equal(published.body_base, 'https://blob.example/body');
 assert.equal(JSON.stringify(published).includes('body_text'), false, 'never ship the full text inside the catalog');
 const stored = published.skills.filter((s) => s.body);
 assert.equal(stored.length, goodBody.bodies.uploaded, 'every catalog entry marked with a body was really uploaded');
-assert.ok(stored.every((s) => s.body.v === 1), 'a body in the catalog is a claim that the text is in the blob');
+assert.ok(stored.every((s) => s.body.v === BODY_VERSION), 'a body in the catalog is a claim that the text is in the store');
 assert.ok(
   stored.every((s) => bodyPuts.some((p) => p.pathname === `body/${s.body.sha256}.md`)),
   'every marked body must point at a path we actually wrote',
@@ -206,7 +206,7 @@ assert.equal(partial.status, 200, `one unstorable body must not fail the run: ${
 assert.equal(partialBody.bodies.failed, 1, 'the uploader reports exactly the body it could not store');
 const partialCatalog = JSON.parse(puts2.find((p) => p.pathname.startsWith('catalog-') && p.pathname.endsWith('.json')).body);
 assert.ok(
-  partialCatalog.skills.every((s) => !s.body || s.body.v === 1),
+  partialCatalog.skills.every((s) => !s.body || s.body.v === BODY_VERSION),
   '目录里带 body 的必须都是真入库的，落不成的整块 body 都不许有',
 );
 assert.equal(

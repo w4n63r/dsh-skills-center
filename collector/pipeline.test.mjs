@@ -234,8 +234,8 @@ assert.equal(normalizeRecord({ id: 'open.feishu.cn/lark-drive' }).source, 'open.
   const rows = [
     { id: 'a/b/top', slug: 'top', installs: 900, description: 'x', bodyLength: 900, body_sha256: 'h1', body_v: 1 },
     { id: 'c/d/top', slug: 'top', installs: 100, description: 'x', bodyLength: 900, body_sha256: 'h1', body_v: 1 },
-    // 抓过 detail、也有正文指纹，但正文没入库（body_v 缺）= 历史上「抓完就丢」的那种记录：
-    // 能算「抓到了」，不能算「已入库」——门禁只能按后者开。
+    // 抓过 detail、也有正文指纹，但正文没传到当前存储（body_v 缺）= 历史上「抓完就丢」的、
+    // 以及 2026-10-21 存储换家后印章作废的记录：门禁算「到手」，stored 才算「已分发」。
     { id: 'e/f/old', slug: 'old', installs: 200, description: 'w', bodyLength: 800, body_sha256: 'h9' },
     { id: 'a/b/mid', slug: 'mid', installs: 50, description: 'y' },
     { id: 'a/b/tail', slug: 'tail', installs: 10, description: 'z' },
@@ -244,13 +244,19 @@ assert.equal(normalizeRecord({ id: 'open.feishu.cn/lark-drive' }).source, 'open.
   assert.equal(gate.head_total, 2, 'waterline caps the head');
   assert.equal(gate.head_with_body, 2, 'fetched counts as fetched even when the body was not stored');
   assert.equal(gate.head_stored, 1, 'only body_v counts as stored');
-  assert.equal(gate.coverage, 0.5);
-  assert.equal(gate.strict, false, 'coverage below 95% keeps the filter off');
+  // 两个数故意分开：门禁看「正文到手没有」（length/sha256），stored 只看分发进度。
+  assert.equal(gate.coverage, 1, 'head 两条都抓到了正文 → 门禁口径 1');
+  assert.equal(gate.stored_coverage, 0.5, 'stored 只认 body_v');
+  assert.equal(gate.strict, true, '门禁口径 >=95% → 开严格收录（分发进度不影响收录）');
+  const mixed = bodyGateStats([...rows, { id: 'z/z/none', slug: 'none', installs: 150, description: 'n' }], 3);
+  assert.equal(mixed.head_with_body, 2, '第三条根本没抓过正文');
+  assert.equal(mixed.coverage, 0.667, '抓过正文的比例（2/3）');
+  assert.equal(mixed.strict, false, '裁到 66.7% 就不能开严格收录');
   assert.equal(bodyGateStats(rows, 3).head_stored, 1);
   assert.equal(bodyGateStats([], 2000).coverage, 0, 'an empty catalog cannot claim coverage');
   assert.equal(bodyGateStats([], 2000).strict, false);
   const allStored = rows.map((r) => (r.bodyLength ? { ...r, body_v: 1 } : r));
-  assert.equal(bodyGateStats(allStored, 2).coverage, 1, 'every head record stored → coverage 1');
+  assert.equal(bodyGateStats(allStored, 2).stored_coverage, 1, 'every head record stored → stored coverage 1');
   assert.equal(bodyGateStats(allStored, 2).strict, true, 'coverage ≥95% turns the filter on');
 }
 

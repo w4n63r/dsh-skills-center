@@ -122,7 +122,7 @@ window.__ModuleLoader__.load({
       helpDataTitle: '总安装量 / 8 周趋势',
       helpDataBody: '总安装量 = 主条目装量 + 同一份内容在其他仓库的副本装量（上游只对聚类成功的条目给合并值，只占少数；其余条目的总安装量就是主条目装量）。详情里能看到主条目装量。8 周趋势 = 后四周周均 ÷ 前四周周均 − 1。星标数是 GitHub 仓库的星数（技能页上的 GitHub Stars），仓库级指标，同一仓库的技能共用。',
       helpTagsTitle: '卡片上的标签',
-      helpTagsBody: '官方 / 精选 = skills.sh 的官方或 curated 标记。中文卡 = 这条有中文介绍（只做了安装量前 300 条）。有正文 = 抓到了 SKILL.md 正文。风险标记见下。',
+      helpTagsBody: '官方 / 精选 = skills.sh 的官方或 curated 标记。中文卡 = 这条有中文介绍（两档：逐条精校的少量 + 按正文自动生成的，仍在扩量）。有正文 = 抓到了 SKILL.md 正文；正文文件还没同步到本地时，点「看正文」会如实说取不到。风险标记见下。',
       helpSourceTitle: '数据多久更新一次',
       helpSourceBody: '线上目录由 Vercel 定时任务每天采一次，面板顶部显示的版本就是那次快照的时间；中文卡随目录一起下发，所以换版本时中文内容也会一起更新。',
       tipScore: '评分：安装量 + 8 周趋势 + 官方身份 + 第三方安全检查 合成的百分制排序分（0–100），点右上「说明」看算法',
@@ -132,7 +132,7 @@ window.__ModuleLoader__.load({
       tipTrend: '8 周趋势：后四周周均 ÷ 前四周周均 − 1；上游没给趋势时显示 —',
       auditNote: '结论来自 skills.sh 的第三方安全检查，不是我们审的。pass 不等于安全，fail 也可能是误报。',
       scoreNote: '评分是本插件按「安装量 45% + 趋势 20% + 官方 20% + 安全检查 15%」合成的百分制分数，不是 skills.sh 官方的分数。',
-      tipZh: '中文卡：这条有我们写的中文介绍，目前只覆盖安装量前 300 条',
+      tipZh: '中文卡：这条有我们写的中文介绍，逐条精校的少量 + 按正文自动生成的，仍在扩量',
       tipOfficial: '官方 / 精选：skills.sh 给的 official 或 curated 标记',
       tipEnriched: '有正文：已抓到 SKILL.md 正文（详情与风险标记靠它算出来）',
       flagDeprecated: '已废弃或只是兼容占位，别新装',
@@ -141,6 +141,41 @@ window.__ModuleLoader__.load({
       flagNeedsExternalCli: '要先在本机装好某个命令行工具',
       flagThinBody: '正文极短（不到 500 字），信息量有限',
       flagHasReferences: '带一堆引用文件，正文不是全部',
+      viewDetail: '查看详情',
+      localInstalled: '本机已装',
+      viewCatalog: '目录',
+      viewLocal: '本地',
+      scopeProject: '项目级',
+      scopeGlobal: '全局',
+      install: '安装',
+      uninstall: '卸载',
+      installing: '安装中…',
+      uninstalling: '卸载中…',
+      installWhere: '装到哪里？',
+      installToProject: '安装到项目',
+      installToGlobal: '安装到全局',
+      installedProject: '已装到项目',
+      installedGlobal: '已装到全局',
+      notInstalled: '未装',
+      installFailed: '安装失败：',
+      uninstallFailed: '卸载失败：',
+      uninstallConfirm: '确定卸载「{name}」（{scope}）吗？',
+      viewBody: '看正文',
+      bodyLoading: '取正文…',
+      bodyFailed: '取正文失败：',
+      localOps: '本地操作',
+      localNoDescription: '本地 SKILL.md 没写描述',
+      localInCatalog: '在目录里',
+      localNotInCatalog: '不在目录里',
+      localEmpty: '本机还没装任何技能',
+      localEmptyHint: '去『目录』里挑一个装',
+      localFailed: '读取本机技能失败：',
+      localRoots: '扫描目录',
+      projectDir: '项目目录',
+      projectPlaceholder: '项目绝对路径（留空用宿主默认值）',
+      projectFromHost: '项目目录来自宿主默认值，可在左侧修改',
+      saveProject: '保存',
+      reload: '重新扫描',
     };
 
     const EN = {
@@ -246,7 +281,7 @@ window.__ModuleLoader__.load({
       helpDataTitle: 'Installs / 8-week trend',
       helpDataBody: 'Installs come from a skills.sh API snapshot; when the same content is republished by several owners the counts are merged, and the card shows the merged figure while the detail shows the canonical one. 8-week trend = average of the last four weeks divided by the previous four, minus 1. Stars are the GitHub repository\u2019s count (GitHub Stars on the skill page) and are shared by every skill in that repository.',
       helpTagsTitle: 'Tags on a card',
-      helpTagsBody: 'Official / Curated = skills.sh markers. Chinese card = we wrote a Chinese intro (top 300 by installs only). Has body = the SKILL.md body was fetched. Risk flags are listed below.',
+      helpTagsBody: 'Official / Curated = skills.sh markers. Chinese card = a Chinese intro is available (a small hand-checked set plus auto-generated ones, still growing). Has body = the SKILL.md body was fetched; when the body file has not synced locally, the view-body action says so instead of pretending. Risk flags are listed below.',
       helpSourceTitle: 'How fresh is the data',
       helpSourceBody: 'A Vercel cron collects the catalog once a day; the version in the panel header is that snapshot time. Chinese cards ship with the catalog, so they update together.',
       tipScore: 'S score: installs + 8-week trend + official status + audits, composed by this plugin. See Help for the formula.',
@@ -256,7 +291,7 @@ window.__ModuleLoader__.load({
       tipTrend: '8-week trend: last four weeks vs the previous four, minus 1; — when upstream has none',
       auditNote: 'Verdicts come from third-party audits on skills.sh, not from us. Pass is not safe; a fail can be a false positive.',
       scoreNote: 'The S score is this plugin\u2019s own ranking (installs + trend + official + audits), not a skills.sh number.',
-      tipZh: 'Chinese card: we wrote a Chinese intro for this one (top 300 by installs)',
+      tipZh: 'Chinese card: a Chinese intro is available (hand-checked or auto-generated; still growing)',
       tipOfficial: 'Official / Curated: the marker skills.sh publishes',
       tipEnriched: 'Has body: the SKILL.md body was fetched (risk flags and detail depend on it)',
       flagDeprecated: 'Deprecated or a compatibility placeholder — do not install it fresh',
@@ -265,6 +300,41 @@ window.__ModuleLoader__.load({
       flagNeedsExternalCli: 'Needs a command-line tool installed locally first',
       flagThinBody: 'Body is under 500 characters — little to read',
       flagHasReferences: 'Ships a pile of reference files; the body is not the whole story',
+      viewDetail: 'Details',
+      localInstalled: 'Installed here',
+      viewCatalog: 'Catalog',
+      viewLocal: 'Local',
+      scopeProject: 'Project',
+      scopeGlobal: 'Global',
+      install: 'Install',
+      uninstall: 'Uninstall',
+      installing: 'Installing…',
+      uninstalling: 'Uninstalling…',
+      installWhere: 'Install where?',
+      installToProject: 'Install to project',
+      installToGlobal: 'Install to global',
+      installedProject: 'Installed to project',
+      installedGlobal: 'Installed to global',
+      notInstalled: 'Not installed',
+      installFailed: 'Install failed: ',
+      uninstallFailed: 'Uninstall failed: ',
+      uninstallConfirm: 'Uninstall "{name}" ({scope})?',
+      viewBody: 'View body',
+      bodyLoading: 'Fetching body…',
+      bodyFailed: 'Body fetch failed: ',
+      localOps: 'Local',
+      localNoDescription: 'Local SKILL.md has no description',
+      localInCatalog: 'In catalog',
+      localNotInCatalog: 'Not in catalog',
+      localEmpty: 'No skills installed on this machine',
+      localEmptyHint: 'Pick one from the Catalog tab and install it.',
+      localFailed: 'Failed to read local skills: ',
+      localRoots: 'Scanned directories',
+      projectDir: 'Project dir',
+      projectPlaceholder: 'Absolute project path (blank = host default)',
+      projectFromHost: 'Project dir comes from the host default; edit on the left to change',
+      saveProject: 'Save',
+      reload: 'Rescan',
     };
 
     // 词典由 apply 里的 locale 服务注册；这里留一个直读中文的兜底，
@@ -414,6 +484,44 @@ white-space:pre-wrap;word-break:break-all}
 .dsc-audit{display:flex;flex-direction:column;gap:7px}
 .dsc-audit-row{display:flex;gap:10px;align-items:baseline;font-size:13px}
 .dsc-audit-row span:first-child{flex:0 0 auto;min-width:150px;color:var(--dsw-alias-label-secondary)}
+/* 视图切换（目录 / 本地）：和分类胶囊同形，不引入新色值 */
+.dsc-views{display:flex;gap:6px;margin-top:16px}
+.dsc-view{height:30px;padding:0 15px;border:1px solid var(--dsw-alias-border-l1);border-radius:999px;
+background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:13px;cursor:pointer;
+transition:border-color .12s,color .12s,background .12s}
+.dsc-view:hover{border-color:var(--dsw-alias-border-l2);color:var(--dsw-alias-label-primary)}
+.dsc-view[data-on="true"]{border-color:var(--dsw-alias-brand-primary);color:var(--dsw-alias-brand-primary);
+background:var(--dsw-alias-bg-layer-2);font-weight:500}
+.dsc-btn-sm{height:30px;padding:0 11px;font-size:12.5px}
+.dsc-local{display:flex;flex-direction:column;gap:14px}
+.dsc-local-list{display:flex;flex-direction:column}
+/* 目录视图专用块（搜索/排序/分类）：display:contents 不进布局，切到「本地」时整块隐藏 */
+.dsc-catalog-only{display:contents}
+.dsc-root[data-view="local"] .dsc-catalog-only{display:none}
+.dsc-proj{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dsc-proj-input{flex:1 1 320px;min-width:200px;height:32px;padding:0 10px;border:1px solid var(--dsw-alias-border-l1);
+border-radius:8px;background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font:inherit;
+font-size:12.5px;font-family:ui-monospace,Consolas,monospace}
+.dsc-proj-input:focus{outline:none;border-color:var(--dsw-alias-brand-primary)}
+.dsc-roots{display:flex;flex-direction:column;gap:3px}
+.dsc-root-row{color:var(--dsw-alias-label-secondary);font-size:12px;line-height:1.6;
+font-family:ui-monospace,Consolas,monospace;word-break:break-all}
+.dsc-local-row{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-top:1px solid var(--dsw-alias-border-l1)}
+.dsc-local-row:first-child{border-top:0}
+.dsc-local-main{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:6px}
+.dsc-local-name{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dsc-local-name strong{font-size:14.5px;font-weight:600}
+.dsc-local-desc{margin:0;font-size:13px;line-height:1.7;color:var(--dsw-alias-label-primary);opacity:.82}
+.dsc-local-desc.dsc-muted{font-style:italic}
+.dsc-local-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dsc-local-side{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.dsc-card-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.dsc-install{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+/* 正文预览：等宽 + 限高滚动；fg/bg 都用主题令牌 */
+.dsc-body{margin:0;padding:10px 12px;border:1px solid var(--dsw-alias-border-l1);border-radius:9px;
+background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-primary);
+font-family:ui-monospace,Consolas,monospace;font-size:12.5px;line-height:1.65;
+white-space:pre-wrap;word-break:break-word;max-height:40vh;overflow:auto;overscroll-behavior:contain}
 `;
 
     const fmtInt = (n) => (n == null ? '—' : Number(n).toLocaleString('en-US'));
@@ -482,6 +590,15 @@ white-space:pre-wrap;word-break:break-all}
       has_references: 'flagHasReferences',
     };
     const explainFlag = (flag) => t(FLAG_KEYS[flag] || flag);
+    /** 作用域 → 界面用词；后端只会给 project / global，其余值原样显示不去猜。 */
+    const scopeLabel = (scope) =>
+      scope === 'global' ? t('scopeGlobal') : scope === 'project' ? t('scopeProject') : String(scope || '—');
+    /** 后端失败体的形状是 {stage, error}：把 stage 带出来，用户才知道是起进程挂了还是复核没过。 */
+    const failureText = (payload, status) => {
+      if (payload && payload.stage) return `${payload.stage}: ${payload.error || ''}`.trim();
+      if (payload && payload.error) return String(payload.error);
+      return `http_${status}`;
+    };
 
     /** 「说明」弹层：S 分、审计、标签、数据口径一次讲清，省得每次都要人解释。 */
     function Help({ onClose }) {
@@ -659,8 +776,75 @@ white-space:pre-wrap;word-break:break-all}
       );
     }
 
+    /** 本地页签的一行：名称 + 作用域徽标 + 根/目录 + 本地简介 + 目录信息 + 卸载。 */
+    function LocalRow({ skill, onUninstall, onDetail, busy, error }) {
+      const breakdown = skill.breakdown || {};
+      const scopes = ['project', 'global'].filter(
+        (scope) => Array.isArray(breakdown[scope]) && breakdown[scope].length,
+      );
+      // 后端没给 breakdown 时退回这一条自己的 scope，别让徽标整片空掉
+      if (!scopes.length && skill.scope) scopes.push(skill.scope);
+      const inCatalog = Boolean(skill.catalogId);
+      return h(
+        'div',
+        { className: 'dsc-local-row' },
+        h(
+          'div',
+          { className: 'dsc-local-main' },
+          h(
+            'div',
+            { className: 'dsc-local-name' },
+            h('strong', null, skill.name),
+            scopes.map((scope) => h('span', { key: scope, className: 'dsc-tag dsc-brand' }, scopeLabel(scope))),
+          ),
+          h('div', { className: 'dsc-sub' }, `${skill.rootId || '—'} · ${skill.dir || ''}`),
+          h(
+            'p',
+            { className: skill.description ? 'dsc-local-desc' : 'dsc-local-desc dsc-muted' },
+            skill.description || t('localNoDescription'),
+          ),
+          h(
+            'div',
+            { className: 'dsc-local-actions' },
+            h(
+              'span',
+              { className: 'dsc-sub' },
+              inCatalog
+                ? `${t('localInCatalog')} · ${t('installsTotal')} ${fmtInt(skill.installs_total)}`
+                : t('localNotInCatalog'),
+            ),
+            inCatalog
+              ? h(
+                  'button',
+                  { type: 'button', className: 'dsc-btn dsc-btn-sm', onClick: () => onDetail(skill) },
+                  t('viewDetail'),
+                )
+              : null,
+          ),
+        ),
+        h(
+          'div',
+          { className: 'dsc-local-side' },
+          h(
+            'button',
+            {
+              type: 'button',
+              className: 'dsc-btn dsc-btn-sm',
+              disabled: busy || undefined,
+              onClick: () => onUninstall(skill),
+            },
+            busy ? t('uninstalling') : t('uninstall'),
+          ),
+          error ? h('span', { className: 'dsc-note dsc-hint-error' }, `${t('uninstallFailed')}${error}`) : null,
+        ),
+      );
+    }
+
     /** 一张技能卡：中文名 + 来源 + 两行介绍 + 装量/趋势 + 最多两个标签。 */
-    function Card({ row, onOpen }) {
+    function Card({ row, onOpen, install, onInstall }) {
+      // 「安装」先问作用域，选完再发请求；这个选择只影响这一张卡，所以留在卡片自己的 state 里
+      const [choosing, setChoosing] = useState(false);
+      const installedScope = install && install.installed ? install.installed.scope : '';
       const tags = [];
       if (row.official) tags.push(['dsc-brand', t('representative'), t('tipOfficial')]);
       else if (row.curated) tags.push(['dsc-brand', t('curated'), t('tipOfficial')]);
@@ -684,6 +868,80 @@ white-space:pre-wrap;word-break:break-all}
         tags.push(['dsc-warn', text, flags.map((flag) => `${flag}：${explainFlag(flag)}`).join('\n')]);
       }
       if (row.has_zh) tags.push(['dsc-good', t('cardZh'), t('tipZh')]);
+
+      // 安装入口：未装 → 问作用域；装中 → 禁不了但要说清楚；已装 → 直接显示装到哪了
+      const installUi = [];
+      if (install && install.busy) {
+        installUi.push(h('span', { key: 'busy', className: 'dsc-note' }, t('installing')));
+      } else if (installedScope) {
+        installUi.push(
+          h(
+            'span',
+            {
+              key: 'done',
+              className: 'dsc-tag dsc-good',
+              title: (install.installed && install.installed.dir) || undefined,
+            },
+            installedScope === 'global' ? t('installedGlobal') : t('installedProject'),
+          ),
+        );
+      } else if (choosing) {
+        installUi.push(
+          h('span', { key: 'ask', className: 'dsc-note' }, t('installWhere')),
+          h(
+            'button',
+            {
+              key: 'to-project',
+              type: 'button',
+              className: 'dsc-btn dsc-btn-sm',
+              title: install && install.projectDir ? `${t('scopeProject')} → ${install.projectDir}` : t('scopeProject'),
+              onClick: (event) => {
+                event.stopPropagation();
+                setChoosing(false);
+                onInstall(row, 'project');
+              },
+            },
+            t('scopeProject'),
+          ),
+          h(
+            'button',
+            {
+              key: 'to-global',
+              type: 'button',
+              className: 'dsc-btn dsc-btn-sm',
+              title: install && install.globalDir ? `${t('scopeGlobal')} → ${install.globalDir}` : t('scopeGlobal'),
+              onClick: (event) => {
+                event.stopPropagation();
+                setChoosing(false);
+                onInstall(row, 'global');
+              },
+            },
+            t('scopeGlobal'),
+          ),
+        );
+      } else {
+        installUi.push(
+          h(
+            'button',
+            {
+              key: 'install',
+              type: 'button',
+              className: 'dsc-btn dsc-btn-sm',
+              // 整张卡片是可点的（打开详情），安装按钮必须把事件拦住
+              onClick: (event) => {
+                event.stopPropagation();
+                setChoosing(true);
+              },
+            },
+            t('install'),
+          ),
+        );
+      }
+      if (install && install.error) {
+        installUi.push(
+          h('span', { key: 'error', className: 'dsc-note dsc-hint-error' }, `${t('installFailed')}${install.error}`),
+        );
+      }
 
       return h(
         'div',
@@ -735,20 +993,25 @@ white-space:pre-wrap;word-break:break-all}
                 h('span', { key: 'stars', title: t('tipStars') }, `★ ${fmtStars(row.stars)}`),
               ],
         ),
-        tags.length
-          ? h(
-              'div',
-              { className: 'dsc-tags' },
-              tags.map(([cls, text, tip], index) =>
-                h('span', { key: `${text}-${index}`, className: `dsc-tag ${cls}`.trim(), title: tip || undefined }, text),
-              ),
-            )
-          : null,
+        h(
+          'div',
+          { className: 'dsc-card-foot' },
+          tags.length
+            ? h(
+                'div',
+                { className: 'dsc-tags' },
+                tags.map(([cls, text, tip], index) =>
+                  h('span', { key: `${text}-${index}`, className: `dsc-tag ${cls}`.trim(), title: tip || undefined }, text),
+                ),
+              )
+            : null,
+          h('div', { className: 'dsc-install' }, installUi),
+        ),
       );
     }
 
     /** 详情弹层：完整中文卡 + 审计明细 + 安装命令。 */
-    function Detail({ state, onClose }) {
+    function Detail({ state, onClose, install }) {
       useEffect(() => {
         const onKey = (event) => {
           if (event.key === 'Escape') onClose();
@@ -760,6 +1023,10 @@ white-space:pre-wrap;word-break:break-all}
       const skill = state.skill || {};
       const row = state.row || {};
       const zh = skill.zh || {};
+      // 弹层自己的作用域选择：默认项目级（装进当前项目最容易看见效果）
+      const [scopeChoice, setScopeChoice] = useState('project');
+      const scope = scopeChoice === 'global' ? 'global' : 'project';
+      const body = (install && install.body) || { status: 'idle', text: '', error: '' };
       const score = skill.score || row.score || {};
       const title = row.name_zh || skill.name_zh || zh.name_zh || row.slug || state.id;
 
@@ -926,8 +1193,154 @@ white-space:pre-wrap;word-break:break-all}
               h('p', { className: 'dsc-text' }, skill.id || row.id || '—'),
               h('p', { className: 'dsc-note' }, t('idHint')),
             ),
+            install
+              ? h(
+                  'div',
+                  { className: 'dsc-field' },
+                  h('span', { className: 'dsc-label' }, t('localOps')),
+                  h(
+                    'div',
+                    { className: 'dsc-install' },
+                    h(
+                      'button',
+                      {
+                        type: 'button',
+                        className: 'dsc-chip dsc-chip-sm',
+                        'data-on': scope === 'project' ? 'true' : 'false',
+                        onClick: () => setScopeChoice('project'),
+                      },
+                      t('scopeProject'),
+                    ),
+                    h(
+                      'button',
+                      {
+                        type: 'button',
+                        className: 'dsc-chip dsc-chip-sm',
+                        'data-on': scope === 'global' ? 'true' : 'false',
+                        onClick: () => setScopeChoice('global'),
+                      },
+                      t('scopeGlobal'),
+                    ),
+                    h(
+                      'button',
+                      {
+                        type: 'button',
+                        className: 'dsc-btn dsc-btn-primary',
+                        disabled: install.busy || undefined,
+                        onClick: () => install.onInstall(skill, scope),
+                      },
+                      install.busy ? t('installing') : scope === 'global' ? t('installToGlobal') : t('installToProject'),
+                    ),
+                    h(
+                      'button',
+                      {
+                        type: 'button',
+                        className: 'dsc-btn',
+                        disabled: install.busy || undefined,
+                        onClick: () => install.onBody(skill),
+                      },
+                      body.status === 'loading' ? t('bodyLoading') : t('viewBody'),
+                    ),
+                    h('span', { className: 'dsc-tag' }, install.installedText || t('notInstalled')),
+                  ),
+                  h(
+                    'p',
+                    { className: 'dsc-note' },
+                    `${t('scopeProject')} → ${install.projectDir || t('none')}　${t('scopeGlobal')} → ${install.globalDir || t('none')}`,
+                  ),
+                  install.error
+                    ? h('p', { className: 'dsc-note dsc-hint-error' }, `${t('installFailed')}${install.error}`)
+                    : null,
+                  body.status === 'error'
+                    ? h('p', { className: 'dsc-note dsc-hint-error' }, `${t('bodyFailed')}${body.error}`)
+                    : null,
+                  body.status === 'ready' || body.status === 'loading'
+                    ? h('pre', { className: 'dsc-body' }, body.status === 'loading' ? t('bodyLoading') : body.text)
+                    : null,
+                )
+              : null,
           ),
         ),
+      );
+    }
+
+    /** 「本地」视图：项目目录可改 + 扫描根信息 + 已装技能列表 / 空态。 */
+    function LocalView({
+      state,
+      projectInput,
+      onProjectInput,
+      onSaveProject,
+      onReload,
+      onUninstall,
+      onDetail,
+      uninstalling,
+      uninstallErrors,
+    }) {
+      if (state.status === 'loading') return h('div', { className: 'dsc-empty' }, t('loading'));
+      if (state.status === 'error') return h('div', { className: 'dsc-empty' }, `${t('localFailed')}${state.error || ''}`);
+      const skills = Array.isArray(state.skills) ? state.skills : [];
+      const roots = (Array.isArray(state.roots) ? state.roots : []).filter((root) => root.exists);
+      return h(
+        'div',
+        { className: 'dsc-local' },
+        h(
+          'div',
+          { className: 'dsc-proj' },
+          h('span', { className: 'dsc-sub' }, t('projectDir')),
+          h('input', {
+            type: 'text',
+            className: 'dsc-proj-input',
+            value: projectInput,
+            spellCheck: false,
+            placeholder: t('projectPlaceholder'),
+            onChange: (event) => onProjectInput(event.target.value),
+            onKeyDown: (event) => {
+              if (event.key === 'Enter') onSaveProject();
+            },
+          }),
+          h(
+            'button',
+            { type: 'button', className: 'dsc-btn dsc-btn-sm', disabled: !projectInput, onClick: onSaveProject },
+            t('saveProject'),
+          ),
+          h('button', { type: 'button', className: 'dsc-btn dsc-btn-sm', onClick: onReload }, t('reload')),
+          state.projectSource === 'host' ? h('span', { className: 'dsc-note' }, t('projectFromHost')) : null,
+        ),
+        roots.length
+          ? h(
+              'div',
+              { className: 'dsc-roots' },
+              h('span', { className: 'dsc-sub' }, t('localRoots')),
+              roots.map((root) =>
+                h(
+                  'div',
+                  { key: root.id || root.dir, className: 'dsc-root-row' },
+                  `${scopeLabel(root.scope)} · ${root.id || '—'} · ${root.dir || ''}`,
+                ),
+              ),
+            )
+          : null,
+        skills.length
+          ? h(
+              'div',
+              { className: 'dsc-local-list' },
+              skills.map((skill) =>
+                h(LocalRow, {
+                  key: `${skill.rootId || ''}|${skill.dir || ''}|${skill.name}`,
+                  skill,
+                  busy: Boolean(uninstalling[skill.dir || skill.name]),
+                  error: uninstallErrors[skill.dir || skill.name] || '',
+                  onUninstall,
+                  onDetail,
+                }),
+              ),
+            )
+          : h(
+              'div',
+              { className: 'dsc-empty' },
+              t('localEmpty'),
+              h('div', { className: 'dsc-note' }, t('localEmptyHint')),
+            ),
       );
     }
 
@@ -963,6 +1376,27 @@ white-space:pre-wrap;word-break:break-all}
       const [pageSize, setPageSize] = useState(PAGE);
       const [detail, setDetail] = useState({ status: 'idle', id: '', skill: null, row: null });
       const [help, setHelp] = useState(false);
+      // 两态视图切换：目录（默认，现有行为）/ 本地（本机已装技能）
+      const [view, setView] = useState('catalog');
+      // 「本地」视图的状态：projectDir 是生效的项目目录（空 = 用宿主默认值），
+      // projectDraft 是输入框里还没保存的文本。
+      const [projectDir, setProjectDir] = useState('');
+      const [projectDraft, setProjectDraft] = useState('');
+      const [local, setLocal] = useState({
+        status: 'idle',
+        project: '',
+        projectSource: '',
+        home: '',
+        roots: [],
+        skills: [],
+        error: '',
+      });
+      const [localKey, setLocalKey] = useState(0);
+      // 安装结果按目录 id 存：卡片要靠它把按钮换成「已装到项目/全局」
+      const [installs, setInstalls] = useState({});
+      const [uninstalling, setUninstalling] = useState({});
+      const [uninstallErrors, setUninstallErrors] = useState({});
+      const [body, setBody] = useState({ status: 'idle', text: '', error: '' });
       const requestId = useRef(0);
       const scroller = useRef(null);
 
@@ -1044,6 +1478,45 @@ white-space:pre-wrap;word-break:break-all}
         requestId.current += 1;
       }, []);
 
+      // 「本地」状态：挂载时就要拉一次（安装浮层得能显示当前项目目录），
+      // 切视图、改项目目录、装/卸完也重拉。请求本身在目录视图也不亏：只是扫几个本地目录。
+      useEffect(() => {
+        let alive = true;
+        setLocal((prev) => ({ ...prev, status: 'loading', error: '' }));
+        const params = new URLSearchParams();
+        if (projectDir) params.set('project', projectDir);
+        const qs = params.toString();
+        fetch(`${API}/local${qs ? `?${qs}` : ''}`, { headers: { accept: 'application/json' } })
+          .then((response) => response.json().then((payload) => ({ ok: response.ok, payload })))
+          .then(({ ok, payload }) => {
+            if (!alive) return;
+            if (!ok || (payload && payload.ok === false)) throw new Error(failureText(payload, 'local'));
+            setLocal({
+              status: 'ready',
+              project: payload.project || '',
+              projectSource: payload.projectSource || '',
+              home: payload.home || '',
+              roots: Array.isArray(payload.roots) ? payload.roots : [],
+              skills: Array.isArray(payload.skills) ? payload.skills : [],
+              error: '',
+            });
+            setProjectDraft(payload.project || '');
+            // 用户没改过就采用宿主给的项目目录：这样「安装到项目」用的和输入框里显示的是同一个路径
+            setProjectDir((prev) => prev || payload.project || '');
+          })
+          .catch((error) => {
+            if (!alive) return;
+            setLocal((prev) => ({
+              ...prev,
+              status: 'error',
+              error: String(error && error.message ? error.message : error),
+            }));
+          });
+        return () => {
+          alive = false;
+        };
+      }, [view, projectDir, localKey]);
+
   /** 同步远端目录：宿主那边是 POST /sync；成功后让 effect 重新拉一次数据。 */
       const doSync = async () => {
         setSyncing(true);
@@ -1060,6 +1533,8 @@ white-space:pre-wrap;word-break:break-all}
       };
 
       const openDetail = async (row) => {
+        // 换一张卡就把上一张的正文清掉，否则详情里会挂着别的技能的 SKILL.md
+        setBody({ status: 'idle', text: '', error: '' });
         setDetail({ status: 'loading', id: row.id, skill: null, row });
         try {
           const response = await fetch(`${API}/card?id=${encodeURIComponent(row.id)}`, {
@@ -1069,6 +1544,126 @@ white-space:pre-wrap;word-break:break-all}
           setDetail({ status: 'ready', id: row.id, skill, row });
         } catch (error) {
           setDetail({ status: 'error', id: row.id, skill: null, row, error: String(error) });
+        }
+      };
+
+      /** 保存项目目录：只改 state，effect 会因 deps 变化自己去重拉 /local。 */
+      const saveProject = () => {
+        const next = projectDraft.trim();
+        if (next === projectDir) {
+          setLocalKey((n) => n + 1);
+          return;
+        }
+        setProjectDir(next);
+      };
+
+      /** 本地技能 → 详情：只有目录里找得到同名技能（有 catalogId）才拿得到卡片数据。 */
+      const openLocalDetail = async (skill) => {
+        if (!skill.catalogId) return;
+        const row = { id: skill.catalogId, name: skill.name };
+        setBody({ status: 'idle', text: '', error: '' });
+        setDetail({ status: 'loading', id: skill.catalogId, skill: null, row });
+        try {
+          const response = await fetch(`${API}/card?id=${encodeURIComponent(skill.catalogId)}`, {
+            headers: { accept: 'application/json' },
+          });
+          const payload = await response.json();
+          setDetail({ status: 'ready', id: skill.catalogId, skill: payload, row });
+        } catch (error) {
+          setDetail({ status: 'error', id: skill.catalogId, skill: null, row, error: String(error) });
+        }
+      };
+
+      /** 装技能：id 用目录 id（卡片 row.id / 本地 catalogId），作用域与项目路径一起发。 */
+      const runInstall = async (row, scope) => {
+        const id = row && (row.id || row.catalogId);
+        if (!id) return;
+        setInstalls((prev) => ({ ...prev, [id]: { ...(prev[id] || {}), busy: true, error: '' } }));
+        try {
+          const response = await fetch(`${API}/install`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json', accept: 'application/json' },
+            body: JSON.stringify({ id, scope, project: projectDir || local.project || undefined }),
+          });
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok || payload.ok === false) throw new Error(failureText(payload, response.status));
+          setInstalls((prev) => ({
+            ...prev,
+            [id]: {
+              busy: false,
+              error: '',
+              installed: { scope: payload.scope || scope, dir: payload.dir || '' },
+            },
+          }));
+          // 装完让「本地」视图下次切过去时重新扫，不在这里强行切视图打断用户
+          setLocalKey((n) => n + 1);
+        } catch (error) {
+          setInstalls((prev) => ({
+            ...prev,
+            [id]: { busy: false, error: String(error && error.message ? error.message : error) },
+          }));
+        }
+      };
+
+      /** 卸载：name + scope + project 一起发；两个作用域装过同名技能时按目录分别操作。 */
+      const runUninstall = async (skill) => {
+        const key = skill.dir || skill.name;
+        const scope = skill.scope === 'global' ? 'global' : 'project';
+        const ask = t('uninstallConfirm').replace('{name}', skill.name).replace('{scope}', scopeLabel(scope));
+        if (!window.confirm(ask)) return;
+        setUninstalling((prev) => ({ ...prev, [key]: true }));
+        setUninstallErrors((prev) => ({ ...prev, [key]: '' }));
+        try {
+          const response = await fetch(`${API}/uninstall`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json', accept: 'application/json' },
+            body: JSON.stringify({ name: skill.name, scope, project: projectDir || local.project || undefined }),
+          });
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok || payload.ok === false) throw new Error(failureText(payload, response.status));
+          setUninstalling((prev) => ({ ...prev, [key]: false }));
+          // 只消掉确实被删掉的那些目录对应的安装标记，别的卡片不受影响
+          const removed = Array.isArray(payload.removed) ? payload.removed : [];
+          setInstalls((prev) => {
+            const next = { ...prev };
+            Object.keys(next).forEach((id) => {
+              const one = next[id] && next[id].installed;
+              if (one && removed.includes(one.dir)) delete next[id];
+            });
+            return next;
+          });
+          setLocalKey((n) => n + 1);
+        } catch (error) {
+          setUninstalling((prev) => ({ ...prev, [key]: false }));
+          setUninstallErrors((prev) => ({
+            ...prev,
+            [key]: String(error && error.message ? error.message : error),
+          }));
+        }
+      };
+
+      /** 看正文：成功体是 text/plain 的 SKILL.md 原文，失败体才是 JSON（带 error）。 */
+      const loadBody = async (skill) => {
+        const id = skill && (skill.catalogId || skill.id);
+        if (!id) return;
+        setBody({ status: 'loading', text: '', error: '' });
+        try {
+          const response = await fetch(`${API}/body?id=${encodeURIComponent(id)}`, {
+            headers: { accept: 'text/plain' },
+          });
+          const text = await response.text();
+          if (!response.ok) {
+            let payload = null;
+            try {
+              payload = JSON.parse(text);
+            } catch (ignored) {
+              payload = null;
+            }
+            throw new Error(failureText(payload, response.status));
+          }
+          setBody({ status: 'ready', text, error: '' });
+        } catch (error) {
+          setBody({ status: 'error', text: '', error: String(error && error.message ? error.message : error) });
         }
       };
 
@@ -1143,10 +1738,12 @@ white-space:pre-wrap;word-break:break-all}
       const totalPages = Math.max(1, Math.ceil(state.matched / pageSize));
       const currentPage = Math.min(Math.max(1, page), totalPages);
       const jump = (next) => setPage(Math.min(Math.max(1, next), totalPages));
+      // 全局安装目录直接取 /local 给的 roots（自己拼路径会踩 Windows 分隔符和 ~ 展开的坑）。
+      const globalDir = (local.roots.find((root) => root.scope === 'global') || {}).dir || '~/.agents/skills';
 
       return h(
         'div',
-        { className: 'dsc-root' },
+        { className: 'dsc-root', 'data-view': view },
         h('style', null, STYLE),
         h(
           'div',
@@ -1184,6 +1781,33 @@ white-space:pre-wrap;word-break:break-all}
               ),
             ),
             h('div', { className: 'dsc-meta' }, meta),
+            h(
+              'div',
+              { className: 'dsc-views' },
+              h(
+                'button',
+                {
+                  type: 'button',
+                  className: 'dsc-view',
+                  'data-on': view === 'catalog' ? 'true' : 'false',
+                  onClick: () => setView('catalog'),
+                },
+                t('viewCatalog'),
+              ),
+              h(
+                'button',
+                {
+                  type: 'button',
+                  className: 'dsc-view',
+                  'data-on': view === 'local' ? 'true' : 'false',
+                  onClick: () => setView('local'),
+                },
+                t('viewLocal'),
+              ),
+            ),
+          h(
+            'div',
+            { className: 'dsc-catalog-only' },
           h(
             'div',
             { className: 'dsc-tools' },
@@ -1344,6 +1968,7 @@ white-space:pre-wrap;word-break:break-all}
                 `${t('dateRange')}：${t('dateCoverage')} ${fmtInt(state.dated)} / ${fmtInt(state.total)} · ${t('firstSeenNote')}`,
               )
             : null,
+          ),
             h('div', { className: 'dsc-rule' }),
           ),
         ),
@@ -1357,18 +1982,50 @@ white-space:pre-wrap;word-break:break-all}
             h(
               'div',
               { className: 'dsc-section' },
-              h('h3', null, sectionTitle),
-              h('span', null, `${t('matched')} ${fmtInt(state.matched)}`),
+              h('h3', null, view === 'local' ? t('viewLocal') : sectionTitle),
+              h(
+                'span',
+                null,
+                view === 'local'
+                  ? `${t('localInstalled')} ${fmtInt(local.skills.length)}`
+                  : `${t('matched')} ${fmtInt(state.matched)}`,
+              ),
             ),
-            state.status === 'loading'
-              ? h('div', { className: 'dsc-empty' }, t('loading'))
-              : state.rows.length
-                ? h(
-                    'div',
-                    { className: 'dsc-grid' },
-                    state.rows.map((row) => h(Card, { key: row.id, row, onOpen: openDetail })),
-                  )
-                : h('div', { className: 'dsc-empty' }, state.status === 'error' ? t('failed') + state.error : t('empty')),
+            view === 'local'
+              ? h(LocalView, {
+                  state: local,
+                  projectInput: projectDraft,
+                  onProjectInput: setProjectDraft,
+                  onSaveProject: saveProject,
+                  onReload: () => setLocalKey((n) => n + 1),
+                  onUninstall: runUninstall,
+                  onDetail: openLocalDetail,
+                  uninstalling,
+                  uninstallErrors,
+                })
+              : state.status === 'loading'
+                ? h('div', { className: 'dsc-empty' }, t('loading'))
+                : state.rows.length
+                  ? h(
+                      'div',
+                      { className: 'dsc-grid' },
+                      state.rows.map((row) =>
+                        h(Card, {
+                          key: row.id,
+                          row,
+                          onOpen: openDetail,
+                          onInstall: runInstall,
+                          install: {
+                            projectDir: projectDir || local.project,
+                            globalDir,
+                            busy: Boolean(installs[row.id] && installs[row.id].busy),
+                            error: (installs[row.id] && installs[row.id].error) || '',
+                            installed: (installs[row.id] && installs[row.id].installed) || null,
+                          },
+                        }),
+                      ),
+                    )
+                  : h('div', { className: 'dsc-empty' }, state.status === 'error' ? t('failed') + state.error : t('empty')),
           ),
         ),
         h(
@@ -1440,7 +2097,30 @@ white-space:pre-wrap;word-break:break-all}
             ),
           ),
         ),
-        detail.status === 'idle' ? null : h(Detail, { state: detail, onClose: () => setDetail({ status: 'idle', id: '', skill: null, row: null }) }),
+        detail.status === 'idle'
+          ? null
+          : h(Detail, {
+              state: detail,
+              onClose: () => {
+                setDetail({ status: 'idle', id: '', skill: null, row: null });
+                setBody({ status: 'idle', text: '', error: '' });
+              },
+              install: {
+                projectDir: projectDir || local.project,
+                globalDir,
+                busy: Boolean(installs[detail.id] && installs[detail.id].busy),
+                error: (installs[detail.id] && installs[detail.id].error) || '',
+                installedText:
+                  installs[detail.id] && installs[detail.id].installed
+                    ? installs[detail.id].installed.scope === 'global'
+                      ? t('installedGlobal')
+                      : t('installedProject')
+                    : '',
+                body,
+                onInstall: runInstall,
+                onBody: loadBody,
+              },
+            }),
         help ? h(Help, { onClose: () => setHelp(false) }) : null,
       );
     }

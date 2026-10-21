@@ -6,10 +6,13 @@ export const SCORE_WEIGHTS = { H: 0.45, T: 0.2, C: 0.2, A: 0.15 };
 // 升版本号会让已富集的记录再抓一次页面：每天约 485 条，6 天左右把存量补齐。
 // 不升的话老记录永远不会出现星标——`enrich_v === ENRICH_VERSION` 会被直接跳过，连页面都不抓。
 export const ENRICH_VERSION = 3;
-// 正文入库版本：body.v === BODY_VERSION 表示「这条的正文已经按这一版逻辑抓过、并已传到 Blob」。
+// 正文入库版本：body.v === BODY_VERSION 表示「这条的正文已经按这一版逻辑抓过、并已传到当前存储」。
 // 为什么要跟 ENRICH_VERSION 分开：抓过 detail 不等于正文在库（历史上正文是抓完就丢的），
 // 两件事共用一个版本号就会出现「明明没存正文，却因为 enrich_v 是最新而被跳过」的假覆盖。
-export const BODY_VERSION = 1;
+// v2（2026-10-21）：正文存储从 Vercel Blob 改成 GitHub bodies 分支（Blob store 被 suspended，
+// 公开读都 403）。旧目录里 v1 的印章全部作废——那些正文在 Blob 里，现在取不到，
+// 必须让它们重新排队抓取、重新传到 GitHub，否则目录会永远声称有正文而实际上取不回来。
+export const BODY_VERSION = 2;
 export const TREND_CLIP = [-50, 200]; // 8 周增长率裁剪区间（%）
 export const NO_AUDIT_SCORE = 0.5; // 无审计数据给中位，不给 0：否则系统性歧视非 GitHub 来源
 

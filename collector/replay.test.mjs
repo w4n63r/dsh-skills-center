@@ -11,7 +11,7 @@ import assert from 'node:assert/strict';
 import { loadReplayFixture } from './replay.mjs';
 import { collect } from './collect.mjs';
 import { validateCatalog } from './publish.mjs';
-import { ENRICH_VERSION } from './pipeline.mjs';
+import { BODY_VERSION, ENRICH_VERSION } from './pipeline.mjs';
 
 const FIXTURE = new URL('./fixtures/v1-sample.json', import.meta.url);
 const TOKEN = 'replay-test-jwt';
@@ -154,7 +154,7 @@ assert.ok(
   withBody.every((s) => s.body.length > 0 && /^[0-9a-f]{64}$/.test(s.body.sha256)),
   'body = {length, sha256}',
 );
-assert.ok(withBody.every((s) => s.body.v === 1), 'body.v is the “this text is in the blob” stamp');
+assert.ok(withBody.every((s) => s.body.v === BODY_VERSION), 'body.v is the “this text is in the current store” stamp');
 assert.ok(
   [...new Set(withBody.map((s) => s.body.sha256))].every((k) => bodies.has(k)),
   'every fingerprint in the catalog must have its text in bodies',
@@ -172,7 +172,7 @@ const stored = [
     installs: 801414,
     description: 'already stored',
     enrich_v: ENRICH_VERSION,
-    body: { length: 4096, sha256: 'b'.repeat(64), v: 1 },
+    body: { length: 4096, sha256: 'b'.repeat(64), v: BODY_VERSION },
   },
 ];
 const advanced = await collect({ fetchImpl: second.fetchImpl, token: TOKEN, previous: stored, ...quiet });
@@ -191,7 +191,7 @@ assert.ok(advanced.stats.enrich_targets.desired > 0, 'the frontier must move on 
 const inherited = advanced.catalog.skills.find((s) => s.id === '101-skills/superpowers/ai-video-generation');
 assert.ok(inherited, 'the stored record must stay in the catalog');
 assert.equal(inherited.body.sha256, 'b'.repeat(64), 'the stored fingerprint is inherited instead of re-fetched');
-assert.equal(inherited.body.v, 1, 'the stored stamp survives into the next catalog');
+assert.equal(inherited.body.v, BODY_VERSION, 'the stored stamp survives into the next catalog');
 assert.equal(inherited.body.length, 4096);
 
 console.log(

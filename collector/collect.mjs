@@ -119,15 +119,19 @@ export function bodyGateStats(records, waterline = 2000) {
   );
   const head = ranked.slice(0, limit);
   const headWithBody = head.filter((r) => r.body_length && r.body_sha256).length;
-  // 严格模式看的是「正文已入库」（body_v 有值 = 抓过、也传过 Blob）。只看 length/sha256 会把
-  // 「抓完就把正文丢掉」的旧记录算成已覆盖，于是在一半正文根本不存在的目录上开了严格过滤。
+  // 门禁看「正文是否到手」（length/sha256），另用 stored 记录分发进度（body_v = 已传到当前存储）。
+  // 分成两个数是 2026-10-21 的迁移现实：正文存储从 Blob 换到 GitHub bodies 分支，v1 旧印章作废，
+  // head_stored 会先掉到接近 0 再随每轮上传（GH_BODIES_MAX=70）慢慢爬回来。若拿 stored 当门禁，
+  // 严格收录会被关掉、目录一下涨回八千条（含大量根本没抓过正文的），所以门禁只管「有没有正文」。
   const headStored = head.filter((r) => r.body_length && r.body_sha256 && r.body_v).length;
-  const coverage = head.length ? Math.round((headStored / head.length) * 1000) / 1000 : 0;
+  const coverage = head.length ? Math.round((headWithBody / head.length) * 1000) / 1000 : 0;
+  const storedCoverage = head.length ? Math.round((headStored / head.length) * 1000) / 1000 : 0;
   return {
     waterline: limit,
     head_total: head.length,
     head_with_body: headWithBody,
     head_stored: headStored,
+    stored_coverage: storedCoverage,
     coverage,
     strict: coverage >= 0.95,
   };
@@ -438,8 +442,8 @@ export async function collect({
   const bodyGate = bodyGateStats(finalRecords, bodyWaterline);
   const strictFilter = resolveRequireBody(requireBody, bodyGate);
   log(
-    `body gate: ${bodyGate.head_stored}/${bodyGate.head_total} of the top ${bodyGate.waterline} have body stored ` +
-      `(${bodyGate.head_with_body} fetched; coverage ${bodyGate.coverage}) → requireBody ${strictFilter ? 'on' : 'off'}`,
+    `body gate: ${bodyGate.head_with_body}/${bodyGate.head_total} of the top ${bodyGate.waterline} have body ` +
+      `(stored ${bodyGate.head_stored}; coverage ${bodyGate.coverage}, stored ${bodyGate.stored_coverage}) → requireBody ${strictFilter ? 'on' : 'off'}`,
   );
   const catalog = buildCatalog(finalRecords, {
     zh,
