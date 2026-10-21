@@ -1,18 +1,22 @@
 # 开发计划
 
-日期：2026-10-21。收录标准、正文存储、本地管理与安装卸载、默认排序，以及此前那轮分析（星标/发布时间缺失、official 与 curated 重合等）合并成一份计划。
+日期：2026-10-21（同日补状态标记）。收录标准、正文存储、本地管理与安装卸载、默认排序，以及此前那轮分析（星标/发布时间缺失、official 与 curated 重合等）合并成一份计划。
 
-所有数字来自 `tmp/catalog-branch/catalog.json`（version `full-2026-10-20T09-35-40-238Z`，count 7821）与 `tmp/collect-github.json`（2026-10-21T01:42Z 那轮采集的 stats）。
+**状态总览**：阶段 1（收录标准 + 正文存储）、阶段 2（正文分发 + 中文层流水线）、阶段 3（本地管理与装卸）已落地，见各节的「已落地」标记；阶段 4 未开工，M3 召回钩子目前只有设计（§6 P3、§7）。
+
+**数字口径**：改造前基线 = `tmp/catalog-branch/catalog.json`（version `full-2026-10-20T09-35-40-238Z`，count 7821）；改造后 = 2026-10-21T08:05Z 那轮线上采集（`tmp/run-2026-10-21T08-05-38-896Z.json`，version `full-2026-10-21T08-05-00-484Z`，count 3879）。已提交的采集端改动：`e82a30f`（正文水位门禁与头部优先富集）、`ecc27d9`（正文改存 GitHub bodies 分支）、`12f6ba7`（Blob 被停后的容错）、`93c6858`（GitHub 写入限速）；`lib/installer.js`、`/body` `/local` `/install` `/uninstall` 路由与中文层生成脚本当前在工作区（未提交），已通过 `npm test`（14 套）与线上采集验证。
 
 ---
 
 ## 1. 收录标准
 
-现在的目录是「列表里看到什么就收什么」：7821 条里只有 2940 条抓过 detail（`enrich_v=2`），有英文描述的 2787 条，有中文卡的 300 条，而正文（SKILL.md）一条都没落盘。搜索能搜到 7821 条，其中 4881 条只有一个名字、一个装量、一个来源。
+改造前的目录是「列表里看到什么就收什么」（口径见文首「数字口径」）：7821 条里只有 2940 条抓过 detail（`enrich_v=2`），有英文描述的 2787 条，有中文卡的 300 条，而正文（SKILL.md）一条都没落盘。搜索能搜到 7821 条，其中 4881 条只有一个名字、一个装量、一个来源。
 
 改成准入制：**先把正文抓到，再决定收不收**。
 
 ### 1.1 硬门槛（四条全满足才进目录）
+
+> **已落地**（2026-10-21）：`collector/pipeline.mjs` 的 `buildCatalog({ requireBody, minBodyLength })` 按这四条过滤并记账 `dropped.no_body / thin_body / no_description`；正文来自 `collector/collect.mjs` 的 `mergeDetail`。线上那轮：`dropped_no_body 4426 / thin_body 10 / no_description 24`。
 
 1. `detail` 抓到，且 `files` 里有 `SKILL.md`、`contents` 非空；
 2. 正文长度 ≥ 300 字符；
@@ -42,9 +46,11 @@
 
 水位外只留两类例外：`curated`/`official`，以及每轮上限 50 条的其他来源（防止规则把新出的头部技能挡在外面）。
 
+> **已落地**：`collector/collect.mjs` 的 `bodyGateStats(records, waterline)`（默认 `waterline = 2000`）按 `installs_merged ?? installs` 排序取前 2000 并算覆盖率；`official` 已并进 `curated`（`collector/pipeline.mjs`，实测 5527 = 5527、互通 0）。线上那轮：`head_total 2000 / head_stored 1948 / coverage 0.974 / strict true`。
+
 ### 1.3 代价与收益
 
-- 目录条数：7821 → ~2000。
+- 目录条数：改造前 7800–8100 → **3879**（2026-10-21 线上实测；水位 2000，其余是 curated 例外与正文已入库但装量稍低的条目）。
 - 每条从"只有名字"变成"名字 + 英文描述 + 正文 + 中文卡 + 可安装"。
 - 搜索空间变小。换来的是"搜到的每一条都点得进去、装得了"——现在 62% 的搜索结果点进去是空白详情。
 - 采集侧：2000 条 × 2 请求（detail + audit）= 4000 请求。当前单轮上限 1500（实测跑满 1478，耗时 155s，函数上限 300s）⇒ 2.8 轮；把单轮上限抬到 2700（仍在 300s 内）⇒ 1.5 轮。
@@ -69,11 +75,11 @@
 
 正文不能塞进 `catalog.json`：那份文件已经 6.9MB，采集日志里有 `payload 6918141B is close to the 4.5MB serverless limit` 的告警。2000 条正文（SKILL.md 多数 2–8KB）再加 10MB 以上必然炸。
 
-所以：
+所以（**已落地**，2026-10-21）：
 
-- 正文全文存 Vercel Blob，一条一个对象：`body/<sha256(id)>.md`；
-- 目录里只放元数据：`body: { length, sha256, key }`；
-- 插件按 `body.key` 拉全文（Blob public URL，不需要鉴权）；
+- 正文全文存 **GitHub 的 `bodies` 分支**，内容寻址：`<body_base>/<sha256>.md`，默认 `body_base = https://raw.githubusercontent.com/w4n63r/dsh-skills-center/bodies`（Vercel Blob 降级为可选回退，线上 store 被停用后已不依赖它）；
+- 目录里只放元数据：顶层 `body_base` + 每条 `body: { length, sha256, v }`（`v` = 已入库的正文版本戳，当前 `1`）；
+- 插件按 `body_base + sha256` 拉全文（无需鉴权），本地缓存到 `~/.dsh/skills-center/bodies/<sha256>.md`；
 - 注意正文只能在 Vercel 上取：detail 需要 OIDC Bearer，本地直接 `curl` 是 401（实测）。本地安装时不能现抓，只能消费已落盘的正文。
 - 匿名替代口子（实测 2026-10-21）：`GET https://skills.sh/api/download/{owner}/{repo}/{slug}` 也返回 `{"files":[{path,contents}],"hash"}` 全文，**不需要 token**——但限流 60 请求/小时/IP（只对回源 MISS 计费，CDN HIT 不计），150 条抽样批测得 `{200:63, 404:2, 429:85}`（429 body 是 `{"error":"rate_limit_exceeded","message":"Maximum 60 requests per hour."}`，带 `Retry-After: 60`）。所以它只够本地抽查几条，不足以替代采集；采集仍走 OIDC 那条（600/min）。
 - 同一抽样给了 404 基准：`nvidia/skills/alerts`、`hashicorp/engineering-agent-skills/acli`、`firebase/firebase-tools/firebase-firestore-basics`、`vercel-labs/agent-browser/electron`、`vercel/ai/develop-ai-functions-example` 都在目录里但上游没快照。实测 404 率约 1%–3%（≈60–230 条 /7821），1.2 的水位线要按这个数留余量。
@@ -83,7 +89,7 @@
 
 ## 3. 中文层扩到全量
 
-现状：300 条（`data/zh.json`，`{name_zh, intro, usage, notes}`），且全部落在装量前 800 名内（前 500 名 291 条、前 800 名 300 条）。收录水位到 2000 后，缺口是 1700 条。
+现状（2026-10-21）：`tier: hand` 300 条（`data/zh.json`，由 `data/zh/part-1..6.json` 合并，缺 `tier` 时按 `hand`）+ `tier: auto` 首批 25 条已合入 `data/zh/part-7.json`（`data/zh.json` 现 325 条，`tier` 计数 hand 300 + auto 25，`generated_at 2026-10-21T08:29:46Z`）（口径合计 **325/3879**）。缺口是数据活，不是代码活；**没有做到「已全量覆盖 2000 条」**。
 
 两层，数据里带 `tier` 字段区分，界面上不区分：
 
@@ -94,12 +100,13 @@
 
 流水线（现有的三个脚本扩开）：
 
-| 脚本 | 现在 | 要加 |
-|---|---|---|
-| `tools/zh_source.mjs` | 出待写清单 | `--offset` / `--limit`，输入带正文而不是只带描述 |
-| `tools/zh_generate.mjs` | 无 | 按正生成批次 JSON，每批 25 条 |
-| `tools/zh_validate.mjs` | 规则校验 | 能力词必须在正文中出现；禁用词（专治/逼出/无死角/一站式/深度赋能）；字段长度上限 |
-| `tools/zh_merge.mjs` | 合并进 `data/zh.json` | 保留 `tier`、`generated_at` |
+| 脚本 | 状态（2026-10-21） |
+|---|---|
+| `tools/zh_fetch_bodies.mjs` | **已落地**：把正文抓到本地缓存当素材 |
+| `tools/zh_generate.mjs` | **已落地**：`plan`（按批 25 条产出 `in-<from>-<to>.json`）/ `check`（校验 + 正文溯源）/ `apply`（合并进 `data/zh/part-N.json`，幂等） |
+| `tools/zh_source.mjs` | **已落地**：`--offset` / `--limit` 分页 |
+| `tools/zh_validate.mjs` | **已落地**：能力词必须在正文中出现；禁用词（专治/逼出/无死角/一站式/深度赋能）；字段长度上限；`tier` 校验 |
+| `tools/zh_merge.mjs` | **已落地**：合并进 `data/zh.json`，保留 `tier`、`generated_at` |
 
 批量执行：1700 条 ÷ 25 条/批 = 68 批，分轮并行（每轮 6–8 个），每批产出后立刻过校验，不过的不合。
 
@@ -173,16 +180,20 @@ DSH 不在 CLI 支持的 agent 列表里（`tmp/pkg174/package/docs/agents.md` �
 
 Host 半边新增的路由（现有前缀 `/api/dsh-skills-center`）：
 
-| 路由 | 用途 |
+| 路由 | 请求 / 响应（实现形状见 `DESIGN.md` §8.4） |
 |---|---|
-| `GET /local?scope=project\|global` | 扫四个目录 |
-| `GET /body?id=` | 拉正文（Blob 转发） |
-| `POST /install` `{id, scope}` | 跑 skills CLI，返回 stdout 尾部 + 事后核对结果 |
-| `POST /uninstall` `{name, scope}` | 跑 skills remove，事后核对 |
+| `GET /local[?project=<绝对路径>]` | 扫四个根；回 `{ok, project, projectSource:"host"\|"query", roots[], skills[]}` |
+| `GET /body?id=<catalogId>` 或 `?sha=<sha256>` | 回 `text/markdown`；缓存命中带 `x-body-via: cache`，远端取回 `remote` |
+| `POST /install` `{id, scope, project?}` | 跑 skills CLI，回 `{ok, scope, dir, rootId, exitCode, stdout, stderr, ...}`，失败 502 |
+| `POST /uninstall` `{name, scope, project?}` | 跑 skills remove，回 `{ok, scope, removed[], stillInstalledElsewhere[]}` |
+
+> **已落地**（工作区，未提交；`tests/install-routes.test.mjs` 端到端覆盖）：`lib/installer.js` 提供 `rootDescriptors / listInstalled / installArgs / uninstallArgs / installSkill / uninstallSkill / findProjectRoot`，子进程由 `ctx.subprocess` 注入。安装作用域只有 `.agents/skills/` 两个根（rank 200 / 500）。
 
 ### 4.5 库存与激活这条旧路
 
 现有另一套机制：正文落 `~/.dsh/skills-center/library/<source>/<slug>/SKILL.md`、`activation.json` 记录激活集合、`lib/provider.js` 以 rank 700 把"已激活且有正文"的技能暴露给宿主（`MAX_ACTIVE = 50`）。`library/` 里目前只有 1 个 SKILL.md。
+
+> **已落地**（如实降级）：这套机制仍在代码里（`lib/index.js` 的 provider 与 `skill_activate` 工具、`lib/activation.js`），但对外语义已改为「面板预览用的正文备份」，不再承担「安装」。安装只有 4.2 那条 CLI 路径。
 
 两套"已安装"会让用户困惑（面板显示已装，`skills list` 里没有；或者反过来）。建议：
 
@@ -230,6 +241,8 @@ spawn(spec: {
 
 面板与服务端的排序默认值都改成装量降序（`lib/catalog.js` 的 `SORTS` / `/list` 的 `sort` 默认值 / `lib/page.js` 榜单页）。
 
+> **已落地**（commit `87e9ffa`，2026-10-21）：`lib/catalog.js` 导出 `DEFAULT_SORT = 'installs'`，取数口径 `installs_merged ?? installs`；`/list` 默认 `sort=installs`，旧的 S 分降级为可选排序项（界面上叫「综合分」）。
+
 口径定案（**上一版写错了，这里更正**）：`installs_merged` 不是坏数据。它等于「主条目装量 + 所有跨仓库副本装量」，恒大于等于 `installs`（902/902 条都更大），算式能对上——`anthropics/skills/frontend-design` 的 `installs` 1008746 加 7 个副本（53177+16638+6830+411+32+1+1）正好等于 `installs_merged` 1085836。上一版说的「有值的每一条都与 `installs` 不相等」是恒真陈述，不是数据问题。
 
 只有 902/7821 条有值的原因在聚类键：没有正文 hash 时它退化成 `slug|描述前160字`（`collector/pipeline.mjs:99-103`），跨仓库副本聚不到一起。1.1 的收录标准要求每条都有正文与 hash 之后，聚类会收紧，覆盖率随之上升。
@@ -253,18 +266,18 @@ spawn(spec: {
 | P2 | 面板只读、`library/` 只有 1 个正文 | 阶段 2 + 3 |
 | P3 | M3 召回钩子 | 阶段 4（宿主 `agent/pre-step` + `ctx.systemPrompt.section()` 已实测可用；只在 turn 1 命中时注入一行）|
 | P4 | 空结果没有出口（本地 7821 条 vs 上游 93043 条） | 阶段 4。接口已定：`GET https://skills.sh/api/search?q=<≥2字符>&limit=<n>[&owner=<owner>]`（公开无鉴权、CLI `find` 用的就是它、限流 30/分钟/IP、`limit` ≤100、返回 algolia fuzzy 结果含 `id/source/name/installs`；缺 `q` 或 1 字 → 400）；认证版 `/api/v1/skills/search`（limit ≤200，多词走 semantic）另计额度 |
-| P5 | 文档漂移（README 说"三件事"列了四条；条数有 8420/7639/7821 三种说法；榜单页与面板各维护一套卡片渲染） | 阶段 4 |
+| P5 | 文档漂移（README 说"三件事"列了四条；条数有 8420/7639/7821 三种说法；榜单页与面板各维护一套卡片渲染） | 阶段 4（文档漂移部分已于 2026-10-21 本轮清掉：README/PLAN/DESIGN/HANDOFF 已对齐目录与接口；榜单页与面板两套渲染合并仍未做） |
 
 ---
 
 ## 7. 阶段与验收
 
-| 阶段 | 内容 | 验收 |
-|---|---|---|
-| **1** | 收录标准 + 富集顺序 + `ENRICH_VERSION` 升版 + `official`/`curated` 合并 + 默认排序改装量 + 排序项覆盖提示 | 一轮采集后：目录每条都有 `description_en` 与 `body.length`；装量前 100 名的 `stars`/`first_seen` 非空；`npm test` 六套全绿 |
-| **2** | 正文落 Blob + `/body` 路由 + 中文层流水线（扩到 2000） | 2000 条正文可在面板打开；中文卡 2000 条且全部过校验脚本 |
-| **3** | `/local` `/install` `/uninstall` + 面板「本地」页签 + 项目级/全局选择 | 面板上装一个技能，`npx skills list` 和 DSH 技能目录都能看到；卸载后两处都消失 |
-| **4** | 召回钩子（最小版）+ 空结果兜底 + 文档对齐 + 两套渲染合并 | 新会话首条消息命中时出现一行提示；文档里的条数与实际一致 |
+| 阶段 | 内容 | 验收 | 状态（2026-10-21） |
+|---|---|---|---|
+| **1** | 收录标准 + 富集顺序 + `ENRICH_VERSION` 升版 + `official`/`curated` 合并 + 默认排序改装量 + 排序项覆盖提示 | 一轮采集后：目录每条都有 `description_en` 与 `body.length`；装量前 100 名的 `stars`/`first_seen` 非空；`npm test` 六套全绿 | **已完成**：2026-10-21T08:05Z 线上采集 count 3879、水位内正文覆盖率 0.974、`requireBody` 已打开；默认排序改装量见 `87e9ffa`。`stars`/`first_seen` 覆盖率仍低（§6 P1、README「已知未完成」） |
+| **2** | 正文落 Blob + `/body` 路由 + 中文层流水线（扩到 2000） | 2000 条正文可在面板打开；中文卡 2000 条且全部过校验脚本 | **部分完成**：正文改存 GitHub `bodies` 分支（`ecc27d9`），`/body` 路由与本地缓存已落地（`tests/body.test.mjs`）；中文层只有 hand 300 + auto 首批 25 = 325/3879，**扩容未完成** |
+| **3** | `/local` `/install` `/uninstall` + 面板「本地」页签 + 项目级/全局选择 | 面板上装一个技能，`npx skills list` 和 DSH 技能目录都能看到；卸载后两处都消失 | **宿主侧已完成**（`lib/installer.js` + 三条路由，`tests/install-routes.test.mjs` 端到端）；**面板侧未接线**：`client/client.js` 有「本地」视图与按钮的字符串/组件，但当前 Panel 只渲染目录视图 |
+| **4** | 召回钩子（最小版）+ 空结果兜底 + 文档对齐 + 两套渲染合并 | 新会话首条消息命中时出现一行提示；文档里的条数与实际一致 | **未开工**：M3 召回钩子只有设计（§6 P3）；本次只做了文档对齐（README/PLAN/DESIGN/HANDOFF） |
 
 阶段 1 和阶段 2 有依赖（正文存储要在收录标准生效前落好，否则那一轮抓到的正文又丢一次）。阶段 3 与 1、2 无依赖，可以并行。
 
@@ -285,4 +298,4 @@ spawn(spec: {
 2. **安装落点 = 只保留 `.agents/skills/`**（项目级 `<项目>/.agents/skills/`、全局 `~/.agents/skills/`）。理由不只是"DSH 能读"：DSH 核心根本没有启用/停用存储（见 4.5），第二条路（`library/` + 激活 + rank 700 + 上限 50）等于自造一套宿主不认的语义；`library/` 降级为预览缓存。
 3. **"总安装量"口径 = `installs_merged ?? installs`**（见第 5 节）：它是主条目加全部副本的合计，不是缺数据；覆盖率随收录标准（每条都有正文 hash）自然提升。
 
-阶段 1 已开工（两个并行任务：采集端收录标准与富集顺序 / 面板与服务端默认排序）。
+阶段 1、2、3 的代码已落地（部分在工作区未提交）；阶段 4 未开工。本轮线上验证：2026-10-21T08:05Z 采集，count 3879、水位内正文覆盖率 0.974、正文通过 `bodies` 分支分发。

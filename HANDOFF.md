@@ -1,6 +1,6 @@
 # HANDOFF — 现状交接（写给下一个会话）
 
-> 最后更新：2026-10-19，仓库 `D:\dsh-skills-center`，HEAD 之后有 1 个 WIP 提交（见「提交历史」）。
+> 最后更新：2026-10-21，仓库 `D:\dsh-skills-center`。最新一轮线上事实见 §9.4；§9.1–§9.3 是按日期留档的历史，里面的条数（7572 / 300 / 7639）是当时口径，**不要当成现状**。
 > 读这份文档就够了，不需要翻聊天记录。
 
 ## 1. 用户到底想干什么
@@ -16,28 +16,31 @@
 
 - **放弃星标维度**（GitHub 星标与技能质量弱相关，且 API 拿不到），改用「安装量 + 8 周趋势 + curated + 审计等级」四维打分。
 - 用户**有 Vercel 账号**；采集路线选定 **Vercel + OIDC 全量采集**（不走公开搜索矩阵、不走 sitemap 爬 2 万页）。
-- 中文层**只精做 installs top 300**，其余留英文占位、点开再补。
+- 中文层**只精做 installs top 300**，其余留英文占位、点开再补。（2026-10-21 演进：hand 层仍是 top 300，另加一层 `tier:"auto"` 机器生成层向全目录推进，当前 325/3879，见 §9.4。）
 - 卡片字段由用户逐字指定为七项：**名称 / 介绍 / 用途 / 使用注意事项 / 安装数 / 8 周趋势 / 来源**。用户对卡片成色的评价是「这样还可以」，同时批评过第一版「满满的 AI 味」——**措辞要敢下判断、只写能验的事实、结尾不升华**（禁「专治/逼出/无死角/一站式/深度赋能」）。
 - 用户要求**重启时机由他控制**：攒够一批改动再一起重启 GUI。
 
 ## 2. 现在做到哪一步了（分层看）
 
-| 层 | 状态 |
+| 层 | 状态（2026-10-21） |
 | --- | --- |
-| M0 插件骨架 | **已完成并真机验证**：provider 注册、4 个工具（含 `skill_sync`）、Web API 5 路由（含榜单页 `/`）、50 上限、lossless JSON |
-| M0 数据 | **只有 12 条样例** `data/catalog.json`（version `sample-2026-10-19`），趋势数字已按 `samples/weekly.json` 真实回填（§9.1） |
-| M1 中文层 | 只有那 12 条的中文卡片（人工写的），**没有生成流水线** |
-| 采集端 | **代码已完成、等部署验证**：`api/collect.js` + `vercel.json` + `collector/{collect,publish,replay}.mjs` + fixture，`--replay` 全链路与 5 套测试全绿 |
+| M0 插件骨架 | **已完成并真机验证**：provider 注册、4 个工具（含 `skill_sync`）、Web API 10 路由（含榜单页 `/`、`/body` `/local` `/install` `/uninstall`）、50 上限、lossless JSON |
+| 目录数据 | **线上全量已上线**：GitHub `catalog` 分支，version `full-2026-10-21T08-05-00-484Z`、**count 3879**（水位 2000 + curated 例外；门禁四条见 §3.4、§9.4） |
+| 正文 | **已入库**：GitHub `bodies` 分支按 sha256 寻址，水位内正文覆盖率 0.974（`requireBody` 已打开） |
+| M1 中文层 | **两层**：hand 300 + auto 25 均已合并进 `data/zh.json`（分片 `data/zh/part-1..7.json`，`tier` 计数 hand 300 / auto 25）= 325/3879；流水线在 `tools/zh_*.mjs` |
+| 采集端 | **线上跑通**：`api/collect.js` + `vercel.json` + `collector/`；2026-10-21T08:05Z 一轮 count 3879、请求 1458/1500 |
+| 本地装卸 | **宿主侧已实现**：`lib/installer.js` + `/install` `/uninstall` `/local` 路由（`tests/install-routes.test.mjs`）；**面板侧未接线**，GUI 里还没有安装按钮 |
 | 装到 DSH | 已手工挂进 `desktop` profile，用户已重启验证过 |
 
 ### 2.1 已验证可用（真机，不是推断）
 
 - 重启 GUI 后 `skill_search("设计")`、`skill_card("anthropics/skills/frontend-design")` 正常返回中文摘要与七字段卡片。
 - `skill_activate` 之后**系统注入的技能目录里真的出现该技能**（带中文 intro），停用后消失 → provider + `invalidate()` + 文件实时读链路成立。
-- 修复过一个真 bug：返回值里带 `reason: undefined` 导致 `$dsh-tools` 报 `returned invalid output: value is not lossless JSON`；修法是 `lib/index.js` 里 `const plain = (value) => JSON.parse(JSON.stringify(value ?? null));`，三个工具的 execute 出口都过一遍。
+  > **语义更正（2026-10-21）**：DSH 核心**没有技能启用/停用的存储**（`ctx.skills` 只有 registerProvider/register/list/snapshot/get/collect；唯一开关是 frontmatter 的 `disable-model-invocation`/`user-invocable`）。这套 provider 机制现在只作「面板预览用的正文备份」，**不再叫「安装」**；真正的安装走 `lib/installer.js` 的官方 skills CLI（§3.4、§9.4）。
+- 修复过一个真 bug：返回值里带 `reason: undefined` 导致 `$dsh-tools` 报 `returned invalid output: value is not lossless JSON`；修法是 `lib/index.js` 里 `const plain = (value) => JSON.parse(JSON.stringify(value ?? null));`，各工具（当时是三个）的 execute 出口都过一遍。
 - **教训**：运行中的 GUI 进程加载的是旧模块，改盘上代码不生效，必须重启。
 
-### 2.2 当前正在做的事（被打断的地方）
+### 2.2 采集器（已完成并线上运行）
 
 **Vercel + OIDC 全量采集器**，目录 `collector/`：
 
@@ -47,7 +50,9 @@
 - `collector/fetch.test.mjs` — 通过，但**断言还在用旧的假定**（见下面必须改的三处）。
 - `collector/run.mjs` — 采集入口：全量目录 → 预聚类取头部 → detail+audit → `buildCatalog` → 写 `data/catalog.json`。支持 `--replay fixture.json` 离线跑同一条代码路径、`--stage list` 只跑列表段。
 
-## 3. 下一步必须先做的三件事（有明确依据）
+## 3. 三件事的现状（都已完成，保留依据）
+
+> §3.1–§3.3 是当时的「必须先做」，2026-10-20/21 已全部落地；每节标了完成状态。§3.4 是本轮新增的运维事实（环境变量 / cron / 热加载）。
 
 ### 3.1 `collector/fetch.mjs` 已按实测契约改完（**已完成，勿重做**）
 
@@ -62,7 +67,7 @@
 6. 未鉴权全量窗口 = 100,000 行 → 总数以上游 `pagination.total` 为准，别把 8420 写死。
 
 
-### 3.2 写 Vercel 侧（都还没写）
+### 3.2 Vercel 侧（**已完成并跑通**）
 
 - `api/collect.js`：读 token 的**正确渠道是 `Request` 上的 `x-vercel-oidc-token` 头**（或 `@vercel/oidc` 的 `getVercelOidcToken()`，须在 handler 内调用）。Vercel 官方文档明说：函数运行期 `process.env.VERCEL_OIDC_TOKEN` **不被保证**、不能模块级读。token 复用最长 90 分钟，TTL 两小时。
 - 开启 OIDC 的位置：Vercel 项目 → **Settings → Security → "Secure backend access with OIDC federation"**（issuer 选 Team 或 Global），全套餐可用，**没有 vercel.json 开关**。
@@ -71,7 +76,9 @@
 - **时限倒推**：Hobby 函数上限 60s，客户端限流 100ms/次 → 一次运行最多约 400 个上游请求。所以 `run.mjs --enrich` 在 Hobby 上要压到 ~300（top 预聚类 + curated 合并去重后），否则超时。Pro（300s）可以放开。
 - 仓库根目前**没有** `package.json` 依赖声明 vercel/blob 之外的部署配置——Vercel 项目建议单独部署 `collector/`，`api/` 放函数，或干脆把 `api/` 与 `vercel.json` 放在仓库根（插件包同时是可部署项目，注意别把 `lib/` 打进函数包）。
 
-### 3.3 回填并重建样例数据（数据 bug，必须先修）
+### 3.3 回填并重建样例数据（**已完成**，数据 bug，保留依据）
+
+> **状态（2026-10-21）**：①②③④ 均已完成（见 §9.1），下面这张对照表保留作档案。
 
 **已确认的 bug**：`samples/digest.json` 里的 `trend_pct` / `weekly_series` 全是错的。原因是 `tools/probe_catalog.py` 把 `aria-label="Weekly installs: 65,310, 62,524, …"` 按逗号裸 split，把 `65310` 拆成 `65` + `310`，于是 16 个碎片被当成 8 周序列的前后半段。
 
@@ -93,6 +100,27 @@
 | lark-drive (open.feishu.cn) | -52.0% | **null（该来源页无 aria-label）** |
 
 待办：① 用 `samples/weekly.json` 回填 `samples/digest.json` 的 `trend_pct` 与 `weekly_series`（lark-drive 那条置 null 并保留 `larksuite/cli/lark-drive` 的 -33.2% 作为另一个 id）；② `python tools/build_catalog.py` 重建 `data/catalog.json`；③ 同步修正 `samples/cards.v3.md` 里的趋势数字与「八周翻倍」这类措辞；④ 修掉 `tools/probe_catalog.py` 的逗号解析（用 `/\d{1,3}(?:,\d{3})*/` 逐个数匹配）。做完 `npm test`，然后**告诉用户趋势数字变了**——这是用户会直接看到的内容。
+
+### 3.4 线上环境变量 / cron / 热加载（2026-10-21）
+
+**Vercel production 环境变量**（改完**必须重新部署**才生效）：
+
+| 变量 | 必需性 | 作用 |
+|---|---|---|
+| `CRON_SECRET` | **必需** | `/api/collect` 鉴权（缺失 503、错误 401、常量时间比较）；手动补跑 `curl -H "Authorization: Bearer $CRON_SECRET"` 也用它 |
+| `GH_TOKEN` | **必需**（自动发布） | 细粒度 token，只有 `w4n63r/dsh-skills-center` 一个仓库，`Contents: Read and write`，90 天（2027-01-19 到期） |
+| `GH_REPO` | 可选 | 默认 `w4n63r/dsh-skills-center`；`GH_BODIES_BRANCH` 默认 `bodies` |
+| `BODY_BASE` | 可选 | 正文基址，默认 `https://raw.githubusercontent.com/w4n63r/dsh-skills-center/bodies`；不配时按「本轮存储 > 上一版目录」推断 |
+| `CATALOG_LATEST_URL` | 可选 | 采集响应里的目录指针；插件侧默认直接读 GitHub raw 的 `catalog` 分支 |
+| `BLOB_ACCESS` / `BLOB_PREFIX` 等 `BLOB_*` | **已非必需** | 线上 Blob store 被 Vercel 停用（`This store has been suspended.`）后，GitHub 为主、Blob 只是可选回退；只有走回退才读它们 |
+| `SKILLS_API_TOKEN` | 可选 | OIDC 之外的兜底；正常走 `x-vercel-oidc-token` 头或 `getVercelOidcToken()` |
+
+- **cron**：`vercel.json` = `{"crons":[{"path":"/api/collect","schedule":"0 5 * * *"}]}`（Hobby 只允许每天一次，UTC）。手动补跑用 POST + `Authorization: Bearer $CRON_SECRET`。
+- **本地 `.env.local`** 存 `CRON_SECRET` / `GH_TOKEN` 等（`.env*` 已 gitignore）；Vercel 上的 Secret 类型变量 `vercel env pull` 读不出来。
+- **改代码后哪些生效**（2026-10-20 实测）：
+  - **host 半边会热加载**：改 `lib/*.js` 后不重启 GUI，`GET /api/dsh-skills-center/list` 就返回新字段。
+  - **client 半边要刷新/重启**：`package.json` 的 `dsh.client` 与 `client/client.js` 是启动期加载的，必须刷新页面（浏览器半边）或重启 GUI 才生效。
+  - 插件整体（`lib/index.js` 的 `apply`）改了走「重启 GUI」最稳；`ctx.skills` 的缓存靠 `invalidateCache()` 刷新（缓存键 `{cwd, scopes, revision}`）。
 
 ## 4. 插件侧关键契约（已从 `app.asar` 一方源码核实，别再猜）
 
@@ -119,21 +147,27 @@
 ## 6. 仓库结构与已知文件
 
 ```
-DESIGN.md             设计文档（架构/打分/里程碑/§12 契约/§13 安装），改动前先读
-README.md            项目定位、安装、三个工具
-lib/index.js         插件入口：apply / tools.register / webServer.register；plain() 保证 lossless
-lib/provider.js      skills.registerProvider：kebab 归一、list 绝不抛、rank 700
-lib/catalog.js       目录读取 + 卡片渲染 + verdict + 检索打分
-lib/activation.js    激活态（~/.dsh/skills-center/activation.json，50 上限）
-lib/paths.js         ~/.dsh/skills-center/{catalog,library,activation.json} 路径
-data/catalog.json    12 条样例目录（含 score.S/H/T/C/A 与 flags）——即将被真实采集替换
-samples/             digest.json（页面采样）· digest2.json（SKILL.md 采样）· cards.v3.md（12 张定稿卡片）· weekly.json（真实 8 周序列，新）
-tools/               build_catalog.py（样例→catalog.json）· probe_catalog.py · fetch_skillmd.py · refetch_weekly.mjs（新）
-collector/           pipeline.mjs / fetch.mjs / run.mjs + 两套 .test.mjs（新，WIP）
-tests/smoke.mjs      假 ctx 全链路 + host 校验器镜像 + 畸形目录 + Web API 四路由
+DESIGN.md             设计文档（架构/打分/里程碑/§8.4 安装与正文/§12 契约），改动前先读
+README.md             面向使用者：这是什么、收录标准、安装与卸载、数据从哪来
+lib/index.js          插件入口：apply / tools.register / webServer.register；plain() 保证 lossless
+lib/installer.js      本机盘点 + 装卸 argv 与内核（官方 skills CLI，子进程/fs 注入；当前未提交）
+lib/provider.js       skills.registerProvider：kebab 归一、list 绝不抛、rank 700
+lib/catalog.js        目录读取 + 卡片渲染 + 检索/浏览（默认按总安装量排序）+ verdict
+lib/categories.js     29 个分类的关键词推断（按目录版本缓存，apply() 里预热）
+lib/activation.js     ~/.dsh/skills-center/activation.json（50 上限；现降级为面板预览用的正文备份）
+lib/sync.js           远端目录同步（GitHub raw catalog 分支 → 本地 catalog.json）
+lib/page.js           插件自吐的只读榜单页（无前端构建、无外部资源）
+lib/paths.js         ~/.dsh/skills-center/{catalog,bodies,library,activation.json} 路径；MAX_ACTIVE=50
+client/client.js     浏览器半边（手写无构建；dsh.client 启动期加载，改完要刷新/重启）
+data/catalog.json    仓库内回退目录（线上以 GitHub catalog 分支为准）
+data/zh.json         中文卡片汇总（hand 300 + auto 25 = 325 条；分片在 data/zh/part-1..7.json）
+samples/             digest.json（页面采样）· digest2.json（SKILL.md 采样）· cards.v3.md（定稿卡片）· weekly.json（真实 8 周序列）
+tools/               build_catalog.py · probe_catalog.py · fetch_skillmd.py · refetch_weekly.mjs · zh_source.mjs · zh_fetch_bodies.mjs · zh_generate.mjs · zh_validate.mjs · zh_merge.mjs
+collector/           collect.mjs / pipeline.mjs / fetch.mjs / publish-github.mjs / replay.mjs + 各 .test.mjs
+tests/               14 套（见下）；另有 api/collect.test.mjs、collector/*.test.mjs、tools/*.test.mjs
 ```
 
-`npm run check`（node --check + 导出校验）与 `npm test`（`tests/smoke.mjs`）目前都通过；`collector/*.test.mjs` 单独 `node collector/pipeline.test.mjs`、`node collector/fetch.test.mjs` 跑。
+`npm run check`（node --check + 导出校验）与 `npm test` 目前都通过；`npm test` 依次跑 14 套：`tests/smoke.mjs`、`tests/categories.test.mjs`、`tests/sync.test.mjs`、`tests/body.test.mjs`、`tests/installer.test.mjs`、`tests/install-routes.test.mjs`、`collector/publish-github.test.mjs`、`tests/client.test.mjs`、`collector/pipeline.test.mjs`、`collector/fetch.test.mjs`、`collector/replay.test.mjs`、`api/collect.test.mjs`、`tools/zh_source.test.mjs`、`tools/zh_validate.test.mjs`。
 
 ## 7. 明确的「不做」
 
@@ -377,4 +411,20 @@ Cron **每项目 100 个、最小间隔一天**（精度 ±59 分钟）；Blob *
   方向不再单独占一个按钮；详情弹层补「近 30 天安装量」与「发布时间」两行并各带口径说明。
 - **没做的事**：分类没有落进采集产物（`catalog.json` 里没有 `categories` 字段），是查询时按目录版本算的。
   好处是不用重采、随时可调词表；坏处是每次进程启动要重算一遍（已用启动预热遮掉）。
+
+### 9.4 2026-10-21 现状（收录门禁 + 正文入库 + 本地装卸）
+
+**目录（线上）**：version `full-2026-10-21T08-05-00-484Z`，**count 3879**（改造前 7800–8100 —— 条数下降是预期的门禁行为，不是数据丢失）。口径：`tmp/run-2026-10-21T08-05-38-896Z.json`；上游 `list_total 93036`、`raw_count 9141`、`deduped 802`、`requests 1458/1500`；`body_gate {head_total 2000, head_stored 1948, coverage 0.974, strict true}`；`dropped_no_body 4426 / thin_body 10 / no_description 24`；`payload_bytes 7,655,253`（贴 4.5MB 上限，所以只走「先传文件、再回 302」）。
+
+**收录标准四条**（`collector/pipeline.mjs` 的 `buildCatalog({ requireBody, minBodyLength:300 })`，逐条记账 `dropped.*`）：① 从 detail 接口拿到 SKILL.md 正文（全文存对象存储，目录只留指纹）② 正文 ≥300 字符 ③ frontmatter 有非空 `description` ④ 有内容 hash。水位按**总安装量**降序取前 2000（占全站 95.9% 安装量），水位外只留 curated/official 例外；严格门禁**自动**开：水位内正文覆盖率 ≥0.95 才打开 `requireBody`（本轮 0.974 → 已开）。
+
+**正文**：`https://raw.githubusercontent.com/w4n63r/dsh-skills-center/bodies/<sha256>.md`；目录顶层 `body_base`，每条 `body: {length, sha256, v:1}`。本轮 `bodies` 上传 323 条（成功 70、失败 253 下一轮重试）。插件取正文走 `GET /body?id=`，本地缓存 `~/.dsh/skills-center/bodies/<sha256>.md`。
+
+**本地装卸**：`lib/installer.js` + `/install` `/uninstall` `/local`（对应用 `tests/install-routes.test.mjs`）。命令是官方 CLI：`npx skills@1.7.4 add <owner/repo> --skill <slug> -a codex --copy [-g] -y`；落点 `<项目>/.agents/skills/<slug>`（rank 200）/ `~/.agents/skills/<slug>`（rank 500）——正是 DSH 的扫描根，装完立刻可用、卸载就是删目录。项目根 = 从当前目录向上找最近的 `.git`。**面板还没接这三个路由**（`client/client.js` 里有「本地」视图字符串与组件，但 Panel 只渲染目录视图），别在文档里说 GUI 能一键装。
+
+**中文层**：hand 300 + auto 首批 25 = **325/3879**，均已合并进 `data/zh.json`（`tier` 计数 hand 300 / auto 25，分片 `data/zh/part-1..7.json`，`generated_at 2026-10-21T08:29:46Z`）。流水线 `tools/zh_fetch_bodies.mjs` → `zh_generate.mjs plan/check/apply` → `zh_merge.mjs`；`check` 的「能力词必须在正文里出现」与 tier/正文溯源校验已生效。**没做到全量覆盖 2000 条**。
+
+**测试**：`npm test` 14 套全绿（清单见 §6）。
+
+**仍未做**：M3 召回钩子（只有设计）；同 slug 跨仓库重复卡（正文 hash 缺失时聚类键退化，例：`ai-video-generation` 的 101-skills / magentosh 两条）；`stars`（8 个仓库 93 条）与 `first_seen` 覆盖很低（页面抓取只对历史上抓过的那批生效，升 `ENRICH_VERSION` 只解决一部分）；水位外条目没有正文，因此不在目录里。
 

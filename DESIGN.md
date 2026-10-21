@@ -2,18 +2,18 @@
 
 ## 1. 定位与边界
 
-**一句话**：把 skills.sh 上两万个技能变成一份可离线浏览、带中文判断、能按需唤醒的本地目录。
+**一句话**：把 skills.sh 上的技能变成一份可离线浏览、带中文判断、能按需取用与安装的本地目录（按总安装量水位收录，2026-10-21 本轮 count **3879**）。
 
 **与既有 `@michengai/dsh-skills-manager` 的分工**（必须先划清，否则重复造轮子）：
 
 | 能力 | skills-manager 已有 | 本项目 |
 |---|---|---|
 | 在线搜索 skills.sh | 有（`/api/search`，仅 q 参数） | **不做** |
-| 下载/安装技能 | 有（含 lockfile、仓库管理） | **不做**，调用它或 `npx skills add` |
-| 全量目录（2 万条）+ 趋势 | 无 | **做** |
+| 下载/安装技能 | 有（含 lockfile、仓库管理） | **不自建安装器**，调官方 `skills` CLI（§8.4） |
+| 全量目录（按装量水位收录）+ 趋势 | 无 | **做** |
 | 中文介绍/判断/该不该装 | 无 | **做** |
 | 跨 owner fork 去重 | 无 | **做** |
-| 库存 ↔ 激活分离、召回钩子 | 无（它管的是"装进来") | **做** |
+| 本机已装盘点 + 召回钩子 | 部分（它管"装进来"） | **做**（扫描 `.agents/skills` + 按需装卸） |
 
 结论：本项目是**目录层与判断层**，安装与在线搜索交给现有插件。
 
@@ -23,43 +23,47 @@
 |---|---|
 | "不知道它们存在" | 离线全量 `catalog.json` + 分类/榜单视图，无需联网即可翻 |
 | "不一定想得起来用" | 每张卡生成 15 字以内的**召回钩子**，只把已激活技能的钩子注入系统提示 |
-| "提前下载备用" | 库存层只落磁盘（`library/`），不进 skills 根，不占上下文 |
+| "提前下载备用" | 按需安装到 `.agents/skills/`（真装，DSH 立刻可用）；正文按 sha256 按需取用，不常驻上下文 |
 
 ## 3. 数据链路
 
 ```
-skills.sh /api/v1  ──(Vercel Cron + OIDC)──▶  catalog.json / zh.json / trend.json
+skills.sh /api/v1  ──(Vercel Cron + OIDC)──▶  catalog 分支: catalog.json + catalog-meta.json
+                                              bodies 分支: <sha256>.md（技能正文，内容寻址）
                                                   │
-                                                  ▼  首启拉一次，之后按 version 增量
+                                                  ▼  首启拉一次，之后按 version/meta 增量
                                         ~/.dsh/skills-center/
                                           catalog/   (只读缓存)
+                                          bodies/    (按 sha256 缓存的技能正文)
                                           zh/        (中文层，按 hash 缓存)
-                                          library/   (已下载技能原文)
+                                          library/   (面板预览用的正文备份，不再是「安装」)
 ```
 
 **采集端**（Vercel Serverless，拿得到 `VERCEL_OIDC_TOKEN`）：
 
 | 步骤 | 请求 | 产物 |
 |---|---|---|
-| 1 | `GET /api/v1/skills?view=all-time&per_page=500` × ~17 页 | 全量 8420 条：id/source/slug/installs |
+| 1 | `GET /api/v1/skills?view=all-time&per_page=500` × 6 页（`LIMIT_RECORDS=3000`） | 列表级 3000 条：id/source/slug/installs（上游 `list_total` 93,036） |
 | 2 | `GET /api/v1/skills?view=hot` | 叠加 `installsYesterday` / `change` |
 | 3 | `GET /api/v1/skills/curated` | 87 owner / 342 技能打 `curated` 标 |
 | 4 | `GET /api/v1/skills/audit/{id}`（仅分层内约 1500 条） | 5 家审计 status/riskLevel |
 | 5 | `GET /api/v1/skills/{id}`（同上 1500 条） | `hash`（SHA-256）+ `files[]`（取 SKILL.md 正文供中文生成） |
 
-限流 600 req/min：8420+342+1500×2 ≈ 1.2 万请求，分 20 分钟发完，落在一次 Cron 内。
+限流 600 req/min：一轮预算 `MAX_REQUESTS=1500`（列表 6 + curated 1 + 每目标 detail/audit 两发），2026-10-21 实测用掉 1458，落在一次 Cron 内。
 
-**产物 schema**（`catalog.json`，按 200 条分片避免单文件过大）：
+**产物 schema**（`catalog.json` 单文件，走 GitHub `catalog` 分支发布，不在函数里分片响应）：
 
 ```json
 {
-  "version": "2026-10-19T08:00:00Z",
-  "count": 8420,
+  "version": "full-2026-10-21T08-05-00-484Z",
+  "count": 3879,
+  "body_base": "https://raw.githubusercontent.com/w4n63r/dsh-skills-center/bodies",
   "skills": [{
     "id": "vercel-labs/agent-skills/vercel-react-best-practices",
     "canonical": true,
     "aliases": ["someone/fork/vercel-react-best-practices"],
     "hash": "9f2c…",
+    "body": { "length": 4213, "sha256": "…", "v": 1 },
     "installs": 814685,
     "installs_merged": 814685,
     "trend_pct": -3.6,
@@ -73,6 +77,8 @@ skills.sh /api/v1  ──(Vercel Cron + OIDC)──▶  catalog.json / zh.json /
   }]
 }
 ```
+
+正文不进目录：全文按内容寻址存在 GitHub `bodies` 分支的 `<body_base>/<sha256>.md`，目录里只留 `body.length / body.sha256 / body.v`（`v` = 已入库的正文版本戳，当前 `1`）。
 
 **中文层**（`zh/{hash前2位}/{hash}.json`，按内容 hash 缓存）：
 
@@ -89,6 +95,7 @@ hash 变则重新生成——技能内容改了，旧中文自动失效，不需
 同一份内容被多个 owner 转发是常态（`ai-video-generation` 至少 6 个 fork，合计 300 万安装）。
 
 - 聚类键：**内容 `hash`**（`/api/v1/skills/{id}` 自带）；无 hash 的来源退化为 `(name, 正文首 200 字归一化)`。
+  > **已知缺口（2026-10-21）**：同 slug 跳仓库的重复卡仍在（例：`ai-video-generation` 同时存在 101-skills 与 magentosh 两条）；正文 hash 缺失时聚类键退化成名字+正文片段，挡不住这类重复。
 - 组内保留 `installs` 最大者为 `canonical`，其余进 `aliases`。
 - 榜单只收 `canonical`；`installs_merged` = 组内求和，仅作展示（"整族 300 万次安装"）。
 - 卡片上明确写出"另有 5 个 fork"——这本身就是判断信息。
@@ -123,7 +130,7 @@ S = 0.45·H + 0.20·T + 0.20·C + 0.15·A      # 内部字段叫 score.S（0–1
 
 - 解析实现：`collector/fetch.mjs` 的 `parseFirstSeen`（**不能用 `new Date('Jan 19, 2026')`**：它按本地时区解析，
   `toISOString()` 会退成 `2026-01-18`，实测踩过；改成月名映射拼字符串），`parseWeeklyInstalls` 照旧。
-- 覆盖范围：只有**抓过页面详情**的条目才有这两个字段（当前约 1700/7639）。面板不假装全覆盖：
+- 覆盖范围：只有**抓过页面详情**的条目才有这两个字段（2026-10-21 线上 stats：`with_trend` 4430 / `with_hash` 5492 / `with_audit` 5410，分母是每轮候选集的 stats 口径，不是目录 3879；`stars` 只覆盖 8 个仓库 93 条，`first_seen` 更少——页面抓取只对历史上抓过的那批生效，升 `ENRICH_VERSION` 只解决一部分）。面板不假装全覆盖：
   选了时间范围就把覆盖数写在下面（`有时间信息 N / M`），没时间的条目**不参与**时间筛选（宁可筛掉，也不当它是新的）。
 - 排序：`installs4w`（近 4 周安装量）进 `SORTS`，由 `weekly_series` 现算，不落新的采集字段。
 
@@ -132,11 +139,11 @@ S = 0.45·H + 0.20·T + 0.20·C + 0.15·A      # 内部字段叫 score.S（0–1
 用户 2026-10-20 拿插件市场的截图问「分类能不能按技能属于的功能来分」。**skills.sh 没有分类字段**，
 上游只给 id/slug/installs/hash/files，描述也就几百条有。所以只能自己分类，并且必须承认它是**推断**：
 
-- **为什么用关键词规则而不是模型**：7600 多条里只有几百条有描述（其余只有 slug/name），送模型既贵又不稳；
+- **为什么用关键词规则而不是模型**：目录里三千多条中只有一部分有描述（其余只有 slug/name），送模型既贵又不稳；
   规则可复现、可单测、离线可跑。分类菜单里明写「按技能实际功能自动分类（关键词规则，不是 skills.sh 官方字段）」——
   不许把它说得像上游字段。
 - **分类是多标签**：一条技能可能既属于「前端与界面」又属于「测试与质量」，取分数最高的前 3 个；
-  一个都没命中才落到「其他」（实测 24.4%，约 1866 条）。
+  一个都没命中才落到「其他」（改造前 7639 条目录实测 24.4%、约 1866 条；新目录 3879 条下的分类计数待核实）。
 - **三条踩出来的经验**：
   1. **必须词边界匹配**，不能裸子串：`test` 会命中 `latest`/`contest`，`doc` 会命中 `docker`。测试里专门钉了这类反例。
   2. **词表里不许放泛词**：曾把 `skill` 放进 AI 分类，结果 `find-skills` 被归成「AI 与模型」。`agent`/`api`/`model` 同理。
@@ -145,11 +152,11 @@ S = 0.45·H + 0.20·T + 0.20·C + 0.15·A      # 内部字段叫 score.S（0–1
 - **字段权重**：slug/name 各 3 分，source（owner/repo）2 分——`anthropics/claude-for-legal/*` 这种正文为空也能靠 owner 兜底；
   中文名 2 分；中文介绍与英文描述各 1 分。
 - **两阶段匹配**（性能）：先只扫短字段；一个分类都没命中才去读长文本，并截断 600 字。
-  整目录 7639 条实测 2.1s（两阶段之前 3.8s）。插件 `apply()` 启动时空转一次预热缓存，
+  整目录实测 2.1s（改造前 7639 条口径；两阶段之前 3.8s）。插件 `apply()` 启动时空转一次预热缓存，
   免得到第一次点开面板才卡 2s。
 - **计数按整个目录算**，不随关键词/筛选变化——菜单要稳定，否则点一下菜单就洗牌。
   「其他」固定排最后：它条数最多，但它是兜底桶不是分类，排第一会让菜单第一眼就是「其他」。
-- **界面**：前 12 个分类铺成 chips（`全部 7,639` 带头）；长尾 + 「其他」不塞进下拉，而是由一个
+- **界面**：前 12 个分类铺成 chips（`全部 3,879` 带头）；长尾 + 「其他」不塞进下拉，而是由一个
   `更多分类（17）` chips **行内展开**成同样的胶囊，再点「收起」——用户 2026-10-20 看到原生下拉的展开层后明确说
   「不要使用这样的方式」，那种弹出菜单是操作系统的样式，与面板主题 token 完全两套观感。
   质量筛选（有中文卡/官方精选/有风险信号/已抓正文）降到第二行小号 chips；下面一行写口径与匹配数。
@@ -200,9 +207,11 @@ S = 0.45·H + 0.20·T + 0.20·C + 0.15·A      # 内部字段叫 score.S（0–1
 
 ### 已经拿到、还没展示的
 
+> 覆盖数原按改造前目录（7639/7715 条）统计；带 `with_*` 的来自 2026-10-21 线上 stats（`tmp/run-2026-10-21T08-05-38-896Z.json`），新目录（3879 条）下重算待核实。
+
 | 能展示什么 | 来源 | 成本 | 覆盖（实测） |
 |---|---|---|---|
-| **审计风险筛选**：只看 High Risk / 有告警 / 未审 | 我们已存全量 `audit` | 0 新请求 | 2452/7715 有审计 |
+| **审计风险筛选**：只看 High Risk / 有告警 / 未审 | 我们已存全量 `audit` | 0 新请求 | 2026-10-21 stats `with_audit` 5410 |
 | **审计查的是什么**：`audit.audits[].categories`，实测出现过 14 个值——风险类：COMMAND_EXECUTION / DYNAMIC_EXECUTION / REMOTE_CODE_EXECUTION / EXTERNAL_DOWNLOADS / DATA_EXFILTRATION / CREDENTIALS_UNSAFE / PRIVILEGE_ESCALATION / PERSISTENCE / OBFUSCATION / PROMPT_INJECTION / INDIRECT_PROMPT_INJECTION / DYNAMIC_CONTEXT_INJECTION；非风险标记：SAFE / NO_CODE（展示时要排除） | 同上 | 0 | 1354 条审计带 categories |
 | **风险等级筛选**：只看 `riskLevel` = HIGH / CRITICAL | 同上 | 0 | 实测分布：SAFE 2170 / LOW 1876 / MEDIUM 1211 / NONE 1173 / HIGH 116 / **CRITICAL 22** —— 需要人看一眼的只有 138 条 |
 | **上游话题**：如 `Design & UI`（`/topic/design`） | 技能页标题下的徽章 | 0（同一页） | 只有 8 个话题：react / nextjs / design / mobile / agent-workflows / databases / testing / marketing，且**不是每个技能都有**（实测 prisma-postgres、xlsx 没有） |
@@ -211,7 +220,7 @@ S = 0.45·H + 0.20·T + 0.20·C + 0.15·A      # 内部字段叫 score.S（0–1
 | **本周上升榜**（官方周榜，跨仓库合并展示） | `?view=trending` 或 `/trending` | 1–2 请求 | 全量 |
 | **此刻最热**：最近一小时安装量与变化（`installsYesterday`/`change`） | `?view=hot` 或 `/hot` | 1–2 请求 | 全量；实测数值很小（个位数/小时），噪声大 |
 | **按仓库浏览**：某个仓库的全部技能（不受全局截断限制） | `?source=owner/repo` | 1 请求/仓库 | 全量 |
-| **文件树**：`files[]` 里每个 path（还有完整 contents） | detail 接口 | 0（已抓） | 2657/7715 有 hash 与文件 |
+| **文件树**：`files[]` 里每个 path（还有完整 contents） | detail 接口 | 0（已抓） | 2026-10-21 stats `with_hash` 5492 |
 | **正文原文**（我们只存 4000 字摘录） | detail 的 `files[0].contents` | 要改存储 | 同上 |
 | **在 skills.sh 打开**、`installUrl` | 列表项 `url`/`installUrl` | 0（已抓但没存进目录） | 全量 |
 | **语义搜索兜底**：多词英文查询走上游 `searchType=semantic`（单词走 fuzzy） | `/api/v1/skills/search` | 1 请求/次查询 | 全量；中文查询上游大概不行，本地中文卡仍是主路 |
@@ -235,18 +244,18 @@ S = 0.45·H + 0.20·T + 0.20·C + 0.15·A      # 内部字段叫 score.S（0–1
 
 ## 6. 库存 / 激活 / 召回 三层
 
+**先说一句现状（2026-10-21 核实）**：DSH 核心**没有技能启用/停用的持久化存储**——`ctx.skills` 只有 `registerProvider / register / list / snapshot / get / collect`，全 asar 搜不到 activation 之类；唯一的开关是 SKILL.md frontmatter 的 `disable-model-invocation` / `user-invocable`。所以「装/不装」由**文件在不在技能根里**决定（见 §8.4），插件层的「激活集合」只是面板预览，不是安装。
+
 | 层 | 位置 | 成本 | 谁能看见 |
 |---|---|---|---|
-| 库存 | `~/.dsh/skills-center/library/<id>/` | 仅磁盘 | 无人（默认） |
-| 激活 | **不复制文件**，由插件 `ctx.skills.registerProvider` 只暴露激活集合 | — | DSH 技能目录（name+description 进系统提示） |
-| 召回 | 卡片里的 `hook` 一行 | 每条约 15 字 | 系统提示（仅激活项） |
+| 安装（真正的） | `<项目>/.agents/skills/<slug>` / `~/.agents/skills/<slug>` | 磁盘 + 每次会话的 name/description | DSH 技能目录（宿主自带扫描根，rank 200 / 500） |
+| 正文备份 | `~/.dsh/skills-center/library/<id>/SKILL.md` | 仅磁盘 | 只有本插件面板预览 |
+| 激活（历史机制，降级保留） | `activation.json` + `ctx.skills.registerProvider`（rank 700） | — | DSH 技能目录（仅当同一条同时有正文备份） |
+| 召回 | 卡片里的 `hook` 一行（**仅设计，M3 未实现**） | 每条约 15 字 | 系统提示（仅激活项） |
 
-**关键设计**：激活态由插件内存/配置文件管理，**不往 `~/.agents/skills` 软链**。理由：
-1. 软链会污染用户手工维护的技能根，卸载插件后留下垃圾；
-2. provider 可以按会话/按项目切换激活集合，软链做不到；
-3. 30~50 个上限是硬约束（每个技能 name+description 都进系统提示），provider 层可以强制截断。
-
-**上限策略**：激活数 > 50 时按 `S` 分排序，只注入前 50 的钩子，其余仅可检索。理由：全量注入会稀释指令注意力，反而加剧"想不起来用"。
+- `library/` + `activation.json` + rank 700 provider 早于官方 skills CLI 存在，现在**只作为「面板预览用的正文备份」**，不再叫「安装」；对外安装一律走 §8.4 的 CLI 路径。
+- 不往 `~/.agents/skills` 软链的理由仍然成立（不污染用户手工维护的根、provider 可按会话切换、50 上限可强制截断），但**这不是安装路径**——安装就是真的把目录放到技能根下。
+- **上限策略**：激活数 > 50 时按 `S` 分排序，只注入前 50 的钩子，其余仅可检索。理由：全量注入会稀释指令注意力，反而加剧"想不起来用"。
 
 ## 7. 卡片文案规范（重要，来自实拍反馈）
 
@@ -287,7 +296,7 @@ export function apply(ctx, config) { /* … */ }
 |---|---|
 | `skill_search` | 在本地全量目录里检索（含中文名/中文简介），返回 `id + 中文一句话 + verdict + S` |
 | `skill_card` | 取某技能完整中文卡片（含依赖、告警、fork 情况） |
-| `skill_activate` | 把库存技能加入激活集合（受 50 上限约束），并落盘到 `library/` |
+| `skill_activate` | （历史机制，现降级为面板预览）把 `library/` 里的正文备份加入激活集合（受 50 上限约束） |
 | `skill_sync` | 从远端快照拉新目录替换本地副本（`mode: 'replace'`），返回条数/快照时间/来源 |
 
 **远端同步契约**（`lib/sync.js`）：
@@ -299,7 +308,7 @@ export function apply(ctx, config) { /* … */ }
 - 网络失败（fetch throw）时若本机有 `curl`，回退用 curl 再试一次，并把失败原因带上。
 
 **Web API**：`ctx.webServer.register({kind:'prefix', path:'/api/dsh-skills-center'})`，供 GUI 浏览榜单与卡片。
-路由：`/`（榜单页，`lib/page.js` 现场渲染，目录内联、无前端构建）、`/status`、`/search`、`/card`、`/sync`（仅 POST）。
+路由（`/api/dsh-skills-center` 前缀）：`GET /`（榜单页，`lib/page.js` 现场渲染，目录内联、无前端构建）、`GET /status`、`GET /search`、`GET /list`、`GET /card`、`GET /body?id=|?sha=`（技能正文）、`GET /local[?project=]`（本机已装技能 + 扫描根）、`POST /install`、`POST /uninstall`、`POST /sync`。
 **审批**：`ctx.on('tools/pre-execute')` 对 `skill_activate` 要求确认（会改变系统提示内容）。
 
 ## 8.1 采集端（`api/collect.js` + `collector/`）
@@ -307,20 +316,22 @@ export function apply(ctx, config) { /* … */ }
 - 触发：Vercel Cron `0 5 * * *`（Hobby 只允许每天一次）打 `GET /api/collect`；手动补跑用 POST，同一份 `run()`。必须先过 `CRON_SECRET`（缺失 503、错误 401、常量时间比较），否则就是一个谁都能触发烧额度的端点。
 - OIDC：token 只在 handler 内从 `x-vercel-oidc-token` 头或 `getVercelOidcToken()` 取，**模块级不许读 `process.env.VERCEL_OIDC_TOKEN`**（有测试做回归守卫）；上游只认 `Authorization: Bearer`。
 - 两段式：目录段（`LIMIT_RECORDS=3000` 条，按安装量降序 6 页并发 ≈ 8s）→ 富集段（每目标 detail + audit 两个请求，受 `MAX_REQUESTS`/`MAX_RUNTIME_MS` 双闸门裁剪）。**截断只降富集深度，不丢记录**：没富集的条目保留列表级数据（`score.A=0.5` 中性、无 hash/正文），并如实回 `truncated` + `skipped_budget/skipped_deadline`。
-- **实测规模（2026-10-20 线上首次跑通）**：上游 `list_total` 是 **93,043** 条，目录段取前 3000 → 去重 fork 后 **7572** 条（`deduped` 1554）；富集名额一轮只有 497 个（`MAX_REQUESTS=1500` 减去列表 6 + curated 1，约 3 请求/条），每次靠 `previous` 目录继承上一轮已富集的结果（本轮 `inherited_enriched=1217`），覆盖率逐日爬升而不是一次到位。
+- **实测规模（2026-10-21 线上）**：上游 `list_total` 是 **93,036** 条，目录段取前 3000（`LIMIT_RECORDS=3000`）→ 规划去重 **802** 条（`deduped`），经收录门禁后 **count 3879**；富集名额一轮 497 个（`MAX_REQUESTS=1500` 减列表 6 + curated 1，约 3 请求/条），本轮请求 1458 / 1500；每次靠 `previous` 目录继承上一轮已富集的结果（`inherited_enriched=5121`），覆盖率逐日爬升而不是一次到位。
 - Hobby 的现实：60s 上限下富集 497 个头部要 ~120–200s，靠 `maxDuration` 与 `MAX_RUNTIME_MS` 兜住；想一轮覆盖 top 300 需要 Pro。
-- 产物大小：7572 条 + 300 条中文卡 ≈ **4.3MB**，贴着 4.5MB 响应上限，所以 `catalog-latest.json` 只从 Blob 直出（`/api/catalog` 走 302 重定向，不在函数里转发字节），响应里会给一条 `payload … close to the 4.5MB limit` 警告。
-- 上传：`validateCatalog()` 不过就一个字节都不写；过了先写 `catalog-<ISO>.json`（不可变快照）再写 `catalog-latest.json`（指针）。
+- **正文发布**（`ecc27d9`、`12f6ba7`）：正文先写远端再让目录声称已入库；GitHub `bodies` 分支为主（`collector/publish-github.mjs`，需 `GH_TOKEN` / `GH_REPO`），Vercel Blob 仅作可选回退；两条发布路径都失败才让采集接口 500。线上 store 被停用（`This store has been suspended.`）后已不依赖 Blob。
+- 产物大小：本轮 `payload_bytes ≈ 7,655,253`（≈7.3MB），贴着 4.5MB 函数响应上限，所以目录只走「先传文件、再回 302」：`/api/catalog` 302 到仓库 `catalog` 分支的 raw 地址，不在函数里转发字节；响应会给一条 `payload … close to the 4.5MB limit` 警告。
+- 上传：`validateCatalog()` 不过就一个字节都不写；过了先写不可变快照（Blob `catalog-<ISO>.json` / GitHub 单提交）再更新指针（`catalog-latest.json` / `catalog-meta.json`）。
 - 失败一律非 2xx + `{ok:false, stage, error, elapsed_ms, stats}`，`stage ∈ config|auth|token|collect|validate|upload`。
 - 富集顺序是 **detail → audit**，不能并发：detail 一 404 就 reject，而 audit 请求还在限流 sleep 里照样会发出去（白烧一次额度，且落地晚于 `collect()` 返回，让 `requests.used` 在 21/22 之间随机）。
 
 ## 8.2 中文卡片层（`data/zh.json`）
 
-- 只精做**安装量前 300 条**（用户 2026-10-19 定），其余 7200+ 条卡片如实写「中文卡未覆盖」：有上游 `description_en` 就截断照抄，什么都没有就直说只有名称/装量/审计——不许拿占位符糊过去。
-- 写入流程：`tools/zh_source.mjs` 切 6 片（每片 50 条，带全字段事实）→ 写手产出 `data/zh/part-N.json` → `tools/zh_validate.mjs` 单条校验 → `tools/zh_merge.mjs` 合并成 `data/zh.json`（跨片重复 id / 超长 / 禁用词直接失败，不落盘）。
-- 校验口径：`name_zh` 2–10 字且禁止中英混排，`intro` 60–500、`usage` 20–300、`notes` ≤300；禁用词「专治 / 逼出 / 无死角 / 一站式 / 深度赋能 / 赋能 / 颠覆 / 神器 / 王炸 / 闭眼入 / 碾压 / 吊打」。
+- **两层**：`tier: "hand"`（人工精写，300 条，`data/zh.json`，由 `data/zh/part-1..6.json` 各 50 条合并；缺 `tier` 时按 `hand`）/ `tier: "auto"`（机器生成层，目标覆盖目录全部条目，按批推进）。
+- **进度（2026-10-21）**：hand 300 + auto 首批 25 = **325/3879**（auto 首批 25 条已合入 `data/zh/part-7.json`；`data/zh.json` 现 325 条、`tier` 计数 hand 300 + auto 25、`generated_at 2026-10-21T08:29:46Z`）。没覆盖的条目如实写「中文卡未覆盖」：有上游 `description_en` 就截断照抄，什么都没有就直说只有名称/装量/审计——不许拿占位符糊过去。
+- **流水线**：`tools/zh_fetch_bodies.mjs`（正文抓到本地缓存当素材）→ `tools/zh_generate.mjs plan`（按批 25 条产出待写输入 `in-<from>-<to>.json`）→ 写手/模型回填 `out-<from>-<to>.json` → `check`（长度、禁用词、`tier`、**能力词必须在正文里出现**）→ `apply`（合并进 `data/zh/part-N.json`，幂等）→ `tools/zh_merge.mjs`（汇总进 `data/zh.json`，保留 `tier`）。
+- 校验口径：`name_zh` 2–10 字且禁止中英混排，`intro` 60–500、`usage` 20–300、`notes` ≤300；禁用词「专治 / 逼出 / 无死角 / 一站式 / 深度赋能 / 赋能 / 颠覆 / 神器 / 王炸 / 闭眼入 / 碾压 / 吊打」；`tools/zh_validate.mjs` 另做 `tier` 与正文溯源校验。
 - 贴法是**按 id**（`collector/pipeline.mjs:189-190`）：fork 合并后 `hash` 会随正文变化，`id` 才是稳定身份；老数据按 hash 写的也认，两条路都查一遍。
-- `data/zh.json` 是构建期 `import`，随函数打包；采集时贴到每条记录上（`name_zh` 拍平 + `zh: {intro,usage,notes}` 整块），一起进 Blob。
+- `data/zh.json` 是构建期 `import`，随函数打包；采集时贴到每条记录上（`name_zh` 拍平 + `zh: {intro,usage,notes}` 整块），随目录进 `catalog` 分支。
 
 ## 8.3 GUI 面板（浏览器半边）
 
@@ -328,7 +339,7 @@ export function apply(ctx, config) { /* … */ }
 
 - **模块形状**：`client/client.js` 手写、不编译，只调 `window.__ModuleLoader__.load({ id, factory })`，`id` **必须逐字等于包名** `dsh-skills-center`（宿主靠它对上 package.json 的 `dsh.client`）；`factory(require)` 只允许 `require('react')`。manifest 在 `package.json`：`exports["./client"]` + `dsh.client = {platform:"web", immediately:true, inject:["@deepseek-ai/dsh-client-locale","@deepseek-ai/dsh-client-ui-settings","@deepseek-ai/dsh-client-ui-theme"]}`（照抄 `dshmarket` 那三个**已证实在本 profile 能加载**的包名）。模块自己声明 `inject: ['slots','locale']`。
 - **两个 slot 组成一个入口**：`sidebar.panellist`（list，root）注册 `{id:'skills-center', order, label, locale}` 只负责画图标；`main` 注册 `{key:'skills-center'}` 画画板。**`main.key` 必须等于 `sidebar.id`**，否则点了图标没有面板（`dshmarket` 用 `dsh-market` 这同一套）。注册包在 `ctx.slots.inject('sidebar.panellist', …)` 里，老宿主没有这个 slot 时整块不注册而不是抛错。
-- **数据只走插件自己的只读 JSON**：`GET /api/dsh-skills-center/list?q=&limit=&offset=&zh=1&filter=&sort=S|installs|trend|name&dir=desc|asc`，返回 `{version,total,matched,offset,limit,sort,dir,filter,active,maxActive,rows[]}`。每行只带一张卡要用的字段（`id/slug/name/name_zh/source/source_kind/installs/installs_merged/trend_pct/S/score/verdict/flags/has_zh/description/official/curated/enriched/first_seen/audit/install_hint`）——整条记录连正文发过去，七千多行会撑到几 MB；`limit` 硬上限 500。点卡片再打 `GET /card?id=` 取整卡。
+- **数据只走插件自己的只读 JSON**：`GET /api/dsh-skills-center/list?q=&limit=&offset=&zh=1&filter=&sort=installs|S|trend|name&dir=desc|asc`（默认 `installs`，取数口径 `installs_merged ?? installs`），返回 `{version,total,matched,offset,limit,sort,dir,filter,active,maxActive,rows[]}`。每行只带一张卡要用的字段（`id/slug/name/name_zh/source/source_kind/installs/installs_merged/trend_pct/S/score/verdict/flags/has_zh/description/official/curated/enriched/first_seen/audit/install_hint`）——整条记录连正文发过去，七千多行会撑到几 MB；`limit` 硬上限 500。点卡片再打 `GET /card?id=` 取整卡。
   - `filter` 取值：`zh`（有中文卡）/ `official`（official 或 curated）/ `risky`（有 flags，或审计里出现 warn/fail）/ `enriched`（抓过详情、有 hash）。
   - `install_hint` **只在 `source_kind === 'github'` 时给** `npx skills add <source> --skill <slug>`；域名来源（`open.feishu.cn` 这类）给 null——宁可什么都不显示，也不给一条跑不通的命令。
   - `audit` 折成计数 `{judged,pass,warn,fail}`：卡片上写「第三方安全检查 4/5」，详情弹层里才逐条列 provider 与 riskLevel。
@@ -336,12 +347,67 @@ export function apply(ctx, config) { /* … */ }
   - **内容栏限宽 1180px 并居中**（`.dsc-inner{margin:0 auto}`）：页头、卡片墙、底栏共用同一栏，两侧留白随窗口自适应。之前拉满整屏会排成 5 列，实测"像墙"。
   - 卡片最小 360px、间距 20/18 → 常见窗口下 3 列；卡片内边距 19/21、内部间距 13。
   - **底栏是分页不是「加载更多」**：`上一页 / 页码窗口（首末页 + 当前页 ±1，中间省略号）/ 下一页`，右侧「第 X / Y 页」与「每页 24/48/96/192」（默认 24，取数走 `offset=(page-1)*size`）。改条件时页码回到 1，换页后列表滚回顶部。
-  - 数据侧就一条接口：`/list` 返回 `matched`（满足条件的总数）与 `total`（目录总条数），前端据此算总页数；每页 24 条时 7600 条约 319 页。
+  - 数据侧就一条接口：`/list` 返回 `matched`（满足条件的总数）与 `total`（目录总条数），前端据此算总页数；每页 24 条时 3879 条约 162 页。
   - 点卡片弹出居中的详情弹层（Esc、点遮罩、点关闭都能关）。搜索/筛选/排序/页码变化时 200ms 防抖重拉，并用请求序号丢弃过期响应。
 - **样式与文案**：颜色只用宿主主题 token（`--dsw-alias-*`），不写死色值；文案走 locale 服务（`ctx.locale.register(ns,'zh'|'en',dict)` + `bind(ns)`），注册失败时 `t()` 直读中文词典兜底，保证面板不会因为 locale 出问题就变一片 key。样式用 `<style>` 元素随组件挂载注入，类名带 `dsc-` 前缀。
 - **说明入口（`? 说明`）**：用户问过「S 分是什么」「审计是什么」——这类问题不能只留在聊天记录里。页头放一个 `? 说明` 按钮打开弹层，按「总览 → S 分算法（H/T/C/A 逐项）→ 安装数/趋势口径 → 审计（五家 provider、pass/warn/fail、fail 计入分母、pass ≠ 安全）→ 卡片标签（官方/精选/中文卡/有正文 + 六个风险标记逐条解释）→ 数据更新频率」分节讲清。分节标题用 `.dsc-help-h`（13.5/600），正文 `max-width:62ch` 控制行宽；术语用 `.dsc-help-row` 的定义列表样式。另有两处内联口径：卡片 tooltip（S 分 / 审计 / 风险标记 / 装量 / 趋势）与详情弹层里结论下的 `.dsc-note`（「pass 不等于安全」「S 分是本插件合成的」）。
-- **面板是只读的**：它不写激活集合、不下载正文。GUI 里「点一下就装」要等库存下载路径落地，否则按钮只会得到「库存里没有正文」（见 §6）。
+- **面板目前只读**：它不写激活集合、不下载正文；`/local` `/install` `/uninstall` 三个路由已在宿主侧实现（§8.4，`tests/install-routes.test.mjs` 端到端），但 `client/client.js` 的「本地」视图与安装/卸载按钮还没接到 Panel 上，GUI 里还没有「点一下就装」。装/卸请用 §8.4 的命令或在 Web API 上调用。
 - 测试：`tests/client.test.mjs` 用假 `__ModuleLoader__` + 假 react 跑模块形状、两个 slot 的 id/key、fetch → 卡片墙（`+6.4%`/`1,003,686`/标签）、以及点卡片 → 详情弹层（审计 provider、安装命令、关闭按钮）；`tests/smoke.mjs` 里对 `/list` 的筛选、升降、`install_hint` 与 `audit` 计数各有一条断言。
+
+## 8.4 本地管理与安装/卸载（`lib/installer.js` + 四个路由）
+
+**安装走官方 skills CLI**，不自建安装器（§9 仍然成立）：
+
+```
+npx skills@1.7.4 add <owner/repo> --skill <slug> -a codex --copy [-g] -y
+```
+
+**落点表**（`rootDescriptors`，与 DSH 扫描根一致）：
+
+| rootId | 路径 | rank | 本插件可写 |
+|---|---|---|---|
+| `project-dsh` | `<project>/.dsh/skills` | 100 | 否 |
+| `project-agents` | `<project>/.agents/skills` | 200 | **是**（项目级安装落点） |
+| `user-dsh` | `~/.dsh/skills` | 400 | 否 |
+| `user-agents` | `~/.agents/skills` | 500 | **是**（全局安装落点） |
+
+`MANAGED_SCOPE = { project: 'project-agents', global: 'user-agents' }`。装完 DSH 立刻能用（这两条本来就是扫描根）、`/技能名` 可调、卸载就是删目录。项目根 = `findProjectRoot(cwd)`，从当前目录向上找最近的含 `.git` 的祖先（找不到就返回 `cwd` 本身）。
+
+**`lib/installer.js` 接口**（子进程与 fs 由调用方注入，便于离线单测）：
+
+| 导出 | 签名（要点） | 返回 |
+|---|---|---|
+| `rootDescriptors` | `({ projectDir, home })` | `[{ id, scope, dir, rank, managed, label }]` |
+| `listInstalled` | `({ projectDir, home, fsImpl })` | `{ ok, roots, skills }`（判据是 `<root>/<slug>/SKILL.md` 存在，不看退出码） |
+| `installArgs` | `({ source, slug, scope })` | argv：`['-y','skills@1.7.4','add',source,'--skill',slug,'-a','codex','--copy','-y']`（global 在末尾 `-y` 前插 `-g`） |
+| `uninstallArgs` | `({ name, scope })` | 同形的 `remove` argv |
+| `installSkill` | `({ id, source, slug, scope, projectDir, spawn, fsImpl, log })` | `{ ok, stage, exitCode, stdout, stderr, dir, rootId, scope }`（`stage ∈ parse\|spawn\|verify`） |
+| `uninstallSkill` | `({ name, scope, projectDir, spawn, fsImpl })` | `{ ok, scope, removed[], stillInstalledElsewhere[], exitCode, stdout, stderr }` |
+| `findProjectRoot` | `(cwd, fsImpl)` | 绝对路径 |
+
+**四个路由的请求/响应形状**：
+
+| 路由 | 请求 | 成功响应 | 失败 |
+|---|---|---|---|
+| `GET /body?id=<catalogId>` 或 `?sha=<sha256>` | — | `200 text/markdown`；命中本地缓存带 `x-body-via: cache`，远端取回 `remote`；缓存路径 `~/.dsh/skills-center/bodies/<sha256>.md` | 404 找不到技能/正文 |
+| `GET /local[?project=<绝对路径>]` | — | `200 {ok, project, projectSource:'host'\|'query', roots[], skills[]}` | — |
+| `POST /install` | `{ id, scope:'project'\|'global', project? }` | `200 {ok, scope, dir, rootId, exitCode, stdout, stderr, id, name, installs_total, project}` | `502 {ok:false, error, code?}` |
+| `POST /uninstall` | `{ name, scope, project? }`（`name` 必须匹配 `^[a-z0-9][a-z0-9-]*$`） | `200 {ok, scope, removed[], stillInstalledElsewhere[], name}` | `502 {ok:false, error}` |
+
+- **卸载按作用域判定**：项目级卸载不会因为全局还有同名而报失败，但会在响应里列出 `stillInstalledElsewhere`。
+- 成功安装/卸载后都会调 `ctx.skills?.invalidateCache?.()`，让宿主立刻重扫（缓存键是 `{cwd, scopes, revision}`，见 §12.1）。
+- **Web 路由拿不到会话目录**：`/local` 优先用宿主给的默认目录（`projectSource:'host'`），带 `?project=` 时用用户改的绝对路径（`projectSource:'query'`），面板显示默认目录并允许改。
+
+**严格门禁的判定公式**（`collector/collect.mjs` 的 `bodyGateStats`，默认 `waterline = 2000`）：
+
+```
+head        = 按 (installs_merged ?? installs) 降序取前 2000
+head_stored = head 里 body_length && body_sha256 && body_v 都有的条数
+coverage    = round(head_stored / head_total, 3)
+strict      = coverage >= 0.95          →  buildCatalog({ requireBody: strict })
+```
+
+水位内「正文已入库」覆盖率 ≥0.95 才开严格过滤（`requireBody`）；不到就照旧全量收录，避免一轮采集把目录掏空。2026-10-21 线上：`head_total 2000 / head_with_body 1948 / head_stored 1948 / coverage 0.974 / strict true`，`buildCatalog` 因此丢掉 `no_body 4426 / thin_body 10 / no_description 24`，目录从改造前 7800–8100 落到 **3879**。硬门槛四条见 PLAN.md §1.1（有正文、正文 ≥300 字符、有非空 `description`、有内容 hash）。
 
 ## 9. 不做
 
@@ -352,16 +418,16 @@ export function apply(ctx, config) { /* … */ }
 
 ## 10. 里程碑
 
-- **M0 目录**：Vercel 采集函数 + `catalog.json` 分片，能拉全量 8420 条（含趋势/去重/打分）
-- **M1 中文层**：**只精做 installs top 300**（用户 2026-10-19 定），其余条目留英文 description 占位、点开时再补；这样成本可控且头部质量高 —— **已完成**（300 条已随目录上线，见 §8.2）
+- **M0 目录**：Vercel 采集函数 + `catalog.json`，能按装量水位收录全量目录（2026-10-21 本轮 count 3879）——**已完成**；目录与正文分发走 GitHub `catalog` / `bodies` 分支（§5.4、§8.1）
+- **M1 中文层**：**两层**——hand 300 条（用户 2026-10-19 定 installs top 300）+ auto 机器生成层向全目录推进；当前 325/3879，扩容是数据活（§8.2）——**hand 已完成，auto 进行中**
 - **M2 插件**：4 个工具（含远端同步）+ provider 激活 + GUI 榜单页 + GUI 面板（左侧栏入口，见 §8.3）——**已完成**
-- **M3 召回**：钩子注入与 50 上限策略，实测"任务开始自动命中"
+- **M3 召回**：钩子注入与 50 上限策略，实测"任务开始自动命中"——**设计在 PLAN.md，代码未实现**
 
 M1 依赖 M0 的 hash，M2 可先在本地样例数据上开发（`samples/digest2.json` 已有 12 条真实数据）。
 
 ## 11. 未决
 
-1. ~~采集挂 Vercel Cron 还是 GitHub Action~~ → 已定 Vercel：`api/collect.js` 由 Vercel Cron 定时触发，OIDC 拿 `skills.sh` 鉴权，目录写 Vercel Blob，同一份文件既做快照又给插件当 CDN 拉取源。
+1. ~~采集挂 Vercel Cron 还是 GitHub Action~~ → 已定 Vercel：`api/collect.js` 由 Vercel Cron 定时触发，OIDC 拿 `skills.sh` 鉴权；目录与正文发布到 GitHub（`catalog` / `bodies` 分支），同一份文件既做快照又给插件当拉取源；Vercel Blob 降为可选回退（线上 store 已被停用）。
 
 ## 12. 已验证的插件契约
 
