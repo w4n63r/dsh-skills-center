@@ -176,6 +176,45 @@ assert.ok(
   'every marked body must point at a path we actually wrote',
 );
 
+// ---- 收录标准的诚实性：上传失败的正文，不许留在目录里冒充「有正文」----
+// 目录里出现 body 就是在说「这份正文取得到」；落不成的那些必须整块 body 都没有，
+// 否则面板会给出一个 404 的「看正文」，而收录标准（PLAN §1）也就名存实亡。
+const puts2 = [];
+const doomed = new Set();
+const partialBlob = makeHandler({
+  resolveToken: async () => ({ token: 'jwt-abc', source: 'x-vercel-oidc-token header' }),
+  loadBlob: async () => ({
+    put: async (pathname, body, options) => {
+      if (pathname.startsWith('body/')) {
+        if (!doomed.size) doomed.add(pathname);
+        if (doomed.has(pathname)) throw new Error('blob is having a bad day');
+      }
+      puts2.push({ pathname, body, options });
+      return { url: `https://blob.example/${pathname}` };
+    },
+    list: async () => ({ blobs: [] }),
+    del: async () => {},
+  }),
+});
+globalThis.fetch = replay.fetchImpl;
+console.log = () => {};
+const partial = await partialBlob.GET(called('https://x/api/collect', { authorization: `Bearer ${SECRET}` }));
+const partialBody = await partial.json();
+globalThis.fetch = realFetch;
+console.log = realLog;
+assert.equal(partial.status, 200, `one unstorable body must not fail the run: ${JSON.stringify(partialBody).slice(0, 300)}`);
+assert.equal(partialBody.bodies.failed, 1, 'the uploader reports exactly the body it could not store');
+const partialCatalog = JSON.parse(puts2.find((p) => p.pathname.startsWith('catalog-') && p.pathname.endsWith('.json')).body);
+assert.ok(
+  partialCatalog.skills.every((s) => !s.body || s.body.v === 1),
+  '目录里带 body 的必须都是真入库的，落不成的整块 body 都不许有',
+);
+assert.equal(
+  partialCatalog.skills.filter((s) => s.body).length,
+  partialBody.bodies.uploaded,
+  '落成几份正文，目录里就有几条带 body',
+);
+
 // ---- 回归守卫：Blob 挂了也要能读回上一版目录（2026-10-21 真事故：blob.list() 抛 → 整目录 coverage 崩到 14%）----
 // 线上 store 被 suspended 时，上一版目录必须从 CATALOG_LATEST_URL（GitHub raw）读到，
 // 否则 previous=0 → 所有已抓的 detail/审计都白丢，每轮都要重抓。
