@@ -146,7 +146,7 @@ export async function uploadBodiesToGitHub({
   apiBase = DEFAULT_API,
   fetchImpl = globalThis.fetch,
   concurrency = 3,
-  maxBodies = Number(process.env.GH_BODIES_MAX || 70),
+  maxBodies = Number(process.env.GH_BODIES_MAX || 250),
   message = null,
   log = () => {},
 } = {}) {
@@ -163,6 +163,9 @@ export async function uploadBodiesToGitHub({
   const failed = [];
   if (!all.length) return { ok: true, stage: 'empty', uploaded: 0, failed, base, commit: null };
   // 写请求要串行且间隔 ≥1s（ghCall 统一 pacing），一轮最多传 maxBodies 份；
+  // 250 而不是 70：采集一轮能抓到 ~500 份正文，只传 70 的话剩下 400 多份白抓（下一轮还得重抓），
+  // 正文覆盖率爬得极慢。实测 70 份并发 3 在 ~7s 内传完并不触发二级限流（早期 403 出在 tree/commit/ref
+  // 这些写请求上，现在由 ghCall 串行 pacing）；250 份约 25s，仍在函数预算内，真被限流也只落进 failed。
   // 超出的按失败处理 → 调用方抹掉 body.v，下一轮自然重试，不会漏。
   const entries = all.slice(0, maxBodies);
   if (entries.length < all.length) {

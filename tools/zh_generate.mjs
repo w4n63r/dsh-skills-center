@@ -9,7 +9,7 @@
 // 分工：
 //   plan  只挑素材、不写文案。排序 = 总安装量（installs_merged ?? installs）降序；
 //         已经有人工中文卡的（目录里的 zh/name_zh、data/zh/part-*.json 里的 id）直接跳过。
-//         正文从目录同级的 bodies/<sha256>.md 读，取前 1200 字符当 body_excerpt；读不到就是 null。
+//         正文从 bodies/<sha256>.md 读，取前 1200 字符当 body_excerpt；读不到就是 null。
 //   check 校验回填文件 { entries: { <id>: { name_zh, intro, usage, notes, tier } } }，
 //         规则全部 import 自 tools/zh_validate.mjs（不复制）；tier 缺省补 auto，非法值报错。
 //         回填里多出输入之外的 id、或某条不合格 → 逐条打印并非 0 退出；
@@ -17,7 +17,8 @@
 //   apply 校验通过后合并进 part-N.json：同 id 覆盖（保留 tier），已有键序不动、新键按 id 排序追加，
 //         重复执行写出的字节完全一样（幂等）。
 //
-// 正文缓存：--bodies 指定；不指定就用 --catalog（或输入文件里记的 catalog）同级的 bodies/ 目录。
+// 正文缓存：--bodies 指定；不指定就按「目录同级 bodies/ → 上一级 bodies/」找（后者是仓库约定，
+// 即 lib/paths.js 的 BODY_CACHE_DIR = ~/.dsh/skills-center/bodies，zh_fetch_bodies.mjs 也写这里）。
 // 没有正文缓存时 check 不做 usage 溯源（skipped_no_body），不算失败。
 
 import { existsSync } from 'node:fs';
@@ -168,7 +169,9 @@ export async function plan(argv) {
     console.log(`wrote ${path}: ${rows.length} 条（${withBody} 条带正文摘录）`);
     files.push({ path, offset: start, count: rows.length, with_body: withBody });
   }
-  console.log(`plan：目录 ${skills.length} 条，跳过已有中文卡 ${have.size} 条，待生成 ${total} 条，本次 ${slice.length} 条 → ${files.length} 个文件`);
+  console.log(
+    `plan：目录 ${skills.length} 条，跳过已有中文卡 ${skills.length - total} 行（已知 id ${have.size} 个），待生成 ${total} 条，本次 ${slice.length} 条 → ${files.length} 个文件`,
+  );
   return 0;
 }
 
@@ -301,24 +304,27 @@ export async function apply(argv) {
     return 1;
   }
 
+  // 幂等：已有键保持原顺序（覆盖的也留在原位），新键按 id 排序追加
   let added = 0;
   let updated = 0;
   let unchanged = 0;
-  for (const [id, entry] of Object.entries(result.normalized)) {
-    const before = part[id];
-    if (!before) added += 1;
-    else if (entryKey(before) === entryKey(entry)) unchanged += 1;
-    else updated += 1;
-    part[id] = entry;
-  }
-
-  // 幂等：已有键保持原顺序，新键按 id 排序追加
   const merged = {};
   for (const id of Object.keys(part)) {
-    merged[id] = id in result.normalized ? result.normalized[id] : part[id];
+    const before = part[id];
+    if (!(id in result.normalized)) {
+      merged[id] = before;
+      continue;
+    }
+    const entry = result.normalized[id];
+    if (entryKey(before) === entryKey(entry)) unchanged += 1;
+    else updated += 1;
+    merged[id] = entry;
   }
   const fresh = Object.keys(result.normalized).filter((id) => !(id in part)).sort();
-  for (const id of fresh) merged[id] = result.normalized[id];
+  for (const id of fresh) {
+    merged[id] = result.normalized[id];
+    added += 1;
+  }
 
   await mkdir(dirname(partPath), { recursive: true });
   await writeFile(partPath, `${JSON.stringify(merged, null, 2)}\n`, 'utf8');

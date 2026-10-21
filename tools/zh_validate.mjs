@@ -4,9 +4,9 @@
 // 分片验收（人工 300 条的老用法不变）：
 //   node tools/zh_validate.mjs tmp/zh-batches/batch-1.json data/zh/part-1.json
 //
-// 带正文溯源时（正文缓存在目录旁边 bodies/<sha256>.md）：
+// 带正文溯源时（正文缓存在 bodies/<sha256>.md；位置见 resolveBodiesDir，也会自动认 ../bodies）：
 //   node tools/zh_validate.mjs in.json part.json --catalog ~/.dsh/skills-center/catalog/catalog.json
-//   node tools/zh_validate.mjs in.json part.json --bodies ~/.dsh/skills-center/catalog/bodies
+//   node tools/zh_validate.mjs in.json part.json --bodies ~/.dsh/skills-center/bodies
 //
 // 检查项（任何一条不过就退出码 1，并逐条打印）：
 //   1. JSON 形状 { id: { name_zh, intro, usage, notes } }
@@ -210,10 +210,25 @@ export function makeBodyReader({ bodiesDir = null, bodyHashes = null, readBody =
   };
 }
 
-// 读目录，顺手算出正文缓存位置（目录同级的 bodies/）
+// 正文缓存位置（按优先级）：
+//   1. <catalog 所在目录>/bodies     — 任务书写的「目录同目录的 bodies/<sha256>.md」
+//   2. <catalog 所在目录>/../bodies  — 仓库约定：lib/paths.js 的 BODY_CACHE_DIR = ~/.dsh/skills-center/bodies
+//      （tools/zh_fetch_bodies.mjs 默认也写这里）
+// 两个都在就先 1；都不在就返回 1 让调用方提示。--bodies 可以显式指路。
+export function resolveBodiesDir(catalogPath) {
+  const beside = join(dirname(catalogPath), 'bodies');
+  const center = join(dirname(dirname(catalogPath)), 'bodies');
+  if (existsSync(beside)) return beside;
+  if (existsSync(center)) return center;
+  return beside;
+}
+
+// 读目录，顺手算出正文缓存位置
 export async function discoverBodyContext({ catalogPath = null } = {}) {
   const path = resolve(catalogPath || DEFAULT_CATALOG_PATH);
-  if (!existsSync(path)) return { catalogPath: path, catalog: null, bodiesDir: join(dirname(path), 'bodies'), bodyHashes: new Map(), bodyBase: null };
+  if (!existsSync(path)) {
+    return { catalogPath: path, catalog: null, bodiesDir: join(dirname(path), 'bodies'), bodyHashes: new Map(), bodyBase: null };
+  }
   const catalog = JSON.parse(await readFile(path, 'utf8'));
   const bodyHashes = new Map();
   for (const skill of Array.isArray(catalog.skills) ? catalog.skills : []) {
@@ -222,7 +237,7 @@ export async function discoverBodyContext({ catalogPath = null } = {}) {
   return {
     catalogPath: path,
     catalog,
-    bodiesDir: join(dirname(path), 'bodies'),
+    bodiesDir: resolveBodiesDir(path),
     bodyHashes,
     bodyBase: catalog.body_base || null,
   };
