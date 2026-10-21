@@ -133,7 +133,7 @@ function expand(node) {
 const textOf = (tree) => JSON.stringify(expand(tree));
 
 const first = textOf(render());
-for (const expected of ['技能中心', '搜索技能名', '有中文卡', '官方精选', '有风险信号', '评分', '排序']) {
+for (const expected of ['技能中心', '搜索技能名', '有中文卡', '精选', '有风险信号', '总安装量', '排序']) {
   assert.ok(first.includes(expected), `panel renders 「${expected}」`);
 }
 // 主题 token 必须走变量，不能写死颜色（否则明暗切换会留下死色块）。
@@ -176,6 +176,9 @@ const PAGE_FIXTURE = {
       source: 'anthropics/skills',
       source_kind: 'github',
       installs: 1003686,
+      installs_merged: 1085836,
+      total_installs: 1085836,
+      copies: 7,
       trend_pct: 6.4,
       S: 0.6618,
       score: { S: 0.6618, H: 0.9, T: 0.22, C: 1, A: 1 },
@@ -199,6 +202,9 @@ const PAGE_FIXTURE = {
       source: 'x/y',
       source_kind: 'well-known',
       installs: 12,
+      installs_merged: null,
+      total_installs: 12,
+      copies: 0,
       trend_pct: -33.2,
       S: 0.31,
       score: { S: 0.31, H: 0.1, T: 0.03, C: 0, A: 0.5 },
@@ -217,8 +223,21 @@ const PAGE_FIXTURE = {
   ],
 };
 
+// /status 的那份覆盖统计：排序菜单据此标「可用 N/总数」并把没数据的项置灰。
+// 刻意让 installs_4w 为 0，好验置灰那条路径。
+const STATUS_FIXTURE = {
+  version: 'test-v1',
+  count: 7572,
+  maxActive: 50,
+  active: ['a/b/c'],
+  coverage: { total: 7572, installs: 7572, installs_4w: 0, stars: 93, trend_pct: 2313, first_seen: 915, s: 7572, name: 7572 },
+};
+
 globalThis.fetch = async (url) => {
   asked.push(String(url));
+  if (String(url).includes('/status')) {
+    return { ok: true, json: async () => STATUS_FIXTURE };
+  }
   if (String(url).includes('/card?')) {
     return {
       json: async () => ({
@@ -227,6 +246,10 @@ globalThis.fetch = async (url) => {
         name_zh: '前卫视觉设计',
         source: 'anthropics/skills',
         installs: 1003686,
+        installs_merged: 1085836,
+        total_installs: 1085836,
+        aliases: ['copy1/frontend-design', 'copy2/frontend-design', 'copy3/frontend-design', 'copy4/frontend-design',
+          'copy5/frontend-design', 'copy6/frontend-design', 'copy7/frontend-design'],
         trend_pct: 6.4,
         first_seen: '2026-03-13',
         flags: [],
@@ -246,14 +269,18 @@ globalThis.fetch = async (url) => {
 
 render();
 hooks.effects[0](); // 挂载 effect：等防抖 200ms 后发请求
+hooks.effects[1](); // 启动时的 /status：拿排序项覆盖统计
 await new Promise((resolve) => setTimeout(resolve, 300));
-assert.equal(asked.length, 1, 'panel asks the host once for a page of cards');
-assert.match(asked[0], /^\/api\/dsh-skills-center\/list\?limit=24&offset=0&sort=S&dir=desc/);
+assert.equal(asked.filter((url) => url.includes('/list?')).length, 1, 'panel asks the host once for a page of cards');
+assert.equal(asked.filter((url) => url.includes('/status')).length, 1, 'panel asks /status once for the sort coverage');
+// 默认排序 = 总安装量，不再是 S 分
+assert.match(asked.find((url) => url.includes('/list?')), /^\/api\/dsh-skills-center\/list\?limit=24&offset=0&sort=installs&dir=desc/);
 
 const loaded2 = textOf(render());
 for (const expected of [
   '前卫视觉设计',
-  '1,003,686',
+  '1,085,836',
+  '含 7 个副本',
   '+6.4%',
   '评分 66',
   '-33.2%',
@@ -369,6 +396,39 @@ for (const expected of ['排序字段', '排序方向', '发布时间范围', '�
   assert.ok(openMenu.includes(expected), `grouped sort menu offers 「${expected}」`);
 }
 
+// 覆盖统计来自 /status：每项标「可用 N/总数」，一条都没有的项置灰点不动
+const nodeText = (node) => {
+  if (Array.isArray(node)) return node.map(nodeText).join('');
+  if (!node || typeof node !== 'object') return String(node ?? '');
+  const children = node.children || [];
+  return (Array.isArray(children) ? children : [children]).map(nodeText).join('');
+};
+assert.ok(openMenu.includes('可用 93/7,572'), 'the stars option says how many rows actually have stars');
+assert.ok(openMenu.includes('可用 0/7,572'), 'a sort key nobody has data for shows a zero count');
+assert.ok(openMenu.includes('只有 93 条抓到星标'), 'low star coverage is explained instead of looking broken');
+
+const openTree = expand(render());
+const firstSortItem = (function find(node) {
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      const hit = find(child);
+      if (hit) return hit;
+    }
+    return null;
+  }
+  if (!node || typeof node !== 'object') return null;
+  if (String(node.props?.className || '').split(/\s+/).includes('dsc-menu-item')) return node;
+  const children = node.children || [];
+  for (const child of Array.isArray(children) ? children : [children]) {
+    const hit = find(child);
+    if (hit) return hit;
+  }
+  return null;
+})(openTree);
+assert.ok(firstSortItem, 'the sort menu lists options');
+assert.ok(nodeText(firstSortItem).includes('总安装量'), 'total installs is the first option in the sort menu');
+assert.ok(nodeText(firstSortItem).includes('默认'), 'the default sort option is marked as the default');
+
 // 选「最近 30 天」→ 下一次取数带上 since=30，并回到第 1 页
 const findMenuItem = (node, label) => {
   if (Array.isArray(node)) {
@@ -380,7 +440,7 @@ const findMenuItem = (node, label) => {
   }
   if (!node || typeof node !== 'object') return null;
   const classes = String(node.props?.className || '').split(/\s+/);
-  if (classes.includes('dsc-menu-item') && node.children?.[0] === label) return node;
+  if (classes.includes('dsc-menu-item') && nodeText(node).includes(label)) return node;
   const children = node.children || [];
   for (const child of Array.isArray(children) ? children : [children]) {
     const hit = findMenuItem(child, label);
@@ -390,9 +450,18 @@ const findMenuItem = (node, label) => {
 };
 const range30 = findMenuItem(expand(render()), '最近 30 天');
 assert.ok(range30, 'the 30-day range item is rendered');
+// 覆盖为 0 的排序项渲染成禁用态：能看见，但点不动
+const deadItem = findMenuItem(expand(render()), '近 30 天安装量');
+assert.ok(deadItem, 'the zero-coverage sort item is still listed');
+assert.equal(deadItem.props.disabled, true, 'a sort key with zero coverage is disabled');
+assert.ok(
+  openMenu.includes('.dsc-menu-item[disabled]'),
+  'the disabled sort item is styled as greyed out with a theme token',
+);
 range30.props.onClick();
 render();
-hooks.effects.slice(-3).forEach((effect) => effect());
+// 每次渲染挂 4 个 effect：取数 / 取覆盖统计 / 回滚顶部 / 卸载作废
+hooks.effects.slice(-4).forEach((effect) => effect());
 await new Promise((resolve) => setTimeout(resolve, 400));
 assert.ok(asked.some((url) => url.includes('since=30')), 'picking a date range asks the host with since=30');
 
@@ -418,7 +487,7 @@ const categoryChip = (function find(node) {
 assert.ok(categoryChip, 'frontend chip is rendered');
 categoryChip.props.onClick();
 render(); // 假 react 只在渲染时才跑 effect，所以点完要再渲一次
-hooks.effects.slice(-3).forEach((effect) => effect());
+hooks.effects.slice(-4).forEach((effect) => effect());
 await new Promise((resolve) => setTimeout(resolve, 400));
 assert.ok(
   asked.some((url) => url.includes('category=frontend')),
@@ -457,6 +526,9 @@ for (const expected of [
   'Snyk',
   '自己装（在终端里跑）',
   'npx skills add anthropics/skills --skill frontend-design',
+  // 详情里的装量是总装量；主条目与合计不同时两个数都要写出来
+  '总安装量',
+  '主条目 1,003,686，含 7 个副本共 1,085,836',
   '关闭',
   // 评分与第三方安全检查最容易误读，结论旁边必须自带口径说明
   'pass 不等于安全',

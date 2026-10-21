@@ -245,6 +245,19 @@ assert.equal(status.body.count, cat.count);
 assert.equal(status.body.maxActive, MAX_ACTIVE);
 assert.ok(Array.isArray(status.body.active));
 
+// 排序菜单要如实标覆盖：/status 带全目录各排序键的可用条数，和数据现算的一遍逐键对齐
+{
+  const { coverageOf, totalInstalls, DEFAULT_SORT } = await import('../lib/catalog.js');
+  const cov = status.body.coverage;
+  assert.ok(cov, 'status carries the sort-key coverage');
+  assert.equal(DEFAULT_SORT, 'installs', 'the default sort key is total installs');
+  assert.deepEqual(cov, coverageOf(cat), 'coverage must match a fresh count over the loaded catalog');
+  assert.equal(cov.total, cat.count);
+  assert.equal(cov.name, cat.count, 'every row has a name to sort by');
+  assert.equal(cov.installs, cat.skills.filter((s) => totalInstalls(s) != null).length);
+  assert.ok(cov.s > 0);
+}
+
 const apiSearch = await callApi('/api/dsh-skills-center/search?q=design&limit=2');
 assert.equal(apiSearch.code, 200);
 assert.ok(apiSearch.body.results.length <= 2);
@@ -264,13 +277,70 @@ assert.ok(apiList.body.rows.length <= 2, 'limit is honoured');
 for (const row of apiList.body.rows) {
   // 面板只靠这些字段画卡片，缺一个就渲染成空行或空标签
   for (const key of [
-    'id', 'slug', 'name', 'source', 'source_kind', 'installs', 'trend_pct', 'S', 'score',
+    'id', 'slug', 'name', 'source', 'source_kind', 'installs', 'installs_merged', 'total_installs', 'copies',
+    'trend_pct', 'S', 'score',
     'verdict', 'flags', 'has_zh', 'description', 'official', 'curated', 'enriched', 'audit', 'install_hint',
   ]) {
     assert.ok(key in row, `row carries ${key}`);
   }
   assert.equal(typeof row.verdict, 'string');
   assert.equal(typeof row.description, 'string', 'empty description stays an empty string, never undefined');
+  // 卡片上的装量显示的是总装量：没有合并值时必须退回主条目装量，而不是显示成空
+  assert.equal(row.total_installs, row.installs_merged ?? row.installs);
+  assert.equal(typeof row.copies, 'number');
+}
+
+// 默认排序 = 总安装量降序（installs_merged ?? installs）；显式 sort=s 仍按 S 分
+{
+  const total = (row) => (row.total_installs ?? row.installs ?? -1);
+  const byInstalls = await callApi('/api/dsh-skills-center/list?limit=50');
+  assert.equal(byInstalls.body.sort, 'installs', 'the /list default sort is total installs');
+  const installs = byInstalls.body.rows.map(total);
+  assert.deepEqual(installs, installs.slice().sort((a, b) => b - a), 'default order is total installs descending');
+
+  const byScore = await callApi('/api/dsh-skills-center/list?limit=50&sort=s');
+  assert.equal(byScore.body.sort, 's', 'sort=s is still accepted');
+  const scores = byScore.body.rows.map((row) => (row.S == null ? -1 : Number(row.S)));
+  assert.deepEqual(scores, scores.slice().sort((a, b) => b - a), 'sort=s still ranks by the S score');
+}
+
+// 近 30 天安装量：目录里没有现成的 installs_4w 字段，排序只能由 weekly_series 现算。
+// 比较器曾经读 s.installs_4w（7821 条全都没有），整项排序空转，界面却照报「可用 2939 条」。
+// 打包样例里一条周量都没有，所以这里临时往 DSH_HOME 写一份小目录，真跑一遍排序再删掉。
+{
+  const dir = join(home, 'skills-center', 'catalog');
+  await mkdir(dir, { recursive: true });
+  const file = join(dir, 'catalog.json');
+  const mk = (slug, series) => ({
+    id: `x/y/${slug}`,
+    slug,
+    name: slug,
+    installs: 1,
+    score: { S: 0.5 },
+    weekly_series: series,
+  });
+  await writeFile(
+    file,
+    JSON.stringify({
+      version: 'test-installs4w',
+      skills: [mk('no-series', null), mk('tiny', [1, 1, 1, 1]), mk('big', [999, 999, 999, 999, 5, 5, 5, 5])],
+    }),
+  );
+  const { browseSkills: browse4w, coverageOf: cov4w } = await import('../lib/catalog.js');
+  const four = await browse4w({ sort: 'installs4w', limit: 10 });
+  assert.equal(four.sort, 'installs4w');
+  assert.deepEqual(
+    four.rows.map((r) => r.slug),
+    ['big', 'tiny', 'no-series'],
+    'the 4-week sort sums the last four weekly points; rows without a series go last',
+  );
+  assert.deepEqual(four.rows.map((r) => r.installs_4w), [20, 4, null]);
+  const covered = cov4w(await loadCatalog());
+  assert.equal(covered.installs_4w, 2, 'coverage counts the same thing the comparator sorts by');
+  assert.equal(covered.stars, 0);
+  await rm(file, { force: true });
+  const back = await loadCatalog();
+  assert.equal(back.count, cat.count, 'removing the temp catalog falls back to the bundled sample');
 }
 
 const apiListQuery = await callApi('/api/dsh-skills-center/list?q=design&limit=5');
@@ -318,6 +388,20 @@ assert.ok(
   'filter=official keeps only official/curated rows',
 );
 
+// official 已并进 curated：两个筛选键必须给出完全一样的结果，老链接传 official 也不能 400/空
+{
+  const curated = await callApi('/api/dsh-skills-center/list?filter=curated&limit=500');
+  const official = await callApi('/api/dsh-skills-center/list?filter=official&limit=500');
+  assert.equal(curated.code, 200);
+  assert.equal(curated.body.filter, 'curated');
+  assert.equal(official.body.matched, curated.body.matched, 'official and curated select the same rows');
+  assert.deepEqual(official.body.rows.map((r) => r.id), curated.body.rows.map((r) => r.id));
+  assert.ok(
+    curated.body.rows.every((row) => row.curated === true || row.official === true),
+    'filter=curated keeps only curated rows',
+  );
+}
+
 const apiListRisky = await callApi('/api/dsh-skills-center/list?filter=risky&limit=20');
 assert.equal(apiListRisky.code, 200);
 assert.ok(
@@ -335,6 +419,18 @@ assert.notEqual(apiListAsc.body.rows[0].id, apiList.body.rows[0].id, 'direction 
 // 安装命令只在 GitHub 来源上给，域名来源（open.feishu.cn 这类）必须为空。
 // 样例目录里全是 github，所以这条直接对 rowOf 下断言，不靠样例数据凑。
 const { rowOf, weeklySum, SORT_KEYS } = await import('../lib/catalog.js');
+
+// 卡片文本里的装量 = 总装量：有副本且和主条目不同时两个数都要写出来
+{
+  const withCopies = renderCard({
+    id: 'a/b/c', slug: 'c', name: 'c', source: 'a/b', installs: 100, installs_merged: 130, aliases: ['x/1', 'x/2'],
+    score: {},
+  });
+  assert.match(withCopies, /安装数 — 130（主条目 100，含 2 个副本）/);
+  const noCopies = renderCard({ id: 'a/b/d', slug: 'd', name: 'd', source: 'a/b', installs: 100, score: {} });
+  assert.match(noCopies, /安装数 — 100/);
+  assert.ok(!noCopies.includes('副本'), 'no copies → no copies line');
+}
 
 // 「近 30 天安装量」= 8 周周量的最近 4 周之和（上游不给 30 天口径，这是我们自己算的）
 assert.equal(weeklySum([10, 10, 10, 10, 20, 20, 20, 20], 4), 80, 'last four weeks are summed');
@@ -363,6 +459,19 @@ assert.equal(weeklySum(null, 4), null);
   assert.equal(rowOf({ id: 'a/b/c', slug: 'c', source: 'a/b', installs: 1, stars: 182200, score: {} }).stars, 182200);
   assert.equal(rowOf({ id: 'a/b/c', slug: 'c', source: 'a/b', installs: 1, score: {} }).stars, null);
   assert.ok(SORT_KEYS.includes('stars'), 'stars is a sort key');
+}
+
+// 总装量与副本数：合并值优先，缺合并值退回主条目装量（不是当成没数据）
+{
+  const merged = rowOf({
+    id: 'a/b/c', slug: 'c', source: 'a/b', installs: 10, installs_merged: 25, aliases: ['x/1', 'x/2'], score: {},
+  });
+  assert.equal(merged.total_installs, 25, 'merged installs win');
+  assert.equal(merged.copies, 2, 'aliases are the republished copies');
+  assert.equal(merged.installs, 10, 'the canonical count stays on the row');
+  const plain = rowOf({ id: 'a/b/d', slug: 'd', source: 'a/b', installs: 7, score: {} });
+  assert.equal(plain.total_installs, 7, 'no merged value falls back to the canonical count');
+  assert.equal(plain.copies, 0);
 }
 assert.match(
   rowOf({ id: 'a/b/c', slug: 'c', source: 'a/b', kind: 'github', installs: 1, score: {} }).install_hint,
@@ -410,6 +519,9 @@ assert.match(page.headers['content-type'], /text\/html/);
 assert.ok(page.body.includes('<table'), 'ranking page renders a table');
 assert.ok(page.body.includes(skill.slug), 'page inlines catalog rows');
 assert.ok(page.body.includes('"count":' + cat.count), 'page carries the row count');
+// 榜单页的表格默认按总装量列排，表头要写清是哪一列
+assert.match(page.body, /data-k="installs"[^>]*>总安装量</, 'the table names the default sort column');
+assert.match(page.body, /sortKey = 'installs'/, 'the table starts sorted by total installs');
 // 内联 JSON 里不能出现裸 </script>，否则页面会被截断
 assert.ok(!page.body.includes('</script><'), 'inline data is script-safe');
 
@@ -426,6 +538,21 @@ assert.ok(!page.body.includes('</script><'), 'inline data is script-safe');
   });
   assert.equal(payload.rows[0].name, '中文名');
   assert.equal(payload.rows[0].intro, '中文介绍。');
+  assert.equal(payload.rows[0].installs, 1, 'no merged value → the column falls back to the canonical count');
+  assert.equal(payload.rows[0].copies, 0);
+  // 表格默认按总装量列排，所以这一列必须是合并后的量，且副本数要单独带出来
+  const withCopies = rankingPayload({
+    version: 'v',
+    count: 1,
+    shown: 1,
+    active: [],
+    skills: [{
+      id: 'a/b/d', slug: 'd', name: 'd', source: 'a/b', installs: 100, installs_merged: 130, aliases: ['x/1', 'x/2'],
+      score: { S: 0.5 },
+    }],
+  });
+  assert.equal(withCopies.rows[0].installs, 130);
+  assert.equal(withCopies.rows[0].copies, 2);
 }
 
 // ---- 远端目录同步（skill_sync）：还没同步过时 status 必须如实说没有 ----

@@ -23,15 +23,22 @@ window.__ModuleLoader__.load({
       title: '技能中心',
       search: '搜索技能名、中文介绍、来源…',
       sort: '排序',
-      sortScore: '评分',
-      sortInstalls: '安装量',
+      sortScore: '综合分',
+      sortInstalls: '总安装量',
       sortTrend: '8 周趋势',
       sortName: '名称',
+      defaultTag: '默认',
+      available: '可用',
+      noCoverage: '目录里没有条目有这个数据',
+      starsCoverageNote: '只有 {n} 条抓到星标，没有星标的条目排在末尾',
+      firstSeenCoverageNote: '只有 {n} 条有发布时间，其余条目没有这个日期',
+      installsTotal: '总安装量',
+      copiesNote: '含 {n} 个副本',
+      detailInstallsNote: '主条目 {main}，含 {n} 个副本共 {total}',
       desc: '降序',
       asc: '升序',
       filterAll: '全部',
       filterZh: '有中文卡',
-      filterOfficial: '官方精选',
       filterRisky: '有风险信号',
       filterEnriched: '已抓正文',
       filterLabel: '筛选',
@@ -104,16 +111,16 @@ window.__ModuleLoader__.load({
       help: '说明',
       helpTitle: '面板里的数字和标签是什么意思',
       helpIntro: '这个面板只做一件事：把 skills.sh 上几万个技能里值得看的挑出来，并把判断依据摊开。所有原始数字都来自上游，本插件只做汇总、去重和排序。',
-      helpScoreTitle: '评分（默认排序依据，百分制 0–100）',
-      helpScoreBody: '评分 = 0.45·热度 + 0.20·趋势 + 0.20·官方 + 0.15·安全检查，每项先算成 0～1 再加权，最后乘 100 取整，所以卡片上看的是 0～100 分。它不是 skills.sh 官方的分数，是本插件自己合成的排序分；权重目前是初值。',
+      helpScoreTitle: '综合分 S（卡片上那个「评分」，排序项之一，百分制 0–100）',
+      helpScoreBody: '评分 = 0.45·热度 + 0.20·趋势 + 0.20·官方 + 0.15·安全检查，每项先算成 0～1 再加权，最后乘 100 取整，所以卡片上看的是 0～100 分。它不是 skills.sh 官方的分数，是本插件自己合成的排序分；权重目前是初值。面板默认排序是总安装量，这一项要手动选。',
       helpH: '热度 = 安装量取对数后归一化。头部 394 万与腰部 3 万差 100 倍，不取对数榜单就只剩前 20 名。',
       helpT: '趋势 = 8 周趋势裁剪到 −50% ～ +200% 再归一化。这是唯一能看出「正在退场」的指标；上游没给趋势时按 0% 算，会略低于中性。',
       helpC: '官方 = 官方或精选（curated）记 1，其余 0。',
       helpA: '安全检查 = 五家第三方检查里 pass 的比例。没有审计数据给中性 0.5，不给 0——否则非 GitHub 来源会被系统性歧视。',
       helpAuditTitle: '第三方安全检查',
       helpAuditBody: '不是我们审的，是 skills.sh 上五家第三方工具各扫一遍：Gen Agent Trust Hub、Socket、Snyk、Runlayer、ZeroLeaks。结论只有 pass / warn / fail，riskLevel 是它们自己的分级（SAFE / NONE / LOW / MEDIUM / HIGH / CRITICAL 都出现过）。卡片上的「第三方安全检查 4/5」= 5 家里 4 家 pass；fail 计入分母不剔除。pass 不等于安全，只等于这五家没报问题，fail 也可能是误报。',
-      helpDataTitle: '安装数 / 8 周趋势',
-      helpDataBody: '安装数是 skills.sh 接口快照；同一份内容被多个 owner 转发时会合并计算，卡片给的是合并后的量，详情里能看到本体量。8 周趋势 = 后四周周均 ÷ 前四周周均 − 1。星标数是 GitHub 仓库的星数（技能页上的 GitHub Stars），仓库级指标，同一仓库的技能共用。',
+      helpDataTitle: '总安装量 / 8 周趋势',
+      helpDataBody: '总安装量 = 主条目装量 + 同一份内容在其他仓库的副本装量（上游只对聚类成功的条目给合并值，只占少数；其余条目的总安装量就是主条目装量）。详情里能看到主条目装量。8 周趋势 = 后四周周均 ÷ 前四周周均 − 1。星标数是 GitHub 仓库的星数（技能页上的 GitHub Stars），仓库级指标，同一仓库的技能共用。',
       helpTagsTitle: '卡片上的标签',
       helpTagsBody: '官方 / 精选 = skills.sh 的官方或 curated 标记。中文卡 = 这条有中文介绍（只做了安装量前 300 条）。有正文 = 抓到了 SKILL.md 正文。风险标记见下。',
       helpSourceTitle: '数据多久更新一次',
@@ -121,7 +128,7 @@ window.__ModuleLoader__.load({
       tipScore: '评分：安装量 + 8 周趋势 + 官方身份 + 第三方安全检查 合成的百分制排序分（0–100），点右上「说明」看算法',
       tipAudit: '第三方安全检查：skills.sh 上五家工具（Gen Agent Trust Hub / Socket / Snyk / Runlayer / ZeroLeaks）的结论；pass 不等于安全',
       tipFlags: '风险标记：deprecated 已废弃 / pointer 只是转发壳 / needs_api_key 要付费 key / needs_external_cli 要先装命令行工具 / thin_body 正文极短 / has_references 带引用文件',
-      tipInstalls: '安装数：来自 skills.sh 接口快照；同一份内容被多个 owner 转发时合并计算',
+      tipInstalls: '总安装量：主条目装量加上同一份内容在其他仓库的副本装量；上游没给合并值时就是主条目装量',
       tipTrend: '8 周趋势：后四周周均 ÷ 前四周周均 − 1；上游没给趋势时显示 —',
       auditNote: '结论来自 skills.sh 的第三方安全检查，不是我们审的。pass 不等于安全，fail 也可能是误报。',
       scoreNote: '评分是本插件按「安装量 45% + 趋势 20% + 官方 20% + 安全检查 15%」合成的百分制分数，不是 skills.sh 官方的分数。',
@@ -141,15 +148,22 @@ window.__ModuleLoader__.load({
       title: 'Skills Center',
       search: 'Search name, Chinese intro, or source…',
       sort: 'Sort',
-      sortScore: 'Rating',
-      sortInstalls: 'Installs',
+      sortScore: 'Composite',
+      sortInstalls: 'Total installs',
       sortTrend: '8-week trend',
       sortName: 'Name',
+      defaultTag: 'default',
+      available: 'available',
+      noCoverage: 'no row in the catalog has this',
+      starsCoverageNote: 'only {n} rows have stars; rows without them sort last',
+      firstSeenCoverageNote: 'only {n} rows have a first-seen date',
+      installsTotal: 'Total installs',
+      copiesNote: 'incl. {n} republished copies',
+      detailInstallsNote: 'canonical entry {main}; {n} republished copies included, {total} in total',
       desc: 'Desc',
       asc: 'Asc',
       filterAll: 'All',
       filterZh: 'Chinese cards',
-      filterOfficial: 'Official picks',
       filterRisky: 'Risk signals',
       filterEnriched: 'Has body',
       filterLabel: 'Filter',
@@ -221,8 +235,8 @@ window.__ModuleLoader__.load({
       help: 'Help',
       helpTitle: 'What the numbers and tags mean',
       helpIntro: 'This panel picks the skills worth looking at out of the tens of thousands on skills.sh and shows the evidence. Every raw number comes from upstream; this plugin only merges, dedupes and ranks.',
-      helpScoreTitle: 'S score (default sort key)',
-      helpScoreBody: 'S = 0.45·H + 0.20·T + 0.20·C + 0.15·A, each term in 0..1. It is not a skills.sh number: this plugin composes it from installs, 8-week trend, official status and audits. The weights are still a first pass.',
+      helpScoreTitle: 'S score (the number on each card; one of the sort keys)',
+      helpScoreBody: 'S = 0.45·H + 0.20·T + 0.20·C + 0.15·A, each term in 0..1. It is not a skills.sh number: this plugin composes it from installs, 8-week trend, official status and audits. The weights are still a first pass. The panel now sorts by total installs by default; pick this key by hand.',
       helpH: 'H heat = installs, log-normalised. The head has 3.94M installs against 30k in the middle — a 100x spread that would leave only the top 20 on the list.',
       helpT: 'T momentum = 8-week trend clipped to -50%..+200%, then normalised. It is the only signal that shows a skill fading; when upstream has no trend we treat it as 0%, slightly below neutral.',
       helpC: 'C official = 1 for official or curated, otherwise 0.',
@@ -350,6 +364,14 @@ font-variant-numeric:tabular-nums}
 .dsc-menu-sep{height:1px;background:var(--dsw-alias-border-l2);margin:8px 2px}
 .dsc-menu-item{display:flex;align-items:center;justify-content:space-between;gap:16px}
 .dsc-menu-check{color:var(--dsw-alias-brand-primary);font-size:12px}
+.dsc-menu-main{display:flex;align-items:baseline;gap:6px;min-width:0}
+.dsc-menu-note{color:var(--dsw-alias-label-secondary);font-size:11.5px;font-weight:400}
+.dsc-menu-side{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.dsc-menu-hint{color:var(--dsw-alias-label-secondary);font-size:11.5px;font-variant-numeric:tabular-nums}
+.dsc-menu-badge{color:var(--dsw-alias-label-secondary);font-size:11px;font-weight:400;line-height:15px;
+padding:0 5px;border:1px solid var(--dsw-alias-border-l2);border-radius:999px}
+.dsc-menu-item[disabled]{opacity:.45;cursor:default}
+.dsc-menu-item[disabled]:hover{background:transparent}
 .dsc-menu-list{position:absolute;z-index:30;top:calc(100% + 6px);right:0;min-width:100%;padding:6px;
 border:1px solid var(--dsw-alias-border-l1);border-radius:11px;
 /* 面板必须用「实心表面」token：bg-overlay 在浅色主题里是浅灰面（#f3f4f6 级别），拿它当弹层底色会发灰 */
@@ -381,6 +403,7 @@ border-bottom:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg
 background:var(--dsw-alias-bg-layer-2);font-family:ui-monospace,Consolas,monospace;font-size:12.5px;
 white-space:pre-wrap;word-break:break-all}
 .dsc-note{margin:2px 0 0;color:var(--dsw-alias-label-secondary);font-size:12px;line-height:1.6}
+.dsc-copies{color:var(--dsw-alias-label-secondary);font-size:12px;font-weight:400}
 .dsc-help-section{display:flex;flex-direction:column;gap:8px;padding-top:16px;border-top:1px solid var(--dsw-alias-border-l1)}
 .dsc-help-section:first-child{padding-top:0;border-top:0}
 .dsc-help-h{margin:0;font-size:13.5px;font-weight:600;color:var(--dsw-alias-label-primary)}
@@ -426,6 +449,18 @@ white-space:pre-wrap;word-break:break-all}
       return String(value);
     };
     const trendClass = (v) => (v == null ? '' : v > 0 ? 'dsc-up' : v < 0 ? 'dsc-down' : '');
+    // 「总安装量」= 主条目装量 + 同一份内容在其他仓库的副本装量（宿主 rowOf 已经把合并值算好）；
+    // 上游只对聚类成功的条目给合并值，所以缺合并值时退回主条目装量，而不是当成没有数据。
+    const totalInstallsOf = (row) => {
+      const merged = row.total_installs ?? row.installs_merged;
+      if (merged != null) return merged;
+      return row.installs == null ? null : row.installs;
+    };
+    const copiesOf = (row) => {
+      const n = row.copies ?? (Array.isArray(row.aliases) ? row.aliases.length : 0);
+      return Number(n) || 0;
+    };
+    const copiesText = (n) => t('copiesNote').replace('{n}', fmtInt(n));
 
     function field(label, value) {
       if (!value) return null;
@@ -573,7 +608,12 @@ white-space:pre-wrap;word-break:break-all}
               { className: dropUp ? 'dsc-menu-list dsc-menu-list-up' : 'dsc-menu-list' },
               sections.flatMap((section, index) => [
                 index ? h('div', { key: `sep-${section.label}`, className: 'dsc-menu-sep' }) : null,
-                h('div', { key: `group-${section.label}`, className: 'dsc-menu-group' }, section.label),
+                h(
+                  'div',
+                  { key: `group-${section.label}`, className: 'dsc-menu-group' },
+                  section.label,
+                  section.note ? h('span', { className: 'dsc-menu-note' }, ` ${section.note}`) : null,
+                ),
                 ...section.options.map((option) =>
                   h(
                     'button',
@@ -582,13 +622,27 @@ white-space:pre-wrap;word-break:break-all}
                       type: 'button',
                       className: 'dsc-menu-item',
                       'data-on': option.value === section.value ? 'true' : 'false',
+                      // 覆盖为 0 的排序项禁用：点了也只会看到「没变化」，不如点不动
+                      disabled: option.disabled ? true : undefined,
+                      title: option.hint || undefined,
                       onClick: () => {
                         section.onChange(option.value);
                         setOpen(false);
                       },
                     },
-                    option.label,
-                    option.value === section.value ? h('span', { className: 'dsc-menu-check' }, '✓') : null,
+                    h(
+                      'span',
+                      { className: 'dsc-menu-main' },
+                      option.label,
+                      option.badge ? h('span', { className: 'dsc-menu-badge' }, option.badge) : null,
+                      option.note ? h('span', { className: 'dsc-menu-note' }, option.note) : null,
+                    ),
+                    h(
+                      'span',
+                      { className: 'dsc-menu-side' },
+                      option.hint ? h('span', { className: 'dsc-menu-hint' }, option.hint) : null,
+                      option.value === section.value ? h('span', { className: 'dsc-menu-check' }, '✓') : null,
+                    ),
                   ),
                 ),
               ]),
@@ -657,7 +711,16 @@ white-space:pre-wrap;word-break:break-all}
         h(
           'div',
           { className: 'dsc-facts' },
-          h('span', { title: t('tipInstalls') }, `${t('installs')} `, h('b', null, fmtInt(row.installs))),
+          h(
+            'span',
+            { title: t('tipInstalls') },
+            `${t('installsTotal')} `,
+            h('b', null, fmtInt(totalInstallsOf(row))),
+            // 有副本才注明，没副本的条目多这一句就是噪音
+            copiesOf(row)
+              ? h('span', { key: 'copies', className: 'dsc-copies' }, ` ${copiesText(copiesOf(row))}`)
+              : null,
+          ),
           h('i', null, '·'),
           h(
             'span',
@@ -725,7 +788,26 @@ white-space:pre-wrap;word-break:break-all}
             field(t('intro'), zh.intro || skill.intro_zh || skill.description_en || t('noIntro')),
             field(t('usage'), zh.usage),
             field(t('notes'), zh.notes),
-            field(t('installs'), fmtInt(skill.installs ?? row.installs)),
+            (() => {
+              const main = skill.installs ?? row.installs;
+              const merged = skill.total_installs ?? row.total_installs ?? skill.installs_merged ?? row.installs_merged;
+              const total = merged == null ? main : merged;
+              const copies = copiesOf(skill) || copiesOf(row);
+              // 两者不同才写全「主条目 X，含 N 个副本共 Y」；相同时一句话就够
+              const text =
+                copies && main != null && total != null && Number(total) !== Number(main)
+                  ? t('detailInstallsNote')
+                      .replace('{main}', fmtInt(main))
+                      .replace('{n}', fmtInt(copies))
+                      .replace('{total}', fmtInt(total))
+                  : fmtInt(total);
+              return h(
+                'div',
+                { className: 'dsc-field' },
+                h('span', { className: 'dsc-label' }, t('installsTotal')),
+                h('p', { className: 'dsc-text' }, text),
+              );
+            })(),
             (() => {
               const stars = skill.stars ?? row.stars;
               if (stars == null) return null;
@@ -862,10 +944,12 @@ white-space:pre-wrap;word-break:break-all}
         classified: 0,
         dated: 0,
         remote: null,
+        // /status 的排序项覆盖统计（各排序键有多少条真的有值）；取不到就是 null，菜单不显示数字
+        coverage: null,
         error: '',
       });
       const [query, setQuery] = useState('');
-      const [sort, setSort] = useState('S');
+      const [sort, setSort] = useState('installs');
       const [dir, setDir] = useState('desc');
       const [filter, setFilter] = useState('');
       const [category, setCategory] = useState('');
@@ -916,6 +1000,7 @@ white-space:pre-wrap;word-break:break-all}
             classified: body.classified || prev.classified,
             dated: body.dated ?? prev.dated,
             remote: body.remote || prev.remote,
+            coverage: prev.coverage,
             error: '',
           }));
         } catch (error) {
@@ -933,6 +1018,21 @@ white-space:pre-wrap;word-break:break-all}
         const timer = setTimeout(() => load(page, pageSize), 200);
         return () => clearTimeout(timer);
       }, [query, sort, dir, filter, category, since, page, pageSize, refreshKey]);
+
+      // 排序菜单要标「可用 N/总数」，覆盖数据只在 /status 里。启动时取一次，同步后再取一次；
+      // 取不到（旧宿主、接口报错）就不显示数字，不拿本地数据猜。
+      useEffect(() => {
+        let alive = true;
+        fetch(`${API}/status`, { headers: { accept: 'application/json' } })
+          .then((response) => (response.ok ? response.json() : null))
+          .then((body) => {
+            if (alive && body && body.coverage) setState((prev) => ({ ...prev, coverage: body.coverage }));
+          })
+          .catch(() => {});
+        return () => {
+          alive = false;
+        };
+      }, [refreshKey]);
 
       // 换页后把列表滚回顶部，否则翻到下一页还停在上一页的滚动位置。
       useEffect(() => {
@@ -975,18 +1075,40 @@ white-space:pre-wrap;word-break:break-all}
       const filters = [
         ['', t('filterAll')],
         ['zh', t('filterZh')],
-        ['official', t('filterOfficial')],
+        // 采集端正在把 official 并进 curated；读取侧先收敛成一个筛选（official 仍是兼容别名）
+        ['curated', t('curated')],
         ['risky', t('filterRisky')],
         ['enriched', t('filterEnriched')],
       ];
+      // 排序项：'installs'（总安装量）是默认项。第三项是该排序键在 /status coverage 里的字段名。
       const sorts = [
-        ['S', t('sortScore')],
-        ['installs', t('sortInstalls')],
-        ['installs4w', t('sortInstalls4w')],
-        ['stars', t('sortStars')],
-        ['trend', t('sortTrend')],
-        ['name', t('sortName')],
+        ['installs', t('sortInstalls'), 'installs'],
+        ['S', t('sortScore'), 's'],
+        ['installs4w', t('sortInstalls4w'), 'installs_4w'],
+        ['stars', t('sortStars'), 'stars'],
+        ['trend', t('sortTrend'), 'trend_pct'],
+        ['name', t('sortName'), 'name'],
       ];
+      // 各排序键有多少条真有值：显示成「可用 N/总数」，一条都没有的项置灰。
+      const covered = (key) => {
+        const c = state.coverage;
+        if (!c || c[key] == null) return null;
+        return Number(c[key]);
+      };
+      const sortOption = ([value, label, key], index) => {
+        const n = covered(key);
+        const option = { value, label };
+        // 默认项排在第一位并标出来（用户第一眼要知道现在按什么排）
+        if (index === 0) option.badge = t('defaultTag');
+        if (n != null) option.hint = `${t('available')} ${fmtInt(n)}/${fmtInt(state.coverage.total)}`;
+        if (n === 0) {
+          option.disabled = true;
+          option.note = t('noCoverage');
+        } else if (key === 'stars' && n != null) {
+          option.note = t('starsCoverageNote').replace('{n}', fmtInt(n));
+        }
+        return option;
+      };
       // 时间范围按「发布时间（First Seen）」筛；没抓过页面详情的条目没有这个日期
       const ranges = [
         [0, t('rangeAll')],
@@ -1088,7 +1210,7 @@ white-space:pre-wrap;word-break:break-all}
                 {
                   label: t('sortField'),
                   value: sort,
-                  options: sorts.map(([value, label]) => ({ value, label })),
+                  options: sorts.map(sortOption),
                   onChange: (next) => {
                     setSort(next);
                     setPage(1);
@@ -1109,6 +1231,11 @@ white-space:pre-wrap;word-break:break-all}
                 {
                   label: t('dateRange'),
                   value: String(since),
+                  // 发布时间覆盖同样很低：在菜单里就说明有多少条有日期，别让人以为筛完是空的
+                  note:
+                    state.coverage && state.coverage.first_seen != null
+                      ? t('firstSeenCoverageNote').replace('{n}', fmtInt(state.coverage.first_seen))
+                      : null,
                   options: ranges.map(([value, label]) => ({ value: String(value), label })),
                   onChange: (next) => {
                     setSince(Number(next));
