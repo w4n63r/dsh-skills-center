@@ -308,6 +308,20 @@ f6e6c8c test: cover web api + honest activate when body missing
   操作系统画的菜单，与面板主题（token 控制的颜色/圆角/字号）完全两套。改法：`更多分类（N）` chips 行内展开；
   排序与每页条数也从 `<select>` 换成自绘 `Menu`（按钮 + 绝对定位浮层 + 点外部/Esc 关闭，颜色走 token）。
   现在 `client/client.js` 里**没有任何 `select` 元素**，测试里也钉了「分类行不许出现原生 select」。
+#### 9.3.9 GitHub token 配好，自动发布跑通（2026-10-21）
+
+- 建的是**细粒度 token**：只有 `w4n63r/dsh-skills-center` 一个仓库，权限 `Contents: Read and write`（+ 强制的 `Metadata: Read-only`），
+  90 天有效期（2027-01-19 到期）。存两处：本地 `.env.local` 的 `GH_TOKEN`（gitignore 覆盖）与 Vercel 的 production 环境变量 `GH_TOKEN`。
+- 坑 1：GitHub 建 token 要 **sudo 二次验证**，必须用户本人过；而且 token 只显示一次，
+  窗口一关就没了（我前后删了两个作废的）。上一版我把 token 明文读进了会话上下文，直接删掉重建。
+- 坑 2：`npx --yes vercel` 今天解析依赖失败（`@vercel/fastify@21.0.0` 不存在），要用 npm 缓存里的 CLI
+  （`%LOCALAPPDATA%\npm-cache\_npx\<hash>\node_modules\.bin\vercel.cmd`）；而且不能设 `VERCEL_TOKEN`（那个 token 已过期），
+  要让 CLI 用自己 `auth.json` 里的 session 自动刷新。环境变量加完**必须重新部署**，旧部署读不到新变量。
+- 实测（自动发布，不靠手动推）：采集响应 `uploaded.github` = raw URL + `commit 1d3a134`，6,918,141B；
+  `catalog` 分支**只有 1 个 commit、0 个父提交**（单提交强推成立）；`If-None-Match` → 304/0 字节；
+  本地同步首次 6,918,141B/3.05s，第二次 **155ms / 0 字节**。
+- 待补：星标只有 93 条有（`enrich_v === ENRICH_VERSION` 的记录会被跳过，不再抓页面）。
+  已把 `ENRICH_VERSION` 从 2 升到 3，每天约 485 条重新抓页面，约 6 天把存量补齐。
 #### 9.3.8 分发搬到 GitHub（同日，Blob 公开读故障当天）
 
 - 现象：Blob 公共地址对所有对象返回 404 `Store not found`（含新上传的探针文件），

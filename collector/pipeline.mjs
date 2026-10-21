@@ -2,7 +2,10 @@
 // 输入是 /api/v1 的原始记录，输出是 data/catalog.json 的形状（插件只认这一份）。
 
 export const SCORE_WEIGHTS = { H: 0.45, T: 0.2, C: 0.2, A: 0.15 };
-export const ENRICH_VERSION = 2; // 2 = 描述来自 SKILL.md frontmatter + 趋势来自页面 HTML
+// 3 = 2 + 星标数/发布时间（都来自技能页 HTML，只有重抓页面才拿得到）。
+// 升版本号会让已富集的记录再抓一次页面：每天约 485 条，6 天左右把存量补齐。
+// 不升的话老记录永远不会出现星标——`enrich_v === ENRICH_VERSION` 会被直接跳过，连页面都不抓。
+export const ENRICH_VERSION = 3;
 export const TREND_CLIP = [-50, 200]; // 8 周增长率裁剪区间（%）
 export const NO_AUDIT_SCORE = 0.5; // 无审计数据给中位，不给 0：否则系统性歧视非 GitHub 来源
 
