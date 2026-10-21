@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { GET, POST, isAuthorized, makeHandler, resolveOidcToken } from './collect.js';
+import { BODY_VERSION, ENRICH_VERSION } from '../collector/pipeline.mjs';
 
 const SECRET = 'cron-secret-for-tests';
 const called = (url, headers = {}) => new Request(url, { headers });
@@ -173,6 +174,68 @@ assert.ok(stored.every((s) => s.body.v === 1), 'a body in the catalog is a claim
 assert.ok(
   stored.every((s) => bodyPuts.some((p) => p.pathname === `body/${s.body.sha256}.md`)),
   'every marked body must point at a path we actually wrote',
+);
+
+// ---- 回归守卫：Blob 挂了也要能读回上一版目录（2026-10-21 真事故：blob.list() 抛 → 整目录 coverage 崩到 14%）----
+// 线上 store 被 suspended 时，上一版目录必须从 CATALOG_LATEST_URL（GitHub raw）读到，
+// 否则 previous=0 → 所有已抓的 detail/审计都白丢，每轮都要重抓。
+process.env.CRON_SECRET = SECRET;
+const PREV_URL = 'https://raw.example/catalog.json';
+const prevCatalog = {
+  version: 'full-test-prev',
+  generated_at: new Date().toISOString(),
+  count: 1,
+  raw_count: 1,
+  max_installs: 5,
+  skills: [
+    {
+      id: 'anthropics/skills/frontend-design',
+      source: 'anthropics/skills',
+      slug: 'frontend-design',
+      name: 'frontend-design',
+      installs: 5,
+      description_en: 'already enriched',
+      enrich_v: ENRICH_VERSION,
+      hash: 'hash-prev',
+      body_length: 500,
+      body_sha256: 'a'.repeat(64),
+      body_v: BODY_VERSION,
+    },
+  ],
+};
+const fetched = [];
+const wrapper = async (url, init) => {
+  const href = String(url);
+  fetched.push(href);
+  if (href === PREV_URL) {
+    return new Response(JSON.stringify(prevCatalog), { status: 200, headers: { 'content-type': 'application/json' } });
+  }
+  return replay.fetchImpl(url, init);
+};
+process.env.CATALOG_LATEST_URL = PREV_URL;
+const prevHandler = makeHandler({
+  resolveToken: async () => ({ token: 'jwt-abc', source: 'x-vercel-oidc-token header' }),
+  loadBlob: async () => {
+    throw new Error('Vercel Blob: This store has been suspended.');
+  },
+});
+globalThis.fetch = wrapper;
+console.log = () => {};
+const prevRes = await prevHandler.GET(called('https://x/api/collect?dry=1', { authorization: `Bearer ${SECRET}` }));
+const prevBody = await prevRes.json();
+globalThis.fetch = realFetch;
+console.log = realLog;
+delete process.env.CATALOG_LATEST_URL;
+process.env.CRON_SECRET = previous;
+
+assert.equal(prevRes.status, 200, `dry run must survive a dead blob store: ${JSON.stringify(prevBody).slice(0, 300)}`);
+assert.ok(fetched.includes(PREV_URL), 'it must really fetch the configured previous-catalog URL');
+assert.equal(prevBody.previous.url, PREV_URL, 'the previous catalog comes from CATALOG_LATEST_URL before Blob');
+assert.equal(prevBody.previous.count, 1);
+assert.equal(prevBody.previous.error, null);
+assert.ok(
+  prevBody.inherited_enriched >= 1,
+  `already-enriched records must be inherited even when the blob store is gone (got ${prevBody.inherited_enriched})`,
 );
 
 // ---- 回归守卫：函数里不许模块级读 process.env.VERCEL_OIDC_TOKEN ----

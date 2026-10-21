@@ -186,27 +186,55 @@ async function run(request, trigger, { resolveToken = resolveOidcToken, loadBlob
     let previousInfo = { url: null, version: null, count: 0, error: null };
     stage = 'previous';
     const importBlob = loadBlob || (() => import('@vercel/blob'));
+    const prevGhRepo = process.env.GH_REPO || 'w4n63r/dsh-skills-center';
+    const prevGhBranch = process.env.GH_BRANCH || 'catalog';
+    // 上一版目录可能住在 Blob，也可能住在 GitHub raw；按可信度依次尝试，谁先成谁算。
+    const previousUrls = [
+      process.env.CATALOG_LATEST_URL,
+      process.env.CATALOG_PREVIOUS_URL,
+      `https://raw.githubusercontent.com/${prevGhRepo}/${prevGhBranch}/catalog.json`,
+    ].filter(Boolean);
+    const readPrevious = async (sourceUrl) => {
+      const res = await fetch(sourceUrl, { cache: 'no-store' });
+      if (!res.ok) return { error: `GET previous catalog ${res.status}` };
+      let prev = null;
+      try {
+        prev = await res.json();
+      } catch (err) {
+        return { error: `previous catalog is not JSON: ${err?.message || err}` };
+      }
+      if (!Array.isArray(prev?.skills)) return { error: 'previous catalog has no skills[]' };
+      return { prev };
+    };
     try {
-      blob = await importBlob();
-      const { blobs } = await blob.list({ prefix: `${prefix}-latest.json`, limit: 1 });
-      const target = blobs?.[0];
-      if (target?.url) {
-        const res = await fetch(target.url, { cache: 'no-store' });
-        if (res.ok) {
-          const prev = await res.json();
-          if (Array.isArray(prev?.skills)) {
-            previousSkills = prev.skills;
-            previousCatalog = prev;
-            previousInfo = { url: target.url, version: prev.version || null, count: prev.skills.length, error: null };
+      for (const sourceUrl of [...new Set(previousUrls)]) {
+        const got = await readPrevious(sourceUrl);
+        if (got.prev) {
+          previousSkills = got.prev.skills;
+          previousCatalog = got.prev;
+          previousInfo = { url: sourceUrl, version: got.prev.version || null, count: got.prev.skills.length, error: null };
+          break;
+        }
+        previousInfo = { url: sourceUrl, version: null, count: 0, error: got.error };
+      }
+      // 回退：Blob 里的 latest 指针（store 被停时这一步会抛，被外层 catch 兜住）
+      if (!previousSkills) {
+        blob = await importBlob();
+        const { blobs } = await blob.list({ prefix: `${prefix}-latest.json`, limit: 1 });
+        const target = blobs?.[0];
+        if (target?.url) {
+          const got = await readPrevious(target.url);
+          if (got.prev) {
+            previousSkills = got.prev.skills;
+            previousCatalog = got.prev;
+            previousInfo = { url: target.url, version: got.prev.version || null, count: got.prev.skills.length, error: null };
           } else {
-            previousInfo = { url: target.url, version: prev?.version || null, count: 0, error: 'previous catalog has no skills[]' };
+            previousInfo = { url: target.url, version: null, count: 0, error: got.error };
           }
-        } else {
-          previousInfo = { url: target.url, version: null, count: 0, error: `GET previous catalog ${res.status}` };
         }
       }
     } catch (err) {
-      previousInfo = { url: null, version: null, count: 0, error: `previous catalog unavailable: ${err?.message || err}` };
+      previousInfo = { url: previousInfo.url, version: null, count: 0, error: `previous catalog unavailable: ${err?.message || err}` };
     }
     console.log(`[collect] previous: ${previousInfo.count} skills${previousInfo.error ? ` (${previousInfo.error})` : ''}`);
 
@@ -335,17 +363,23 @@ async function run(request, trigger, { resolveToken = resolveOidcToken, loadBlob
     // Blob 是回退路径：不可用时只记一笔，不再让整轮采集失败（GitHub 那份照样发）。
     let published = { ok: false, skipped: true, errors: [blobError || 'blob unavailable'], latest: null, versioned: null, warnings: [] };
     if (put) {
-      published = await publishCatalog({
-        catalog,
-        put,
-        // 传 list/del 才会触发保留策略：只留最近 keep 个版本快照，避免 Blob 存储无限涨
-        list,
-        del,
-        retain: Number(process.env.CATALOG_RETAIN || 14),
-        prefix,
-        access,
-        log: (msg) => console.log(`[collect] ${msg}`),
-      });
+      try {
+        published = await publishCatalog({
+          catalog,
+          put,
+          // 传 list/del 才会触发保留策略：只留最近 keep 个版本快照，避免 Blob 存储无限涨
+          list,
+          del,
+          retain: Number(process.env.CATALOG_RETAIN || 14),
+          prefix,
+          access,
+          log: (msg) => console.log(`[collect] ${msg}`),
+        });
+      } catch (err) {
+        // store 被停/配额用尽都会抛；GitHub 那份照样发，所以只记一笔。
+        published = { ok: false, skipped: false, errors: [String(err?.message || err)], latest: null, versioned: null, warnings: [] };
+        console.log(`[collect] blob catalog publish threw: ${published.errors[0]}`);
+      }
     }
     // GitHub 是主分发路径（raw CDN + 单提交分支 + 小文件先行），Blob 留作回退。
     // 没配 token 就跳过；失败也只记在响应里——Blob 那份可能还在，不回滚。
