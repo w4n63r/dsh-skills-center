@@ -198,8 +198,10 @@ export async function collect({
     }
   }
   const countedFetch = async (url, init) => {
+    // 先判后记：额度用完后的重试尝试不能再把计数推上去，否则 stats 会报出 used > max
+    //（线上实测 1512/1500，差额是预算耗尽后失败的 retry 尝试，并没有真的发出去）
+    if (requests >= maxRequests) throw new BudgetExceeded();
     requests += 1;
-    if (requests > maxRequests) throw new BudgetExceeded();
     return fetchImpl(url, init);
   };
 
