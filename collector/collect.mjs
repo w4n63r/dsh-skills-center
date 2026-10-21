@@ -10,8 +10,10 @@
 // 因此：先生成「候选 enrich 目标」的完整清单，再按剩余请求预算与剩余时间裁掉尾巴，
 // 并把裁掉了多少写进 stats（truncated / truncated_reason），绝不让超时表现为「静默少了几百条」。
 
+import { createHash } from 'node:crypto';
+
 import { createClient, PER_PAGE } from './fetch.mjs';
-import { buildCatalog, normalizeRecord, parseFrontmatter, ENRICH_VERSION } from './pipeline.mjs';
+import { buildCatalog, dedupe, normalizeRecord, parseFrontmatter, ENRICH_VERSION } from './pipeline.mjs';
 
 /** 默认值按 Hobby 安全值给：Pro（300s）用环境变量放开即可。 */
 export const DEFAULTS = Object.freeze({
@@ -25,6 +27,14 @@ export const DEFAULTS = Object.freeze({
   maxRequests: 1500, // 上游请求总数闸门（目录 6 + curated 1 + 详情/审计 1200 + 余量）
   maxRuntimeMs: 250000, // 采集段的时间闸门；函数上限 300s，留 ~50s 给上传与响应
   fetchTrend: true, // 每个目标多 1 个请求去抓页面 HTML，换「8 周趋势」这一维
+  // curated 在候选里只占水位外的小额豁免名额。为什么：curated 有 5527 条、装量中位数只有 49，
+  // 和头部 1:1 交替会让每轮预算约一半花在长尾上（实测装量前 2000 名里只有 335 条 curated）。
+  curatedQuota: 50,
+  // 正文水位的规模：按合并后装量取前 N 条，看这批的正文覆盖率（见 bodyGateStats）
+  bodyWaterline: 2000,
+  // 收录过滤的开关：null = 按 body_gate 自动（覆盖率 ≥ 95% 才开），true/false = 强制覆盖。
+  // 默认自动且现在一定算 false：只有 480/7821 条有正文，强制开会让目录先掉到 480 条。
+  requireBody: null,
 });
 
 const isoStamp = (d = new Date()) => d.toISOString().replace(/[:.]/g, '-');
@@ -63,6 +73,9 @@ export function mergeDetail(record, detail, audit, page = null) {
     // id/source/slug/installs/hash/files）；拿不到就保持 null，不编。
     description: meta?.description || detail?.description || record.description || null,
     bodyLength: body ? body.length : null,
+    // 正文全文的 sha256：正文按这个指纹落 Blob（本地不能现抓 detail，只能消费已落盘的正文），
+    // 也是「内容变没变」的判据。拿不到正文就给 null，不编。
+    body_sha256: body ? createHash('sha256').update(body).digest('hex') : null,
     body_excerpt: body ? body.slice(0, 4000) : null,
     file_count: files.length || null,
     audit: audit?.audits?.length ? audit : record.audit,
@@ -77,7 +90,8 @@ export function mergeDetail(record, detail, audit, page = null) {
   };
 }
 
-/** curated 与头部交替取，避免「curated 太多把 top installs 全挤掉」（反之亦然）。 */
+/** curated 与头部交替取，避免「curated 太多把 top installs 全挤掉」（反之亦然）。
+ * 候选顺序改成「头部优先 + curated 小额豁免」后暂无调用方，先留着，要回退时能直接换回去。 */
 function interleave(a, b) {
   const out = [];
   const n = Math.max(a.length, b.length);
@@ -86,6 +100,48 @@ function interleave(a, b) {
     if (i < b.length) out.push(b[i]);
   }
   return out;
+}
+
+/**
+ * 正文水位门禁：按「合并后装量」（installs_merged ?? installs）降序取前 waterline 条，
+ * 数其中有多少条已经有正文（body_length 与 body_sha256 都在才算），覆盖率 ≥ 95% 记为 strict。
+ * 为什么按合并后装量：收录水位是按装量定的，门禁必须量同一批记录，否则 fork 会把头部名额算错。
+ */
+export function bodyGateStats(records, waterline = 2000) {
+  const limit = Math.max(0, Math.floor(Number(waterline) || 0));
+  const merged = dedupe(records.map(normalizeRecord).filter(Boolean));
+  const ranked = [...merged].sort(
+    (a, b) => (b.installs_merged ?? b.installs) - (a.installs_merged ?? a.installs) || a.id.localeCompare(b.id),
+  );
+  const head = ranked.slice(0, limit);
+  const headWithBody = head.filter((r) => r.body_length && r.body_sha256).length;
+  const coverage = head.length ? Math.round((headWithBody / head.length) * 1000) / 1000 : 0;
+  return { waterline: limit, head_total: head.length, head_with_body: headWithBody, coverage, strict: coverage >= 0.95 };
+}
+
+/** 收录过滤的开关：null = 按门禁自动，true/false = 强制。 */
+function resolveRequireBody(option, gate) {
+  if (option === true || option === false) return option;
+  return gate.strict;
+}
+
+/** 覆盖率账本：每条口径各有多少条，dropped_* 直接来自 buildCatalog 的 dropped。 */
+export function coverageStats(records, catalog) {
+  const rows = Array.isArray(records) ? records : [];
+  const count = (fn) => rows.filter(fn).length;
+  const dropped = catalog?.dropped || { no_body: 0, thin_body: 0, no_description: 0 };
+  return {
+    // 记录可能还没归一化（bodyLength）也可能已经归一化（body_length），两个形状都要认
+    with_body: count((r) => r.body_length ?? r.bodyLength),
+    with_body_sha256: count((r) => r.body_sha256),
+    with_hash: count((r) => r.hash),
+    with_audit: count((r) => r.audit),
+    with_trend: count((r) => r.trend_pct != null),
+    flagged: (catalog?.skills || []).filter((s) => s.flags?.length).length,
+    dropped_no_body: dropped.no_body,
+    dropped_thin_body: dropped.thin_body,
+    dropped_no_description: dropped.no_description,
+  };
 }
 
 /**
@@ -104,6 +160,9 @@ export async function collect({
   maxRequests = DEFAULTS.maxRequests,
   maxRuntimeMs = DEFAULTS.maxRuntimeMs,
   fetchTrend = DEFAULTS.fetchTrend,
+  curatedQuota = DEFAULTS.curatedQuota, // curated 在水位外最多豁免多少条（不与头部重复）
+  bodyWaterline = DEFAULTS.bodyWaterline, // 门禁量的是「装量前多少条」
+  requireBody = DEFAULTS.requireBody, // null = 自动（按门禁），true/false 强制
   zh = {}, // 中文层：{ [id]: {name_zh, intro, usage, notes} }，由 api/collect.js 注入
   stage = 'all', // 'all' | 'list'
   previous = null, // 上一版目录的 skills[]：抓过 detail/audit 的条目直接继承，不再重复花请求
@@ -192,6 +251,10 @@ export async function collect({
       if (!rec.first_seen && prev.first_seen) rec.first_seen = prev.first_seen;
       if (!rec.weekly_series && Array.isArray(prev.weekly_series)) rec.weekly_series = prev.weekly_series;
       if (rec.trend_pct == null && prev.trend_pct != null) rec.trend_pct = prev.trend_pct;
+      // 正文元数据也要继承：enrich_v 已是最新版的条目整轮不碰 detail，只能从上一版目录补数据。
+      // 不继承的话下一轮 buildCatalog 会以为它们没有正文：门禁算不出来，目录里的 body 会凭空消失。
+      if (rec.body_length == null && Number.isFinite(prev.body?.length)) rec.body_length = prev.body.length;
+      if (!rec.body_sha256 && prev.body?.sha256) rec.body_sha256 = prev.body.sha256;
       if (prev.hash) inherited += 1;
       if (Number.isFinite(prev.enrich_v)) rec.enrich_v = prev.enrich_v;
     }
@@ -200,9 +263,23 @@ export async function collect({
 
   log(`records: ${records.length} normalized (${dupIds} duplicate ids dropped, ${curatedIds.size} curated)`);
 
+  // 正文水位门禁先按目录段算一份（detail 还没抓）：stage=list 直接返回这份目录，门禁必须能约束它。
+  const directoryGate = bodyGateStats(records, bodyWaterline);
+  const directoryStrict = resolveRequireBody(requireBody, directoryGate);
+  log(
+    `body gate (directory): ${directoryGate.head_with_body}/${directoryGate.head_total} of the top ` +
+      `${directoryGate.waterline} have body (coverage ${directoryGate.coverage}) → requireBody ${directoryStrict ? 'on' : 'off'}`,
+  );
+
   const directoryVersion = `dir-${isoStamp()}`;
-  const catalogStage = buildCatalog(records, { version: directoryVersion, generatedAt: new Date().toISOString(), zh });
+  const catalogStage = buildCatalog(records, {
+    version: directoryVersion,
+    generatedAt: new Date().toISOString(),
+    zh,
+    requireBody: directoryStrict,
+  });
   log(`directory stage: ${catalogStage.count} entries after dedupe (${catalogStage.deduped} merged)`);
+  if (directoryStrict) log(`directory stage dropped ${JSON.stringify(catalogStage.dropped)}`);
 
   const baseStats = () => ({
     view,
@@ -217,6 +294,9 @@ export async function collect({
     curated_records: curatedRaw.length,
     records: records.length,
     directory: { count: catalogStage.count, deduped: catalogStage.deduped, raw_count: catalogStage.raw_count },
+    // 覆盖率与门禁：stage=list 时这是目录段的实测值；stage=all 会在最终 stats 里按富集后的结果重算覆盖
+    coverage: coverageStats(records, catalogStage),
+    body_gate: directoryGate,
     requests: { list: listRequests, curated: curatedRequests, enrich: 0, used: requests, max: maxRequests },
     enrich_targets: { desired: 0, selected: 0, completed: 0, failed: 0, skipped_budget: 0, skipped_deadline: 0 },
     max_runtime_ms: maxRuntimeMs,
@@ -234,21 +314,35 @@ export async function collect({
   const clusterOf = new Map();
   for (const cluster of clusters) for (const member of cluster.members) clusterOf.set(member.id, cluster);
 
+  // 候选顺序：装量降序的头部优先（preCluster 已经排好），curated 只作为水位外的小额豁免。
+  // 为什么不再 interleave：curated 有 5527 条、装量中位数只有 49，1:1 交替会让每轮预算的一半
+  // 花在长尾上（实测装量前 2000 名里只有 792 条抓过 detail，另一半预算基本白花）。
   const curatedRecords = records.filter((r) => r.curated);
-  const headRecords = clusters.slice(0, Math.max(0, enrich)).map((c) => c.lead);
+  const headQuota = Math.max(0, enrich - curatedQuota);
+  const headRecords = clusters.slice(0, headQuota).map((c) => c.lead);
   const candidates = [];
   const queued = new Set();
   let alreadyEnriched = 0;
-  for (const rec of interleave(curatedRecords, headRecords)) {
-    if (queued.has(rec.id)) continue;
+  const queue = (rec) => {
+    if (!rec || queued.has(rec.id)) return false;
     queued.add(rec.id);
-    // 上一版已经抓过 detail（有 hash）的就不再花 2 个请求；refreshEnrich 时全部重抓
+    // 上一版已经抓过 detail 的就不再花请求；refreshEnrich 时全部重抓
     // 只有「已经按当前逻辑抓过」的才跳过；旧版本的 hash 不算数
     if (rec.enrich_v === ENRICH_VERSION && !refreshEnrich) {
       alreadyEnriched += 1;
-      continue;
+      return false;
     }
     candidates.push(rec);
+    return true;
+  };
+  for (const rec of headRecords) queue(rec);
+  // curated 豁免：已在头部里的不重复占名额，最多再补 curatedQuota 条
+  let curatedExtra = 0;
+  for (const rec of curatedRecords) {
+    if (curatedExtra >= curatedQuota) break;
+    if (queued.has(rec.id)) continue;
+    curatedExtra += 1;
+    queue(rec);
   }
   if (alreadyEnriched > 0) log(`enrich: ${alreadyEnriched} head targets already enriched → skipped`);
 
@@ -259,8 +353,9 @@ export async function collect({
   const skippedBudget = candidates.length - selected.length;
   if (skippedBudget > 0) truncatedReasons.push(`enrich_budget:${skippedBudget}`);
   log(
-    `enrich: ${selected.length}/${candidates.length} targets → ≤${selected.length * 2} requests ` +
-      `(budget ${remaining} left; concurrency ${concurrency}, ~${Math.ceil((selected.length * 2 * 400) / (concurrency * 1000))}s at ~0.4s/call)`,
+    `enrich: ${selected.length}/${candidates.length} targets → ≤${selected.length * costPerTarget} requests ` +
+      `(budget ${remaining} left; concurrency ${concurrency}, ` +
+      `~${Math.ceil((selected.length * costPerTarget * 400) / (concurrency * 1000))}s at ~0.4s/call)`,
   );
 
   const enriched = new Map();
@@ -298,11 +393,22 @@ export async function collect({
   );
 
   const finalRecords = records.map((rec) => enriched.get(rec.id) || rec);
+  // 门禁在富集之后再算一次：这才是「这一轮抓完以后水位内正文覆盖了多少」的实测口径。
+  // strict 为真才给 buildCatalog 传 requireBody=true（requireBody 选项可强制覆盖）。
+  const bodyGate = bodyGateStats(finalRecords, bodyWaterline);
+  const strictFilter = resolveRequireBody(requireBody, bodyGate);
+  log(
+    `body gate: ${bodyGate.head_with_body}/${bodyGate.head_total} of the top ${bodyGate.waterline} have body ` +
+      `(coverage ${bodyGate.coverage}) → requireBody ${strictFilter ? 'on' : 'off'}`,
+  );
   const catalog = buildCatalog(finalRecords, {
     zh,
     version: `full-${isoStamp()}`,
     generatedAt: new Date().toISOString(),
+    requireBody: strictFilter,
   });
+  if (strictFilter) log(`requireBody dropped ${JSON.stringify(catalog.dropped)}`);
+  const coverage = coverageStats(finalRecords, catalog);
 
   const stats = {
     ...baseStats(),
@@ -316,13 +422,18 @@ export async function collect({
       skipped_budget: skippedBudget,
       skipped_deadline: skippedDeadline,
     },
-    // 只对账不判定：正文覆盖了多少条，是判断「头部是否真的做完了」的唯一实测口径
-    with_body: finalRecords.filter((r) => r.bodyLength).length,
-    with_hash: finalRecords.filter((r) => r.hash).length,
-    with_audit: finalRecords.filter((r) => r.audit).length,
+    // 只对账不判定：正文覆盖了多少条，是判断「头部是否真的做完了」的唯一实测口径。
+    // 平铺的 with_* 保留给 api/collect.js 与 run.mjs 的旧消费方，新口径统一进 coverage。
+    with_body: coverage.with_body,
+    with_body_sha256: coverage.with_body_sha256,
+    with_hash: coverage.with_hash,
+    with_audit: coverage.with_audit,
     // 趋势查得到多少条：这一维只来自页面 HTML，抓不到就是没有（不拿 installs 假装趋势）
-    with_trend: finalRecords.filter((r) => r.trend_pct != null).length,
-    flagged: catalog.skills.filter((s) => s.flags?.length).length,
+    with_trend: coverage.with_trend,
+    flagged: coverage.flagged,
+    // 收录过滤的账单：dropped_no_body / dropped_thin_body / dropped_no_description（关闭时全 0）
+    coverage,
+    body_gate: bodyGate,
     truncated: truncatedReasons.length > 0,
     truncated_reasons: truncatedReasons,
     elapsed_ms: elapsed(),

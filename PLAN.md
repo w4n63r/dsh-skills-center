@@ -75,6 +75,9 @@
 - 目录里只放元数据：`body: { length, sha256, key }`；
 - 插件按 `body.key` 拉全文（Blob public URL，不需要鉴权）；
 - 注意正文只能在 Vercel 上取：detail 需要 OIDC Bearer，本地直接 `curl` 是 401（实测）。本地安装时不能现抓，只能消费已落盘的正文。
+- 匿名替代口子（实测 2026-10-21）：`GET https://skills.sh/api/download/{owner}/{repo}/{slug}` 也返回 `{"files":[{path,contents}],"hash"}` 全文，**不需要 token**——但限流 60 请求/小时/IP（只对回源 MISS 计费，CDN HIT 不计），150 条抽样批测得 `{200:63, 404:2, 429:85}`（429 body 是 `{"error":"rate_limit_exceeded","message":"Maximum 60 requests per hour."}`，带 `Retry-After: 60`）。所以它只够本地抽查几条，不足以替代采集；采集仍走 OIDC 那条（600/min）。
+- 同一抽样给了 404 基准：`nvidia/skills/alerts`、`hashicorp/engineering-agent-skills/acli`、`firebase/firebase-tools/firebase-firestore-basics`、`vercel-labs/agent-browser/electron`、`vercel/ai/develop-ai-functions-example` 都在目录里但上游没快照。实测 404 率约 1%–3%（≈60–230 条 /7821），1.2 的水位线要按这个数留余量。
+- HTML 技能页不能当正文源（实测反证：`https://skills.sh/anthropics/skills/pdf` 的正文 113 行长行只出现 14 行通用句，frontmatter 与 `name: pdf` 全无）；raw.githubusercontent 不限流（40/40 200）但**路径发现不可靠**（CLI 的 35 个前缀盲探只命中 5/18，嵌在 `plugins/*/skills/` 的全 miss），GitHub tree API 匿名同样只有 60/h。
 
 ---
 
@@ -120,6 +123,14 @@
 
 这份阶梯同时回答了"项目级/全局"该落在哪：`.dsh/skills/` 与 `.agents/skills/` 是 DSH 自己会读的位置。
 
+已从宿主实现逐行核实（`D:\dsh\resources\app.asar\dsh\node_modules\@deepseek-ai\dsh-skill-filesystem\lib\index.js`，逻辑路径）：
+
+- 五个根的来源名与 rank：项目级 `.dsh/skills`（`source:"project-dsh"`, 100）、`.agents/skills`（`project-agents`, 200）；插件自带 `customSkillDirs`（`custom`, 300）；全局 `$DSH_HOME/skills`（`user-dsh`, 400，`skipSystem` 跳过 `.system`）、`$DSH_AGENTS_HOME/skills`（`user-agents`, 500）；随包 `bundled`（600）。`$DSH_HOME` 缺省 `~/.dsh`，`$DSH_AGENTS_HOME` 缺省 `~/.agents`（`:149-187`、`:20-24`、`:83`；home 解析见 `dsh-home-paths/README.md:84`）。
+- 发现形状（`:584-617`）：每个根只扫**一层**；目录取其下的 `SKILL.md`（`:589-592`），根下散放的 `.md` 也各算一个技能（`:592-595`）；watch 只盯 `SKILL.md` 与 `*.md`（`:549-559`）。
+- 项目根（`:810-818`）：从 cwd 向上找最近的含 `.git` 的祖先，找不到就用 cwd——所以"项目级安装装到哪个目录"插件自己算得出来，不用问用户。
+- 本机现状：`~/.dsh/skills` **不存在**（全局只有一个根有东西）；`~/.agents/skills` 存在，find-skills / hindsight-coding-agent / wewrite 等已在里面。
+- **`~/.claude/skills` 不在扫描范围**：全 asar 搜 `claude/skills` 只有 1 处无关命中（`@anthropic-ai/sdk` 的 CHANGELOG）。本机 `C:\Users\Administrator\.claude\skills` 里的 find-skills、vision 属 Claude Code 自己的目录，DSH 看不见。
+
 ### 4.2 安装走 skills CLI
 
 `skills` 官方 CLI（已下载 1.7.4 到 `tmp/pkg174`）的落点表：
@@ -129,7 +140,9 @@
 | 项目 | 默认 | `./<agent>/skills/` |
 | 全局 | `-g` | `~/<agent>/skills/` |
 
-DSH 不在 CLI 支持的 agent 列表里（`tmp/pkg174/package/docs/agents.md` 那份表里没有 dsh），但表里有 `codex`（以及 cline / zed / pi / dexto / fx / loaf / warp 等一长串）的项目/全局落点正好是 `.agents/skills/` 和 `~/.agents/skills/`——**就是上面阶梯里 rank 200 / 500 的位置，DSH 原生可读**。
+DSH 不在 CLI 支持的 agent 列表里（`tmp/pkg174/package/docs/agents.md` 那份表里没有 dsh），但表里有 `codex`（以及 cline / zed / pi / dexto / fx / loaf / warp 等一长串）的项目/全局落点正好是 `.agents/skills/` 和 `~/.agents/skills/`——**就是上面阶梯里 rank 200 / 500 的位置，DSH 原生可读**。表的位置是 `tmp/pkg174/package/docs/agents.md:20`（一行挤了 cline、codex、dexto、fx、kimi-code-cli、loaf、pi、sarvam-code、warp、zed 十个；注意同一张表里 `cursor` 的项目路径也是 `.agents/skills/`，但它的全局路径是 `~/.cursor/skills/`，不能拿来装全局）。
+
+包里还有两条实现细节（`dist/cli.mjs:4906-4923`、`:2249-2270`）：canonical 目录恒为 `<root>/.agents/skills/<slug>`；**选中的 agent 只共享同一个 skillsDir 时（`uniqueDirs.size <= 1`）CLI 强制 copy，真文件直接写该目录；多个 agent 时才建链接（Windows 上是 Junction）**。所以 `-a codex --copy` 是「单 agent + 真文件」的确定组合，不会在项目里多长出 `.claude/skills` 这种旁支。
 
 于是安装＝官方 CLI，一行：
 
@@ -149,7 +162,7 @@ DSH 不在 CLI 支持的 agent 列表里（`tmp/pkg174/package/docs/agents.md` �
 列表：npx skills list [-g] -a codex
 ```
 
-列表不解析 CLI 的输出（它是给人看的、可能带颜色和交互），直接扫上表四个目录 + 读 `SKILL.md` frontmatter，事实以文件系统为准。删除走 CLI 保证锁文件（`skills-lock.json`）一致，删完再核对目录真没了。
+列表不解析 CLI 的输出（它是给人看的、可能带颜色和交互），直接扫上表四个目录 + 读 `SKILL.md` frontmatter，事实以文件系统为准。删除走 CLI 保证锁文件（`skills-lock.json`）一致，删完再核对目录真没了。实测（见 4.6）：卸载后 `skills-lock.json` 仍在，只是变成空表——所以"删干净"的判据只能是目录不存在，不能拿锁文件当判据。
 
 ### 4.4 面板要加的东西
 
@@ -176,11 +189,40 @@ Host 半边新增的路由（现有前缀 `/api/dsh-skills-center`）：
 - **安装只有一个含义**：落到 4.1 的目录，DSH 原生可发现，`skills` CLI 能管；
 - 库存 + 激活降级为「不进任何 agent 目录的试用/备用」（下载正文供面板预览），不再叫"安装"。
 
-### 4.6 实现前必须实测的三件事
+还有一条同源硬事实：**DSH 核心没有"技能启用/停用"的存储**。全 asar 搜 `activation.json` 零命中；`ctx.skills`（`dsh-skill/lib/index.js:119` 的 `SkillRegistry`）只有 `registerProvider`(`:147`) / `register`(`:193`) / `list`(`:224`) / `snapshot`(`:234`) / `get`(`:250`) / `collect`(`:265`) / `invalidateCache`(`:376`) / `invalidateEntry`(`:382`)——**没有任何安装、下载、删除、启用、停用方法**。唯一的开关是写在 SKILL.md frontmatter 里的文件级声明：`disable-model-invocation` 与 `user-invocable`（`dsh-skill-filesystem/lib/index.js:856-857`；旧键 `disableModelInvocation`/`modelInvocable` 已被显式拒绝）。
 
-1. `npx skills add ... -a codex --copy` 在 Windows 上是否真的落到 `.agents/skills/`，且 DSH 能发现它。
-2. 插件 Host 半边跑子进程的通道：优先用宿主提供的 command 服务（`cordis_inspect` 里能看到 `command` 服务），否则 `child_process.spawn`——注意 Node 在这个环境里用 `stdio: 'pipe'` 捕获子进程输出有已知的 EPERM 边界，退路是 `stdio: 'ignore'` + 退出码 + 事后扫目录判定。
-3. 项目级安装的"项目"指哪个目录：插件进程的 cwd 未必是用户当前会话的工作目录。需要确认宿主能不能给出当前会话的 cwd；给不出就在面板上显示待装路径让用户确认。
+所以"管理"能诚实做到的是：**列出**（扫四个根）/ **安装**（skills CLI）/ **卸载**（skills CLI），以及"把不想用的移出扫描根"这一种停用；做不到"留着但停用"。这反而让上面的建议更划算：`activation.json` + rank 700 那套降级成预览缓存后，就不用再假装自己有宿主不支持的语义。
+
+### 4.6 装机通道：已在真机上验完（2026-10-21）
+
+**实测结果**（Windows / Node 22.22.0，工作目录 `tmp/cli-test/` 下一个 `git init` 过的空项目）：
+
+| 动作 | 命令 | 结果 |
+|---|---|---|
+| 项目级安装 | `npx -y skills@1.7.4 add vercel-labs/skills --skill find-skills -a codex --copy -y` | exit 0；落 `<项目>/.agents/skills/find-skills/SKILL.md`（真文件，不是 symlink）；写 `<项目>/skills-lock.json` |
+| 全局安装 | 同上再带 `-g`（先把 `USERPROFILE`/`HOME` 指到临时目录） | exit 0；落 `~/.agents/skills/find-skills/SKILL.md`；写 `~/.agents/.skill-lock.json` |
+| 列表 | `npx -y skills@1.7.4 list -a codex` | `find-skills  .\.agents\skills\find-skills` + `Agents: not linked  Source: vercel-labs/skills` |
+| 卸载 | `npx -y skills@1.7.4 remove find-skills -a codex -y` | exit 0；目录被删；`skills-lock.json` 保留但变成 `{"version":1,"skills":{}}` |
+
+两条由此确定的事实：① 落点就是 DSH 扫描的 rank 200 / 500 两个根，与 4.1 的推算一致；② CLI 的 stdout 是 ANSI + 盒线 + 光标转义（`[1G[J` 这种），**不能拿它当结果解析**，一律以文件系统为准。
+
+**子进程通道**：宿主没有子进程形的 `command` 服务（`commands` 是斜杠命令注册表，不跑进程），但有 `subprocess` 服务（`ctx.subprocess`；硬依赖用 `inject:['subprocess']`，否则 `ctx.get('subprocess')` 判空）：
+
+```ts
+resolveExecutable(command: string, env?, signal?): Promise<string>   // 裸名走被清洗过的 PATH；含分隔符的相对路径直接拒绝
+spawn(spec: {
+  argv: readonly string[]; cwd: string;
+  stdio: { stdin: 'ignore'|'pipe'|{data:string};
+           stdout: 'pipe'|'inherit'|{ maxBytes: number; spill?: { maxBytes: number } };
+           stderr: 同 stdout; control?: 'pipe' };
+  graceMs: number; signal?: AbortSignal; env?: NodeJS.ProcessEnv;
+}): SubprocessHandle   // 同步返回
+// handle: stdin/stdout/stderr/control(Duplex) | collected.{stdout,stderr}?.readFrom(fromByte) -> { text, nextOffset, lossy, spillPath? } | done: Promise<{ exitCode, signal }> | terminate() | waitForExit(signal?)
+```
+
+比 `child_process.spawn` 好在：`readFrom` 是偏移式、**不消费**，多个读者互不影响；超限就读 spill 文件且带 `lossy` 标记；服务销毁时会终结所有在跑的托管进程。安装与卸载走它，不自己 spawn。
+
+还剩一个实现问题（阶段 3 第一步就测）：**用哪个可执行文件跑 CLI**。`resolveExecutable('node')` 在这个打包环境里未必解析得到；候选顺序是 `resolveExecutable('node')` → `process.execPath`（Electron 要带 `ELECTRON_RUN_AS_NODE=1`）→ `resolveExecutable('npx.cmd')`。同时决定：把 `skills` 作为本插件的一个 npm 依赖装进来（固定版本、离线可用、仍然是官方 CLI），而不是每次让 npx 去网上取。
 
 ---
 
@@ -188,7 +230,11 @@ Host 半边新增的路由（现有前缀 `/api/dsh-skills-center`）：
 
 面板与服务端的排序默认值都改成装量降序（`lib/catalog.js` 的 `SORTS` / `/list` 的 `sort` 默认值 / `lib/page.js` 榜单页）。
 
-口径要写清楚，否则「总安装量」有歧义：目录里的 `installs` 是去重后主 id 的实际装量；`installs_merged` 是跨仓库副本合计，实测 7821 条里只有 902 条有值，而且**有值的每一条都与 `installs` 不相等**。建议：排序用 `installs`（可验、稳定），展示时若有 `installs_merged` 就注明「含 N 个副本」。
+口径定案（**上一版写错了，这里更正**）：`installs_merged` 不是坏数据。它等于「主条目装量 + 所有跨仓库副本装量」，恒大于等于 `installs`（902/902 条都更大），算式能对上——`anthropics/skills/frontend-design` 的 `installs` 1008746 加 7 个副本（53177+16638+6830+411+32+1+1）正好等于 `installs_merged` 1085836。上一版说的「有值的每一条都与 `installs` 不相等」是恒真陈述，不是数据问题。
+
+只有 902/7821 条有值的原因在聚类键：没有正文 hash 时它退化成 `slug|描述前160字`（`collector/pipeline.mjs:99-103`），跨仓库副本聚不到一起。1.1 的收录标准要求每条都有正文与 hash 之后，聚类会收紧，覆盖率随之上升。
+
+于是：**排序口径 = `installs_merged ?? installs`**，不引入第三个字段；有副本时界面注明「含 N 个副本」，没有就是本身。这样「总安装量」只有一个含义。
 
 改默认排序的副作用要说在前面：S 分排序的前 20 名与装量排序的前 20 名**只重合 3 条**（S 分里有 curated 加权，能把装量 862 的条目推到第 100 位）。改完之后，榜单页和面板的"默认第一屏"会完全变样。
 
@@ -200,13 +246,13 @@ Host 半边新增的路由（现有前缀 `/api/dsh-skills-center`）：
 |---|---|---|
 | P0-1 | 头部 624 名的 `stars` / `first_seen` 恒为空——`ENRICH_VERSION` 没跟着 `fetch.mjs` 新增的页面解析一起升，头部被永久跳过 | 阶段 1（第 2 项）|
 | P0-2 | `official` 与 `curated` 完全重合（5527 = 5527） | 阶段 1（1.4）|
-| P0-3 | `installs_merged` 88.5% 为空 | 阶段 1 / 第 5 节 |
+| P0-3 | `installs_merged` 只有 902/7821 条有值（聚类键缺 hash 聚不出副本，不是缺数据） | 阶段 1（聚类键用正文 hash）/ 第 5 节（排序取 `installs_merged ?? installs`） |
 | P0-4 | 同一 slug 跨仓库重复卡（391 组） | 阶段 1（聚类键加正文 hash）|
 | P0-5 | 排序项没有覆盖条数提示，点了像坏了 | 阶段 1（排序项标可用条数，覆盖为 0 就置灰）|
 | P1 | 星标按仓库级抓（7395 条 github 技能出自少数仓库） | 阶段 1（批量档）|
 | P2 | 面板只读、`library/` 只有 1 个正文 | 阶段 2 + 3 |
 | P3 | M3 召回钩子 | 阶段 4（宿主 `agent/pre-step` + `ctx.systemPrompt.section()` 已实测可用；只在 turn 1 命中时注入一行）|
-| P4 | 空结果没有出口（本地 7821 条 vs 上游 93043 条） | 阶段 4（skills.sh 搜索链接，或宿主 `web.search` 兜底）|
+| P4 | 空结果没有出口（本地 7821 条 vs 上游 93043 条） | 阶段 4。接口已定：`GET https://skills.sh/api/search?q=<≥2字符>&limit=<n>[&owner=<owner>]`（公开无鉴权、CLI `find` 用的就是它、限流 30/分钟/IP、`limit` ≤100、返回 algolia fuzzy 结果含 `id/source/name/installs`；缺 `q` 或 1 字 → 400）；认证版 `/api/v1/skills/search`（limit ≤200，多词走 semantic）另计额度 |
 | P5 | 文档漂移（README 说"三件事"列了四条；条数有 8420/7639/7821 三种说法；榜单页与面板各维护一套卡片渲染） | 阶段 4 |
 
 ---
@@ -233,8 +279,10 @@ Host 半边新增的路由（现有前缀 `/api/dsh-skills-center`）：
 
 ---
 
-## 9. 需要拍板的三件事
+## 9. 三件事的现状（都已定）
 
-1. **收录水位 N**：1000 / **2000**（建议）/ 5000。代价是采集轮数：1000 约 1 轮，2000 约 1.5–3 轮，5000 约 4–7 轮。
-2. **安装落点**：只保留 `.agents/skills/`（DSH 原生可读、CLI 直装、卸载干净）；还是同时保留 `~/.dsh/skills-center/library/` + 激活那套（面板里能试用，但和 `skills list` 不同步）。
-3. **"总安装量"口径**：按 `installs`（主 id 实装量）排序，还是按 `installs_merged`（跨副本合计，88.5% 为空）。
+1. **收录水位 N = 2000**（用户定）。严格过滤先不开：现在只有 480/7821 条有正文，立刻开会让目录先掉到 480 条；改成「水位内正文覆盖 ≥ 95% 自动开」，`requireBody` 可强制覆盖。
+2. **安装落点 = 只保留 `.agents/skills/`**（项目级 `<项目>/.agents/skills/`、全局 `~/.agents/skills/`）。理由不只是"DSH 能读"：DSH 核心根本没有启用/停用存储（见 4.5），第二条路（`library/` + 激活 + rank 700 + 上限 50）等于自造一套宿主不认的语义；`library/` 降级为预览缓存。
+3. **"总安装量"口径 = `installs_merged ?? installs`**（见第 5 节）：它是主条目加全部副本的合计，不是缺数据；覆盖率随收录标准（每条都有正文 hash）自然提升。
+
+阶段 1 已开工（两个并行任务：采集端收录标准与富集顺序 / 面板与服务端默认排序）。

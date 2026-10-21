@@ -3,6 +3,7 @@
 // 不用编造的数字——否则测试只会证明代码符合我的想象。
 import assert from 'node:assert/strict';
 import { buildCatalog, clusterKey, dedupe, normalizeRecord, scoreRecord, trendPct, auditScore } from './pipeline.mjs';
+import { bodyGateStats } from './collect.mjs'; // 纯函数，无网络/无副作用；只测水位门禁的算术
 
 // ---- 趋势：8 周序列前后半段 ----
 assert.equal(trendPct([100, 100, 100, 100, 100, 100, 100, 100]), 0, 'flat series is 0%');
@@ -145,5 +146,99 @@ assert.equal(normalized.slug, 'frontend-design');
 assert.equal(normalized.installs, 1003686);
 // 两段 id（域名来源）不许被切坏
 assert.equal(normalizeRecord({ id: 'open.feishu.cn/lark-drive' }).source, 'open.feishu.cn');
+
+// ---- 正文元数据：目录只带 length/sha256；全文与摘录都不进 catalog（payload 预算）----
+{
+  const sha = 'a'.repeat(64);
+  const once = normalizeRecord({
+    id: 'a/b/body-skill',
+    slug: 'body-skill',
+    installs: 10,
+    description: 'x',
+    bodyLength: 1234,
+    body_sha256: sha,
+  });
+  assert.equal(once.body_length, 1234, 'bodyLength → body_length on the first pass');
+  assert.equal(once.body_sha256, sha, 'body_sha256 must survive the first normalize pass');
+  const twice = normalizeRecord(once);
+  assert.equal(twice.body_length, 1234, 'body_length must survive the second pass (collect.mjs normalizes twice)');
+  assert.equal(twice.body_sha256, sha, 'body_sha256 must survive the second pass');
+  const built = buildCatalog(
+    [{ id: 'a/b/body-skill', slug: 'body-skill', installs: 10, description: 'x', bodyLength: 1234, body_sha256: sha }],
+    { version: 'test-body' },
+  ).skills[0];
+  assert.deepEqual(built.body, { length: 1234, sha256: sha }, 'catalog carries body metadata (length + sha256)');
+  assert.ok(!('body_excerpt' in built), 'body_excerpt must stay out of the catalog');
+  const noBody = buildCatalog([{ id: 'a/b/no-body', slug: 'no-body', installs: 5, description: 'y' }], { version: 'test-body' }).skills[0];
+  assert.equal(noBody.body, undefined, 'a record without a body must not invent one');
+}
+
+// ---- 收录过滤：默认关闭；开启后按 no_body → thin_body → no_description 分类记账 ----
+{
+  const gateRecords = [
+    { id: 'a/b/full', slug: 'full', installs: 100, description: 'has everything', bodyLength: 900, body_sha256: 'h1' },
+    { id: 'a/b/no-body', slug: 'no-body', installs: 90, description: 'no body at all' },
+    { id: 'a/b/no-sha', slug: 'no-sha', installs: 80, description: 'body but no sha256', bodyLength: 900 },
+    { id: 'a/b/thin', slug: 'thin', installs: 70, description: 'too short', bodyLength: 120, body_sha256: 'h2' },
+    { id: 'a/b/no-desc', slug: 'no-desc', installs: 60, bodyLength: 900, body_sha256: 'h3' },
+  ];
+  const off = buildCatalog(gateRecords, { version: 'test-gate' });
+  assert.equal(off.count, 5, 'requireBody defaults to false — the gate must not silently shrink the catalog');
+  assert.deepEqual(off.dropped, { no_body: 0, thin_body: 0, no_description: 0 }, 'a closed gate reports all zeroes');
+  const on = buildCatalog(gateRecords, { version: 'test-gate', requireBody: true });
+  assert.equal(on.count, 1, 'only the complete record survives');
+  assert.equal(on.skills[0].slug, 'full');
+  assert.deepEqual(
+    on.dropped,
+    { no_body: 2, thin_body: 1, no_description: 1 },
+    'each record is counted once, by the first matching rule (no sha256 is no_body, not thin_body)',
+  );
+  assert.equal(on.raw_count, 5, 'raw_count still counts every normalized record');
+  // 300 是门槛本身：恰好 300 通过，299 丢；上限可覆盖
+  const edge = (length, opts) =>
+    buildCatalog(
+      [{ id: 'a/b/edge', slug: 'edge', installs: 1, description: 'd', bodyLength: length, body_sha256: 'h' }],
+      { version: 'test-gate', requireBody: true, ...opts },
+    );
+  assert.equal(edge(300).count, 1, 'length == minBodyLength passes');
+  assert.equal(edge(299).dropped.thin_body, 1, 'length < minBodyLength is thin_body');
+  assert.equal(edge(900, { minBodyLength: 5000 }).count, 0, 'minBodyLength is overridable');
+}
+
+// ---- official 与 curated 合并：目录只发 curated，official 不再出现 ----
+{
+  assert.equal(normalizeRecord({ id: 'a/b/legacy', official: true }).official, true, 'normalizeRecord still reads raw.official');
+  const built = buildCatalog(
+    [
+      { id: 'a/b/official-only', slug: 'official-only', installs: 30, description: 'a', official: true },
+      { id: 'a/b/plain', slug: 'plain', installs: 20, description: 'b' },
+    ],
+    { version: 'test-curated' },
+  );
+  const official = built.skills.find((s) => s.slug === 'official-only');
+  const plain = built.skills.find((s) => s.slug === 'plain');
+  assert.equal(official.curated, true, 'official ⊂ curated: an official record must still read as curated');
+  assert.ok(!('official' in official), 'the catalog must not emit the official field any more');
+  assert.equal(official.score.C, 1, 'C must still reward official/curated');
+  assert.equal(plain.curated, undefined, 'a non-curated record must not gain a curated flag');
+}
+
+// ---- 正文水位门禁：按合并后装量取前 N 条，看覆盖率与 strict ----
+{
+  const rows = [
+    { id: 'a/b/top', slug: 'top', installs: 900, description: 'x', bodyLength: 900, body_sha256: 'h1' },
+    { id: 'c/d/top', slug: 'top', installs: 100, description: 'x', bodyLength: 900, body_sha256: 'h1' },
+    { id: 'a/b/mid', slug: 'mid', installs: 50, description: 'y' },
+    { id: 'a/b/tail', slug: 'tail', installs: 10, description: 'z' },
+  ];
+  const gate = bodyGateStats(rows, 2);
+  assert.equal(gate.head_total, 2, 'waterline caps the head');
+  assert.equal(gate.head_with_body, 1, 'a fork cluster counts once, ranked by merged installs');
+  assert.equal(gate.coverage, 0.5);
+  assert.equal(gate.strict, false, 'coverage below 95% keeps the filter off');
+  assert.equal(bodyGateStats(rows, 3).head_with_body, 1);
+  assert.equal(bodyGateStats([], 2000).coverage, 0, 'an empty catalog cannot claim coverage');
+  assert.equal(bodyGateStats([], 2000).strict, false);
+}
 
 console.log(`pipeline ok — ${scored.count} skills scored, forks merged ${forks.length}→${dedupedForks.length}`);

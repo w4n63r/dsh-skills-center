@@ -85,7 +85,12 @@ export function normalizeRecord(raw) {
     curated: Boolean(raw.curated),
     official: Boolean(raw.official),
     audit: raw.audit || null,
-    body_length: raw.bodyLength ?? null,
+    // 正文长度也要能从「已归一化」的形状再读一次（bodyLength → body_length），
+    // 否则二次归一化（buildCatalog、正文水位门禁）会把长度洗成 null。
+    body_length: raw.bodyLength ?? raw.body_length ?? null,
+    // 正文全文的 sha256（采集时对 SKILL.md 全文算）：目录里只带指纹，全文不进 catalog。
+    // 键名与归一化后的形状一致，所以跑两遍也不会丢。
+    body_sha256: raw.body_sha256 ?? null,
     // 只用于算 flags，不进最终目录（正文摘要可能几十字，没必要发给插件）
     body_excerpt: raw.body_excerpt || null,
     file_count: raw.file_count ?? null,
@@ -170,12 +175,40 @@ export function flagsOf(rec) {
   return flags;
 }
 
-/** 组装最终目录：去重 → 打分 → 按 S 降序。纯函数，给定输入必得同一输出（便于对拍）。 */
-export function buildCatalog(records, { version, generatedAt = null, zh = {} } = {}) {
+/**
+ * 组装最终目录：去重 →（可选）收录过滤 → 打分 → 按 S 降序。纯函数，给定输入必得同一输出（便于对拍）。
+ *
+ * requireBody 默认关闭：现在只有一小部分记录抓过正文，一开就会把目录先砍到几百条。
+ * 开启后按顺序丢三类，一条记录只计一次（先命中的先算）：
+ *   1. 没有正文（body_length / body_sha256 任一缺失）→ no_body
+ *   2. 正文太短（body_length < minBodyLength）→ thin_body
+ *   3. 没有英文描述（description_en 为空）→ no_description
+ */
+export function buildCatalog(
+  records,
+  { version, generatedAt = null, zh = {}, requireBody = false, minBodyLength = 300 } = {},
+) {
   const clean = records.map(normalizeRecord).filter(Boolean);
   const merged = dedupe(clean);
   const maxInstalls = merged.reduce((m, r) => Math.max(m, r.installs), 0);
-  const scored = merged.map((rec) => {
+  const dropped = { no_body: 0, thin_body: 0, no_description: 0 };
+  const eligible = merged.filter((rec) => {
+    if (!requireBody) return true;
+    if (!rec.body_length || !rec.body_sha256) {
+      dropped.no_body += 1;
+      return false;
+    }
+    if (rec.body_length < minBodyLength) {
+      dropped.thin_body += 1;
+      return false;
+    }
+    if (!rec.description_en) {
+      dropped.no_description += 1;
+      return false;
+    }
+    return true;
+  });
+  const scored = eligible.map((rec) => {
     const score = scoreRecord(rec, { maxInstalls });
     const aliases = rec.aliases.length ? rec.aliases : undefined;
     return {
@@ -192,13 +225,17 @@ export function buildCatalog(records, { version, generatedAt = null, zh = {} } =
       weekly_series: rec.weekly_series || undefined,
       hash: rec.hash || undefined,
       enrich_v: rec.enrich_v || undefined,
+      // 正文全文不进目录（catalog.json 已 6.9MB，payload 逼近 4.5MB 上限）：只带长度与 sha256，
+      // 消费方拿 sha256 当 key 去 Blob 取全文。
+      body: rec.body_length ? { length: rec.body_length, sha256: rec.body_sha256 || undefined } : undefined,
       description_en: rec.description_en || undefined,
       // 中文层按 id 索引（fork 合并后 hash 会随正文变化，id 才是稳定身份）；
       // 老数据里按 hash 写的也认，两条路都查一遍。
       name_zh: zh[rec.id]?.name_zh || zh[rec.hash]?.name_zh || undefined,
       zh: zh[rec.id] || zh[rec.hash] || undefined,
-      official: rec.official || undefined,
-      curated: rec.curated || undefined,
+      // official 与 curated 实测完全重合（5527 = 5527，互通为 0），目录只发 curated 一个字段。
+      // normalizeRecord 仍然读 raw.official，兼容还在发 official 的旧上游与旧目录。
+      curated: Boolean(rec.curated || rec.official) || undefined,
       first_seen: rec.first_seen || undefined,
       // 星标数是仓库级指标（技能页的 GitHub Stars），没抓过页面的条目没有 → 缺省不写
       stars: Number.isFinite(rec.stars) ? rec.stars : undefined,
@@ -215,6 +252,8 @@ export function buildCatalog(records, { version, generatedAt = null, zh = {} } =
     count: scored.length,
     raw_count: clean.length,
     deduped: clean.length - merged.length,
+    // 收录过滤的账单：三个分类互斥，关闭时为全 0
+    dropped,
     max_installs: maxInstalls,
     skills: scored,
   };

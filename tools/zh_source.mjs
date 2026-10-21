@@ -52,8 +52,8 @@ async function one(skill, index) {
     installs: skill.installs_merged ?? skill.installs ?? null,
     installs_own: skill.installs ?? null,
     trend_pct: skill.trend_pct ?? null,
-    curated: Boolean(skill.curated),
-    official: Boolean(skill.official),
+    curated: Boolean(skill.curated || skill.official),
+    official: Boolean(skill.official || skill.curated),
     flags: skill.flags || [],
     audit: skill.audit
       ? {
