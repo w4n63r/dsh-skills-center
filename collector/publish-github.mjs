@@ -69,20 +69,8 @@ export async function publishCatalogToGitHub({
   const meta = buildMeta(catalog, { sha256, bytes });
   const metaBody = JSON.stringify(meta);
 
-  const call = async (path, init) => {
-    const response = await fetchImpl(`${apiBase}${path}`, {
-      ...init,
-      headers: { ...(init?.headers || {}), authorization: `Bearer ${token}` },
-    });
-    const text = await response.text();
-    let parsed = null;
-    try {
-      parsed = text ? JSON.parse(text) : null;
-    } catch {
-      parsed = { raw: text.slice(0, 200) };
-    }
-    return { status: response.status, ok: response.ok, body: parsed };
-  };
+  const call = (path, init) =>
+    ghCall({ fetchImpl, apiBase, token, path, init, log, baseDelayMs: Number(process.env.GH_RETRY_BASE_MS || 5000) });
 
   let stage = 'blob';
   try {
@@ -157,7 +145,8 @@ export async function uploadBodiesToGitHub({
   branch = 'bodies',
   apiBase = DEFAULT_API,
   fetchImpl = globalThis.fetch,
-  concurrency = 6,
+  concurrency = 3,
+  maxBodies = Number(process.env.GH_BODIES_MAX || 70),
   message = null,
   log = () => {},
 } = {}) {
@@ -168,27 +157,22 @@ export async function uploadBodiesToGitHub({
   if (!repo || !repo.includes('/')) {
     return { ok: false, stage: 'repo', error: 'repo must be "owner/name"', uploaded: 0, failed: [], base, commit: null };
   }
-  const entries = [...(bodies instanceof Map ? bodies : new Map(Object.entries(bodies || {})))].filter(
+  const all = [...(bodies instanceof Map ? bodies : new Map(Object.entries(bodies || {})))].filter(
     ([sha, text]) => /^[0-9a-f]{64}$/.test(sha) && typeof text === 'string' && text.length > 0,
   );
   const failed = [];
-  if (!entries.length) return { ok: true, stage: 'empty', uploaded: 0, failed, base, commit: null };
+  if (!all.length) return { ok: true, stage: 'empty', uploaded: 0, failed, base, commit: null };
+  // 写请求要串行且间隔 ≥1s（ghCall 统一 pacing），一轮最多传 maxBodies 份；
+  // 超出的按失败处理 → 调用方抹掉 body.v，下一轮自然重试，不会漏。
+  const entries = all.slice(0, maxBodies);
+  if (entries.length < all.length) {
+    for (const [sha] of all.slice(entries.length)) failed.push(sha);
+    log(`github: ${all.length - entries.length} bodies deferred (cap ${maxBodies}/run)`);
+  }
 
-  const call = async (path, init) => {
-    const response = await fetchImpl(`${apiBase}${path}`, {
-      ...init,
-      headers: { ...((init && init.headers) || {}), authorization: `Bearer ${token}` },
-    });
-    const text = await response.text();
-    let parsed = null;
-    try {
-      parsed = text ? JSON.parse(text) : null;
-    } catch {
-      parsed = { raw: text.slice(0, 200) };
-    }
-    return { status: response.status, ok: response.ok, body: parsed };
-  };
-  const all = () => entries.map(([sha]) => sha);
+  const call = (path, init) =>
+    ghCall({ fetchImpl, apiBase, token, path, init, log, baseDelayMs: Number(process.env.GH_RETRY_BASE_MS || 5000) });
+  const allShas = () => entries.map(([sha]) => sha);
 
   let stage = 'ref';
   try {
@@ -201,12 +185,12 @@ export async function uploadBodiesToGitHub({
       if (parent) {
         const commit = await call(`/repos/${repo}/git/commits/${parent}`);
         if (!commit.ok) {
-          return { ok: false, stage: 'base', error: `commit ${commit.status}: ${msg(commit.body)}`, uploaded: 0, failed: all(), base, commit: null };
+          return { ok: false, stage: 'base', error: `commit ${commit.status}: ${msg(commit.body)}`, uploaded: 0, failed: allShas(), base, commit: null };
         }
         baseTree = (commit.body && commit.body.tree && commit.body.tree.sha) || null;
       }
     } else if (ref.status !== 404) {
-      return { ok: false, stage: 'ref', error: `ref ${ref.status}: ${msg(ref.body)}`, uploaded: 0, failed: all(), base, commit: null };
+      return { ok: false, stage: 'ref', error: `ref ${ref.status}: ${msg(ref.body)}`, uploaded: 0, failed: allShas(), base, commit: null };
     }
 
     // 2) 每条正文建一个 blob：分批发，GitHub 对突发很敏感（secondary rate limit）。
@@ -233,7 +217,7 @@ export async function uploadBodiesToGitHub({
     stage = 'tree';
     const created = await call(`/repos/${repo}/git/trees`, json({ ...(baseTree ? { base_tree: baseTree } : {}), tree }));
     if (!created.ok) {
-      return { ok: false, stage, error: `tree ${created.status}: ${msg(created.body)}`, uploaded: 0, failed: all(), base, commit: null };
+      return { ok: false, stage, error: `tree ${created.status}: ${msg(created.body)}`, uploaded: 0, failed: allShas(), base, commit: null };
     }
 
     stage = 'commit';
@@ -246,7 +230,7 @@ export async function uploadBodiesToGitHub({
       }),
     );
     if (!commit.ok) {
-      return { ok: false, stage, error: `commit ${commit.status}: ${msg(commit.body)}`, uploaded: 0, failed: all(), base, commit: null };
+      return { ok: false, stage, error: `commit ${commit.status}: ${msg(commit.body)}`, uploaded: 0, failed: allShas(), base, commit: null };
     }
 
     stage = 'ref';
@@ -255,12 +239,59 @@ export async function uploadBodiesToGitHub({
       ? await call(`/repos/${repo}/git/refs/heads/${branch}`, { ...json({ sha, force: true }), method: 'PATCH' })
       : await call(`/repos/${repo}/git/refs`, json({ ref: `refs/heads/${branch}`, sha }));
     if (!update.ok) {
-      return { ok: false, stage, error: `ref ${update.status}: ${msg(update.body)}`, uploaded: 0, failed: all(), base, commit: null };
+      return { ok: false, stage, error: `ref ${update.status}: ${msg(update.body)}`, uploaded: 0, failed: allShas(), base, commit: null };
     }
 
     log(`github: stored ${tree.length} bodies${failed.length ? `, ${failed.length} failed` : ''} → ${repo}@${branch} ${String(sha).slice(0, 8)}`);
     return { ok: failed.length === 0, stage: 'done', uploaded: tree.length, failed, base, commit: sha || null };
   } catch (error) {
-    return { ok: false, stage, error: String((error && error.message) || error), uploaded: 0, failed: all(), base, commit: null };
+    return { ok: false, stage, error: String((error && error.message) || error), uploaded: 0, failed: allShas(), base, commit: null };
   }
+}
+
+
+/** 写请求之间至少隔 1s：GitHub secondary rate limit 明确要求串行、间隔 1s 以上。 */
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+let lastWriteAt = 0;
+async function paceWrite() {
+  const interval = Number(process.env.GH_WRITE_INTERVAL_MS ?? 1100);
+  if (!Number.isFinite(interval) || interval <= 0) return;
+  const wait = lastWriteAt + interval - Date.now();
+  if (wait > 0) await sleep(wait);
+  lastWriteAt = Date.now();
+}
+
+/** 403/429 里只有「限流」类才值得重试；权限不足之类的 403 重试也没用。 */
+const RATE_LIMIT_RE = /rate limit|secondary|abuse|too many requests|temporarily unavailable/i;
+const isRateLimited = (status, body) =>
+  (status === 429 || status === 403 || status === 502 || status === 503) && RATE_LIMIT_RE.test(`${status} ${msg(body)}`);
+
+/**
+ * 所有 GitHub 调用的唯一出口：写请求自动节流，限流自动退避重试。
+ * 返回形状与旧的内联 call() 完全一致（{status, ok, body}），调用方不用改。
+ */
+async function ghCall({ fetchImpl, apiBase, token, path, init, log = () => {}, attempts = 4, baseDelayMs = 5000 } = {}) {
+  const method = String((init && init.method) || 'GET').toUpperCase();
+  let last = null;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    if (method !== 'GET') await paceWrite();
+    const response = await fetchImpl(`${apiBase}${path}`, {
+      ...init,
+      headers: { ...((init && init.headers) || {}), authorization: `Bearer ${token}` },
+    });
+    const text = await response.text();
+    let parsed = null;
+    try {
+      parsed = text ? JSON.parse(text) : null;
+    } catch {
+      parsed = { raw: text.slice(0, 200) };
+    }
+    last = { status: response.status, ok: response.ok, body: parsed };
+    if (last.ok || attempt === attempts || !isRateLimited(last.status, last.body)) return last;
+    const retryAfter = Number(response.headers && response.headers.get && response.headers.get('retry-after'));
+    const wait = Number.isFinite(retryAfter) && retryAfter > 0 ? Math.min(retryAfter * 1000, 60000) : Math.min(baseDelayMs * attempt, 60000);
+    log(`github: rate limited on ${method} ${path} (${last.status}) — waiting ${Math.round(wait / 1000)}s (attempt ${attempt}/${attempts})`);
+    await sleep(wait);
+  }
+  return last;
 }

@@ -4,6 +4,10 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { buildMeta, publishCatalogToGitHub, uploadBodiesToGitHub } from './publish-github.mjs';
 
+// 单测里不要真的等 1.1s/次，也不要等 5s 退避
+process.env.GH_WRITE_INTERVAL_MS = '0';
+process.env.GH_RETRY_BASE_MS = '10';
+
 const catalog = {
   version: 'full-2026-10-20T08-43-08-286Z',
   generated_at: '2026-10-20T08:43:08.286Z',
@@ -206,4 +210,59 @@ const shaB = createHash('sha256').update(textB).digest('hex');
   assert.equal((await uploadBodiesToGitHub({ bodies: { [shaA]: textA }, token: 't' })).stage, 'repo');
 }
 
-console.log('publish-github ok — 单提交强推、catalog+meta 同 commit、正文内容寻址上传、失败如实上报');
+{
+  // 每轮上限：超出的按失败上报（调用方据此抹掉 body.v，下一轮自然重试）
+  const { calls, fetchImpl } = fakeBodiesGitHub();
+  const result = await uploadBodiesToGitHub({
+    bodies: { [shaA]: textA, [shaB]: textB },
+    token: 't',
+    repo: 'o/r',
+    maxBodies: 1,
+    fetchImpl,
+    log: () => {},
+  });
+  assert.equal(result.ok, false);
+  assert.equal(result.uploaded, 1);
+  assert.deepEqual(result.failed, [shaB]);
+  assert.equal(calls.filter((c) => c.path.endsWith('/git/blobs')).length, 1, '超出的正文一个请求都不发');
+}
+
+{
+  // 限流 403：等一会儿重试，而不是把整轮判死
+  const inner = fakeBodiesGitHub();
+  let blobHits = 0;
+  const flaky = async (url, init) => {
+    if (String(url).endsWith('/git/blobs') && (blobHits += 1) === 1) {
+      return {
+        ok: false,
+        status: 403,
+        headers: { get: () => null },
+        text: async () => JSON.stringify({ message: 'You have exceeded a secondary rate limit. Please wait a few minutes.' }),
+      };
+    }
+    return inner.fetchImpl(url, init);
+  };
+  const result = await uploadBodiesToGitHub({ bodies: { [shaA]: textA }, token: 't', repo: 'o/r', fetchImpl: flaky, log: () => {} });
+  assert.equal(result.ok, true, result.error);
+  assert.equal(blobHits, 2, '第一次限流后必须重试');
+}
+
+{
+  // 权限类 403 不重试：重试也没用，直接如实上报
+  let hits = 0;
+  const denied = async () => {
+    hits += 1;
+    return {
+      ok: false,
+      status: 403,
+      headers: { get: () => null },
+      text: async () => JSON.stringify({ message: 'Resource not accessible by personal access token' }),
+    };
+  };
+  const result = await uploadBodiesToGitHub({ bodies: { [shaA]: textA }, token: 't', repo: 'o/r', fetchImpl: denied, log: () => {} });
+  assert.equal(result.ok, false);
+  assert.equal(result.stage, 'ref');
+  assert.equal(hits, 1, '权限类 403 只发一次');
+}
+
+console.log('publish-github ok — 单提交强推、catalog+meta 同 commit、正文内容寻址上传、限流退避重试、失败如实上报');
