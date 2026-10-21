@@ -168,6 +168,12 @@ assert.equal(normalizeRecord({ id: 'open.feishu.cn/lark-drive' }).source, 'open.
     { version: 'test-body' },
   ).skills[0];
   assert.deepEqual(built.body, { length: 1234, sha256: sha }, 'catalog carries body metadata (length + sha256)');
+  // body_v 是「这份正文已经存进 Blob」的印章：只有真的入库了才允许带上，否则目录会声称一份取不到的正文
+  const stored = buildCatalog(
+    [{ id: 'a/b/body-skill', slug: 'body-skill', installs: 10, description: 'x', bodyLength: 1234, body_sha256: sha, body_v: 1 }],
+    { version: 'test-body' },
+  ).skills[0];
+  assert.deepEqual(stored.body, { length: 1234, sha256: sha, v: 1 }, 'body_v must reach the catalog when the text is stored');
   assert.ok(!('body_excerpt' in built), 'body_excerpt must stay out of the catalog');
   const noBody = buildCatalog([{ id: 'a/b/no-body', slug: 'no-body', installs: 5, description: 'y' }], { version: 'test-body' }).skills[0];
   assert.equal(noBody.body, undefined, 'a record without a body must not invent one');
@@ -226,19 +232,26 @@ assert.equal(normalizeRecord({ id: 'open.feishu.cn/lark-drive' }).source, 'open.
 // ---- 正文水位门禁：按合并后装量取前 N 条，看覆盖率与 strict ----
 {
   const rows = [
-    { id: 'a/b/top', slug: 'top', installs: 900, description: 'x', bodyLength: 900, body_sha256: 'h1' },
-    { id: 'c/d/top', slug: 'top', installs: 100, description: 'x', bodyLength: 900, body_sha256: 'h1' },
+    { id: 'a/b/top', slug: 'top', installs: 900, description: 'x', bodyLength: 900, body_sha256: 'h1', body_v: 1 },
+    { id: 'c/d/top', slug: 'top', installs: 100, description: 'x', bodyLength: 900, body_sha256: 'h1', body_v: 1 },
+    // 抓过 detail、也有正文指纹，但正文没入库（body_v 缺）= 历史上「抓完就丢」的那种记录：
+    // 能算「抓到了」，不能算「已入库」——门禁只能按后者开。
+    { id: 'e/f/old', slug: 'old', installs: 200, description: 'w', bodyLength: 800, body_sha256: 'h9' },
     { id: 'a/b/mid', slug: 'mid', installs: 50, description: 'y' },
     { id: 'a/b/tail', slug: 'tail', installs: 10, description: 'z' },
   ];
   const gate = bodyGateStats(rows, 2);
   assert.equal(gate.head_total, 2, 'waterline caps the head');
-  assert.equal(gate.head_with_body, 1, 'a fork cluster counts once, ranked by merged installs');
+  assert.equal(gate.head_with_body, 2, 'fetched counts as fetched even when the body was not stored');
+  assert.equal(gate.head_stored, 1, 'only body_v counts as stored');
   assert.equal(gate.coverage, 0.5);
   assert.equal(gate.strict, false, 'coverage below 95% keeps the filter off');
-  assert.equal(bodyGateStats(rows, 3).head_with_body, 1);
+  assert.equal(bodyGateStats(rows, 3).head_stored, 1);
   assert.equal(bodyGateStats([], 2000).coverage, 0, 'an empty catalog cannot claim coverage');
   assert.equal(bodyGateStats([], 2000).strict, false);
+  const allStored = rows.map((r) => (r.bodyLength ? { ...r, body_v: 1 } : r));
+  assert.equal(bodyGateStats(allStored, 2).coverage, 1, 'every head record stored → coverage 1');
+  assert.equal(bodyGateStats(allStored, 2).strict, true, 'coverage ≥95% turns the filter on');
 }
 
 console.log(`pipeline ok — ${scored.count} skills scored, forks merged ${forks.length}→${dedupedForks.length}`);

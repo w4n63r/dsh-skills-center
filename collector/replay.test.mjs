@@ -10,6 +10,7 @@ import assert from 'node:assert/strict';
 import { loadReplayFixture } from './replay.mjs';
 import { collect } from './collect.mjs';
 import { validateCatalog } from './publish.mjs';
+import { ENRICH_VERSION } from './pipeline.mjs';
 
 const FIXTURE = new URL('./fixtures/v1-sample.json', import.meta.url);
 const TOKEN = 'replay-test-jwt';
@@ -17,7 +18,7 @@ const quiet = { log: () => {} };
 
 // ---- 全链路 ----
 const { fetchImpl, fixture } = await loadReplayFixture(FIXTURE);
-const { catalog, stats } = await collect({ fetchImpl, token: TOKEN, ...quiet });
+const { catalog, stats, bodies } = await collect({ fetchImpl, token: TOKEN, ...quiet });
 
 assert.equal(catalog.count, catalog.skills.length, 'count must match skills.length');
 assert.equal(catalog.raw_count, 14, '6 own list + 1 curated-only = 14 normalized records');
@@ -134,6 +135,51 @@ assert.ok(listOnly.catalog.version.startsWith('dir-'), listOnly.catalog.version)
 assert.equal(listOnly.catalog.count, 9);
 assert.equal(listOnly.stats.requests.enrich, 0, 'list stage never touches detail/audit');
 assert.deepEqual(validateCatalog(listOnly.catalog).errors, [], 'list-only catalog must also pass the schema gate');
+
+// ---- 6) stage 2：正文全文必须交得出来，但一个字节都不许进目录 ----
+assert.ok(bodies instanceof Map, 'collect() must hand back the body texts for upload');
+assert.equal(bodies.size, 8, 'one distinct text per successfully enriched target');
+for (const [sha, text] of bodies) {
+  assert.match(sha, /^[0-9a-f]{64}$/, 'body keys are sha256 fingerprints');
+  assert.ok(typeof text === 'string' && text.length > 0, 'a body text must never be empty');
+}
+const withBody = catalog.skills.filter((s) => s.body);
+assert.equal(withBody.length, 8, 'every enriched target carries body metadata');
+assert.ok(
+  withBody.every((s) => s.body.length > 0 && /^[0-9a-f]{64}$/.test(s.body.sha256)),
+  'body = {length, sha256}',
+);
+assert.ok(withBody.every((s) => s.body.v === 1), 'body.v is the “this text is in the blob” stamp');
+assert.ok(
+  [...new Set(withBody.map((s) => s.body.sha256))].every((k) => bodies.has(k)),
+  'every fingerprint in the catalog must have its text in bodies',
+);
+assert.equal(JSON.stringify(catalog).includes('body_text'), false, 'the full text must never leak into the catalog');
+
+// ---- 7) 富集视野要往前走：正文已入库的头部不再吃名额，也不再重抓 ----
+const second = await loadReplayFixture(FIXTURE);
+const stored = [
+  {
+    id: '101-skills/superpowers/ai-video-generation',
+    slug: 'ai-video-generation',
+    installs: 801414,
+    description: 'already stored',
+    enrich_v: ENRICH_VERSION,
+    body: { length: 4096, sha256: 'b'.repeat(64), v: 1 },
+  },
+];
+const advanced = await collect({ fetchImpl: second.fetchImpl, token: TOKEN, previous: stored, ...quiet });
+assert.equal(
+  second.fetchImpl.calls.filter((c) => c.url.includes('ai-video-generation')).length,
+  0,
+  'a head record whose body is already stored must not be re-fetched at all',
+);
+assert.equal(advanced.stats.enrich_targets.already_enriched, 1, 'the stored head record counts as already enriched');
+assert.ok(advanced.stats.enrich_targets.desired > 0, 'the frontier must move on to the next clusters');
+const inherited = advanced.catalog.skills.find((s) => s.slug === 'ai-video-generation');
+assert.equal(inherited.body.sha256, 'b'.repeat(64), 'the stored fingerprint is inherited instead of re-fetched');
+assert.equal(inherited.body.v, 1, 'the stored stamp survives into the next catalog');
+assert.equal(inherited.body.length, 4096);
 
 console.log(
   `replay ok — ${catalog.count} entries from ${catalog.raw_count} records (${catalog.deduped} merged), ` +

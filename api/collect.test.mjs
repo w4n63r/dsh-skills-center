@@ -124,6 +124,53 @@ assert.equal(forRealBody.stage, 'upload', 'collect and the schema gate passed; o
 assert.match(forRealBody.error, /blob/i, 'the upload failure must name the blob layer');
 assert.equal(forRealBody.catalog_stats.count, 9, 'the failure still reports what was collected');
 
+// ---- 全链路成功版：正文先落 Blob，目录只带指纹 + 一个 base ----
+// 这是生产真正走的那条路：先把正文写成 body/<sha256>.md，再把目录（只带 sha256）发出去。
+process.env.CRON_SECRET = SECRET; // L102 把 env 恢复成 undefined（Node 会存成字串 "undefined"）——这里必须重新设回真 secret
+const puts = [];
+const okBlob = makeHandler({
+  resolveToken: async () => ({ token: 'jwt-abc', source: 'x-vercel-oidc-token header' }),
+  loadBlob: async () => ({
+    put: async (pathname, body, options) => {
+      puts.push({ pathname, body, options });
+      return { url: `https://blob.example/${pathname}` };
+    },
+    list: async () => ({ blobs: [] }),
+    del: async () => {},
+  }),
+});
+globalThis.fetch = replay.fetchImpl;
+console.log = () => {};
+const good = await okBlob.GET(called('https://x/api/collect', { authorization: `Bearer ${SECRET}` }));
+const goodBody = await good.json();
+globalThis.fetch = realFetch;
+console.log = realLog;
+
+assert.equal(good.status, 200, `a full run with a working blob must succeed: ${JSON.stringify(goodBody).slice(0, 300)}`);
+assert.equal(goodBody.bodies.uploaded + goodBody.bodies.failed, goodBody.bodies.count, 'every body handed to the uploader is accounted for');
+assert.ok(goodBody.bodies.uploaded >= 1, 'the fixture has at least one body to store');
+assert.equal(goodBody.bodies.failed, 0);
+assert.equal(goodBody.bodies.skipped, false);
+assert.equal(goodBody.bodies.base, 'https://blob.example/body', 'the base URL is derived from a real put() result');
+
+const bodyPuts = puts.filter((p) => p.pathname.startsWith('body/'));
+assert.equal(bodyPuts.length, goodBody.bodies.count, 'one put per distinct body text (Map keyed by sha256)');
+assert.ok(bodyPuts.every((p) => /^body\/[0-9a-f]{64}\.md$/.test(p.pathname)), 'pathname = body/<sha256>.md');
+assert.ok(bodyPuts.every((p) => p.options.addRandomSuffix === false), 'a sha-derived path must not get a random suffix');
+
+const catalogPut = puts.find((p) => p.pathname.startsWith('catalog-') && p.pathname.endsWith('.json'));
+assert.ok(catalogPut, 'the catalog itself must still be published');
+const published = JSON.parse(catalogPut.body);
+assert.equal(published.body_base, 'https://blob.example/body');
+assert.equal(JSON.stringify(published).includes('body_text'), false, 'never ship the full text inside the catalog');
+const stored = published.skills.filter((s) => s.body);
+assert.equal(stored.length, goodBody.bodies.uploaded, 'every catalog entry marked with a body was really uploaded');
+assert.ok(stored.every((s) => s.body.v === 1), 'a body in the catalog is a claim that the text is in the blob');
+assert.ok(
+  stored.every((s) => bodyPuts.some((p) => p.pathname === `body/${s.body.sha256}.md`)),
+  'every marked body must point at a path we actually wrote',
+);
+
 // ---- 回归守卫：函数里不许模块级读 process.env.VERCEL_OIDC_TOKEN ----
 const source = await readFile(new URL('./collect.js', import.meta.url), 'utf8');
 // 注释里允许提到这个名字（本文件就是在解释为什么不能用），代码里不许出现

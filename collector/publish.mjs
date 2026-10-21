@@ -217,3 +217,72 @@ export async function publishCatalog({
     latest: { pathname: latestPath, url: latest?.url ?? null },
   };
 }
+
+/**
+ * 把这一轮抓到的正文全文传到 Blob：pathname = `<prefix>/<sha256>.md`。
+ *
+ * 为什么用 sha256 当文件名：正文内容不变就不重传（同一份正文所有 fork 共用一份），
+ * 且路径是内容指纹推导出来的 —— 目录里写了 body.sha256 就等于知道去哪儿取。
+ * 为什么不做成随机名：插件要用 sha256 直接拼 URL，addRandomSuffix 会让拼出来的地址 404。
+ *
+ * 失败处理：单条失败重试一次，仍失败就记入 failed 并**不**让目录声称它已入库
+ * （调用方按 failed 把 body.v / body.url 清掉，下一轮自动重抓），不是静默跳过。
+ *
+ * @param {Map<string,string>|object} bodies sha256 → 正文全文
+ * @returns {Promise<{ok:boolean, uploaded:number, failed:string[], urls:Map<string,string>, errors:string[]}>}
+ */
+export async function uploadBodies({
+  bodies,
+  put,
+  prefix = 'body',
+  access = 'public',
+  concurrency = 8,
+  retries = 1,
+  log = () => {},
+} = {}) {
+  const entries = bodies instanceof Map ? [...bodies.entries()] : Object.entries(bodies || {});
+  const urls = new Map();
+  const failed = [];
+  const errors = [];
+  if (typeof put !== 'function') return { ok: false, uploaded: 0, failed: entries.map(([sha]) => sha), urls, errors: ['no put() provided'] };
+
+  const queue = entries.slice();
+  const worker = async () => {
+    for (;;) {
+      const next = queue.shift();
+      if (!next) return;
+      const [sha, text] = next;
+      if (!/^[0-9a-f]{64}$/.test(String(sha)) || typeof text !== 'string' || !text) {
+        failed.push(String(sha));
+        errors.push(`${sha}: bad sha or empty text`);
+        continue;
+      }
+      const pathname = `${prefix}/${sha}.md`;
+      let lastError = null;
+      for (let attempt = 0; attempt <= retries; attempt += 1) {
+        try {
+          const blob = await put(pathname, text, {
+            access,
+            allowOverwrite: true, // 同一份内容重跑是幂等的；不同内容同 sha 不可能，sha 就是内容指纹
+            contentType: 'text/markdown; charset=utf-8',
+            addRandomSuffix: false,
+            cacheControlMaxAge: 31536000, // 内容指纹命名，内容永不变化
+          });
+          if (blob?.url) urls.set(String(sha), blob.url);
+          lastError = null;
+          break;
+        } catch (error) {
+          lastError = error;
+        }
+      }
+      if (lastError) {
+        failed.push(String(sha));
+        errors.push(`${pathname}: ${lastError?.message || lastError}`);
+      }
+    }
+  };
+  await Promise.all(Array.from({ length: Math.max(1, Math.min(concurrency, queue.length || 1)) }, worker));
+  const uploaded = urls.size;
+  log(`bodies: ${uploaded}/${entries.length} uploaded${failed.length ? `, ${failed.length} failed` : ''}`);
+  return { ok: failed.length === 0, uploaded, failed, urls, errors };
+}

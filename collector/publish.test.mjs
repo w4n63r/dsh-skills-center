@@ -2,7 +2,7 @@
 // 这层的价值全在「不合格就别写」：线上 catalog-latest.json 一旦被半成品覆盖，下游读到的
 // 是一个既新又残缺的目录，而日志里什么都看不出来。所以这里用假的 put() 验顺序与拒写条件。
 import assert from 'node:assert/strict';
-import { pruneVersions, validateCatalog, versionedName, publishCatalog, WEIGHTS } from './publish.mjs';
+import { pruneVersions, validateCatalog, versionedName, publishCatalog, uploadBodies, WEIGHTS } from './publish.mjs';
 import { buildCatalog } from './pipeline.mjs';
 
 const makeCatalog = () =>
@@ -152,6 +152,43 @@ assert.ok(noPut.stats.count === 2, 'even a failed upload reports what the catalo
   const listFails = await pruneVersions({ list: async () => { throw new Error('list 500'); }, del: async () => {} });
   assert.deepEqual(listFails.deleted, []);
   assert.match(listFails.errors[0], /list 500/);
+}
+
+// ---- 正文上传：sha256 命名、内容指纹决定路径、失败不许静默 ----
+{
+  const shaA = 'a'.repeat(64);
+  const shaB = 'b'.repeat(64);
+  const puts = [];
+  const fakePut = async (pathname, body, options) => {
+    puts.push({ pathname, body, options });
+    if (pathname.includes(shaB)) {
+      const err = new Error('blob 500');
+      if (puts.filter((p) => p.pathname.includes(shaB)).length <= 2) throw err; // 首次 + 重试一次都失败
+    }
+    return { url: `https://blob.example/${pathname}` };
+  };
+  const result = await uploadBodies({
+    bodies: new Map([[shaA, '# A\nbody a'], [shaB, '# B\nbody b'], ['not-a-sha', 'x'], [shaA.slice(0, 8), '']]),
+    put: fakePut,
+    log: () => {},
+  });
+  // 只有 shaA 成功（shaB 两次都失败；'not-a-sha' 与空正文在发请求前就被挡掉）
+  assert.equal(result.uploaded, 1);
+  assert.deepEqual(result.ok, false, 'one failure must make the whole batch not-ok');
+  assert.equal(result.failed.length, 3, 'shaB + bad sha + empty text');
+  assert.equal(result.urls.get(shaA), `https://blob.example/body/${shaA}.md`, 'url is derived from the sha, not random');
+  const first = puts[0];
+  assert.equal(first.pathname, `body/${shaA}.md`, 'pathname = <prefix>/<sha256>.md');
+  assert.equal(first.options.addRandomSuffix, false, 'a random suffix would break the sha-derived address');
+  assert.equal(first.options.allowOverwrite, true, 're-uploading the same content must be idempotent');
+  assert.match(first.options.contentType, /text\/markdown/);
+  assert.equal(puts.filter((p) => p.pathname.includes(shaB)).length, 2, 'a failure is retried exactly once');
+  assert.ok(result.errors.some((e) => e.includes(shaB)), 'the reason must be reported, not swallowed');
+
+  // 没有 put() 时不能装作传成功
+  const noPutBodies = await uploadBodies({ bodies: new Map([[shaA, 'x']]) });
+  assert.equal(noPutBodies.ok, false);
+  assert.deepEqual(noPutBodies.failed, [shaA]);
 }
 
 console.log(

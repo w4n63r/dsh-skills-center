@@ -6,6 +6,10 @@ export const SCORE_WEIGHTS = { H: 0.45, T: 0.2, C: 0.2, A: 0.15 };
 // 升版本号会让已富集的记录再抓一次页面：每天约 485 条，6 天左右把存量补齐。
 // 不升的话老记录永远不会出现星标——`enrich_v === ENRICH_VERSION` 会被直接跳过，连页面都不抓。
 export const ENRICH_VERSION = 3;
+// 正文入库版本：body.v === BODY_VERSION 表示「这条的正文已经按这一版逻辑抓过、并已传到 Blob」。
+// 为什么要跟 ENRICH_VERSION 分开：抓过 detail 不等于正文在库（历史上正文是抓完就丢的），
+// 两件事共用一个版本号就会出现「明明没存正文，却因为 enrich_v 是最新而被跳过」的假覆盖。
+export const BODY_VERSION = 1;
 export const TREND_CLIP = [-50, 200]; // 8 周增长率裁剪区间（%）
 export const NO_AUDIT_SCORE = 0.5; // 无审计数据给中位，不给 0：否则系统性歧视非 GitHub 来源
 
@@ -81,6 +85,8 @@ export function normalizeRecord(raw) {
     weekly_series: raw.weeklyInstalls || raw.weekly_series || null,
     hash: raw.hash || null,
     enrich_v: Number.isFinite(raw.enrich_v) ? raw.enrich_v : null,
+    // 正文入库版本（读两种形状：记录的 body_v、目录条目的 body.v）
+    body_v: Number.isFinite(raw.body_v) ? raw.body_v : Number.isFinite(raw.body?.v) ? raw.body.v : null,
     description_en: raw.description || raw.description_en || null,
     curated: Boolean(raw.curated),
     official: Boolean(raw.official),
@@ -227,7 +233,9 @@ export function buildCatalog(
       enrich_v: rec.enrich_v || undefined,
       // 正文全文不进目录（catalog.json 已 6.9MB，payload 逼近 4.5MB 上限）：只带长度与 sha256，
       // 消费方拿 sha256 当 key 去 Blob 取全文。
-      body: rec.body_length ? { length: rec.body_length, sha256: rec.body_sha256 || undefined } : undefined,
+      body: rec.body_length
+        ? { length: rec.body_length, ...(rec.body_sha256 ? { sha256: rec.body_sha256 } : {}), ...(rec.body_v ? { v: rec.body_v } : {}) }
+        : undefined,
       description_en: rec.description_en || undefined,
       // 中文层按 id 索引（fork 合并后 hash 会随正文变化，id 才是稳定身份）；
       // 老数据里按 hash 写的也认，两条路都查一遍。

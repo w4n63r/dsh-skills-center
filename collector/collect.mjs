@@ -13,7 +13,7 @@
 import { createHash } from 'node:crypto';
 
 import { createClient, PER_PAGE } from './fetch.mjs';
-import { buildCatalog, dedupe, normalizeRecord, parseFrontmatter, ENRICH_VERSION } from './pipeline.mjs';
+import { buildCatalog, dedupe, normalizeRecord, parseFrontmatter, ENRICH_VERSION, BODY_VERSION } from './pipeline.mjs';
 
 /** 默认值按 Hobby 安全值给：Pro（300s）用环境变量放开即可。 */
 export const DEFAULTS = Object.freeze({
@@ -77,6 +77,10 @@ export function mergeDetail(record, detail, audit, page = null) {
     // 也是「内容变没变」的判据。拿不到正文就给 null，不编。
     body_sha256: body ? createHash('sha256').update(body).digest('hex') : null,
     body_excerpt: body ? body.slice(0, 4000) : null,
+    // 正文全文只活到「上传 Blob」为止：目录里只留 length/sha256/v，全文一个字节都不进 catalog。
+    body_text: body || null,
+    // 正文入库版本：抓到了才算这一版抓的（上传失败时会被清掉，下一轮重抓）
+    body_v: body ? BODY_VERSION : null,
     file_count: files.length || null,
     audit: audit?.audits?.length ? audit : record.audit,
     // 趋势只存在于页面 HTML（见 fetch.mjs 的 page()）；detail 里没有这个字段。
@@ -115,8 +119,18 @@ export function bodyGateStats(records, waterline = 2000) {
   );
   const head = ranked.slice(0, limit);
   const headWithBody = head.filter((r) => r.body_length && r.body_sha256).length;
-  const coverage = head.length ? Math.round((headWithBody / head.length) * 1000) / 1000 : 0;
-  return { waterline: limit, head_total: head.length, head_with_body: headWithBody, coverage, strict: coverage >= 0.95 };
+  // 严格模式看的是「正文已入库」（body_v 有值 = 抓过、也传过 Blob）。只看 length/sha256 会把
+  // 「抓完就把正文丢掉」的旧记录算成已覆盖，于是在一半正文根本不存在的目录上开了严格过滤。
+  const headStored = head.filter((r) => r.body_length && r.body_sha256 && r.body_v).length;
+  const coverage = head.length ? Math.round((headStored / head.length) * 1000) / 1000 : 0;
+  return {
+    waterline: limit,
+    head_total: head.length,
+    head_with_body: headWithBody,
+    head_stored: headStored,
+    coverage,
+    strict: coverage >= 0.95,
+  };
 }
 
 /** 收录过滤的开关：null = 按门禁自动，true/false = 强制。 */
@@ -134,6 +148,7 @@ export function coverageStats(records, catalog) {
     // 记录可能还没归一化（bodyLength）也可能已经归一化（body_length），两个形状都要认
     with_body: count((r) => r.body_length ?? r.bodyLength),
     with_body_sha256: count((r) => r.body_sha256),
+    with_body_stored: count((r) => r.body_v),
     with_hash: count((r) => r.hash),
     with_audit: count((r) => r.audit),
     with_trend: count((r) => r.trend_pct != null),
@@ -255,6 +270,8 @@ export async function collect({
       // 不继承的话下一轮 buildCatalog 会以为它们没有正文：门禁算不出来，目录里的 body 会凭空消失。
       if (rec.body_length == null && Number.isFinite(prev.body?.length)) rec.body_length = prev.body.length;
       if (!rec.body_sha256 && prev.body?.sha256) rec.body_sha256 = prev.body.sha256;
+      // 入库版本也要继承：不然上一轮已经传过 Blob 的正文，这一轮会被当成没入库而重抓一遍
+      if (Number.isFinite(prev.body?.v)) rec.body_v = prev.body.v;
       if (prev.hash) inherited += 1;
       if (Number.isFinite(prev.enrich_v)) rec.enrich_v = prev.enrich_v;
     }
@@ -319,30 +336,35 @@ export async function collect({
   // 花在长尾上（实测装量前 2000 名里只有 792 条抓过 detail，另一半预算基本白花）。
   const curatedRecords = records.filter((r) => r.curated);
   const headQuota = Math.max(0, enrich - curatedQuota);
-  const headRecords = clusters.slice(0, headQuota).map((c) => c.lead);
+  // 候选不是「前 headQuota 个簇」，而是「沿着装量顺序凑够 headQuota 个真正要抓的」：
+  // 前排的熟面孔不能一直占名额，否则富集视野永远停在同一个排名上。
   const candidates = [];
   const queued = new Set();
   let alreadyEnriched = 0;
   const queue = (rec) => {
     if (!rec || queued.has(rec.id)) return false;
     queued.add(rec.id);
-    // 上一版已经抓过 detail 的就不再花请求；refreshEnrich 时全部重抓
-    // 只有「已经按当前逻辑抓过」的才跳过；旧版本的 hash 不算数
-    if (rec.enrich_v === ENRICH_VERSION && !refreshEnrich) {
+    // 跳过要同时满足两件：抓过 detail（enrich_v）且正文已入库（body_v >= BODY_VERSION）。
+    // 只看 enrich_v 会让「抓完就把正文丢了」的记录永远不再抓，覆盖率再也涨不上去。
+    const fresh = rec.enrich_v === ENRICH_VERSION && Number(rec.body_v) >= BODY_VERSION;
+    if (fresh && !refreshEnrich) {
       alreadyEnriched += 1;
       return false;
     }
     candidates.push(rec);
     return true;
   };
-  for (const rec of headRecords) queue(rec);
+  for (const cluster of clusters) {
+    if (candidates.length >= headQuota) break;
+    queue(cluster.lead);
+  }
   // curated 豁免：已在头部里的不重复占名额，最多再补 curatedQuota 条
   let curatedExtra = 0;
   for (const rec of curatedRecords) {
     if (curatedExtra >= curatedQuota) break;
-    if (queued.has(rec.id)) continue;
-    curatedExtra += 1;
-    queue(rec);
+    if (queue(rec)) curatedExtra += 1;
+
+
   }
   if (alreadyEnriched > 0) log(`enrich: ${alreadyEnriched} head targets already enriched → skipped`);
 
@@ -393,13 +415,22 @@ export async function collect({
   );
 
   const finalRecords = records.map((rec) => enriched.get(rec.id) || rec);
+
+  // 正文全文在这里集中一次：键是 sha256（内容指纹，同一份正文只留一份、只传一次）。
+  // 收完立刻把 body_text 从记录上摘掉——目录里只能有 length/sha256/v，全文一个字节都不进 catalog。
+  const bodies = new Map();
+  for (const rec of finalRecords) {
+    if (typeof rec?.body_text === 'string' && rec.body_sha256) bodies.set(rec.body_sha256, rec.body_text);
+    if (rec) delete rec.body_text;
+  }
+  log(`bodies: ${bodies.size} distinct texts collected for upload`);
   // 门禁在富集之后再算一次：这才是「这一轮抓完以后水位内正文覆盖了多少」的实测口径。
   // strict 为真才给 buildCatalog 传 requireBody=true（requireBody 选项可强制覆盖）。
   const bodyGate = bodyGateStats(finalRecords, bodyWaterline);
   const strictFilter = resolveRequireBody(requireBody, bodyGate);
   log(
-    `body gate: ${bodyGate.head_with_body}/${bodyGate.head_total} of the top ${bodyGate.waterline} have body ` +
-      `(coverage ${bodyGate.coverage}) → requireBody ${strictFilter ? 'on' : 'off'}`,
+    `body gate: ${bodyGate.head_stored}/${bodyGate.head_total} of the top ${bodyGate.waterline} have body stored ` +
+      `(${bodyGate.head_with_body} fetched; coverage ${bodyGate.coverage}) → requireBody ${strictFilter ? 'on' : 'off'}`,
   );
   const catalog = buildCatalog(finalRecords, {
     zh,
@@ -426,6 +457,7 @@ export async function collect({
     // 平铺的 with_* 保留给 api/collect.js 与 run.mjs 的旧消费方，新口径统一进 coverage。
     with_body: coverage.with_body,
     with_body_sha256: coverage.with_body_sha256,
+    with_body_stored: coverage.with_body_stored,
     with_hash: coverage.with_hash,
     with_audit: coverage.with_audit,
     // 趋势查得到多少条：这一维只来自页面 HTML，抓不到就是没有（不拿 installs 假装趋势）
@@ -442,7 +474,7 @@ export async function collect({
     `catalog: ${catalog.count} entries, ${catalog.deduped} merged, ${stats.with_body} with body, ` +
       `${stats.flagged} flagged, ${requests} requests, ${stats.elapsed_ms}ms`,
   );
-  return { catalog, stats };
+  return { catalog, stats, bodies };
 }
 
 /** 带 deadline 的 mapLimit：worker 自己负责「到点就提前返回」，失败计数由 onFail 收集。 */

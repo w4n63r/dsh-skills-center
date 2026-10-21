@@ -15,7 +15,7 @@
 import { timingSafeEqual } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { collect, DEFAULTS } from '../collector/collect.mjs';
-import { publishCatalog, validateCatalog } from '../collector/publish.mjs';
+import { publishCatalog, uploadBodies, validateCatalog } from '../collector/publish.mjs';
 import { publishCatalogToGitHub } from '../collector/publish-github.mjs';
 import { createHash } from 'node:crypto';
 
@@ -182,6 +182,7 @@ async function run(request, trigger, { resolveToken = resolveOidcToken, loadBlob
     // 失败不致命：拿不到就当成第一次跑，只是这一轮要多花请求。但要在响应里说清楚。
     let blob = null;
     let previousSkills = null;
+    let previousCatalog = null;
     let previousInfo = { url: null, version: null, count: 0, error: null };
     stage = 'previous';
     const importBlob = loadBlob || (() => import('@vercel/blob'));
@@ -195,6 +196,7 @@ async function run(request, trigger, { resolveToken = resolveOidcToken, loadBlob
           const prev = await res.json();
           if (Array.isArray(prev?.skills)) {
             previousSkills = prev.skills;
+            previousCatalog = prev;
             previousInfo = { url: target.url, version: prev.version || null, count: prev.skills.length, error: null };
           } else {
             previousInfo = { url: target.url, version: prev?.version || null, count: 0, error: 'previous catalog has no skills[]' };
@@ -281,6 +283,36 @@ async function run(request, trigger, { resolveToken = resolveOidcToken, loadBlob
         catalog_stats: catalogStats,
       });
     }
+    // ---- 5.5) 正文全文先落 Blob（body/<sha256>.md），再让目录声称它已入库 ----
+    // 顺序不能反：目录里 body.v 有值就是在说「这份正文取得到」，先把文件传上去才成立。
+    const bodies = result.bodies instanceof Map ? result.bodies : new Map();
+    const bodyPrefix = process.env.BODY_PREFIX || 'body';
+    const wantBodies = url.searchParams.get('bodies') !== '0';
+    let bodyUpload = { uploaded: 0, failed: [], errors: [], skipped: !wantBodies || bodies.size === 0 };
+    if (!bodyUpload.skipped) {
+      bodyUpload = await uploadBodies({
+        bodies,
+        put,
+        prefix: bodyPrefix,
+        access,
+        log: (msg) => console.log(`[collect] ${msg}`),
+      });
+      // 上传失败的那些，目录不许声称它有正文：抹掉 v，下一轮自动重抓（绝不留一个取不到的 sha）
+      if (bodyUpload.failed.length) {
+        const bad = new Set(bodyUpload.failed);
+        for (const skill of catalog.skills) {
+          if (skill.body?.sha256 && bad.has(skill.body.sha256)) delete skill.body.v;
+        }
+        console.log(`[collect] bodies: ${bodyUpload.failed.length} failed → those entries stay unmarked`);
+      }
+    }
+    // 正文地址由 sha256 直接拼出来（<base>/<sha256>.md），所以目录只需一个 base：
+    // 优先用这一轮 put() 真实返回的 origin，其次沿用上一版目录里的 base，都没有就不写。
+    const sampleUrl = bodyUpload.urls?.values?.().next?.().value;
+    if (process.env.BODY_BASE) catalog.body_base = process.env.BODY_BASE;
+    else if (sampleUrl) catalog.body_base = `${new URL(sampleUrl).origin}/${bodyPrefix}`;
+    else if (previousCatalog?.body_base) catalog.body_base = previousCatalog.body_base;
+
     const published = await publishCatalog({
       catalog,
       put,
@@ -317,6 +349,7 @@ async function run(request, trigger, { resolveToken = resolveOidcToken, loadBlob
     console.log(`[collect] done ${elapsed()}ms → ${published.latest.url}`);
     return json(200, {
       ...summary,
+      bodies: { count: bodies.size, uploaded: bodyUpload.uploaded ?? 0, failed: bodyUpload.failed?.length ?? 0, skipped: Boolean(bodyUpload.skipped), base: catalog.body_base || null },
       uploaded: {
         // 主分发路径：GitHub raw（插件默认读这个）
         github: github.ok
