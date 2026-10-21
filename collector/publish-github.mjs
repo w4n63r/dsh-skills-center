@@ -137,3 +137,130 @@ export async function publishCatalogToGitHub({
 }
 
 const msg = (body) => (body && (body.message || body.error)) || 'unknown error';
+
+/**
+ * 把正文全文发到 GitHub 的 bodies 分支（内容寻址：<sha256>.md）。
+ *
+ * 为什么不用 Blob：2026-10-21 线上 store 被 suspended（连公开读都 403），整条发布链一起 500。
+ * 正文是「收录标准」的凭据（没有正文就不收录），不能挂在随时会被停掉的存储上；
+ * GitHub raw 免费、不限流、且已经在承载目录主路径。
+ *
+ * 一次调用只产生一个 commit：base_tree 复用旧树，而内容寻址意味着同一份正文永远只占一个文件，
+ * 所以每天新增的只有这一轮真正抓到的那些 blob。
+ *
+ * 失败不抛：落到返回值的 `failed` 里，调用方据此把目录里对应的 body.v 抹掉——绝不留一个取不到的 sha。
+ */
+export async function uploadBodiesToGitHub({
+  bodies,
+  token,
+  repo,
+  branch = 'bodies',
+  apiBase = DEFAULT_API,
+  fetchImpl = globalThis.fetch,
+  concurrency = 6,
+  message = null,
+  log = () => {},
+} = {}) {
+  const base = `https://raw.githubusercontent.com/${repo}/${branch}`;
+  if (!token) {
+    return { ok: false, stage: 'auth', error: 'no GitHub token', uploaded: 0, failed: [], base, commit: null };
+  }
+  if (!repo || !repo.includes('/')) {
+    return { ok: false, stage: 'repo', error: 'repo must be "owner/name"', uploaded: 0, failed: [], base, commit: null };
+  }
+  const entries = [...(bodies instanceof Map ? bodies : new Map(Object.entries(bodies || {})))].filter(
+    ([sha, text]) => /^[0-9a-f]{64}$/.test(sha) && typeof text === 'string' && text.length > 0,
+  );
+  const failed = [];
+  if (!entries.length) return { ok: true, stage: 'empty', uploaded: 0, failed, base, commit: null };
+
+  const call = async (path, init) => {
+    const response = await fetchImpl(`${apiBase}${path}`, {
+      ...init,
+      headers: { ...((init && init.headers) || {}), authorization: `Bearer ${token}` },
+    });
+    const text = await response.text();
+    let parsed = null;
+    try {
+      parsed = text ? JSON.parse(text) : null;
+    } catch {
+      parsed = { raw: text.slice(0, 200) };
+    }
+    return { status: response.status, ok: response.ok, body: parsed };
+  };
+  const all = () => entries.map(([sha]) => sha);
+
+  let stage = 'ref';
+  try {
+    // 1) 现有分支的树当 base_tree：旧正文文件不动，只加这一轮新的。
+    const ref = await call(`/repos/${repo}/git/ref/heads/${branch}`);
+    let parent = null;
+    let baseTree = null;
+    if (ref.ok) {
+      parent = (ref.body && ref.body.object && ref.body.object.sha) || null;
+      if (parent) {
+        const commit = await call(`/repos/${repo}/git/commits/${parent}`);
+        if (!commit.ok) {
+          return { ok: false, stage: 'base', error: `commit ${commit.status}: ${msg(commit.body)}`, uploaded: 0, failed: all(), base, commit: null };
+        }
+        baseTree = (commit.body && commit.body.tree && commit.body.tree.sha) || null;
+      }
+    } else if (ref.status !== 404) {
+      return { ok: false, stage: 'ref', error: `ref ${ref.status}: ${msg(ref.body)}`, uploaded: 0, failed: all(), base, commit: null };
+    }
+
+    // 2) 每条正文建一个 blob：分批发，GitHub 对突发很敏感（secondary rate limit）。
+    stage = 'blob';
+    const tree = [];
+    for (let i = 0; i < entries.length; i += concurrency) {
+      const slice = entries.slice(i, i + concurrency);
+      const results = await Promise.all(
+        slice.map(async ([sha, text]) => {
+          const blob = await call(`/repos/${repo}/git/blobs`, json({ content: text, encoding: 'utf-8' }));
+          return { sha, ok: blob.ok, blobSha: blob.body && blob.body.sha, status: blob.status, error: blob.ok ? null : msg(blob.body) };
+        }),
+      );
+      for (const r of results) {
+        if (r.ok && r.blobSha) tree.push({ path: `${r.sha}.md`, mode: '100644', type: 'blob', sha: r.blobSha });
+        else failed.push(r.sha);
+      }
+    }
+    if (!tree.length) {
+      return { ok: false, stage, error: `all ${failed.length} blobs failed`, uploaded: 0, failed, base, commit: null };
+    }
+
+    // 3) tree → commit → 强推 ref。
+    stage = 'tree';
+    const created = await call(`/repos/${repo}/git/trees`, json({ ...(baseTree ? { base_tree: baseTree } : {}), tree }));
+    if (!created.ok) {
+      return { ok: false, stage, error: `tree ${created.status}: ${msg(created.body)}`, uploaded: 0, failed: all(), base, commit: null };
+    }
+
+    stage = 'commit';
+    const commit = await call(
+      `/repos/${repo}/git/commits`,
+      json({
+        message: message || `bodies: ${tree.length} texts, ${new Date().toISOString()}`,
+        tree: created.body && created.body.sha,
+        parents: parent ? [parent] : [],
+      }),
+    );
+    if (!commit.ok) {
+      return { ok: false, stage, error: `commit ${commit.status}: ${msg(commit.body)}`, uploaded: 0, failed: all(), base, commit: null };
+    }
+
+    stage = 'ref';
+    const sha = commit.body && commit.body.sha;
+    const update = parent
+      ? await call(`/repos/${repo}/git/refs/heads/${branch}`, { ...json({ sha, force: true }), method: 'PATCH' })
+      : await call(`/repos/${repo}/git/refs`, json({ ref: `refs/heads/${branch}`, sha }));
+    if (!update.ok) {
+      return { ok: false, stage, error: `ref ${update.status}: ${msg(update.body)}`, uploaded: 0, failed: all(), base, commit: null };
+    }
+
+    log(`github: stored ${tree.length} bodies${failed.length ? `, ${failed.length} failed` : ''} → ${repo}@${branch} ${String(sha).slice(0, 8)}`);
+    return { ok: failed.length === 0, stage: 'done', uploaded: tree.length, failed, base, commit: sha || null };
+  } catch (error) {
+    return { ok: false, stage, error: String((error && error.message) || error), uploaded: 0, failed: all(), base, commit: null };
+  }
+}

@@ -16,7 +16,7 @@ import { timingSafeEqual } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { collect, DEFAULTS } from '../collector/collect.mjs';
 import { publishCatalog, uploadBodies, validateCatalog } from '../collector/publish.mjs';
-import { publishCatalogToGitHub } from '../collector/publish-github.mjs';
+import { publishCatalogToGitHub, uploadBodiesToGitHub } from '../collector/publish-github.mjs';
 import { createHash } from 'node:crypto';
 
 // 中文层：data/zh.json 由 tools/zh_merge.mjs 从各分片合并而来（{ entries: { [id]: {name_zh,intro,usage,notes} } }）。
@@ -274,30 +274,47 @@ async function run(request, trigger, { resolveToken = resolveOidcToken, loadBlob
     let put;
     let list;
     let del;
+    let blobError = null;
     try {
       const blobApi = blob ? await Promise.resolve(blob) : await importBlob();
       ({ put, list, del } = blobApi);
     } catch (err) {
-      return fail(500, `cannot load @vercel/blob (${err?.message || err}) — the deployment must have it in dependencies`, {
-        stage_detail: 'import',
-        catalog_stats: catalogStats,
-      });
+      // Blob 只是回退路径。2026-10-21 线上 store 被 suspended（连公开读都 403），
+      // 不能再因为它不可用就把整轮采集判死——主分发路径是 GitHub。
+      blobError = String(err?.message || err);
+      console.log(`[collect] blob unavailable: ${blobError} — continuing with GitHub only`);
     }
-    // ---- 5.5) 正文全文先落 Blob（body/<sha256>.md），再让目录声称它已入库 ----
-    // 顺序不能反：目录里 body.v 有值就是在说「这份正文取得到」，先把文件传上去才成立。
+    // ---- 5.5) 正文全文先落盘，再让目录声称它已入库 ----
+    // 顺序不能反：body.v 有值就是在说「这份正文取得到」。只选一个存储：body_base 只有一个，
+    // 一半在 Blob、一半在 GitHub 会拼出取不到的地址。
     const bodies = result.bodies instanceof Map ? result.bodies : new Map();
     const bodyPrefix = process.env.BODY_PREFIX || 'body';
     const wantBodies = url.searchParams.get('bodies') !== '0';
-    let bodyUpload = { uploaded: 0, failed: [], errors: [], skipped: !wantBodies || bodies.size === 0 };
+    const ghRepo = process.env.GH_REPO || 'w4n63r/dsh-skills-center';
+    const ghToken = process.env.GH_TOKEN || '';
+    const bodiesBranch = process.env.GH_BODIES_BRANCH || 'bodies';
+    let bodyUpload = { uploaded: 0, failed: [], errors: [], skipped: !wantBodies || bodies.size === 0, store: 'none' };
     if (!bodyUpload.skipped) {
-      bodyUpload = await uploadBodies({
-        bodies,
-        put,
-        prefix: bodyPrefix,
-        access,
-        log: (msg) => console.log(`[collect] ${msg}`),
-      });
-      // 上传失败的那些，目录不许声称它有正文：抹掉 v，下一轮自动重抓（绝不留一个取不到的 sha）
+      // 首选 GitHub：raw 免费、内容寻址（<sha256>.md）、不会因为配额被停。
+      if (ghToken) {
+        bodyUpload = {
+          ...(await uploadBodiesToGitHub({
+            bodies,
+            token: ghToken,
+            repo: ghRepo,
+            branch: bodiesBranch,
+            log: (msg) => console.log(`[collect] ${msg}`),
+          })),
+          store: 'github',
+        };
+      }
+      if (bodyUpload.store === 'none' && put) {
+        bodyUpload = {
+          ...(await uploadBodies({ bodies, put, prefix: bodyPrefix, access, log: (msg) => console.log(`[collect] ${msg}`) })),
+          store: 'blob',
+        };
+      }
+      // 一个都没落成的那些，目录不许声称它有正文：抹掉 v，下一轮自动重抓。
       if (bodyUpload.failed.length) {
         const bad = new Set(bodyUpload.failed);
         for (const skill of catalog.skills) {
@@ -305,25 +322,31 @@ async function run(request, trigger, { resolveToken = resolveOidcToken, loadBlob
         }
         console.log(`[collect] bodies: ${bodyUpload.failed.length} failed → those entries stay unmarked`);
       }
+      console.log(`[collect] bodies: ${bodyUpload.uploaded} stored via ${bodyUpload.store}`);
     }
-    // 正文地址由 sha256 直接拼出来（<base>/<sha256>.md），所以目录只需一个 base：
-    // 优先用这一轮 put() 真实返回的 origin，其次沿用上一版目录里的 base，都没有就不写。
+    // 正文地址 = <base>/<sha256>.md，所以目录只需一个 base：
+    // 显式环境变量 > 这一轮真正落成的存储 > 上一版目录里的 base。
     const sampleUrl = bodyUpload.urls?.values?.().next?.().value;
     if (process.env.BODY_BASE) catalog.body_base = process.env.BODY_BASE;
+    else if (bodyUpload.store === 'github') catalog.body_base = `https://raw.githubusercontent.com/${ghRepo}/${bodiesBranch}`;
     else if (sampleUrl) catalog.body_base = `${new URL(sampleUrl).origin}/${bodyPrefix}`;
     else if (previousCatalog?.body_base) catalog.body_base = previousCatalog.body_base;
 
-    const published = await publishCatalog({
-      catalog,
-      put,
-      // 传 list/del 才会触发保留策略：只留最近 keep 个版本快照，避免 Blob 存储无限涨
-      list,
-      del,
-      retain: Number(process.env.CATALOG_RETAIN || 14),
-      prefix,
-      access,
-      log: (msg) => console.log(`[collect] ${msg}`),
-    });
+    // Blob 是回退路径：不可用时只记一笔，不再让整轮采集失败（GitHub 那份照样发）。
+    let published = { ok: false, skipped: true, errors: [blobError || 'blob unavailable'], latest: null, versioned: null, warnings: [] };
+    if (put) {
+      published = await publishCatalog({
+        catalog,
+        put,
+        // 传 list/del 才会触发保留策略：只留最近 keep 个版本快照，避免 Blob 存储无限涨
+        list,
+        del,
+        retain: Number(process.env.CATALOG_RETAIN || 14),
+        prefix,
+        access,
+        log: (msg) => console.log(`[collect] ${msg}`),
+      });
+    }
     // GitHub 是主分发路径（raw CDN + 单提交分支 + 小文件先行），Blob 留作回退。
     // 没配 token 就跳过；失败也只记在响应里——Blob 那份可能还在，不回滚。
     let github = { ok: false, stage: 'skipped', error: 'GH_TOKEN not set' };
@@ -339,17 +362,17 @@ async function run(request, trigger, { resolveToken = resolveOidcToken, loadBlob
       if (!github.ok) console.log(`[collect] github publish failed at ${github.stage}: ${github.error}`);
     }
 
-    if (!published.ok) {
-      return fail(500, `blob upload failed: ${(published.errors || []).join('; ')}`, {
+    if (!published.ok && !github.ok) {
+      return fail(500, `both publish paths failed — blob: ${(published.errors || []).join('; ') || (published.skipped ? 'skipped' : 'unknown')}; github: ${github.error || 'skipped'}`, {
         warnings: published.warnings,
         catalog_stats: catalogStats,
       });
     }
 
-    console.log(`[collect] done ${elapsed()}ms → ${published.latest.url}`);
+    console.log(`[collect] done ${elapsed()}ms → ${published.latest?.url ?? github.url ?? '(no blob)'}`);
     return json(200, {
       ...summary,
-      bodies: { count: bodies.size, uploaded: bodyUpload.uploaded ?? 0, failed: bodyUpload.failed?.length ?? 0, skipped: Boolean(bodyUpload.skipped), base: catalog.body_base || null },
+      bodies: { count: bodies.size, uploaded: bodyUpload.uploaded ?? 0, failed: bodyUpload.failed?.length ?? 0, skipped: Boolean(bodyUpload.skipped), store: bodyUpload.store, base: catalog.body_base || null },
       uploaded: {
         // 主分发路径：GitHub raw（插件默认读这个）
         github: github.ok

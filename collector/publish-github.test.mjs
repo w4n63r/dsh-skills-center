@@ -2,7 +2,7 @@
 // 断言「单提交、两个文件同一个 commit、强推 ref」这几条关键设计真的成立。
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { buildMeta, publishCatalogToGitHub } from './publish-github.mjs';
+import { buildMeta, publishCatalogToGitHub, uploadBodiesToGitHub } from './publish-github.mjs';
 
 const catalog = {
   version: 'full-2026-10-20T08-43-08-286Z',
@@ -112,4 +112,98 @@ function fakeGitHub({ refExists = true } = {}) {
   assert.ok(JSON.stringify(meta).length < 400, 'meta stays tiny');
 }
 
-console.log('publish-github ok — 单提交强推、catalog+meta 同 commit、失败如实上报');
+// ---- 5) 正文上传：内容寻址文件、单提交、base_tree 复用旧正文 ----
+function fakeBodiesGitHub({ refExists = true, failShas = new Set() } = {}) {
+  const calls = [];
+  const fetchImpl = async (url, init = {}) => {
+    const path = String(url).replace('https://api.github.com', '');
+    const body = init.body ? JSON.parse(init.body) : null;
+    const method = init.method || 'GET';
+    calls.push({ path, method, body });
+    const respond = (status, payload) => ({ ok: status < 300, status, text: async () => JSON.stringify(payload) });
+    if (path === '/repos/o/r/git/ref/heads/bodies') {
+      return refExists ? respond(200, { object: { sha: 'old-commit' } }) : respond(404, { message: 'Not Found' });
+    }
+    if (/\/git\/commits\/[0-9a-z-]+$/.test(path)) return respond(200, { tree: { sha: 'base-tree' } });
+    if (path.endsWith('/git/blobs')) {
+      const sha = createHash('sha256').update(String(body?.content || '')).digest('hex');
+      if (failShas.has(sha)) return respond(403, { message: 'Resource not accessible by personal access token' });
+      return respond(201, { sha: `blob-${sha.slice(0, 6)}` });
+    }
+    if (path.endsWith('/git/trees')) return respond(201, { sha: 'tree-sha' });
+    if (path.endsWith('/git/commits')) return respond(201, { sha: 'body-commit-sha' });
+    if (path.endsWith('/git/refs/heads/bodies')) return respond(200, { object: { sha: body?.sha } });
+    if (path.endsWith('/git/refs')) return respond(201, { ref: body?.ref, object: { sha: body?.sha } });
+    return respond(500, { message: `unexpected ${method} ${path}` });
+  };
+  return { calls, fetchImpl };
+}
+
+const textA = '# a\nbody a';
+const textB = '# b\nbody b';
+const shaA = createHash('sha256').update(textA).digest('hex');
+const shaB = createHash('sha256').update(textB).digest('hex');
+
+{
+  // 两份正文 → 两个 <sha>.md + 一个 commit，且旧正文靠 base_tree 留在树里
+  const { calls, fetchImpl } = fakeBodiesGitHub();
+  const result = await uploadBodiesToGitHub({
+    bodies: new Map([
+      [shaA, textA],
+      [shaB, textB],
+    ]),
+    token: 'ghp_test',
+    repo: 'o/r',
+    fetchImpl,
+    log: () => {},
+  });
+  assert.equal(result.ok, true, result.error);
+  assert.equal(result.uploaded, 2);
+  assert.deepEqual(result.failed, []);
+  assert.equal(result.commit, 'body-commit-sha');
+  assert.equal(result.base, 'https://raw.githubusercontent.com/o/r/bodies');
+  const tree = calls.find((c) => c.path.endsWith('/git/trees')).body;
+  assert.deepEqual(tree.tree.map((t) => t.path).sort(), [`${shaA}.md`, `${shaB}.md`].sort(), '正文按内容寻址命名');
+  assert.equal(tree.base_tree, 'base-tree', '一次调用只加新的，旧正文不动');
+  assert.equal(calls.filter((c) => c.path.endsWith('/git/blobs')).length, 2);
+  assert.equal(calls.filter((c) => c.method === 'PATCH').length, 1);
+  assert.equal(calls.find((c) => c.method === 'PATCH').body.sha, 'body-commit-sha');
+}
+
+{
+  // 个别正文传不上去：不谎报成功，落进 failed 让调用方抹掉 body.v
+  const { fetchImpl } = fakeBodiesGitHub({ failShas: new Set([shaB]) });
+  const result = await uploadBodiesToGitHub({ bodies: { [shaA]: textA, [shaB]: textB }, token: 't', repo: 'o/r', fetchImpl, log: () => {} });
+  assert.equal(result.ok, false);
+  assert.equal(result.uploaded, 1);
+  assert.deepEqual(result.failed, [shaB]);
+}
+
+{
+  // 非法指纹、空正文全部过滤；没有可传的就一个请求都不发
+  const { calls, fetchImpl } = fakeBodiesGitHub();
+  const result = await uploadBodiesToGitHub({ bodies: { nope: textA, [shaA]: '' }, token: 't', repo: 'o/r', fetchImpl, log: () => {} });
+  assert.equal(result.ok, true);
+  assert.equal(result.uploaded, 0);
+  assert.equal(result.stage, 'empty');
+  assert.equal(calls.length, 0);
+}
+
+{
+  // 分支还不存在 → 新建 ref 而不是 PATCH；首个 commit 没有父提交
+  const { calls, fetchImpl } = fakeBodiesGitHub({ refExists: false });
+  const result = await uploadBodiesToGitHub({ bodies: { [shaA]: textA }, token: 't', repo: 'o/r', fetchImpl, log: () => {} });
+  assert.equal(result.ok, true, result.error);
+  const create = calls.find((c) => c.path.endsWith('/git/refs') && c.method === 'POST');
+  assert.equal(create.body.ref, 'refs/heads/bodies');
+  assert.deepEqual(calls.find((c) => c.path.endsWith('/git/commits')).body.parents, []);
+  assert.equal(calls.find((c) => c.path.endsWith('/git/trees')).body.base_tree, undefined);
+}
+
+{
+  // 缺 token / 缺 repo：发请求之前就拦住
+  assert.equal((await uploadBodiesToGitHub({ bodies: { [shaA]: textA }, repo: 'o/r' })).stage, 'auth');
+  assert.equal((await uploadBodiesToGitHub({ bodies: { [shaA]: textA }, token: 't' })).stage, 'repo');
+}
+
+console.log('publish-github ok — 单提交强推、catalog+meta 同 commit、正文内容寻址上传、失败如实上报');
