@@ -6,6 +6,7 @@
 //   3) audit 的 fail 必须留在分母里（3 条里 1 条 fail → A = 2/3，不是 1.0）
 //   4) 分页 0 起始、看 hasMore；只发 Authorization，不发 x-vercel-oidc-token
 //   5) 预算闸门真的会截断，并且如实报告（truncated / skipped_budget / skipped_deadline）
+//   6) 聚类键（slug|name）只用来排顺序、不是身份：簇首已入库时，同簇其它成员仍要抓 detail
 import assert from 'node:assert/strict';
 import { loadReplayFixture } from './replay.mjs';
 import { collect } from './collect.mjs';
@@ -46,7 +47,11 @@ assert.equal(noDetail.hash, undefined, 'list-only records never invent a hash');
 assert.equal(noDetail.trend_pct, null, 'no detail → no weekly series → null trend, not 0');
 assert.equal(noDetail.score.A, 0.5, 'no audit data stays neutral 0.5');
 assert.deepEqual(noDetail.flags, [], 'no body → no body-based flags');
-assert.equal(stats.enrich_targets.failed, 1, 'exactly the lark-drive detail 404 failed');
+assert.equal(
+  stats.enrich_targets.failed,
+  6,
+  'fixture 只给 6 个 ai-video fork 里的簇首配了 detail，其余 5 个 + lark-drive 共 6 个 404',
+);
 assert.equal(stats.enrich_targets.completed, 8);
 assert.equal(stats.with_body, 8, 'only enriched targets have a body');
 assert.equal(stats.with_hash, 13, '8 enriched + 5 forks that inherited the cluster hash');
@@ -126,7 +131,7 @@ assert.equal(budgeted.stats.with_body, 1);
 // ---- 5b) 时间闸门：到点后不再发新请求 ----
 const deadlined = await collect({ fetchImpl: (await loadReplayFixture(FIXTURE)).fetchImpl, token: TOKEN, maxRuntimeMs: -1, ...quiet });
 assert.equal(deadlined.stats.requests.enrich, 0, 'a blown deadline must not spend a single enrich request');
-assert.equal(deadlined.stats.enrich_targets.skipped_deadline, 9);
+assert.equal(deadlined.stats.enrich_targets.skipped_deadline, 14, '14 个候选目标（簇里每个成员都算，不只簇首）一个都没抓');
 assert.ok(deadlined.stats.truncated_reasons.some((r) => r.startsWith('enrich_deadline:')));
 
 // ---- 目录段单独跑：17 个请求就能出全量目录，任何套餐都跑得完 ----
@@ -156,7 +161,9 @@ assert.ok(
 );
 assert.equal(JSON.stringify(catalog).includes('body_text'), false, 'the full text must never leak into the catalog');
 
-// ---- 7) 富集视野要往前走：正文已入库的头部不再吃名额，也不再重抓 ----
+// ---- 7) 富集视野要往前走，而且整簇成员都要抓到 ----
+// 聚类键（slug|name）只用来排顺序，不是身份：fixture 里 6 个 fork 同名同 slug、装量不同，
+// 只抓簇首的话其余 5 个永远 enrich_v=null——既拿不到正文（收录标准要它），也拿不到自己的 hash。
 const second = await loadReplayFixture(FIXTURE);
 const stored = [
   {
@@ -169,14 +176,20 @@ const stored = [
   },
 ];
 const advanced = await collect({ fetchImpl: second.fetchImpl, token: TOKEN, previous: stored, ...quiet });
+const urls = second.fetchImpl.calls.map((c) => c.url);
 assert.equal(
-  second.fetchImpl.calls.filter((c) => c.url.includes('ai-video-generation')).length,
+  urls.filter((u) => u.includes('101-skills/superpowers/ai-video-generation')).length,
   0,
   'a head record whose body is already stored must not be re-fetched at all',
 );
+assert.ok(
+  urls.some((u) => u.includes('magentosh/superpowers/ai-video-generation')),
+  'the other forks of the same cluster must still be fetched: slug|name orders clusters, it is not an identity',
+);
 assert.equal(advanced.stats.enrich_targets.already_enriched, 1, 'the stored head record counts as already enriched');
 assert.ok(advanced.stats.enrich_targets.desired > 0, 'the frontier must move on to the next clusters');
-const inherited = advanced.catalog.skills.find((s) => s.slug === 'ai-video-generation');
+const inherited = advanced.catalog.skills.find((s) => s.id === '101-skills/superpowers/ai-video-generation');
+assert.ok(inherited, 'the stored record must stay in the catalog');
 assert.equal(inherited.body.sha256, 'b'.repeat(64), 'the stored fingerprint is inherited instead of re-fetched');
 assert.equal(inherited.body.v, 1, 'the stored stamp survives into the next catalog');
 assert.equal(inherited.body.length, 4096);

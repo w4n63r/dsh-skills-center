@@ -358,7 +358,14 @@ export async function collect({
   };
   for (const cluster of clusters) {
     if (candidates.length >= headQuota) break;
-    queue(cluster.lead);
+    // 整簇成员都入队，不只簇首：preCluster 的键（slug|name）只用来排顺序，不是身份——
+    // 同一个 slug 的 fork 可能各自有不同正文（hash 不同就是两个不同的技能）。只抓簇首的
+    // 后果实测过：头部 2000 名里 143 条永远 enrich_v=null，既拿不到正文（收录标准要它）、
+    // 也拿不到自己的 hash（去重认不出它），覆盖率卡在 0.929 再也上不去。
+    for (const member of cluster.members) {
+      if (candidates.length >= headQuota) break;
+      queue(member);
+    }
   }
   // curated 豁免：已在头部里的不重复占名额，最多再补 curatedQuota 条
   let curatedExtra = 0;

@@ -41,3 +41,6 @@ live*.json
 run*.json
 cat*.json
 probe*.json
+
+# File-tool lock artifacts (left behind by the DSH file tools mid-write)
+.dsh-ops-update-*.lock
