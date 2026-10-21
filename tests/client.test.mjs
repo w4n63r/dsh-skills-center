@@ -15,6 +15,8 @@ globalThis.window = {
       loaded = entry;
     },
   },
+  innerHeight: 900,
+  innerWidth: 1400,
   addEventListener(type, fn) {
     listeners.push({ type, fn });
   },
@@ -349,7 +351,17 @@ const countByClass = (node, cls, out = 0) => {
   );
 };
 assert.equal(countByClass(expand(render()), 'dsc-menu-item'), 0, 'menu options stay closed until clicked');
-sortMenu.props.onClick();
+// 底部菜单没有下方空间时要向上弹（面板底部的「每页条数」就是这种情况）
+sortMenu.props.onClick({
+  currentTarget: { getBoundingClientRect: () => ({ bottom: 860, top: 820 }) },
+});
+assert.ok(
+  countByClass(expand(render()), 'dsc-menu-list-up') > 0,
+  'a menu without room below opens upward instead of off-screen',
+);
+// 关掉再正常打开一次，后面的断言按「向下弹」的形态走
+sortMenu.props.onClick({ currentTarget: { getBoundingClientRect: () => ({ bottom: 300, top: 260 }) } });
+sortMenu.props.onClick({ currentTarget: { getBoundingClientRect: () => ({ bottom: 300, top: 260 }) } });
 assert.ok(countByClass(expand(render()), 'dsc-menu-item') > 0, 'opening the sort menu lists its options');
 const openMenu = textOf(render());
 // 一个浮层三组：排序字段 / 排序方向 / 发布时间范围

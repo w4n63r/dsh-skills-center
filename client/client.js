@@ -351,20 +351,27 @@ font-variant-numeric:tabular-nums}
 .dsc-menu-item{display:flex;align-items:center;justify-content:space-between;gap:16px}
 .dsc-menu-check{color:var(--dsw-alias-brand-primary);font-size:12px}
 .dsc-menu-list{position:absolute;z-index:30;top:calc(100% + 6px);right:0;min-width:100%;padding:6px;
-border:1px solid var(--dsw-alias-border-l1);border-radius:11px;background:var(--dsw-alias-bg-overlay);
-box-shadow:0 12px 30px rgba(15,17,21,.16);display:flex;flex-direction:column;gap:2px}
+border:1px solid var(--dsw-alias-border-l1);border-radius:11px;
+/* 面板必须用「实心表面」token：bg-overlay 在浅色主题里是浅灰面（#f3f4f6 级别），拿它当弹层底色会发灰 */
+background:var(--dsw-alias-bg-base,#fff);color:var(--dsw-alias-label-primary,#1f2328);
+box-shadow:0 12px 30px rgba(15,17,21,.16);display:flex;flex-direction:column;gap:2px;
+max-height:min(60vh,420px);overflow:auto;overscroll-behavior:contain}
+.dsc-menu-list-up{top:auto;bottom:calc(100% + 6px)}
 .dsc-menu-item{padding:7px 12px;border:0;border-radius:7px;background:transparent;
 color:var(--dsw-alias-label-primary);font:inherit;font-size:13px;text-align:left;cursor:pointer;white-space:nowrap}
 .dsc-menu-item:hover{background:var(--dsw-alias-bg-layer-2)}
 .dsc-menu-item[data-on="true"]{background:var(--dsw-alias-bg-layer-2);font-weight:600}
 .dsc-empty{padding:34px 2px;color:var(--dsw-alias-label-secondary);font-size:13px}
-.dsc-overlay{position:fixed;inset:0;z-index:40;background:rgba(15,17,21,.42);display:flex;
+/* 遮罩用半透明黑：主题 token 里没有「遮罩色」这一项（bg-overlay 是浅色表面），所以这里显式给 */
+.dsc-overlay{position:fixed;inset:0;z-index:40;background:rgba(15,17,21,.45);display:flex;
 align-items:center;justify-content:center;padding:36px}
 .dsc-modal{width:min(760px,100%);max-height:100%;overflow:auto;border-radius:15px;
-border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-overlay);
+border:1px solid var(--dsw-alias-border-l1);
+/* 弹框是最上层表面：用 bg-base（浅色=白），不要用 bg-overlay */
+background:var(--dsw-alias-bg-base,#fff);color:var(--dsw-alias-label-primary,#1f2328);
 box-shadow:0 24px 60px rgba(15,17,21,.28)}
 .dsc-modal-head{position:sticky;top:0;display:flex;align-items:flex-start;gap:14px;padding:18px 22px;
-border-bottom:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-overlay)}
+border-bottom:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-base,#fff)}
 .dsc-modal-head h3{margin:0;font-size:16px;line-height:1.45}
 .dsc-modal-body{padding:18px 22px 22px;display:flex;flex-direction:column;gap:16px}
 .dsc-field{display:flex;flex-direction:column;gap:5px}
@@ -511,6 +518,8 @@ white-space:pre-wrap;word-break:break-all}
      */
     function Menu({ label, sections, compact, title }) {
       const [open, setOpen] = useState(false);
+      // 面板底部的那几个菜单（每页条数）展开会掉到可视区外，所以打开前量一次：下方空间不够就向上弹
+      const [dropUp, setDropUp] = useState(false);
       const box = useRef(null);
 
       useEffect(() => {
@@ -531,6 +540,16 @@ white-space:pre-wrap;word-break:break-all}
 
       // 按钮上显示第一组（排序字段）的当前值，和截图一致
       const head = sections[0];
+      const toggle = (event) => {
+        // 用事件里的 currentTarget 量位置：不依赖 ref 是否挂上，单测也能喂一个假 rect 进来
+        const node = event?.currentTarget || box.current;
+        if (!open && node?.getBoundingClientRect && typeof window !== 'undefined') {
+          const rect = node.getBoundingClientRect();
+          const below = (window.innerHeight || 0) - rect.bottom;
+          setDropUp(below < 280 && rect.top > below);
+        }
+        setOpen(!open);
+      };
       const current = head.options.find((option) => option.value === head.value);
 
       return h(
@@ -541,7 +560,7 @@ white-space:pre-wrap;word-break:break-all}
           {
             type: 'button',
             className: compact ? 'dsc-btn dsc-menu-btn dsc-menu-btn-sm' : 'dsc-btn dsc-menu-btn',
-            onClick: () => setOpen(!open),
+            onClick: toggle,
             'aria-expanded': open ? 'true' : 'false',
             title: title || label,
           },
@@ -551,7 +570,7 @@ white-space:pre-wrap;word-break:break-all}
         open
           ? h(
               'div',
-              { className: 'dsc-menu-list' },
+              { className: dropUp ? 'dsc-menu-list dsc-menu-list-up' : 'dsc-menu-list' },
               sections.flatMap((section, index) => [
                 index ? h('div', { key: `sep-${section.label}`, className: 'dsc-menu-sep' }) : null,
                 h('div', { key: `group-${section.label}`, className: 'dsc-menu-group' }, section.label),
