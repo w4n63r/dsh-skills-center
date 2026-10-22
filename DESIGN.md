@@ -327,7 +327,7 @@ export function apply(ctx, config) { /* … */ }
 ## 8.2 中文卡片层（`data/zh.json`）
 
 - **两层**：`tier: "hand"`（人工精写，300 条，`data/zh.json`，由 `data/zh/part-1..6.json` 各 50 条合并；缺 `tier` 时按 `hand`）/ `tier: "auto"`（机器生成层，目标覆盖目录全部条目，按批推进）。
-- **进度（2026-10-21）**：hand 300 + auto 首批 25 = **325/3879**（auto 首批 25 条已合入 `data/zh/part-7.json`；`data/zh.json` 现 325 条、`tier` 计数 hand 300 + auto 25、`generated_at 2026-10-21T08:29:46Z`）。没覆盖的条目如实写「中文卡未覆盖」：有上游 `description_en` 就截断照抄，什么都没有就直说只有名称/装量/审计——不许拿占位符糊过去。
+- **进度（2026-10-22）**：hand 300 + auto 425 = **725/3969**（分片 `data/zh/part-1..23.json`；`tier` 计数 hand 300 + auto 425）。没覆盖的条目如实写「中文卡未覆盖」：有上游 `description_en` 就截断照抄，什么都没有就直说只有名称/装量/审计——不许拿占位符糊过去。
 - **流水线**：`tools/zh_fetch_bodies.mjs`（正文抓到本地缓存当素材）→ `tools/zh_generate.mjs plan`（按批 25 条产出待写输入 `in-<from>-<to>.json`）→ 写手/模型回填 `out-<from>-<to>.json` → `check`（长度、禁用词、`tier`、**能力词必须在正文里出现**）→ `apply`（合并进 `data/zh/part-N.json`，幂等）→ `tools/zh_merge.mjs`（汇总进 `data/zh.json`，保留 `tier`）。
 - 校验口径：`name_zh` 2–10 字且禁止中英混排，`intro` 60–500、`usage` 20–300、`notes` ≤300；禁用词「专治 / 逼出 / 无死角 / 一站式 / 深度赋能 / 赋能 / 颠覆 / 神器 / 王炸 / 闭眼入 / 碾压 / 吊打」；`tools/zh_validate.mjs` 另做 `tier` 与正文溯源校验。
 - 贴法是**按 id**（`collector/pipeline.mjs:189-190`）：fork 合并后 `hash` 会随正文变化，`id` 才是稳定身份；老数据按 hash 写的也认，两条路都查一遍。

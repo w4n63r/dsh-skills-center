@@ -275,7 +275,7 @@ spawn(spec: {
 | 阶段 | 内容 | 验收 | 状态（2026-10-21） |
 |---|---|---|---|
 | **1** | 收录标准 + 富集顺序 + `ENRICH_VERSION` 升版 + `official`/`curated` 合并 + 默认排序改装量 + 排序项覆盖提示 | 一轮采集后：目录每条都有 `description_en` 与 `body.length`；装量前 100 名的 `stars`/`first_seen` 非空；`npm test` 六套全绿 | **已完成**：2026-10-21T08:05Z 线上采集 count 3879、水位内正文覆盖率 0.974、`requireBody` 已打开；默认排序改装量见 `87e9ffa`。`stars`/`first_seen` 覆盖率仍低（§6 P1、README「已知未完成」） |
-| **2** | 正文落 Blob + `/body` 路由 + 中文层流水线（扩到 2000） | 2000 条正文可在面板打开；中文卡 2000 条且全部过校验脚本 | **部分完成**：正文改存 GitHub `bodies` 分支（`ecc27d9`），`/body` 路由与本地缓存已落地（`tests/body.test.mjs`）；中文层只有 hand 300 + auto 首批 25 = 325/3879，**扩容未完成** |
+| **2** | 正文落 Blob + `/body` 路由 + 中文层流水线（扩到 2000） | 2000 条正文可在面板打开；中文卡 2000 条且全部过校验脚本 | **部分完成**：正文改存 GitHub `bodies` 分支（`ecc27d9`），`/body` 路由与本地缓存已落地（`tests/body.test.mjs`）；中文层 hand 300 + auto 425 = 725/3969，**扩容进行中** |
 | **3** | `/local` `/install` `/uninstall` + 面板「本地」页签 + 项目级/全局选择 | 面板上装一个技能，`npx skills list` 和 DSH 技能目录都能看到；卸载后两处都消失 | **宿主侧已完成**（`lib/installer.js` + 三条路由，`tests/install-routes.test.mjs` 端到端）；**面板侧未接线**：`client/client.js` 有「本地」视图与按钮的字符串/组件，但当前 Panel 只渲染目录视图 |
 | **4** | 召回钩子（最小版）+ 空结果兜底 + 文档对齐 + 两套渲染合并 | 新会话首条消息命中时出现一行提示；文档里的条数与实际一致 | **未开工**：M3 召回钩子只有设计（§6 P3）；本次只做了文档对齐（README/PLAN/DESIGN/HANDOFF） |
 

@@ -160,7 +160,7 @@ lib/page.js           插件自吐的只读榜单页（无前端构建、无外�
 lib/paths.js         ~/.dsh/skills-center/{catalog,bodies,library,activation.json} 路径；MAX_ACTIVE=50
 client/client.js     浏览器半边（手写无构建；dsh.client 启动期加载，改完要刷新/重启）
 data/catalog.json    仓库内回退目录（线上以 GitHub catalog 分支为准）
-data/zh.json         中文卡片汇总（hand 300 + auto 25 = 325 条；分片在 data/zh/part-1..7.json）
+data/zh.json         中文卡片汇总（hand 300 + auto 425 = 725 条；分片在 data/zh/part-1..23.json）
 samples/             digest.json（页面采样）· digest2.json（SKILL.md 采样）· cards.v3.md（定稿卡片）· weekly.json（真实 8 周序列）
 tools/               build_catalog.py · probe_catalog.py · fetch_skillmd.py · refetch_weekly.mjs · zh_source.mjs · zh_fetch_bodies.mjs · zh_generate.mjs · zh_validate.mjs · zh_merge.mjs
 collector/           collect.mjs / pipeline.mjs / fetch.mjs / publish-github.mjs / replay.mjs + 各 .test.mjs
@@ -226,16 +226,16 @@ f6e6c8c test: cover web api + honest activate when body missing
 **部署事实（都是真跑出来的，不是推断）**
 
 - 生产域名 `https://dsh-skills-center.vercel.app`，项目 `prj_PavIFSFZ3VMt3EsZSpw5D3x6368c`；Blob store `skills-catalog`（`store_n6OtuGHMwpkpfyQb`，region hkg1，**凭据模式 OIDC**，没有 `BLOB_READ_WRITE_TOKEN`）；`CRON_SECRET` 在 production 环境，`vercel env pull` 拿不到它的值（Secret 类型不可读），本轮**已轮换成新值**并存进本地 `.env.local`（`.env*` 已 gitignore）。
-- `vercel --prod` 每次约 23s；`/api/catalog` 是 **302 到 Blob**，不在函数里转发字节（7572 条 + 300 条中文卡 = 4.3MB，转发会撞 4.5MB 响应上限）。
+- `vercel --prod` 每次约 23s；`/api/catalog` 是 **302 到 GitHub raw**（Blob 存储 2026-10-21 被停），不在函数里转发字节（转发会撞 4.5MB 响应上限）。
 - **上游真实规模是 93,043 条**（`list_total`），不是早先估的 8420。目录段按 `LIMIT_RECORDS=3000` 抓前 6 页（≈8s），去重 fork 后 **7572** 条（`deduped` 1554）。
 - 一轮只富集得动 **497 个目标**（`MAX_REQUESTS=1500`，列表 6 + curated 1，约 3 请求/条），失败 1–4 个；靠 `previous` 目录继承上一轮富集结果（本轮 `inherited_enriched=1217`），覆盖率逐日爬升。整轮 125–200s，`truncated_reasons: list_cap:3000/93043, enrich_budget:6179`。
 - 判失败的坑：`requests.max=1500` 但实际 `used=1522` —— 闸门是按"目标数"预算的，尾部几个目标会略微超，不是 bug 但别拿它当硬上限写断言。
 
-**中文卡片层（`data/zh.json`，300 条）**
+**中文卡片层（`data/zh.json`，725 条：hand 300 + auto 425）**
 
 - 流程：`tools/zh_source.mjs` 切成 6 片（每片 50 条）→ 6 个写手并行产出 `data/zh/part-1..6.json` → `tools/zh_validate.mjs` 单条校验 → `tools/zh_merge.mjs` 合并成 `data/zh.json`（185KB）。合并脚本对**跨片重复 id / 超长 / 禁用词直接失败不落盘**，实测 300 条一次过。
 - 贴法按 **id**（`collector/pipeline.mjs:189-190`，hash 会随正文变化所以不可靠），采集时同时给出 `name_zh`（拍平）和 `zh: {intro,usage,notes}`。
-- 卡片渲染（`lib/catalog.js` `renderCard`）：有中文用中文；没有就从 `description_en` 截 240 字照抄并追一行「中文卡 — 未覆盖（只做安装量前 300 条）」；连英文描述都没有就写「上游没给描述，这条目前只有名称、装量、审计结论」——**不留占位符、不编**。
+- 卡片渲染（`lib/catalog.js` `renderCard`）：有中文用中文；没有就从 `description_en` 截 240 字照抄并追一行「中文卡 — 未覆盖」；连英文描述都没有就写「上游没给描述，这条目前只有名称、装量、审计结论」——**不留占位符、不编**。
 - 榜单页（`lib/page.js` + `lib/index.js`）：内联行 = 按 S 前 500 条 ∪ 所有有中文卡的条目（实测 697 行、HTML 292KB），URL 内联不再随目录膨胀到几 MB；`/card` 接口对任意 id 都有效，内联不是能力上限。
 
 **这一轮踩到并修掉的真 bug**
@@ -258,7 +258,7 @@ f6e6c8c test: cover web api + honest activate when body missing
 **做了什么**
 
 - 新增 `client/client.js`（手写、无构建）：`window.__ModuleLoader__.load({id:'dsh-skills-center', factory})`，只 `require('react')`；在 `sidebar.panellist` 注册 `{id:'skills-center'}` 画一个 SVG 目录图标，在 `main` 注册 `{key:'skills-center'}` 画面板（**key 必须等于 sidebar 的 id**，宿主靠这个把图标和面板对上）。注册包在 `ctx.slots.inject('sidebar.panellist', …)` 内，缺 slot 时整块不注册。
-- 面板：搜索（服务端搜全目录）、只看有中文卡、表头点击换排序（名称/安装数/8 周/S）、点行在右侧读完整中文卡（介绍/用途/注意事项/安装数/趋势/来源/标记/S 分/id）、顶部一行 `目录 7572 条 · 版本 … · 已激活 n/50`。样式只用 `--dsw-alias-*` token，文案走 locale 服务并带中文兜底。
+- 面板：搜索（服务端搜全目录）、只看有中文卡、表头点击换排序（名称/安装数/8 周/S）、点行在右侧读完整中文卡（介绍/用途/注意事项/安装数/趋势/来源/标记/S 分/id）、顶部一行 `目录 3969 条 · 版本 … · 已激活 n/50`。样式只用 `--dsw-alias-*` token，文案走 locale 服务并带中文兜底。
 - 新增只读接口 `GET /api/dsh-skills-center/list?q=&limit=&offset=&zh=1&sort=`（`lib/catalog.js` 的 `browseSkills` + `rowOf`）：回 `{version,total,matched,offset,limit,active,maxActive,rows[]}`，行里只有面板要用的字段，`limit` 硬上限 500。`searchSkills` 与 `browseSkills` 共用 `matchScore()`，判据不两处漂移。
 - `package.json`：加 `exports["./client"]`、`files` 加 `client`、`dsh.client = {platform:'web', immediately:true, inject:[slots, locale]}`（与 `templates/decoration` 同形）。
 - 测试：`tests/client.test.mjs`（假 `__ModuleLoader__` + 假 react）：模块 id、只 require react、两个 slot 的 id/key 对应、`label()` 是中文、fetch → 表格渲染（`1,003,686` / `+6.4%` / `-33.2%` / 标记位 / `已激活 1/50`）、样式走主题 token。已加入 `npm test`，六套全绿。
@@ -279,7 +279,7 @@ f6e6c8c test: cover web api + honest activate when body missing
 
 用户看完第一版（表格 + 右侧详情栏）说「现在样式并不是我想要的，我想要的是类似截图中的这样的」——指 `dshmarket` 插件市场那种版式。于是把面板整体改成同构的**卡片墙**：
 
-- 顶部状态行（目录/匹配/版本/已激活）+ 工具条（搜索框 / 排序下拉 / 降序·升序切换）+ **筛选胶囊**（全部 / 有中文卡 / 官方精选 / 有风险信号 / 已抓正文）+ 卡片墙（`repeat(auto-fill,minmax(300px,1fr))`）+ 底部「已显示 N / 共 M」与「加载更多」（每页 60，按 id 去重）。
+- 顶部状态行（目录/匹配/版本/已激活）+ 工具条（搜索框 / 排序下拉 / 降序·升序切换）+ **筛选胶囊**（全部 / 有中文卡 / 官方精选 / 有风险信号 / 已抓正文）+ 卡片墙（`repeat(auto-fill,minmax(300px,1fr))`）+ 底部「上一页 / 页码 / 下一页」（每页 24/48/96/192）；「本地」页签另有安装/卸载与作用域切换。
 - 卡片：中文名（没有就 slug）+ `slug · 来源` + 右上角 S 分 + 三行截断的介绍 + `安装数 / 8 周趋势` 事实行 + 标签行（官方 / 精选 / 中文卡 / 有正文 / `审计 4/5 家通过` / flags）。审计标签按 warn/fail 上色。
 - 点卡片 → 居中详情弹层（Esc / 点遮罩 / 点关闭都能关）：完整中文卡、S 分四维、逐条审计（provider + status + riskLevel）、首次收录、id，GitHub 来源还给 `npx skills add <source> --skill <slug>`。
 - 服务端随之扩展：`/list` 新增 `filter`（zh/official/risky/enriched）与 `dir`（asc/desc），行里新增 `name/source_kind/installs_merged/score/official/curated/enriched/first_seen/audit{judged,pass,warn,fail}/install_hint`；`install_hint` 只对 `source_kind === 'github'` 生成。
@@ -390,7 +390,7 @@ Cron **每项目 100 个、最小间隔一天**（精度 ±59 分钟）；Blob *
 用 `@vercel/blob` 的 `list` + `del`，十几行；另外审计字段占目录 38%（2.15 MB），只留 provider/status/riskLevel/categories、
 丢掉长 summary 能再瘦一圈（代价：详情弹层里少一句人话总结）。
 
-目录大小构成（5.73 MB / 7715 条）：审计 2.15 MB（38%）、中文卡 0.08 MB（1%），其余是每条的 id/slug/name/installs/flags/score。
+目录大小构成（约 7.7 MB / 3969 条）：审计 2.15 MB（38%）、中文卡 0.08 MB（1%），其余是每条的 id/slug/name/installs/flags/score。
 `body_excerpt` 不进线上目录（面板用不到），所以正文长度不影响额度。
 #### 9.3.6 发布时间与近 30 天安装量（同日，用户问「能获取到吗」）
 
