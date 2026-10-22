@@ -3,6 +3,7 @@
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 
 const home = await mkdtemp(join(tmpdir(), 'skills-center-body-'));
@@ -14,6 +15,13 @@ const { apply } = await import('../lib/index.js');
 const SHA = 'f'.repeat(64);
 const SKILL_ID = 'acme/skills/hello';
 const BODY_BASE = 'https://bodies.test/b';
+// 兜底档：bodies 分支上没有这份正文，skills.sh 的公开下载接口有，且字节能对回 sha256
+const FALLBACK_TEXT = '# fallback\n\n这一份只有 skills.sh 有。\n';
+const SHA_FALLBACK = createHash('sha256').update(FALLBACK_TEXT).digest('hex');
+const FALLBACK_ID = 'acme/skills/fallback';
+// 反面用例：skills.sh 回的内容对不上目录里的 sha256，必须当作没抓到
+const MISMATCH_ID = 'acme/skills/mismatch';
+const SHA_MISMATCH = 'b'.repeat(64);
 const CATALOG = {
   version: 'test-body',
   generated_at: '2026-10-21T00:00:00.000Z',
@@ -30,6 +38,24 @@ const CATALOG = {
       installs: 10,
       description_en: 'says hello',
       body: { length: 42, sha256: SHA, v: 1 },
+    },
+    {
+      id: FALLBACK_ID,
+      source: 'acme/skills',
+      slug: 'fallback',
+      name: 'fallback',
+      installs: 5,
+      description_en: 'only on skills.sh',
+      body: { length: FALLBACK_TEXT.length, sha256: SHA_FALLBACK, v: 2 },
+    },
+    {
+      id: MISMATCH_ID,
+      source: 'acme/skills',
+      slug: 'mismatch',
+      name: 'mismatch',
+      installs: 1,
+      description_en: 'skills.sh returns the wrong bytes',
+      body: { length: 10, sha256: SHA_MISMATCH, v: 2 },
     },
   ],
 };
@@ -59,12 +85,20 @@ assert.equal(captured.routes.length, 1, '插件应注册一条 prefix 路由');
 const route = captured.routes[0];
 
 const calls = [];
+const jsonRes = (payload) => ({ ok: true, status: 200, text: async () => JSON.stringify(payload), json: async () => payload });
 const fakeFetch = async (url) => {
-  calls.push(String(url));
-  if (!String(url).startsWith(`${BODY_BASE}/${SHA}.md`)) {
-    return { ok: false, status: 404, text: async () => '{}' };
+  const target = String(url);
+  calls.push(target);
+  if (target === 'https://skills.sh/api/download/acme/skills/fallback') {
+    return jsonRes({ hash: SHA_FALLBACK, files: [{ path: 'SKILL.md', contents: FALLBACK_TEXT }] });
   }
-  return { ok: true, status: 200, text: async () => '# hello\n\n正文 fixture\n' };
+  if (target === 'https://skills.sh/api/download/acme/skills/mismatch') {
+    return jsonRes({ files: [{ path: 'SKILL.md', contents: '这一份对不上目录里的 sha256' }] });
+  }
+  if (target.startsWith(`${BODY_BASE}/${SHA}.md`)) {
+    return { ok: true, status: 200, text: async () => '# hello\n\n正文 fixture\n' };
+  }
+  return { ok: false, status: 404, text: async () => '{}', json: async () => ({}) };
 };
 globalThis.fetch = fakeFetch;
 
@@ -113,6 +147,21 @@ const miss = await callApi(`/api/dsh-skills-center/body?sha=${missSha}`);
 assert.equal(miss.code, 502);
 assert.match(miss.body, /body_fetch_404/);
 await assert.rejects(readFile(join(home, 'skills-center', 'bodies', `${missSha}.md`), 'utf8'));
+
+// 5) bodies 分支没有、skills.sh 有：抓回来、按 sha256 校验后缓存，来源如实标 skills.sh
+const fb = await callApi(`/api/dsh-skills-center/body?id=${encodeURIComponent(FALLBACK_ID)}`);
+assert.equal(fb.code, 200, fb.body);
+assert.equal(fb.headers['x-body-via'], 'skills.sh');
+assert.equal(fb.body, FALLBACK_TEXT);
+const cachedFb = await readFile(join(home, 'skills-center', 'bodies', `${SHA_FALLBACK}.md`), 'utf8');
+assert.equal(cachedFb, FALLBACK_TEXT, '兜底抓到的正文同样落缓存');
+assert.equal((await callApi(`/api/dsh-skills-center/body?id=${encodeURIComponent(FALLBACK_ID)}`)).headers['x-body-via'], 'cache');
+
+// 6) skills.sh 回的字节对不上目录里的 sha256：当没抓到，不写缓存（内容寻址的缓存不能被塞进别的东西）
+const mismatch = await callApi(`/api/dsh-skills-center/body?id=${encodeURIComponent(MISMATCH_ID)}`);
+assert.equal(mismatch.code, 502, mismatch.body);
+assert.match(mismatch.body, /body_fetch_404/, '主存储怎么答的就怎么报');
+await assert.rejects(readFile(join(home, 'skills-center', 'bodies', `${SHA_MISMATCH}.md`), 'utf8'));
 
 await rm(home, { recursive: true, force: true });
 console.log('body ok — 内容寻址取正文、落缓存、二次命中缓存、错误路径如实上报');

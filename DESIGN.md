@@ -389,7 +389,7 @@ npx skills@1.7.4 add <owner/repo> --skill <slug> -a codex --copy [-g] -y
 
 | 路由 | 请求 | 成功响应 | 失败 |
 |---|---|---|---|
-| `GET /body?id=<catalogId>` 或 `?sha=<sha256>` | — | `200 text/markdown`；命中本地缓存带 `x-body-via: cache`，远端取回 `remote`；缓存路径 `~/.dsh/skills-center/bodies/<sha256>.md` | 404 找不到技能/正文 |
+| `GET /body?id=<catalogId>` 或 `?sha=<sha256>` | — | `200 text/markdown`；命中本地缓存带 `x-body-via: cache`，主存储（GitHub bodies 分支）取回 `remote`，主存储取不到时回退 skills.sh 公开下载接口（字节必须与目录里的 sha256 一致，来源标 `skills.sh`）；缓存路径 `~/.dsh/skills-center/bodies/<sha256>.md` | 404 找不到技能/正文；502 主存储与兜底都取不到（`body_fetch_<status>` / `body_unavailable`） |
 | `GET /local[?project=<绝对路径>]` | — | `200 {ok, project, projectSource:'host'\|'query', roots[], skills[]}` | — |
 | `POST /install` | `{ id, scope:'project'\|'global', project? }` | `200 {ok, scope, dir, rootId, exitCode, stdout, stderr, id, name, installs_total, project}` | `502 {ok:false, error, code?}` |
 | `POST /uninstall` | `{ name, scope, project? }`（`name` 必须匹配 `^[a-z0-9][a-z0-9-]*$`） | `200 {ok, scope, removed[], stillInstalledElsewhere[], name}` | `502 {ok:false, error}` |

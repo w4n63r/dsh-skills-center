@@ -183,7 +183,7 @@ Host 半边新增的路由（现有前缀 `/api/dsh-skills-center`）：
 | 路由 | 请求 / 响应（实现形状见 `DESIGN.md` §8.4） |
 |---|---|
 | `GET /local[?project=<绝对路径>]` | 扫四个根；回 `{ok, project, projectSource:"host"\|"query", roots[], skills[]}` |
-| `GET /body?id=<catalogId>` 或 `?sha=<sha256>` | 回 `text/markdown`；缓存命中带 `x-body-via: cache`，远端取回 `remote` |
+| `GET /body?id=<catalogId>` 或 `?sha=<sha256>` | 回 `text/markdown`；缓存命中带 `x-body-via: cache`，主存储取回 `remote`，主存储没有时回退 skills.sh 下载接口（校验 sha256 后标 `skills.sh`） |
 | `POST /install` `{id, scope, project?}` | 跑 skills CLI，回 `{ok, scope, dir, rootId, exitCode, stdout, stderr, ...}`，失败 502 |
 | `POST /uninstall` `{name, scope, project?}` | 跑 skills remove，回 `{ok, scope, removed[], stillInstalledElsewhere[]}` |
 
