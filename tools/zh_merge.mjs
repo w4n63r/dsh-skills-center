@@ -46,6 +46,7 @@ if (!partFiles.length) {
 const entries = {};
 const sources = [];
 const errors = [];
+const unknown = [];
 const seenIn = new Map();
 
 for (const file of partFiles) {
@@ -71,7 +72,10 @@ for (const file of partFiles) {
       errors.push(`${id}: 条目不是对象`);
       continue;
     }
-    if (wanted.size && !wanted.has(id)) errors.push(`${id}: 不在任何一个输入分片里`);
+    // 输入分片清单只是「这批是谁下的单」的旁证，不是 id 的身份来源：plan 的文件名按 offset
+    // 复用，早批次的 in-*.json 会被后来的覆盖，拿它当失败条件会把已经写好、也 check 过的卡
+    // 挡在门外。id 对不对得上由 zh_generate check --require-all 在写盘那一步严格保证。
+    if (wanted.size && !wanted.has(id)) unknown.push(id);
     // 结构/长度/禁用词/tier 规则全部来自 tools/zh_validate.mjs；合并阶段没有正文，usage 溯源自动跳过
     const checked = validateEntry(entry, { id });
     for (const message of checked.errors) errors.push(message);
@@ -91,6 +95,11 @@ if (errors.length) {
   for (const line of errors.slice(0, 60)) console.error('  ' + line);
   if (errors.length > 60) console.error(`  …还有 ${errors.length - 60} 条`);
   process.exit(1);
+}
+
+if (unknown.length) {
+  console.log(`注意：${unknown.length} 条的输入分片已经找不到（早批次的 in-*.json 被后来的同名文件覆盖），仍然并入：`);
+  for (const id of unknown.slice(0, 20)) console.log('  - ' + id);
 }
 
 const missing = [...wanted.keys()].filter((id) => !(id in entries));

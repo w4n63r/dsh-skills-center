@@ -2,7 +2,7 @@
 // 数据用真实测量值（2026-10-19 采到的 ai-video-generation 六个 fork、12 个技能的真实 installs），
 // 不用编造的数字——否则测试只会证明代码符合我的想象。
 import assert from 'node:assert/strict';
-import { buildCatalog, clusterKey, dedupe, normalizeRecord, scoreRecord, trendPct, auditScore } from './pipeline.mjs';
+import { BODY_VERSION, buildCatalog, clusterKey, dedupe, normalizeRecord, scoreRecord, trendPct, auditScore } from './pipeline.mjs';
 import { bodyGateStats } from './collect.mjs'; // 纯函数，无网络/无副作用；只测水位门禁的算术
 
 // ---- 趋势：8 周序列前后半段 ----
@@ -170,10 +170,10 @@ assert.equal(normalizeRecord({ id: 'open.feishu.cn/lark-drive' }).source, 'open.
   assert.deepEqual(built.body, { length: 1234, sha256: sha }, 'catalog carries body metadata (length + sha256)');
   // body_v 是「这份正文已经存进 Blob」的印章：只有真的入库了才允许带上，否则目录会声称一份取不到的正文
   const stored = buildCatalog(
-    [{ id: 'a/b/body-skill', slug: 'body-skill', installs: 10, description: 'x', bodyLength: 1234, body_sha256: sha, body_v: 1 }],
+    [{ id: 'a/b/body-skill', slug: 'body-skill', installs: 10, description: 'x', bodyLength: 1234, body_sha256: sha, body_v: BODY_VERSION }],
     { version: 'test-body' },
   ).skills[0];
-  assert.deepEqual(stored.body, { length: 1234, sha256: sha, v: 1 }, 'body_v must reach the catalog when the text is stored');
+  assert.deepEqual(stored.body, { length: 1234, sha256: sha, v: BODY_VERSION }, 'body_v must reach the catalog when the text is stored');
   assert.ok(!('body_excerpt' in built), 'body_excerpt must stay out of the catalog');
   const noBody = buildCatalog([{ id: 'a/b/no-body', slug: 'no-body', installs: 5, description: 'y' }], { version: 'test-body' }).skills[0];
   assert.equal(noBody.body, undefined, 'a record without a body must not invent one');
@@ -232,8 +232,8 @@ assert.equal(normalizeRecord({ id: 'open.feishu.cn/lark-drive' }).source, 'open.
 // ---- 正文水位门禁：按合并后装量取前 N 条，看覆盖率与 strict ----
 {
   const rows = [
-    { id: 'a/b/top', slug: 'top', installs: 900, description: 'x', bodyLength: 900, body_sha256: 'h1', body_v: 1 },
-    { id: 'c/d/top', slug: 'top', installs: 100, description: 'x', bodyLength: 900, body_sha256: 'h1', body_v: 1 },
+    { id: 'a/b/top', slug: 'top', installs: 900, description: 'x', bodyLength: 900, body_sha256: 'h1', body_v: BODY_VERSION },
+    { id: 'c/d/top', slug: 'top', installs: 100, description: 'x', bodyLength: 900, body_sha256: 'h1', body_v: BODY_VERSION },
     // 抓过 detail、也有正文指纹，但正文没传到当前存储（body_v 缺）= 历史上「抓完就丢」的、
     // 以及 2026-10-21 存储换家后印章作废的记录：门禁算「到手」，stored 才算「已分发」。
     { id: 'e/f/old', slug: 'old', installs: 200, description: 'w', bodyLength: 800, body_sha256: 'h9' },
@@ -255,7 +255,7 @@ assert.equal(normalizeRecord({ id: 'open.feishu.cn/lark-drive' }).source, 'open.
   assert.equal(bodyGateStats(rows, 3).head_stored, 1);
   assert.equal(bodyGateStats([], 2000).coverage, 0, 'an empty catalog cannot claim coverage');
   assert.equal(bodyGateStats([], 2000).strict, false);
-  const allStored = rows.map((r) => (r.bodyLength ? { ...r, body_v: 1 } : r));
+  const allStored = rows.map((r) => (r.bodyLength ? { ...r, body_v: BODY_VERSION } : r));
   assert.equal(bodyGateStats(allStored, 2).stored_coverage, 1, 'every head record stored → stored coverage 1');
   assert.equal(bodyGateStats(allStored, 2).strict, true, 'coverage ≥95% turns the filter on');
 }

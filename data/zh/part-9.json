@@ -1,0 +1,177 @@
+{
+  "anthropics/skills/brand-guidelines": {
+    "name_zh": "品牌视觉规范",
+    "intro": "套用 Anthropic 官方品牌色和字体。主色是深色 #141413 用于正文和深色背景、浅色 #faf9f5 用于浅背景和深色上的文字、中灰 #b0aea5 用于次要元素、浅灰 #e8e6dc 用于弱背景；强调色为橙 #d97757、蓝 #6a9bcc、绿 #788c5d。字体上标题用 Poppins 回退 Arial，正文用 Lora 回退 Georgia。适合需要品牌色、风格规范或公司设计标准的产出物。",
+    "usage": "产出物需要 Anthropic 的品牌配色、字体或整体视觉风格时用；公司设计规范和视觉统一相关的需求也归它，正文提醒字体最好提前装到环境里。",
+    "notes": "许可条款在 LICENSE.txt；正文同时给出主色、强调色以及字体的回退方案。",
+    "tier": "auto"
+  },
+  "anthropics/skills/canvas-design": {
+    "name_zh": "画布视觉设计",
+    "intro": "用设计哲学做视觉作品，输出 png 和 pdf。分两步：先写一份设计哲学，把它当成一种审美方向，再从形、空间、色彩、构图，以及图像、图形、形状、图案去落地，文字只当视觉点缀。用户给的输入是基础而不是限制创作自由。只输出 md、pdf、png 三种文件；要求原创，不能照抄现有艺术家的作品以免侵权。",
+    "usage": "用户要海报、插画、设计稿或其他静态视觉作品时用；先出设计哲学再落到画布，最终只产出 md、pdf、png 三类文件。",
+    "notes": "许可条款在 LICENSE.txt；正文强调不复制他人作品以避免版权问题。",
+    "tier": "auto"
+  },
+  "anthropics/skills/mcp-builder": {
+    "name_zh": "MCP 服务端构建",
+    "intro": "MCP 服务器开发指南，目标是把外部 API 和服务包装成设计良好的工具供大模型调用。实现路线有 Python 的 FastMCP 和 Node/TypeScript 的 MCP SDK 两条，流程分四个阶段，从调研与设计开始，讨论接口覆盖面与工作流工具之间的取舍。正文给出的质量判断标准是：能否真的帮模型完成现实任务。",
+    "usage": "新建 MCP 服务器、给已有服务补工具、决定工具粒度或选语言实现路线时用；把外部 API 接给模型之前也先过一遍这份流程。",
+    "notes": "正文把流程拆成四个阶段；许可条款在 LICENSE.txt。",
+    "tier": "auto"
+  },
+  "anthropics/skills/web-artifacts-builder": {
+    "name_zh": "网页作品构建",
+    "intro": "用来做复杂、多组件的 claude.ai HTML 作品，技术栈是 React 18 + TypeScript + Vite + Parcel 打包 + Tailwind CSS + shadcn/ui。流程是先初始化前端仓库，再改生成的代码开发，然后把代码打包成一个 HTML 文件，最后展示并按需测试。需要状态管理、路由或 shadcn/ui 组件的复杂作品才用它，简单单文件 HTML 或 JSX 不在范围内；正文还提醒别做成过度居中、紫色渐变、统一圆角加 Inter 字体那种观感。",
+    "usage": "要做需要状态管理、路由或 shadcn/ui 组件的复杂 claude.ai 网页作品时用；简单单文件页面不用它，步骤是先初始化仓库，开发完打包成单个 HTML。",
+    "notes": "正文给的设计提醒是避开过度居中、紫色渐变、统一圆角和 Inter 字体；许可条款在 LICENSE.txt。",
+    "tier": "auto"
+  },
+  "better-auth/skills/better-auth-best-practices": {
+    "name_zh": "认证服务配置",
+    "intro": "配置 Better Auth 的服务端和客户端：数据库适配器、会话管理、插件和环境变量，以及用 TypeScript 做邮箱密码或 OAuth 登录。正文反复强调文档版本要对上项目里装的版本：优先用户点名的版本，否则查锁文件、没有锁文件再看包清单；接上 MCP 时先解析出版本对应的文档标识，后续查询都带上它，返回的路径原样再用。没有 MCP 就从官方文档入口起步。",
+    "usage": "项目里出现 Better Auth 或 auth.ts，或者要用 TypeScript 接邮箱密码、OAuth、插件配置时用；换版本或升级后要重新核对对应版本的文档。",
+    "notes": "正文提醒 API 和插件名在不同发布线上会变；只有版本无法确定或用户明确要求时才用最新文档。",
+    "tier": "auto"
+  },
+  "browser-act/skills/browser-act": {
+    "name_zh": "浏览器自动化",
+    "intro": "给 AI agent 用的浏览器自动化命令行工具。正文第一条硬规则是不要直接用 Bash 跑 browser-act 命令，先加载这个技能。适用场景包括抓取和提取渲染后的网页内容、访问需要 JavaScript 的页面、处理验证提示、维持已登录会话、填表点击、输入选择上传、截图、抓取 XHR 与 HAR 响应、并行打开多个 URL、提取滚动或点击后才出现的内容，以及目视检查布局、样式和渲染。",
+    "usage": "需要抓渲染后的内容、处理要登录或有验证的页面、填表点击、截图、抓请求、并行开多个链接或隔离账号时用；查询和管理已配置的浏览器与会话也归它，别绕过它直接敲命令。",
+    "notes": "正文版本 2.0.2，作者 BrowserAct；要求 Python 3.12 以上和 uv，安装方式写在元数据里，官网 browseract.com。",
+    "tier": "auto"
+  },
+  "cloudflare/skills/workers-best-practices": {
+    "name_zh": "Workers 写法",
+    "intro": "Cloudflare Workers 生产应用的写法与审查要点。正文先提醒：关于 Workers 的 API、类型和配置，记忆可能已经过时，写或审代码时以检索为准，用项目实际装的版本、生成的类型和 Wrangler 兼容性设置当基线。参考材料分三份：配置与可观测性、运行时模式（流式、promise 生命周期、请求状态、服务调用、安全和运行时测试）、平台 API 校验（handler 签名、平台类、绑定访问和序列化）。",
+    "usage": "写、审或配置 Cloudflare Workers 时用；改兼容性日期、动绑定、核对 handler 签名或排查运行时行为时，先按参考文件取文档对照。",
+    "notes": "三份参考文件按主题拆开；正文建议拿不准就去查官方 Workers 最佳实践文档。",
+    "tier": "auto"
+  },
+  "cloudflare/skills/wrangler": {
+    "name_zh": "CF 命令行",
+    "intro": "在有 wrangler.jsonc、wrangler.json 或 wrangler.toml 的项目里跑或排查 Wrangler 命令行，覆盖本地开发、Previews、部署和资源管理。新项目、带 cloudflare.config.ts 的项目，或者完全没有 Cloudflare 配置的项目不要用 Wrangler，改用 cf 命令行。正文要求用项目自己的 Wrangler 版本，写命令和配置之前先取对应版本文档，并先摸清包管理器、已装版本、脚本、框架和配置文件。",
+    "usage": "项目里已有 Wrangler 配置文件，要跑本地开发、预览、部署或管理资源时用；命令报错或配置不生效也用它排查，动手前先确认项目实际装的版本。",
+    "notes": "正文提醒命令行参数和配置字段会变，别照搬记忆里的例子；不该用 Wrangler 的项目要改用 cf 命令行。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/churn-prevention": {
+    "name_zh": "流失挽留设计",
+    "intro": "做 SaaS 留存和流失防控，自愿流失（用户主动取消）和非自愿流失（扣款失败）都要管。内容包括取消流程设计、动态挽留优惠、主动留存策略和失败扣款催缴，也覆盖退出问卷、暂停订阅和赢回。适合「用户老取消」「流失率太高」「怎么留住用户」这类问题。开始前先查产品营销上下文文件；取消后的赢回邮件看 emails，应用内升级付费墙看 paywalls。",
+    "usage": "要降流失、做取消挽留流程、设置挽留优惠、恢复失败扣款或确认订阅流失原因时用；想加退出问卷、暂停订阅选项也算。",
+    "notes": "正文版本 2.0.3；开工前先找产品营销上下文，赢回邮件和付费墙另有对应技能。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/cold-email": {
+    "name_zh": "冷邮件外呼",
+    "intro": "写和跑 B2B 冷启动外呼，目标是拿到回复，覆盖冷邮件与跟进、发信设置、LinkedIn、多渠道节奏和回复处理。正文给的做法包括从备用域名发信、先验证名单、关掉打开跟踪、对方一回复就停掉所有渠道；文案要避开「不是 X，而是 Y」这类明显是模型写的句式。名单与客户调研看 prospecting，生命周期邮件看 emails，话术和销售材料看 sales-enablement。",
+    "usage": "写冷邮件、排跟进序列、设置发信域名、做 LinkedIn 触达、处理回复或查送达率时用；没人回复、想加多渠道节奏的也归它。",
+    "notes": "正文版本 2.2.0；名单与客户调研、生命周期邮件、销售材料分别有对应技能。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/customer-research": {
+    "name_zh": "客户调研方法",
+    "intro": "做、分析或汇总客户调研：ICP 研究、访谈记录分析、问卷分析、客服工单分析、客户之声、画像和「客户要完成的任务」、Reddit 与 G2 评论挖掘、社区和论坛调研、PMF 问卷、访谈问题设计与约访。既能分析已有的调研材料，也能挖线上公开来源，还能从零跑一手访谈和问卷。目的是弄清客户到底在想什么、卡在哪，供后续文案和落地页优化使用。",
+    "usage": "要跟客户聊、分析访谈记录或问卷、挖评论和社区讨论、做画像与 JTBD、设计访谈问题，或查客户为什么流失或成交时用；已有调研素材也能拿它汇总。",
+    "notes": "正文版本 2.0.4；写文案看 copywriting，用调研结果改页面看 cro。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/lead-magnets": {
+    "name_zh": "获客资料设计",
+    "intro": "规划、制作或优化用来换邮箱和获客的资料：电子书、速查表、清单、模板下载、Notion 与表格模板、资源库、内容升级包这类门槛内容。回答「该送什么换邮箱」「这些资料怎么分发」，也讨论能不能把课程或现有内容打包成 agent 技能。范围是决定做什么和怎么发；交互式小工具看 free-tools，正文写法看 copywriting，收集邮箱之后的邮件序列看 emails。",
+    "usage": "要设计换邮箱的下载资料、规划免费资源库或内容升级包、决定送什么给潜在客户时用；把课程或已有内容打包成技能也归它。",
+    "notes": "正文版本 2.1.0；交互式工具、内容文案和后续邮件序列分别有对应技能。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/revops": {
+    "name_zh": "营收流程设计",
+    "intro": "做营收运营：线索生命周期管理、市场到销售的交接流程，以及把市场、销售、客户成功连成一条营收链路的系统设计。覆盖线索打分、外呼管道阶段、线索路由、MQL 与 SQL 定义、交易支持台、CRM 自动化、数据卫生和线索资格判定。适合「线索到不了销售手里」「阶段该怎么划」「市场什么时候交接给销售」这类问题，开始前先查产品营销上下文文件。",
+    "usage": "要设计或优化线索流转、打分配置、管道阶段、路由规则和 CRM 自动化时用；市场到销售的交接不清楚、数据脏或线索卡住也用它排查。",
+    "notes": "正文版本 2.2.1；冷邮件、邮件滴灌和定价分别有对应技能。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/sales-enablement": {
+    "name_zh": "销售材料制作",
+    "intro": "做销售侧材料：销售演示稿、一页纸、异议处理文档、演示脚本、话术手册、提案模板、买家画像卡、竞品对比卡、赢单输单分析，以及冷电话和语音留言脚本。适合「为什么老是丢单」「客户这么说怎么回」「该给销售什么材料」这类问题，判断标准是能不能帮销售团队把单推进下去。公开竞品对比页看 competitors，买家访谈与流失调研看 customer-research，官网文案看 copywriting。",
+    "usage": "需要销售演示稿、一页纸、异议处理、演示脚本、竞品卡、赢单输单分析或话术手册时用；复盘丢单原因、准备冷电话和语音留言脚本也用它。",
+    "notes": "正文版本 2.4.0；竞品对比页、客户调研、文案和冷邮件各自有对应技能。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/site-architecture": {
+    "name_zh": "站点信息架构",
+    "intro": "规划、梳理或重排网站结构：页面层级、导航、URL 规则和站内链接。适合回答「我需要哪些页面」「站点该怎么组织」「导航怎么设计」「用哪个建站工具」「怎么迁移站点」「怎么给现有站点加博客」这类问题，规划之前会先找产品营销上下文文件。不管 XML sitemap 这类技术 SEO，那属于 seo-audit；结构化数据看 schema。",
+    "usage": "要决定站点需要哪些页面、页面之间怎么连、导航与 URL 怎么定、站内链接怎么铺时用；站点改版、迁移或加博客栏目也算。",
+    "notes": "正文版本 2.1.0；规划前先读产品营销上下文文件，XML sitemap 不在范围内。",
+    "tier": "auto"
+  },
+  "emilkowalski/skills/animate-expo": {
+    "name_zh": "Expo 动画实现",
+    "intro": "在 React Native 与 Expo 里做动画，按决定手感的顺序往下走：该不该动、跑在哪个线程、动哪些属性、用弹簧还是时间曲线、手势怎么交接、性能不够时怎么降级。实现用 Reanimated、Gesture Handler、Expo Router 和 expo-haptics。适合加手势、底部弹层、页面转场、按压反馈和触感，也用来修设备上卡顿的动效；网页动画用它之外的技能。",
+    "usage": "给 Expo 应用加动画、手势、弹层、转场、按压反馈或触感时用；真机上卡顿的动效也用它排查，验收以真机为准，模拟器和开发模式的旗舰机不算。",
+    "notes": "内容来自 Emil Kowalski 的动画理念；首次无具体问题时只回一句自我介绍。",
+    "tier": "auto"
+  },
+  "emilkowalski/skills/ask-sonner": {
+    "name_zh": "Sonner 提示",
+    "intro": "React 的 toast 库 Sonner 使用指南，内容来自作者 Emil Kowalski。覆盖安装并挂载一个 Toaster、挑选合适的 toast() 调用、promise 与 loading 类型、更新与关闭与常驻提示、样式主题与图标、定位和多个 toaster 共存；也用来排查提示不出现、重复出现、样式丢失、Tailwind 类不生效、被弹窗挡住、不跟随深色模式等问题。",
+    "usage": "接入或排查 Sonner 时用它：挂载 Toaster、写 toast 调用、改样式主题与图标、处理定位和多个提示容器；提示不显示、重复出现、样式被覆盖、被模态框挡住、深色模式失效也归它。",
+    "notes": "正文先说明只需要一个 Toaster 且挂载一次；Toaster 与 toast() 的完整属性表在 API.md 里；首次无具体问题时只回一句自我介绍。",
+    "tier": "auto"
+  },
+  "emilkowalski/skills/write-swift": {
+    "name_zh": "Swift 现代写法",
+    "intro": "怎么写好现代 Swift：用值类型建模、Swift 6 的数据竞争安全与并发模型、协议与泛型的选择、API 设计、性能与 ARC、Swift Testing、宏，以及一些较新的语言特性。也用于审查和迁移 Swift 代码，或排查并发报错、卡死、数据竞争、循环引用和性能问题。工具链基线是 Swift 6.3，正文用警告标记区分尚未发布的 6.4 特性，并发部分按 Swift 6.2 的模型讲。",
+    "usage": "写、审或迁移 Swift 时用；遇到并发报错、卡死、数据竞争、循环引用或性能问题时也用它。项目还在 6.1 或更早时，关于 async 和并发的部分规则不适用。",
+    "notes": "正文以 Swift 6.3 为基线，警告标记代表 6.4 未发布特性；首次无具体问题只回一句自我介绍。",
+    "tier": "auto"
+  },
+  "firebase/agent-skills/firebase-crashlytics": {
+    "name_zh": "崩溃报告接入",
+    "intro": "Firebase Crashlytics 的接入与 SDK 使用指南，覆盖 Android 和 iOS。前置条件是已有 Firebase 项目和对应平台的 Firebase 应用；客户端采集到的崩溃数据通过 Firebase CLI 里的 MCP 服务器读取。可以配合 Firebase CLI 使用但不是必需，正文按平台分成两份接入参考文档。",
+    "usage": "要接入 Crashlytics、给 Android 或 iOS 应用加崩溃上报、或查询崩溃数据时用；按平台选 android_setup 或 ios_setup 参考文档看具体步骤。",
+    "notes": "作者是 Google LLC；正文把 Android 与 iOS 的接入步骤分开写。",
+    "tier": "auto"
+  },
+  "firebase/agent-skills/firebase-remote-config-basics": {
+    "name_zh": "远程配置管理",
+    "intro": "Firebase Remote Config 的接入指南，覆盖 Android 和 iOS：下载与部署模板 JSON、版本历史和功能开关、应用内默认值、获取并激活配置、实时监听以及 SDK 配置。核心作用是通过云端配置模板改应用的行为和外观，不用发新版本。前置条件是已有 Firebase 项目和 Firebase 应用，模板与条件通过 Firebase CLI 管理，配合 CLI 最好用但不是必需。",
+    "usage": "要下发或部署 Remote Config 模板、管功能开关与版本历史、设应用内默认值、接实时监听或配 SDK 时用；Hosting、Auth、Firestore、Data Connect、Crashlytics 和 App Hosting 不归它。",
+    "notes": "作者是 Google LLC；正文明确列出不在本技能范围内的 Firebase 产品。",
+    "tier": "auto"
+  },
+  "firebase/agent-skills/xcode-project-setup": {
+    "name_zh": "Xcode 工程配置",
+    "intro": "安全修改 Xcode 工程文件（.pbxproj）来加入 Swift Package 和链接文件，iOS 项目要装依赖（例如 Firebase、Alamofire）时用它。正文有几条硬规则：禁止用 Ruby、Rails 或任何 Ruby gem（包括 xcodeproj），不允许写或执行 Ruby 脚本；现代 Xcode 支持文件夹同步，新增源码或资源文件直接写到磁盘对应目录就会被自动纳入工程，不要手动改 .pbxproj 加文件。需要本机装了 Swift 且是 macOS。",
+    "usage": "iOS 工程需要装 Swift Package 依赖或链接文件时用；本机要有 Swift 且是 macOS，不要用 Ruby 脚本改工程文件，新增文件直接放进磁盘目录。",
+    "notes": "作者是 Google LLC；正文把禁止 Ruby 和不手动改 pbxproj 列为必须遵守的规则。",
+    "tier": "auto"
+  },
+  "higgsfield-ai/skills/higgsfield-video-explainer": {
+    "name_zh": "解说视频生成",
+    "intro": "用有序的 10 秒片段拼出完整的非写实旁白解说或故事视频：全片一个旁白音色、一个统一风格标识，每段一次配音、一段视频，最后在服务端组装。支持现成的 CMS 预设、自定义风格参考、吉祥物和不露脸两种模式、两种画幅，以及可选烧录字幕。不适用于写实影片、广告和 UGC、口播、播客、纯文字动效，也不需要旁白的一次性片段和成片剪辑。",
+    "usage": "要做解说视频、把主题或文档变成旁白视频、把故事做成动画视频、做不露脸的旁白视频时用；先定风格，再逐段写旁白和画面对应的提示词，配音全部出完再出视频。",
+    "notes": "正文版本 0.13.0；流程走 Higgsfield 命令行里的 video-explainer 工作流，风格标识全片只能有一个。",
+    "tier": "auto"
+  },
+  "higgsfield-ai/skills/higgsfield-websites": {
+    "name_zh": "站点与游戏构建",
+    "intro": "通过 Higgsfield 命令行建、改、部署全栈站点、应用和游戏，产物是跑在单个 Cloudflare Worker 上的 React 19 + TanStack Start SSR 应用，可用 D1、R2、KV、DO 和 Containers。创建时选三种产品类型之一：website 是独立站点、app 带 Higgsfield 登录与 fnf SDK、game 是实时多人房间，各有自己的流程文档和发布门槛。还负责精灵图、可平铺贴图、3D 角色动画和游戏音频。单张图片、视频、音频生成与产品图、商城卡片不在范围内。",
+    "usage": "要建网站、落地页、Web 应用、SaaS 看板或作品集，要做游戏、部署或发布站点时用；要精灵图、可平铺贴图、3D 角色动画和游戏音乐音效也归它。",
+    "notes": "正文版本 0.13.0；三种类型各自带一套规则与发布门槛；单图、视频、音频生成要走别的技能。",
+    "tier": "auto"
+  },
+  "shadcn-ui/ui/shadcn": {
+    "name_zh": "shadcn 组件",
+    "intro": "管理 shadcn 组件和项目：添加、搜索、修复、调试、改样式和组合界面，也包括聊天界面。会给出项目上下文、组件文档和用法说明。适用于 shadcn/ui、组件 registry、preset 与 preset 代码，以及任何带 components.json 的项目；初始化项目、按 preset 建应用或切 preset、做设计系统和套用品牌规范也归它。组件是以源码形式通过命令行加进项目的。",
+    "usage": "项目里有 components.json，或用到 shadcn/ui、组件 registry、preset 时用；加组件、查组件文档、改样式、组合界面、切 preset 或做设计系统都算，命令要用项目自己的包管理器跑。",
+    "notes": "组件以源码落到项目里；正文要求按 packageManager 选对应执行器，不要固定写死一种。",
+    "tier": "auto"
+  },
+  "uizze/uizze/uizze-ui": {
+    "name_zh": "Uizze 界面改造",
+    "intro": "Uizze 官方技能，用来搭和改 UI/UX：先看现有代码、素材和参考图，找出目标屏幕的组件、设计 token 和数据契约，保住已经在工作的行为，再动布局、层级、字体和间距。需要真实应用案例、设计系统、已授权字体、图标和交互动效素材时去 uizze.com 找。只做界面改造这部分不需要 Uizze 账号或 MCP 连接。许可 MIT，作者 UIZZE。",
+    "usage": "要新做或改进界面、调布局与排版间距、对照真实应用案例和设计系统找参考时用；挑字体、图标和交互动效素材也归它。",
+    "notes": "许可 MIT，作者 UIZZE，正文版本 1.0.0；只改界面的部分不用账号或 MCP。",
+    "tier": "auto"
+  }
+}

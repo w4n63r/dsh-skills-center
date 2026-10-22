@@ -1,10 +1,18 @@
 {
- "generated_at": "2026-10-21T08:29:46.280Z",
- "count": 325,
+ "generated_at": "2026-10-22T01:25:51.447Z",
+ "count": 425,
  "sources": [
   {
    "file": "part-1.json",
    "count": 50
+  },
+  {
+   "file": "part-10.json",
+   "count": 25
+  },
+  {
+   "file": "part-11.json",
+   "count": 25
   },
   {
    "file": "part-2.json",
@@ -28,6 +36,14 @@
   },
   {
    "file": "part-7.json",
+   "count": 25
+  },
+  {
+   "file": "part-8.json",
+   "count": 25
+  },
+  {
+   "file": "part-9.json",
    "count": 25
   }
  ],
@@ -381,6 +397,356 @@
    "usage": "手写 HyperFrames 组合前定结构；动画时间对不齐要查 timing 属性；渲染结果不确定要查确定性规则。",
    "notes": "只对 HyperFrames 有效，普通网页 HTML 不适用。",
    "tier": "hand"
+  },
+  "2dmurali/review-loop-skill/review-loop": {
+   "name_zh": "评审反馈环",
+   "intro": "worker 与 reviewer 的迭代环：另起一个评审子代理给当前产出打 1-10 分并提出可执行的反馈，改完再评，直到过质量闸。适合实现功能、写规格、审查既有代码，以及质量比速度更重要的任务。",
+   "usage": "直接说「use review-loop」或用 `/review-loop`。默认闸值是 8/10，迭代轮数有上限（通常 2-4 轮）。",
+   "notes": "正文说默认会跑到过闸或到 max loops 为止，别不看轮数和闸值就长跑；需求本身不明确的题目不保证收敛。每轮要把评审意见真正吃进去，否则只是重复计分。",
+   "tier": "auto"
+  },
+  "antibrow/anti-detect-browser-skills/browser-mcp-agent": {
+   "name_zh": "MCP 真机浏览器",
+   "intro": "把 antibrow 作为 MCP 服务器交给 agent，让它自己上网：启动浏览器、导航、点击、填表、截图、取正文、跑 JS。内核级真机指纹加持久化 profile，所以两次运行之间登录态还在，页面看到的是一个连贯设备而不是无头构建。适合让 agent 独立操作某个站点、computer-use 需要真实指纹、或会话总是掉登录。",
+   "usage": "Node 与 Python 都能起服务，Python 侧装 `pip install \"antibrow[mcp]\"`；启动、导航、点击到关闭都在 MCP 工具里，配 profile 决定身份，跑完要调对应关闭。",
+   "notes": "正文特别提醒内核是闭源二进制且需联网校验授权，没有离线模式，这也是它做指纹的方式；用不到就别上。每个 agent 用完必须关会话，否则下次启动会被挡住。",
+   "tier": "auto"
+  },
+  "antibrow/anti-detect-browser-skills/multi-account-isolation": {
+   "name_zh": "多账号隔离自检",
+   "intro": "验证浏览器 profile 之间是不是真的隔离，而不是假定隔离。要核对的点：每个 profile 的时区与它自己的出口 IP 是否一致、WebRTC 是否只暴露代理、同一 profile 重启后 canvas 与 WebGL 哈希是否稳定、任意两个 profile 是否共用同一套 persona、cookie 或地址。适合同一台机器上跑多个自有账号或测试身份、profile 自检通过但现象仍然可疑、以及要判断哪些层浏览器隔离根本盖不住。",
+   "usage": "常用检测站点是 CreepJS、whoer、browserleaks WebRTC、pixelscan、liarjs；按「时区对出口 IP、RTC 不泄漏、canvas/WebGL 哈希重启后一致、profile 之间无共享」逐项过。",
+   "notes": "正文提醒别把一次干净结果当成长期结论：临时 profile 不会被自动清理，会一直带着 persona 和登录态。仅限自有账号的授权场景。",
+   "tier": "auto"
+  },
+  "autonnel/autonnel-skills/landing-page-conversion-audit": {
+   "name_zh": "落地页转化审计",
+   "intro": "审落地页、销售页和结账页的转化漏点，输出按预期收入影响排序的修改清单。适合有人要求评审或改进落地页、销售页、留资页、产品页、结账流程，转化率偏低、付费流量不转化，或直接问「这页为什么不转化」、要做 CRO 复查时。",
+   "usage": "从 hero、CTA 到结账路径逐段看，把每处漏点写成一条清单项，并标出它大概值多少钱；分不清实据与推测时把推测标出来。",
+   "notes": "清单按预期收入影响排序，不是按发现顺序；不要把品牌偏好伪装成转化问题。核心是先看页面实际长什么样，再下判断。",
+   "tier": "auto"
+  },
+  "cloudflare/skills/agents-sdk": {
+   "name_zh": "云端智能体",
+   "intro": "用 agents 包写、调、审 Cloudflare Agents SDK 应用。代理本身是一个 Durable Object，状态、SQL、定时任务和调用都挂在它上面；客户端用 React hook 连进来。先确认依赖版本，再改绑定与迁移。用于给站点加对话式入口、后台定时任务、或把既有 Durable Object 改成 agent。",
+   "usage": "先跑 `npm ls agents` 确认装的版本；代码参考 agents/ 目录与 @callable、setState、this.sql 的用法，绑定和迁移写 wrangler.jsonc，客户端用 useAgent。",
+   "notes": "正文提到修 agent 相关报错前先查当前文档。新建绑定要用 new_sqlite_classes 走 SQLite 存储，别沿用旧的 KV 迁移写法。",
+   "tier": "auto"
+  },
+  "cloudflare/skills/durable-objects": {
+   "name_zh": "持久对象",
+   "intro": "写、调试或审查 Cloudflare Durable Objects：需要持久状态和协调的地方用它。单个对象是单线程，同一时刻只有一个实例在处理请求，适合计数器、房间、锁、会话一类要按 key 串行化的状态。本地开发走 wrangler，绑定与迁移写在 wrangler.jsonc。",
+   "usage": "绑定与迁移写在 `wrangler.jsonc`，SQLite 类用 new_sqlite_classes；取对象用 getByName 或 idFromName，初始化逻辑放 blockConcurrencyWhile，定时任务用 setAlarm（每个对象只能有一个）。",
+   "notes": "正文提醒先去读 developers.cloudflare.com/durable-objects 的 index.md 拿最新文档，别凭旧的训练知识写绑定和迁移。事务与 WebSocket 行为以官方文档为准。",
+   "tier": "auto"
+  },
+  "cloudflare/skills/web-perf": {
+   "name_zh": "网页性能诊断",
+   "intro": "审查、诊断或优化网页的加载与交互性能，以及 Core Web Vitals 和 Lighthouse 性能分。先量再改：拿 Lab 数据（Lighthouse）和真实用户数据（CrUX）区分问题出在网络、渲染还是交互，再按 LCP、INP、CLS 分别定位。适合给出站点体检结论、解释某条指标为什么不达标、或改动前后对比。",
+   "usage": "用 Lighthouse 量 Lab 指标，配合 Chrome DevTools 的 performance trace 看主线程与渲染，按 LCP/INP/CLS 三类拆问题。",
+   "notes": "这条正文没有附带命令行，只有方法与指标口径。没有抓取真实用户数据时，结论只能算 Lab 侧，不要当成现场实测。",
+   "tier": "auto"
+  },
+  "convex/agent-skills/convex": {
+   "name_zh": "Convex 后端",
+   "intro": "全 TypeScript 的 Convex 后端用法，供写代码时参考。库、函数、定时任务、文件存储、认证和实时同步在同一套类型系统里，每个函数是一个事务，类型错误大多在部署前被 tsc 拦住。从原型到生产用同一份代码，不用重写。适用于项目已用 Convex，或要做任何后端与持久化：convex/ 下的函数、新全栈项目、加认证/计费/定时任务/AI agent/搜索/邮件等能力。",
+   "usage": "安装项目侧说明文件用 `npx convex ai-files install`；类型检查用 `tsc --noEmit`。按任务选入口方法 convex-expert、convex-quickstart、convex-add；agent 后端看 `@convex-dev/agent`。",
+   "notes": "正文写明这套技能路由到随包发布的 convex-* 子技能与在线能力目录，能力清单会更新而不用升级技能本身。别把方法名当命令行执行。",
+   "tier": "auto"
+  },
+  "dietrichgebert/ponytail/ponytail": {
+   "name_zh": "极简改动模式",
+   "intro": "偷懒的资深开发模式：用最小的改动把任务真正解决，回复也写成忙人一遍能读完的样子。任何编码任务都能挂上，尤其在被要求「用 ponytail」「be lazy」「最简方案」「yagni」，或抱怨过度设计、代码臃肿时。分 lite、full（默认）、ultra 三档。",
+   "usage": "对话里直接说 ponytail，或用 `/ponytail lite|full|ultra` 切档；默认 full。判断标准是最小改动能否完整解决问题，不是改动行数少。",
+   "notes": "正文要求不要为假想的未来需求加抽象和依赖。它是会话级的工作方式，不是一次性命令，改完记得退出该模式。",
+   "tier": "auto"
+  },
+  "firecrawl/cli/firecrawl": {
+   "name_zh": "网页抓取",
+   "intro": "用 Firecrawl CLI 处理任何联网任务，也包括普通调研：搜网页、读页面、抓正文、找来源、发现站点 URL、批量提取、整站下载、变更提醒，以及需要点击或登录的页面。只覆盖网页，本地文件交给 firecrawl-parse；美国法规问题走 gov，论文走 firecrawl-research-index，库与报错走 firecrawl-developer-index。",
+   "usage": "先 `firecrawl --status` 看鉴权和剩余额度；抓页 `firecrawl scrape`，搜 `firecrawl search`。结果写进 .firecrawl/ 目录，带 -o 存 json；URL 一律加引号。",
+   "notes": "正文提醒抓取前先查 .firecrawl/ 里是否已有同样数据，并把 .firecrawl/ 加进 .gitignore。搜索结果只是摘要，不保证来源权威或法律现行。",
+   "tier": "auto"
+  },
+  "juliusbrussee/caveman/caveman-discover": {
+   "name_zh": "工作流打标",
+   "intro": "找出并标注仓库里所有 LLM 工作流，让 Caveman Cloud 能按工作流分组花费，而不是全堆在一个桶里。被要求「discover workflows」或想把 LLM 花销拆到各条工作流时用它。",
+   "usage": "给每条调用路径打上自己的标签：可落成一整套配置，也可按调用传 x-cave 头；同一共享客户端被多个任务复用时，要么逐次覆盖 header，要么每任务给一个薄客户端。",
+   "notes": "重点是标全、别重标：漏一条就永远归到未分类里，标错就把两条工作流的账混在一起。只做发现与标注，不改调用行为。",
+   "tier": "auto"
+  },
+  "juliusbrussee/caveman/caveman-evidence-review": {
+   "name_zh": "云端花费复盘",
+   "intro": "只读地复盘 Caveman Cloud 的证据：成本、Cave Score、workflow、trace、延迟、报错、路由和省下的钱。被问到 Caveman 发现了什么、或 LLM 的钱花在哪时用它。",
+   "usage": "MCP 侧有 `caveman_context`、`caveman_report`、`caveman_trace_search`；查询要选有界时间窗并固定过滤条件（workflow、model、错误码、cache 状态等），再按维度分组看。",
+   "notes": "全程只读。语境窗口开得太大或过滤条件换来换去，数字之间就不可比。它只报证据，不给优化动作。",
+   "tier": "auto"
+  },
+  "juliusbrussee/caveman/caveman-explore": {
+   "name_zh": "仓库只读侦察",
+   "intro": "只读的仓库探索器：冷启动定位、跨文件找一段实现、或直接搜索没搜到的时候用它。只返回 path:line 引用，它的读取不占主上下文，因此适合把大范围翻找外包出去。已经知道确切的文件或符号时不要用。",
+   "usage": "把它当 Read、Glob、Grep 之外的兜底手段：只问「在哪」并要 path:line 引用，别让它改文件；命中后由主上下文去读具体行。",
+   "notes": "只读，不做编辑。判断标准很直白：能直接说出文件或符号就别调它，浪费一轮。",
+   "tier": "auto"
+  },
+  "juliusbrussee/caveman/caveman-learn": {
+   "name_zh": "token 成本治理",
+   "intro": "处理 caveman 的消耗报告：看排好序的 token 大头，逐条征得同意后应用降本改动，并回报这些改动换回了什么。适合被要求降低某个 agent 的 token 花费、想知道 caveman 已经省了多少、压缩臃肿的 CLAUDE.md、或把反复重贴的上下文挪进 cavemem。",
+   "usage": "报告格式是 `caveman.learn.v1`；对比用 `caveman learn experiment arm <label>` 和 `caveman learn experiment report <label>`。改动前先拿记忆里的 remember / recall / forget 查既有结论。",
+   "notes": "正文强调逐条编辑同意，不能批量默默改。off 是不启用该实验臂，report 按臂汇总。别再输出已被否掉的建议。",
+   "tier": "auto"
+  },
+  "juliusbrussee/caveman/caveman-manage": {
+   "name_zh": "实验生命周期",
+   "intro": "查看 Caveman Cloud 的实验生命周期，并拦住不安全的执行。被要求启动、批准、取消、推广或回滚一个 Caveman 实验时用它。重点是把「谁在什么时候批的」记清楚。",
+   "usage": "按生命周期动作处理：起步、批准、取消、推广、回滚；没批准就执行的流程要直接挡住，而不是先跑再补批。",
+   "notes": "正文没有命令示例，动作走 Caveman Cloud 的 MCP 通道。回滚前确认改了什么，否则回不去。",
+   "tier": "auto"
+  },
+  "juliusbrussee/caveman/caveman-optimize": {
+   "name_zh": "优化候选验证",
+   "intro": "把一条 Caveman 优化观察变成可评估的候选：先由人明确挑一个候选，再做候选与基线的成对评估。用于被要求查看或评估 Caveman 优化报告。正文写明要显式批准才动手，没有当前支持的报告就停手不编辑。",
+   "usage": "先读报告，再由人挑定候选，然后在同一路径上跑基线与候选做对照；改动落到代码前先等批准。范围可以收窄到一次调用点。",
+   "notes": "没有任何编辑动作是在报告缺失或未被批准时发生的，这条不能自己开工。正文只给了流程与约束，没给命令行。",
+   "tier": "auto"
+  },
+  "juliusbrussee/caveman/caveman-setup": {
+   "name_zh": "接入花费网关",
+   "intro": "把仓库接到 Caveman Cloud 网关上，让每个 LLM 请求都被计量，同时不改变行为。被要求「set up caveman」或给 LLM 花销加可观测性时用它。",
+   "usage": "走网关地址与密钥两个环境变量（`CAVE_GATEWAY_URL`、`CAVE_API_KEY`），自建客户端用 `x-cave-api-key` 头；接 OpenAI、Anthropic、LiteLLM、LangGraph 等既有调用方。",
+   "notes": "正文要求接入后先验证请求确实过了网关，鉴权错误会返回 `cave_invalid_api_key`。计量不应改变输出行为；验证可用一次带 max_tokens 的最小请求。",
+   "tier": "auto"
+  },
+  "juliusbrussee/caveman/investigate-first": {
+   "name_zh": "先查因后改",
+   "intro": "在动手改之前先把模糊故障查清楚。用证据强弱把假设排序：哪条有日志、指标或复现支撑，哪条只是猜测，都标出来。适合原因不明的失败、时好时坏的现象、性能回退，以及需要证据分级的排查。",
+   "usage": "先收集证据再排序假设，按证据强度逐条证伪；查清成因之前不要改代码。写法是把假设与对应证据成对列出。",
+   "notes": "正文只有一段，没有命令或目录约定；这条的产出是成因结论，不是补丁。",
+   "tier": "auto"
+  },
+  "juliusbrussee/caveman/lean-build": {
+   "name_zh": "新功能控范围",
+   "intro": "做很容易堆功能的新功能开发时用：新行为、产品切片、集成。重心是先找仓库里能复用的既有实现，范围卡死，并且事先写明什么条件算做完就停。",
+   "usage": "开工前先列出可复用的现成实现，把范围边界和停止条件写清楚；到停止条件就收，不再顺手加能力。",
+   "notes": "正文只有一段，没有命令或目录约定；它是范围纪律，不替你选实现方案。",
+   "tier": "auto"
+  },
+  "juliusbrussee/caveman/migration": {
+   "name_zh": "可回滚迁移",
+   "intro": "做可逆、兼容的迁移：schema、数据、API、协议、配置或依赖升级。要求能回滚，并且有证据说明迁移前后旧数据与调用方都没被破坏。",
+   "usage": "先设计回滚路径再动手，迁移按阶段推进；每阶段跑完验证旧格式与旧调用方仍可用，再进下一阶段。",
+   "notes": "正文只有一段，没有命令或目录约定。迁移中途不能顺手做后续的收缩清理，那部分要单独一次受控操作。",
+   "tier": "auto"
+  },
+  "juliusbrussee/caveman/safe-refactor": {
+   "name_zh": "行为不变重构",
+   "intro": "在保持行为不变的前提下重排代码：抽取、合并、挪动归属，或顺手清理。核心是验证必须夹住结构性编辑，改之前有基线、改之后有对照，否则不算完成。适合大范围搬代码但仍要求行为一致的场合。",
+   "usage": "用它做抽取、合并、所有权迁移和清理；把验证放在结构改动的前后两侧，先记录行为基线再动代码。",
+   "notes": "正文很短：只写「重构 + 行为保持 + 验证夹住编辑」，没有给具体命令或目录约定。行为不变性要有验证证据，不能只靠肉眼读 diff。",
+   "tier": "auto"
+  },
+  "juliusbrussee/caveman/surgical-patch": {
+   "name_zh": "最小层修复",
+   "intro": "在责任最小的那一层修 bug 和小的行为变更。改动的辐射面要小，周围行为保持原样，并把与任务相关的测试跑起来。适合需要回归证明、又不想惊动相邻代码的修复。",
+   "usage": "先定位责任层再改，只动那一层；带上能证明回归的测试，并说明周围行为为何不受影响。",
+   "notes": "正文只有一段，没有命令或目录约定；它约束的是改动位置与证明方式，不是工具。",
+   "tier": "auto"
+  },
+  "juliusbrussee/caveman/verify-and-stop": {
+   "name_zh": "验收即收工",
+   "intro": "证明已有工作满足验收条件，同时不扩范围。只做验证，不顺手改代码：跑验收、跑相关门禁，把最后一段证据补齐。适合只做验证的任务、完工检查、定向跑 gate 和收尾取证。",
+   "usage": "对着验收条件逐条给出证据，跑完相关 gate 就停；发现不达标只报告，不顺手扩大改动。",
+   "notes": "正文只有一段，没有命令示例。范围扩张会让它失去意义，这是这条技能存在的理由。",
+   "tier": "auto"
+  },
+  "vercel-labs/agent-skills/vercel-optimize": {
+   "name_zh": "Vercel 成本",
+   "intro": "针对已部署的 Vercel 项目做成本与性能优化，重点是 Next.js，也覆盖 SvelteKit、Nuxt 和有限的 Astro。先把指标、用量、项目配置和代码扫描结果收齐，只调查有指标支撑的候选，最后给出有排序、能指到具体文件和版本相关文档的建议。用于降账单、慢或贵的路由、缓存机会、函数调用、构建分钟、Fast Data Transfer、Core Web Vitals、Bot Management、Fluid compute 等议题。",
+   "usage": "先 `node scripts/collect-signals.mjs` 采信号，再 `node scripts/gate-investigations.mjs` 过闸；不得手工裸跑 `vercel metrics`、`vercel usage`、`vercel contract`。需要 `vercel login` 与 `vercel link`。",
+   "notes": "正文要求 Vercel CLI v53+ 并开通 Observability Plus；建议必须落回校验过的文件与引用，无指标支撑的候选不写进结论。",
+   "tier": "auto"
+  },
+  "vercel-labs/agent-skills/writing-guidelines": {
+   "name_zh": "文档文风审查",
+   "intro": "按 Vercel 的 Writing Guidelines 审文档和散文。用法是每次先去拿最新规则，再读指定文件逐条对照，输出精简的 file:line 结论。适合审 README、指南、发布说明这类面向读者的文本，而不是审代码逻辑。",
+   "usage": "先取规则原文 https://raw.githubusercontent.com/vercel-labs/writing-guidelines/main/command.md ，再读待审文件（或问用户要文件与匹配模式），按规则输出 file:line 清单。",
+   "notes": "规则不在技能里，每次都要重新拉；不传文件时应先问用户审哪些。正文很短，它本身不给写作范例。",
+   "tier": "auto"
+  },
+  "anthropics/skills/doc-coauthoring": {
+   "name_zh": "文档协作撰写",
+   "intro": "带用户走一套协作写文档的流程，分三个阶段：先收集上下文，再迭代打磨结构与内容，最后用读者视角做验证。适用于写文档、方案、技术规格、决策记录这类结构化内容，触发场景包括用户说写文档、起草方案、写规格，或正准备开始一项较重的写作任务。",
+   "usage": "阶段一由用户倾倒全部相关上下文，同时抛出澄清性问题；阶段二按澄清、发散、筛选、查缺口、起草、迭代的次序推进，边写边做质量检查；阶段三先预测读者会问什么，再用子代理实测，根据结果修补并复跑。落盘时用 create_file 与 str_replace 操作 decision-doc.md、technical-spec.md 这类文件。",
+   "notes": "流程的结束条件写在第三节末尾：要验证文档对真实读者成立，而不是作者自己觉得清楚。",
+   "tier": "auto"
+  },
+  "anthropics/skills/theme-factory": {
+   "name_zh": "成品主题套用",
+   "intro": "给各种成品套主题的配色与字体工具箱，适用对象包括演示稿、文档、报告和 HTML 落地页。内置十套预设主题，每套配有协调的色板与标题正文配对的字体，选定后即可套到产出物上，也能按需求临时生成一套新主题。目的是让同一批材料保持一致的视觉风格。",
+   "usage": "先把 theme-showcase.pdf 展示给用户看，且不要改动这个文件，只用于浏览；等对方选定主题后，再按应用流程把配色和字体用到目标产出物上。需要新主题时走「Create your Own Theme」一节，主题资源集中在 themes/ 目录下。",
+   "notes": "正文只把预设主题作为主体，自建主题是附带能力，没有给出数量承诺之外的扩展选项。",
+   "tier": "auto"
+  },
+  "autonnel/autonnel-skills/funnel-platform-picker": {
+   "name_zh": "漏斗平台选型",
+   "intro": "按具体案例算清总成本与锁定风险，再在落地页和漏斗平台之间做选择，比较对象包括 ClickFunnels、CartFlows、FunnelKit、systeme.io、GoHighLevel、Shopify 应用、手写页面和自托管开源方案。正文的立场很硬：这些工具大多能搭出同样的漏斗，差别在成本曲线、数据归谁、以及停止付费后什么会坏掉。",
+   "usage": "先凑齐六项输入，缺一项就不该给推荐，因为每项都会翻转结论。第二步明令不要报厂商牌价，价格变动快、过期数字比没有更糟，改为按计费模型算曲线，例如百分比平台用 base_fee 加 rate 乘月 GMV，自托管则把托管、数据库和维护工时折成钱，再用 `crossover_GMV = (flat_monthly_fee − base_fee) ÷ rate` 找平衡点。第三步核对许可证的实际声明，第四步把取舍当面说清。",
+   "notes": "需要动手搭的时候接 self-hosted-funnel-launch，漏斗本身还没设计就先走 sales-funnel-blueprint。",
+   "tier": "auto"
+  },
+  "autonnel/autonnel-skills/post-purchase-upsell-flow": {
+   "name_zh": "购后追加销售",
+   "intro": "设计并落地一键式购后追加销售与降级报价：客户已经付过款、支付方式已留存，这一步的流量不再花广告费，是把客单价做上去最便宜的地方。同时给出技术前提，说明为什么很多购后加购实际上跑不起来。适用于感谢页现在只有一句「订单已提交」、或想在同一份广告预算下提高每客收入的情况。",
+   "usage": "正文给的链路是：先追加互补且毛利最高的商品，接受后再考虑第二档，拒绝则降级为更小承诺的报价，两条路最后都回到感谢页。页面要有标题、三到五行单一利益点、一条具体证明、真实才划线的参考价；接受按钮写动词加结果，拒绝用朴素文字链接，确认信息里说明并入同一张订单、扣同一张卡。本地演示先 `docker compose up`，再开 http://localhost:4321 完成 /setup。",
+   "notes": "主漏斗转化接近零时应先修转化，正文直言在没有流量的漏斗上做加购是零的算术。另有专节比较结账前加购与购后加购的取舍，别默认选后者。",
+   "tier": "auto"
+  },
+  "autonnel/autonnel-skills/sales-funnel-blueprint": {
+   "name_zh": "销售漏斗蓝图",
+   "intro": "把一个报价拆成可施工的多步销售漏斗规格：有哪几个页面、每个页面负责什么、收多少钱、以及每一步该盯哪个指标。产出的文档能直接交给实现者动手，不用再来回追问。适合开卖前的设计阶段，也适合把现有单页扩成多步漏斗，动笔写文案或打开建站工具之前先用它定形。",
+   "usage": "按六步走：先钉死输入，再选漏斗形状，然后逐页写规格，接着排价格阶梯，明确上线前必须埋好哪些数据，最后输出文档。页面类型用 LANDING、CHECKOUT、UPSELL、THANKYOU、ERROR 标注，每页要写清目标动作、流量来源、首屏内容、证明材料和退出路径。要自建演示环境时，正文给的是 `docker compose up` 加 http://localhost:4321。",
+   "notes": "只要一个联系表单或展示站，正文会让你直说漏斗不适用并停止；页面已经存在但表现差，应转 landing-page-conversion-audit；技术上要不要自建，先看 funnel-platform-picker。",
+   "tier": "auto"
+  },
+  "autonnel/autonnel-skills/self-hosted-funnel-launch": {
+   "name_zh": "自托管漏斗上线",
+   "intro": "在自有基础设施上把漏斗从空安装跑到发布：落地页、结账、一键追加销售、感谢页，并让 agent 经 MCP 来建和改。基于 Autonnel（Apache-2.0），覆盖 Cloudflare Workers 免费额度内与 Docker 两条部署路径，以及支付、商品目录、转化跟踪的接线。适合想便宜地自托管一套 ClickFunnels 替代品，或让 agent 以程序方式维护漏斗的团队。",
+   "usage": "Workers 路线依次是 `npx wrangler login`、`npm run deploy:cf` 等；Docker 路线用 `docker compose up` 起服务；本地源码路线用 `npm create autonnel@latest my-funnel` 加 `npm run dev`。管理员用 `npx autonnel admin:create you@example.com 'a-strong-password'` 创建。",
+   "notes": "重点是 MCP 那节：写失败也可能返回 HTTP 200，判断结果要看 result.content[0].text 而不是状态码；走 /api/mcp 时要带 Accept: application/json, text/event-stream，否则可能拿到 406。正文还列了常见的写入失败规则和「诚实的运维成本」。",
+   "tier": "auto"
+  },
+  "autonnel/autonnel-skills/server-side-conversion-tracking": {
+   "name_zh": "服务端转化回传",
+   "intro": "把购买事件从服务端直接报给 Facebook、TikTok、Google、Bing，绕开 iOS 跟踪限制、广告拦截和 cookie 丢失导致的漏报。浏览器像素会丢掉一大块转化，而广告平台的出价模型学的正是这份上报数据，所以要修的是上报环节。适合平台报的购买数对不上真实订单、或改了跟踪之后 CPA 突然变差的场景。",
+   "usage": "顺序固定：落地页首次命中时抓 click id 与 UTM，写到服务端会话持久化，跨漏斗步骤和跨域继续带着，下单时落到订单记录，再服务端上报并带上 click id 与哈希后的 PII，最后给浏览器事件和服务端事件同一个 event id 去重，并拿平台数字和自家订单表对账。click id 涉及 fbclid、ttclid、gclid、msclkid、wbraid、gbraid，UTM 覆盖 utm_source 到 utm_term。本地演示用 `docker compose up`，然后开 http://localhost:4321。",
+   "notes": "末尾专门写了「服务端跟踪修不了什么」，别指望它救回没有采集到的数据。要不要自建运行环境，先看 funnel-platform-picker。",
+   "tier": "auto"
+  },
+  "browser-use/browser-use/browser-use": {
+   "name_zh": "浏览器控制",
+   "intro": "用 Chrome DevTools Protocol 直接操作浏览器：点击、输入、跳转、截图、跑站点测试，也能连远程云浏览器。技能明确划了边界——公开页面用普通 HTTP 请求就能读的，不要动用浏览器；只有需要交互、需要用户已登录的会话、需要 JS 渲染，或页面有机器人防护时才升级到浏览器。",
+   "usage": "安装后先用 `browser-use --doctor` 体检，再 `browser-use auth login` 登录云端；本地 Chrome 走本地 daemon。脚本用 heredoc 喂给 `browser-use`，里面调 page_info()、goto_url()、new_tab()、click_at_xy()；通用工具在 agent-workspace/agent_helpers.py。要录屏就 `browser-use recordings enable`，再用同一条命令查看记录。",
+   "notes": "安装与连接问题看 browser-harness 仓库的 install.md。远程浏览器会走浏览器云站点的付费服务，需要 BROWSER_USE_API_KEY。域技能默认关闭，要开就设 BH_DOMAIN_SKILLS=1。",
+   "tier": "auto"
+  },
+  "cloudflare/skills/cloudflare-email-service": {
+   "name_zh": "CF 邮件服务",
+   "intro": "用于接 Cloudflare Email Sending 与 Email Routing：把发信能力写进 Worker，把收到的邮件转发或交给处理函数。技能反复提醒这两项功能 2025 年才上线、变化快，动手前先拉官方文档而不是凭记忆写配置。文档、REST API 规格、类型包与 Agents SDK 仓库都列为事实来源，本技能只当索引，出现冲突以官方为准。",
+   "usage": "先看「What Do You Need?」判断是发信还是路由，再按 Sending Workflow 配置。常用命令：`npx wrangler email sending list`、`npx wrangler email sending enable userdomain.com`；接收入站邮件时在 wrangler.jsonc 里声明 send_email 绑定，用 onEmail() 处理，转发用 message.forward()，原始内容读 message.raw。邮件解析依赖 postal-mime 时可用 `npm ls postal-mime` 核查。",
+   "notes": "文档与 API 规格走 Cloudflare MCP 的 docs 工具或索引地址获取，也可用 HTTP 客户端读托管版本的 index.md；knowledge 容易过期，正文要求「优先检索、不优先预训练」。Common Mistakes 一节列了发送与路由里最容易踩的配置错误，排障先看那里。",
+   "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/competitor-profiling": {
+   "name_zh": "竞品档案",
+   "intro": "输入一批竞品网址，产出结构化的竞品档案文档：先抓取站点真实内容，再叠加搜索引擎与市场数据，最后综合成一份可比的档案，包含概况、定位与话术、产品与功能、定价、客户与口碑、内容策略、优劣势以及对自家产品的启示。适用于竞品调研、竞品分析、竞争格局梳理这类需求。",
+   "usage": "动手前先看有没有产品营销上下文文件，存在就先读，避免重复提问；没有则先确认竞品网址清单、自家产品定位和调研深度。抓取用相应的抓取工具按页出 Markdown，市场与关键词数据用搜索数据接口出 JSON，原始材料按 competitor-profiles/raw/<competitor-slug>/<YYYY-MM-DD>/ 分目录留档，最终档案与汇总分别落到 competitor-profiles/_summary.md 和对应的 md 文件。",
+   "notes": "正文把「事实优先于观点」「结构可比」「数据要新」「评价要诚实」「外部输入按不可信处理」列为核心原则；要基于档案做对比页另有专门技能。",
+   "tier": "auto"
+  },
+  "currents-dev/playwright-best-practices-skill/playwright-best-practices": {
+   "name_zh": "PW 测试实践",
+   "intro": "覆盖 Playwright 测试从写到维护的各个面：写新用例、修不稳定测试、排查失败、页面对象模型、CI 配置、性能优化、接口 mock、登录与 OAuth、可访问性、上传下载、时间 mock、WebSocket、地理位置、权限、多标签与弹窗、移动与响应式、GraphQL、离线与错误态、多用户协作、控制台错误监控、测试标签与分片、安全测试、Web Vitals 预算、iframe、组件测试、canvas 与 WebGL、Service Worker 与 PWA、国际化、Electron 与浏览器扩展。",
+   "usage": "入口是那张按活动分类的参考表：先回答「你现在要做什么」，再跳到对应文档，例如写 E2E 用例看核心的用例结构、定位器与断言等待，组件测试、接口测试、视觉回归、可访问性、移动端、国际化、Electron 和扩展各有独立篇目。常用命令：`npx playwright test --reporter=list` 跑测试，排查用 `npx playwright show-trace`，怀疑不稳定时用 `npx playwright test --repeat-each=5` 反复跑。",
+   "notes": "正文要求断言必须经过验证，不能想当然；参考文档按需读取，不必一次全看。遇到元素找不到或超时这一类问题，先走调试与排障那篇。",
+   "tier": "auto"
+  },
+  "google-labs-code/stitch-skills/react:components": {
+   "name_zh": "Stitch 转组件",
+   "intro": "把 Stitch 里的设计稿转成模块化的 Vite 加 React 组件，靠 MCP 取设计数据、用 AST 做校验。技能要求先发现命名空间前缀，再取屏设计 JSON，落盘前先看本地是否已有同页的设计文件，避免重复下载覆盖掉手工改动。产出的组件放在约定的目录里，配套样式指南和架构检查清单。",
+   "usage": "先跑 `list_tools` 找到 Stitch MCP 的前缀，再用该前缀调取屏方法拿设计 JSON。下载设计资源用 `bash scripts/fetch-stitch.sh \"[htmlCode.downloadUrl]\" \".stitch/designs/{page}.html\"`。依赖装好后用 `npm install`，写组件时参考 resources/component-template.tsx 和 resources/style-guide.json，最后跑 `npm run validate <file_path>` 做校验，预览用 `npm run dev`。",
+   "notes": "正文提醒 AI 自带的抓取工具在云存储域名上可能失败，所以给了脚本兜底；如果本地已存在 .stitch/designs/{page}.html 与对应图片，必须先问用户是重新拉取还是复用。",
+   "tier": "auto"
+  },
+  "heygen-com/hyperframes/gsap": {
+   "name_zh": "GSAP 动效手册",
+   "intro": "HyperFrames 里写 GSAP 动画的参考：补间方法、缓动、错开、默认值、时间轴与位置参数、标签嵌套与播放控制，以及性能取舍。同时说明了 HyperFrames 的接入约定——同步创建一个暂停的时间轴，按作品根节点上的 data-composition-id 注册到 page 的动画表上，由 HyperFrames 接管定位。适合在 HyperFrames 作品里写动效时随时查。",
+   "usage": "时间轴用 `gsap.timeline({ paused: true })` 建，键名必须与作品根节点的 data-composition-id 一致，注册到 `window.__timelines` 后由外部定位，渲染关键动效不要主动调 tl.play()。常用写法还包括 gsap.to()、gsap.from()、gsap.fromTo() 与 gsap.defaults()；用页面内嵌脚本时按正文给的 CDN 地址引入库。逐条对照 tl.to 的写法可以查看官方时间轴文档。",
+   "notes": "性能一节要求优先动 transform 和 opacity、按需声明 will-change、高频更新改用 gsap.quickTo()，并给出清理建议；响应式与无障碍走 gsap.matchMedia()。正文另有明确的「不要这样做」清单。",
+   "tier": "auto"
+  },
+  "heygen-com/hyperframes/website-to-video": {
+   "name_zh": "网站转视频",
+   "intro": "把某个网址抓下来，做成一段关于这个网站本身的视频：导览、展示片或社交短片，素材来自抓取的页面截图和站点自带的品牌资源。适合作品集、博客、文档站和落地页的展示。它明确不做产品发布或推广视频，即使输入同样是一个网址；意图不明时应先回 hyperframes 主入口。",
+   "usage": "先用 `npx hyperframes skills update website-to-video` 更新本技能，再看 `npx hyperframes auth status` 确认登录状态。按作品目录组织文件，用 hyperframes lint、hyperframes snapshot 和 `npx hyperframes check` 校验，分镜文件是 compositions/beat-N.html，节拍数按 max(beats × 3, ceil(duration_seconds / 2)) 估算。",
+   "notes": "重点是站在访客视角介绍站点，不是推销，产品发布和讲解类内容各有对应技能（/product-launch-video、/faceless-explainer、/pr-to-video、/hyperframes）。素材清单位于 .media/manifest.jsonl，设计材料可选带 DESIGN.md。",
+   "tier": "auto"
+  },
+  "higgsfield-ai/skills/higgsfield-brandkit": {
+   "name_zh": "品牌系统构建",
+   "intro": "通过 Higgsfield 命令行加自带的本地脚本，建起一整套视觉品牌系统：色板、SVG 标志、字体搭配、样机、社交图、包装、标牌、周边、海报、演示稿，以及可编辑的 PPTX 与 PDF 品牌手册。已提供的品牌事实和官方素材被当作固定约束，审批状态存在本地，重跑时只重算受影响的下游产物。",
+   "usage": "先把工作目录定下来，再把状态写进 state.json，然后用脚本驱动各步：`python3 \"$SKILL_ROOT/scripts/brandkit.py\" state` 读状态、preview 出预览、logo-inspect 检查标志、brandbook-build 装订手册。生成侧用 `higgsfield generate create recraft_v4_1` 做矢量标志。批准色板、标志、字体各有关键字段记录。",
+   "notes": "正文要求安装系统包前必须征得用户同意，标志与字体确认后方可继续，失败处理策略单列一节。不要用它做无品牌约束的普通出图、商品目录摄影或网站实现。",
+   "tier": "auto"
+  },
+  "higgsfield-ai/skills/higgsfield-youtube-thumbnail": {
+   "name_zh": "视频封面制作",
+   "intro": "通过 Higgsfield 命令行做高点击的 YouTube 封面和竖版视频封面：先立一个真实可信的信息差概念，最多保留三个被引用的人物身份，支持 logo 与受控变体，主图用指定的图像模型渲染，再做有针对性的局部修图。适合做完视频后补封面，短视频封面和 Instagram 视频封面同样适用。",
+   "usage": "开工前先跑 `higgsfield account status`，未登录时请用户执行 `higgsfield auth login`；模型契约可能变化时用 `higgsfield model get nano_banana_pro --json` 确认参数。主图生成走 `higgsfield generate create nano_banana_pro`，三维 logo 用 `higgsfield generate create gpt_image_2`，改图用 seedream_v5_pro。",
+   "notes": "流程设了若干确认关口：先确认主题与视觉方向，再定概念，然后是参考图顺序，主图出图后还要过一遍再动手改。不要用它生成视频本身，商品目录照和商城卡片另有对应技能；联网检索的部分按正文口径处理。",
+   "tier": "auto"
+  },
+  "intellectronica/agent-skills/notion-api": {
+   "name_zh": "Notion 接口",
+   "intro": "用 REST 方式调 Notion 接口的完整说明：认证与密钥处理、请求头与版本、各主要端点、分页、错误处理和注意事项，覆盖页面、数据库、块、评论等对象的读写与删除。用户提出要和 Notion 打交道时使用，身份凭据优先从环境变量取，其次用用户当场给的，都没有再向用户要。",
+   "usage": "请求需带 Authorization 头（值取 `NOTION_API_TOKEN`）和版本头，校验身份可直接请求 https://api.notion.com/v1/users/me。各部分都有 curl 示例：搜索、建页面、取页面属性、读写块子节点、查询数据库、取评论，翻页用 start_cursor 与 page_size，返回里看 has_more 与 next_cursor。错误码区分了参数错误、版本缺失、鉴权失败、权限不足、对象不存在、冲突、限流、服务端异常和网关超时等情形。",
+   "notes": "密钥除认证头外不得打印、记录或外发，只能确认存在与否；破坏性操作要先征求确认。更深的分页过滤、块类型、属性类型和富文本结构在各分篇文档里。",
+   "tier": "auto"
+  },
+  "kepano/obsidian-skills/obsidian-markdown": {
+   "name_zh": "OB 笔记语法",
+   "intro": "按 Obsidian 的扩展方言创建和编辑 Markdown：双链、嵌入、标注块、属性、标签、注释等专有语法。普通 Markdown 的部分被视为已掌握，本技能只覆盖 Obsidian 自己加的那层。适用于在 Obsidian 里处理 md 文件，或用户提到双链、标注块、前言属性、标签、嵌入、笔记的场景。",
+   "usage": "建笔记按四步走：文件顶部先用前言写属性，正文用标准 Markdown 加专有语法，内部链接用 `[[Note]]` 这类双链，嵌入内容或图片用 `![[embed]]` 语法，标注用 `> [!type]` 加类型名，块引用另加块标识。更多细节按需看 references 下的属性、嵌入等分篇。",
+   "notes": "常见坑是属性字段名和标注类型写错；正文强调只写 Obsidian 特有的部分，通用语法不重复讲解。",
+   "tier": "auto"
+  },
+  "liarjsdev/liarjs-skills/browser-fingerprint-audit": {
+   "name_zh": "浏览器指纹体检",
+   "intro": "用 liarjs 命令行查浏览器指纹内部是否自相矛盾：浏览器里的 canvas、WebGL、WebGPU、音频、字体、WebRTC、时区等探测结果，会和同一请求在边缘看到的 TLS、HTTP、ASN 视图逐项对账。总分从 100 起扣，85 及以上为可信，60 及以上标记可疑，更低判为疑似伪造或机器人。适合跑一次指纹测试、对比伪装配置与真实浏览器。",
+   "usage": "扫描用 `npx liarjs@0.3`，加 `npx liarjs@0.3 --all` 会连通过的检查项一起列出，加 `npx liarjs@0.3 --offline` 只做 JS 层检查、不发外发请求，加 `npx liarjs@0.3 --json scan.json` 保存完整结果，方便之后比对。要检查自己已经开着的浏览器，用 `npx liarjs@0.3 --cdp http://127.0.0.1:9222` 接上调试端口。",
+   "notes": "一次运行会在临时目录起一个用完即弃的 Chrome，正文说明了它对机器的实际动作。检查项含义看 references/checks.md，跑完发现分数低可转 fingerprint-failure-triage 做归因。",
+   "tier": "auto"
+  },
+  "liarjsdev/liarjs-skills/fingerprint-ci-gate": {
+   "name_zh": "指纹回归卡点",
+   "intro": "把浏览器指纹当成构建卡点：先存一份基线扫描 JSON，之后的运行与基线做差异比对，分数跌破底线就让任务失败。指纹回归很隐蔽，往往几周后流量开始被拒才发现，把它变成 PR 里的一次 diff 就能提前暴露。适合给 GitHub Actions、GitLab CI 或其他流水线加指纹检查，或追踪 Chromium 版本与抓取环境的变化。",
+   "usage": "两种机制：绝对底线用 `npx liarjs@0.3 --headless --min-score 60`，分数低于设定值就以退出码 1 失败；基线差异用 `npx liarjs@0.3 --json scan.json` 写当期结果，再 `npx liarjs@0.3 diff baseline.json scan.json` 看相对已知良好版本变了什么。GitHub Actions 里对应 node-version: 22，扫描步骤直接跑 `npx liarjs@0.3 --headless --json scan.json --min-score 60`。",
+   "notes": "容器要给足共享内存，Docker 上加 --shm-size=1g 或挂 /dev/shm，并保留浏览器自身的沙箱；扫描起不来属于镜像问题，应在镜像里修。CI 配方见 references/ci-recipes.md。",
+   "tier": "auto"
+  },
+  "liarjsdev/liarjs-skills/fingerprint-failure-triage": {
+   "name_zh": "指纹失败归因",
+   "intro": "读一份 liarjs 指纹报告，把每个失败检查项归到产生它的那一环：是启动配置、改页面的那一层、网络路径，还是机器镜像，并说明哪些失败是无头或机房环境本身带来的。目标是把一个分数变成一份责任清单。适用于扫描分数偏低，或需要解释 webdriver、worker-consistency、gpu-triad、native-integrity、tz 这类检查 id 的场合。",
+   "usage": "第一步要拿完整结果而不是只看失败项：`npx liarjs@0.3 --all --json scan.json` 会把通过的检查一并打印并保存原始指纹，通过项往往正是区分两种可能来源的关键。第二步按 references/interpreting-checks.md 把失败分组，再逐个 id 对照说明。需要比较前后变化时用 `npx liarjs@0.3 diff before.json after.json`。",
+   "notes": "本技能只负责解释测量结果；某个失败项要不要处理，取决于这个浏览器是干什么用的，判断权在使用方。adapter.info 这类信息用于确认 GPU 侧来源，具体清单见 references/interpreting-checks.md。",
+   "tier": "auto"
+  },
+  "liarjsdev/liarjs-skills/playwright-stealth-verify": {
+   "name_zh": "自动化浏览器指纹核验",
+   "intro": "判断 Playwright、Puppeteer、Selenium 或 CDP 驱动的浏览器，指纹是否自洽：navigator.webdriver、HeadlessChrome 痕迹、worker 与主线程身份是否一致、被改写过的 API 是否露馅、WebGL 与 WebGPU 报的 GPU 是否对得上。把 liarjs 当库用，对着手里已有的 Page 跑，能在不改变被测环境的前提下把隐身插件的效果量出来，也适合放进测试套件。",
+   "usage": "装成开发依赖用 `npm install --save-dev liarjs`，代码里 `import { checkPage } from 'liarjs'`，调用 `checkPage(page)` 拿到结果，断言 result.score 或直接筛出 status 为 bad 的检查项。对已有的调试端口浏览器可用 `npx liarjs@0.3 --cdp http://127.0.0.1:9222`。",
+   "notes": "只测量、不改浏览器，也不提供任何规避手段；Node 22 起、零运行时依赖，接进现有测试栈不增加负担。注意它衡量的是被测环境自身，真实启动参数、插件和代理都会照原样保留，所以结果反映的是实际配置而不是假设。",
+   "tier": "auto"
+  },
+  "solana-foundation/solana-dev-skill/solana-dev": {
+   "name_zh": "Solana 手册",
+   "intro": "覆盖 Solana 开发的完整链路：钱包连接与签名、Anchor 或 Pinocchio 程序、Codama 生成的客户端、本地与模糊测试、安全审查、以及新交易格式。默认技术选型很明确：用 kit 插件式客户端建 v1 交易，钱包侧配对应插件与 React 包，旧版 web3.js 只作为迁移目标，本地网络用 Surfpool。也含用公共 RPC 加 curl 查余额、交易和代币账户的快捷做法。",
+   "usage": "新代码默认建交易 v1，客户端用 `createClient()` 组合插件，交易配置里写 version: 1；钱包连接可用 walletSigner 与 React 侧钩子，先检查连接的钱包是否支持该版本。本地测试先起 Surfpool，再跑 anchor test。命令行上正文按无交互代理环境处理，示例是 `NO_DNA=1 surfpool start` 这类写法，避免 CLI 在人机问答上卡住。",
+   "notes": "为 agent 设计的安全护栏单列两节：交易发出前要人工复核，且外部抓来的内容按不可信数据处理。需要实时文档或专家协助时可接官方 MCP 服务，正文给了各家 CLI 的添加命令。",
+   "tier": "auto"
+  },
+  "stripe/ai/stripe-best-practices": {
+   "name_zh": "Stripe 准则",
+   "intro": "给 Stripe 接入的关键决策做导向：开发与测试环境用独立沙箱还是共享测试模式、收款用 Checkout Sessions 还是 PaymentIntents、Connect 平台账户怎么建、订阅与计费怎么接、税务登记与自动算税、财务账户、以及密钥管理、权限、webhook 和 OAuth 等安全实践。计划、开发、改造、测试或评审任何 Stripe 集成时都适用。",
+   "usage": "正文要求始终使用最新 API 版本与 SDK，除非用户另有指定，当前版本号为 2026-09-30.endive。命令行工具用 `npm i -g @stripe/cli` 安装，随后可用 stripe sandbox create 开沙箱、`stripe whoami --format json` 确认身份、`stripe config --list` 看当前配置。新集成默认走独立沙箱，而不是账号自带的共享测试沙箱，因为它能把设置和测试数据与线上隔离。",
+   "notes": "密钥前缀区分可发布密钥与受限密钥，正文强调不要写进代码；关键文档集中在沙箱说明、密钥管理、支付方式配置、支付方式可选项、支付 API 导览和上线清单几篇里。",
+   "tier": "auto"
+  },
+  "typesafe-ai/skills/typesafe-ai": {
+   "name_zh": "可组合判断模型",
+   "intro": "把一小块 AI 判断当成编程原语来用：System One 系列模型读自然语言和应用状态，返回带类型的判断与概率，而不是生成一段文本或推理过程。工作流由代码掌握，模型只补上普通代码缺的那点语义理解能力，覆盖路由、排序、抽取、校验和交互式体验。旗舰模型是 Jev。适合某个功能需要可编程常识，或想把提示词加解析那一步换成结构化决策。",
+   "usage": "正文把「读实时文档」放在第一步，明确实时文档才是事实来源，本技能只给方向。先看 https://docs.typesafe.ai/llms.txt 拿到全量索引，再按需要读概念、原语、置信度、API 与各语言 SDK 页面；Python 与 JavaScript 的接法分开成篇，迁移到 v1 也有单独页。设计时先定要哪些判断，再组合与验证。",
+   "notes": "经验信息容易过期，接口和概念以线上文档为准；正文提到的路由、排序、抽取、校验只是起点，不是能力边界。",
+   "tier": "auto"
   },
   "heygen-com/hyperframes/hyperframes-creative": {
    "name_zh": "视频创意指导",
@@ -2305,6 +2671,356 @@
    "intro": "查询登录用户自己的飞书考勤打卡记录，范围很窄，只有 `user_tasks` 下的 `query` 一个方法，需要的 scope 是 `attendance:task:readonly`。有两个参数必须自动填充、不许拿去问用户：`employee_type` 恒为 `\"employee_no\"`，`user_ids` 恒为空数组 `[]`。调原生 API 前要先跑 `lark-cli schema attendance.<resource>.<method>` 看参数结构，不要猜 `--data` 和 `--params` 的字段格式。安装量 41.4 万。",
    "usage": "用户要查自己的考勤打卡记录时用它；按自动填充规则构造参数，先 `schema` 再调 `lark-cli attendance <resource> <method> [flags]`。",
    "notes": "只能查本人记录，`user_ids` 保持空数组，别往里填别人的 ID。依赖 `lark-cli`，动手前先读 lark-shared 的认证与权限规则。",
+   "tier": "auto"
+  },
+  "101-skills/superpowers/image-to-video": {
+   "name_zh": "图生视频选型",
+   "intro": "静图转动图的选型与提示词指南，通过 inference.sh 的命令行工具执行。正文比较 Wan 2.5 i2v、Seedance、Fabric、Grok Video 几个模型，说明各自什么时候用，并讲运动提示词和镜头运动怎么写。适用场景是把图片做成动图、产品动效和给静帧加运动。正文的例子先从 Flux 出静图，再用图生视频模型把它动起来。工具授权只限 belt 命令。",
+   "usage": "要把一张静图变成视频、或不确定该用哪个图生视频模型时调用；先登录命令行工具，再给出静图和运动描述。",
+   "notes": "需要 inference.sh 的额度；效果依赖运动提示词与镜头描述的具体程度。",
+   "tier": "auto"
+  },
+  "101-skills/superpowers/remotion-render": {
+   "name_zh": "代码渲染视频",
+   "intro": "把 React/Remotion 组件代码交给 inference.sh 的命令行工具，直接得到 MP4。支持的 Remotion API 包括 useCurrentFrame、useVideoConfig、spring、interpolate、AbsoluteFill 和 Sequence，分辨率、帧率、时长、编码都可配置。适用场景是程序化生成视频、动态图形、动效设计和数据驱动视频。正文说明只授权调用 belt 命令，安装方式是把 belt 的 CLI 技能加进来再登录。",
+   "usage": "已有 TSX 组件、要按代码出片时用；先装好并登录 belt 命令行，再把代码作为输入交给它。",
+   "notes": "需要 inference.sh 的额度与登录态；输入是一段代码，不是素材文件。",
+   "tier": "auto"
+  },
+  "antibrow/anti-detect-browser-skills/anti-detect-browser": {
+   "name_zh": "指纹浏览器 SDK",
+   "intro": "用标准 Playwright API 驱动 Chromium，但指纹在内核层按真实设备来，每个身份一个持久化的独立配置，每个配置配一个代理，出口 IP 决定时区和 WebRTC。Node 端是 anti-detect-browser 包，Python 端是 antibrow。适用场景：需要跨次运行保持登录又要彼此隔离的会话、被不一致的无头指纹挡住时、从别的地区看广告或价格、要用手机而不是桌面访问页面、每个任务新建配置，以及在一台机器上跑自己的多个账号。License MIT。正文提示 MCP 控制看 browser-mcp-agent，隔离看 multi-account-isolation。",
+   "usage": "要做多账号隔离、持久登录或需要真实设备指纹的抓取与巡检时调用；每个身份一个配置，代理出口决定时区。",
+   "notes": "指纹与代理要配套，配置不匹配反而更容易被识别。",
+   "tier": "auto"
+  },
+  "arvindrk/extract-design-system/extract-design-system": {
+   "name_zh": "网页设计令牌提取",
+   "intro": "从一个公开网站里反推出设计基元，生成项目本地可用的起步令牌文件。正文先说清预期：v1 只提取令牌和起步素材，不是完整组件库；结果适合初始化，不是像素级还原；未经确认不要覆盖已有的设计系统或应用样式。流程是先确认目标地址公开可访问，再用 playwright 装一次浏览器，然后运行提取命令，产出落在 .extract-design-system/normalized.json，随后归纳出主色、辅色、强调色、字体，以及间距、圆角、阴影尺度。只要提取产物时加只提取的那个参数。",
+   "usage": "要在新项目里照着一个公开站点搭设计令牌时调用；先给目标网址，并确认是只提取还是连起步文件一起出。",
+   "notes": "v1 不产出组件库；已有设计系统的先确认再动。",
+   "tier": "auto"
+  },
+  "cloudflare/skills/cloudflare": {
+   "name_zh": "CF 产品选型",
+   "intro": "帮 agent 找到能用 Cloudflare 做什么并挑对产品：从用户的目标出发，推荐相关产品，再加载对应产品的技能或文档。正文给了命令行工具的选择规则——只有项目里已有 wrangler 配置且没有 cloudflare 配置文件时才用 Wrangler，其他情况包括新项目都用 cf；资源类命令两者可以并用，迁移只在用户要求时执行。范围覆盖应用、API、AI agent、存储、网络与安全。",
+   "usage": "用户描述了一个需求但没点名 Cloudflare 产品、需要做架构选型时调用；它会先选命令行工具再找对应技能。",
+   "notes": "项目里已有 Wrangler 配置的，按正文规则改用 Wrangler，不要硬换。",
+   "tier": "auto"
+  },
+  "convex/agent-skills/convex-quickstart": {
+   "name_zh": "Convex 起步",
+   "intro": "从一个句子级别的想法起，把一个最简的 Convex 加 Web 模板在本地跑起来。正文说它用 Next.js 加 Convex、匿名开发部署，刻意保持最小：只有本地开发服务器，没有发布步骤，也没有预置认证。流程是跑 quickstart-recipe@^2 配方（传入想法与模板），配方会建项目、装依赖、起后端和前端开发服务器，打印出开发地址后打开给用户看，之后再做模板之外的功能前要先确认。规则里写明：成功过的配方不要重跑；convex 目录下的代码交给 convex-expert；不要加 Postgres、Redis、Express，用 Convex 原语；不要在这里加托管发布和预置认证。",
+   "usage": "只有一句话想法、想先把 Convex 模板跑起来看效果时调用；它建本地项目并起开发服务器，不做发布。",
+   "notes": "模板刻意不含认证与发布；要扩功能先确认再动。",
+   "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/ad-creative": {
+   "name_zh": "广告素材生成",
+   "intro": "为一个或多个付费广告平台批量产出和迭代广告创意：标题、描述、正文文案，以及整组广告变体。正文覆盖 RSA 标题、批量广告文案、创意测试与创意路线图、钩子写法、静态广告与模板、UGC 与绿幕视频广告、无真人出镜的视频广告等格式，并给了一份创意格式的分类。写出来的文案要避开 AI 味句式。测试假设必须可被证伪：写清指标、对照物和预期方向。投放策略与定向、落地页文案各由别的技能负责。正文版本 2.12.1。",
+   "usage": "要为某个广告平台批量写或迭代标题、正文与变体时调用；只产出创意，投放策略与定向另找对应技能。",
+   "notes": "测试假设要能被证伪，指标、对照和预期方向缺一不可。",
+   "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/ai-seo": {
+   "name_zh": "AI 搜索可见性",
+   "intro": "面向 AI 搜索引擎和 AI 回答的内容优化：让内容更容易被大模型抓取、引用和转述。正文覆盖 AEO、GEO、LLMO 这些叫法，以及 llms.txt、llms-full.txt、OKF（Open Knowledge Format）这类给 agent 读的产物，还讨论零点击搜索、AI 引用格式变化、网站在 AI 回答里的曝光。传统技术 SEO 审计和结构化数据实现各有别的技能负责。正文版本 2.10.1。",
+   "usage": "想让内容被 ChatGPT、Perplexity 一类 AI 回答引用，或要检查站点对 agent 是否友好时调用；传统 SEO 审计请走对应技能。",
+   "notes": "与 seo-audit、schema 的分工写在正文里：这里管 AI 侧，那边管传统 SEO 与结构化数据。",
+   "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/copy-editing": {
+   "name_zh": "营销文案改稿",
+   "intro": "改已有营销文案，而不是从零写新文案。正文说每次编辑都要清掉 AI 味：比如「不是 X，而是 Y」这种句式、「没有 X、没有 Y、没有 Z」的排比，以及拖着一串从句的句子。做法是分轮聚焦修改，保留原意。用户只要求改一行时，就只动那一行，不做整篇重写。要从零写新文案有别的技能负责。正文版本 2.2.0。",
+   "usage": "手上已有文案、要润色或去 AI 味时调用；只点某一句时它会做点状修改，不动其他句子。",
+   "notes": "适合改稿与内容刷新，不适合从零起草。",
+   "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/marketing-ideas": {
+   "name_zh": "营销点子库",
+   "intro": "给 SaaS 或软件产品找营销思路用的起步技能。正文说自己有一份 139 条营销点子的库，按用户的阶段和资源挑合适的方向。动手前先找产品营销上下文：正文列的路径包括当前目录下的 .agents/product-marketing.md、.claude/product-marketing.md，以及旧版文件名 product-marketing-context.md，找到了就先读，只问里面没覆盖的信息。具体渠道执行另有所属技能。正文版本 2.0.1。",
+   "usage": "团队卡在增长上、只想要一批可选的营销方向时调用；它会先读已有的产品营销上下文，再问剩下的问题。",
+   "notes": "只是点子与策略起点，落到渠道执行要换对应技能。",
+   "tier": "auto"
+  },
+  "emilkowalski/skills/prototype": {
+   "name_zh": "UI 多变体原型",
+   "intro": "给同一块界面做多个真正不同的版本，放在一个可视化选择器后面，让用户当场翻看并选中一个。正文说它只做这一件事：拿一段界面描述（比如一个 toast、一张定价卡、一个长按删除按钮），产出若干差异明显的实现并排展示。它不做已有界面的评审、不做改进计划、也不负责挑依赖库，那些各有别的技能。只能被显式调用，不会自己触发。",
+   "usage": "想做界面方案的横向对比、并当场挑一个版本时显式调用；给一句界面描述即可，它不负责评审现有界面。",
+   "notes": "正文标记了禁止模型自行调用；一次只处理一块界面。",
+   "tier": "auto"
+  },
+  "firebase/agent-skills/firebase-ai-logic-basics": {
+   "name_zh": "Gemini 接入",
+   "intro": "把 Firebase AI Logic（旧名 Vertex AI for Firebase）接进移动端和 Web 应用，让客户端代码直接调用 Gemini，不用自己维护后端。正文列出支持的端：Android、iOS、Web 和 Flutter；两种模型提供方分别是 Gemini Developer API（有免费额度，适合原型）和 Agent Platform Gemini API（旧称 Vertex AI，面向规模化生产）。适用场景包括文本生成、多模态输入、对话与流式输出、结构化输出、端侧混合推理、App Check 防护，以及用 Remote Config 切换模型。作者标为 Google LLC，版本 1.0.1。",
+   "usage": "要在应用里初始化 AI Logic 或加 Gemini 能力（生成、对话、多模态、结构化输出）时调用；后端由 Firebase 侧承担。",
+   "notes": "两条提供方路线的额度与门槛不同，选之前先看正文里的对比。",
+   "tier": "auto"
+  },
+  "firebase/agent-skills/firebase-firestore": {
+   "name_zh": "文档数据库配置",
+   "intro": "创建、查询与配置 Cloud Firestore 数据库，Standard 和 Enterprise 版都覆盖，包括数据建模、安全规则、索引，以及 Web、Python、iOS、Android、Flutter 各端 SDK 的接入。正文特别提醒：涉及编写或修改 firestore.rules 时，如果有子代理能力就交给 firestore-rules-author，否则用 firestore-rules-creation。作者标为 Google LLC，正文说最配 Firebase CLI，但不是必须，可以用一次性的 firebase-tools 命令。Hosting、Data Connect、认证、存储、Crashlytics、Functions、BigQuery 都不在范围内。",
+   "usage": "要建库、列出库、设计集合与索引、写各端查询，或接 SDK 时调用；改规则文件请走规则作者那条路。",
+   "notes": "规则编写有专门的子代理或技能，别在这里手改规则。",
+   "tier": "auto"
+  },
+  "firebase/agent-skills/firebase-security-rules-auditor": {
+   "name_zh": "规则安全审计",
+   "intro": "以审计视角检查 Firestore 和 Cloud Storage 的安全规则：权限提升、角色绕过、创建与更新规则不一致、资源耗尽、类型安全、大小限制，以及写操作里 hasOnly 式的归属校验是否可靠。正文把自己定位成红队评审，要求不要因为规则看起来复杂就假设它安全，而要主动找绕过路径，并给了一份强制检查清单，第一条就是对比创建与更新规则。作者标为 Google LLC，类别 CloudSecurity。Firebase CLI、认证、Crashlytics、Remote Config、数据库查询都不归它管。",
+   "usage": "要评审或红队式检查 Firestore 与 Storage 的规则文件、按清单打分时调用；登录与部署这类 CLI 操作不在范围。",
+   "notes": "只审规则本身；运行时数据查询与认证问题请另找对应技能。",
+   "tier": "auto"
+  },
+  "heygen-com/hyperframes/hyperframes-media": {
+   "name_zh": "配音配乐与字幕",
+   "intro": "为 HyperFrames 合成准备音频与媒体素材，全部走同一个音频引擎，正文给的路径是 scripts/audio.mjs：它读一份中性的音频请求文件，写出音频元数据，并把素材放进 assets 下的 voice、bgm、sfx 目录。TTS 支持 HeyGen、ElevenLabs 和本地 Kokoro 多家；背景音乐与音效用 HeyGen 音频库取，也可本地用 Lyria、MusicGen 生成，没凭据时回落到自带的音效库。另外还有 Whisper 转写、背景去除和字幕撰写，字幕支持逐词样式与卡拉OK。",
+   "usage": "要给合成配旁白、背景音乐、音效或字幕时调用；先把需求写成音频请求文件交给音频引擎，别自己拼音频。",
+   "notes": "没有凭据时会回落到本地或自带素材；把素材放进合成要看 core 那部分。",
+   "tier": "auto"
+  },
+  "larksuite/cli/lark-apps": {
+   "name_zh": "妙搭应用开发",
+   "intro": "妙搭（Spark/Miaoda）应用的开发与托管。覆盖应用创建、本地全栈开发、云端生成迭代；创意设计包括 UI 稿、可交互原型、线框图、落地页、仪表盘与幻灯片 deck；还包括模型能力与飞书平台能力集成、日志与 Trace、监控指标、PV/UV 查询、环境变量、协作者与协作权限、应用角色与成员，以及定时、记录变更、Webhook、审批通过这类自动化触发器。应用链接形如 /app/ 或 /page/ 开头。云盘上传、飞书文档编辑、原生幻灯片创建不在范围内。",
+   "usage": "要新建或改造一个妙搭应用、拿可分享链接、查线上日志与访问量，或给它配自动化触发时调用；默认用用户身份。",
+   "notes": "应用属于用户资产，默认用户身份；缺本域权限时再单独登录一次。",
+   "tier": "auto"
+  },
+  "larksuite/cli/lark-markdown": {
+   "name_zh": "飞书MD文件",
+   "intro": "管理飞书云空间里的原生 Markdown 文件：查看、创建、上传、覆盖、局部或正则替换，以及比较远端版本与本地草稿。正文按动作分了子命令，并提醒创建或覆盖失败时先分辨是身份问题还是权限问题，不要来回切身份重试。拿历史版本号要先用 lark-drive 的版本历史。把本地 Markdown 导入成在线文档不在范围内，纯本地文件操作也不触发。",
+   "usage": "要读写飞书里的 Markdown 文件，或比较远端版本与本地草稿时调用；默认用用户身份，首次访问前先登录。",
+   "notes": "首次以用户身份访问前要执行一次登录；导入为在线文档请改用文档相关技能。",
+   "tier": "auto"
+  },
+  "larksuite/cli/lark-note": {
+   "name_zh": "会议速记兼容入口",
+   "intro": "与 lark-vc-agent 同一类的兼容入口，只是旧名不同。不处理业务，仅在用户或上游配置显式点名 lark-note 时生效，随后要求完整读取 lark-meeting 的说明并按其路由执行。正文说明它依赖 lark-meeting 技能。",
+   "usage": "只有上游配置或用户点名 lark-note 时才会命中；命中后交给 lark-meeting 处理，不要在这里实现新逻辑。",
+   "notes": "旧名称兼容用，能力都在 lark-meeting。",
+   "tier": "auto"
+  },
+  "larksuite/cli/lark-okr": {
+   "name_zh": "飞书 OKR 管理",
+   "intro": "飞书 OKR 的读写入口：OKR 周期、目标、关键结果、对齐关系、量化指标和进展记录都在处理范围内。正文的强制第一步是先读同仓 lark-shared 的说明，认证与权限处理写在那里。身份默认按用户走；要查看他人 OKR 时改用机器人身份，但需要对得上的权限。待办任务、日程会议安排、绩效评估不在范围内。依赖 lark-cli 命令行工具。",
+   "usage": "要看或改某个周期的目标与关键结果、核对上下级对齐关系时调用；用之前先确认已读过共享的认证与权限说明。",
+   "notes": "查看他人 OKR 用机器人身份需要额外权限；待办、日程、绩效请走各自技能。",
+   "tier": "auto"
+  },
+  "larksuite/cli/lark-vc-agent": {
+   "name_zh": "会议技能兼容入口",
+   "intro": "只为兼容旧名称而存在的入口，不直接处理业务。正文写明：仅当用户或上游配置显式指定 lark-vc-agent 时才使用，命中后要求完整读取 lark-meeting 的说明，并按其中的路由和行动指南执行。它声明依赖 lark-meeting 技能。",
+   "usage": "上游配置或用户仍然点名 lark-vc-agent 时才会走到这里；命中后按 lark-meeting 的流程处理，不要在这里找具体功能。",
+   "notes": "没有自己的业务逻辑，别按名字猜能力。",
+   "tier": "auto"
+  },
+  "mattpocock/skills/caveman": {
+   "name_zh": "极简回复模式",
+   "intro": "一种持续生效的压缩表达模式，正文自称能把 token 用量砍掉约 75%：去掉冠词、填充词、客套和模糊限定，保留全部技术内容。规则包括技术名词照原样、代码块不动、报错原文引用，因果关系用箭头表示，能用一词就不用一句。触发词有 caveman mode、talk like caveman、less tokens、be brief，也可以直接调用 /caveman。一旦触发就每次都生效，不会因为对话变长而自动恢复。",
+   "usage": "用户说 caveman mode、要求更少 token 或明确嫌啰嗦时启用；关掉必须由用户说 stop caveman 或 normal mode。",
+   "notes": "正文强调不确定时也保持生效；不要自作主张切回正常风格。",
+   "tier": "auto"
+  },
+  "microsoft/azure-skills/azure-app-onboard-prereq": {
+   "name_zh": "Azure部署预检",
+   "intro": "在动基础设施之前先判断源码能不能上 Azure：检查构建健康度、应用完整度、依赖与本地服务、技术栈兼容性，以及整体部署可行性。它回答的是部署前需要什么——框架、依赖、配置是否齐，依赖之间是否兼容，哪些框架 Azure 不支持，以及有哪些阻塞项。作者标为 Microsoft，版本 1.2.3，License MIT。它只做评估，不负责后续的资源创建。",
+   "usage": "仓库要上 Azure、但还不确定能不能部署或卡在哪里时调用；它给的是部署前评估结论，不产生基础设施。",
+   "notes": "只评估不改代码；具体资源创建属于后续基础设施环节。",
+   "tier": "auto"
+  },
+  "prime-skills/runcomfy-agent-skills/ai-avatar-video": {
+   "name_zh": "数字人说话视频",
+   "intro": "在 RunComfy 上做人像开口、口型同步和数字人视频，通过 runcomfy 命令行调用。正文在几个模型之间路由：字节 OmniHuman 做音频驱动的全身数字人，Wan 2-7 用音频地址驱动人像口型，HappyHorse 1.0 负责带音频的文生视频与图生视频，Seedance v2 Pro 走多模态参考音与参考主体。选型按真实意图来：口播 UGC、虚拟主播、配音产品演示、对话场景各对不同模型，各模型的提示词写法也一并给出。主页是 runcomfy.com，License 是 MIT。",
+   "usage": "要让人像按音频开口、做口型同步或配音视频时调用；说明想要的口播形式并给出音频来源，最小调用是 runcomfy run。",
+   "notes": "需要在 RunComfy 上可用并已配置凭据；模型选择取决于输入是音频、人像还是参考主体。",
+   "tier": "auto"
+  },
+  "remotion-dev/skills/remotion-studio": {
+   "name_zh": "Remotion预览",
+   "intro": "在写或改 Remotion 视频时把 Studio 跑起来并打开预览，让用户边看边指挥。正文说项目一旦能跑就先开 Studio，不要等合成写完。在 Cursor 里不加参数运行，浏览器会自动打开；其他宿主可以用不自动打开浏览器的方式运行，再自己打开打印出来的地址。Studio 已经开着时命令会打印地址后退出，否则是常驻进程。用禁止自动打开的参数时，要在内置浏览器里打开那个地址并确认 Studio 与视频预览都能加载。正文标注版本 4.0.537。",
+   "usage": "要一边改 Remotion 合成一边看效果时用；项目能跑就先开预览，若已有实例会打印地址后退出。",
+   "notes": "无法在内置浏览器里打开地址时，不要用禁止自动打开的参数。",
+   "tier": "auto"
+  },
+  "vercel-labs/agent-skills/vercel-cli-with-tokens": {
+   "name_zh": "Vercel 部署",
+   "intro": "用访问令牌而不是交互式登录来跑 Vercel 命令，部署和管理项目。正文第一步是定位令牌来源，按顺序排查：环境变量里已经有的、项目 .env 里叫 VERCEL_TOKEN 的、以及 .env 里叫别的名字的（Vercel 令牌通常以 vca_ 开头）。找到之后导出再执行。正文作者标为 vercel，版本 1.0.0。",
+   "usage": "要在不弹交互登录的环境里部署到 Vercel、配置环境变量时调用；先确认令牌在环境变量或 .env 里能找到。",
+   "notes": "令牌一般以 vca_ 开头；找不到来源就别硬跑命令。",
+   "tier": "auto"
+  },
+  "anthropics/skills/brand-guidelines": {
+   "name_zh": "品牌视觉规范",
+   "intro": "套用 Anthropic 官方品牌色和字体。主色是深色 #141413 用于正文和深色背景、浅色 #faf9f5 用于浅背景和深色上的文字、中灰 #b0aea5 用于次要元素、浅灰 #e8e6dc 用于弱背景；强调色为橙 #d97757、蓝 #6a9bcc、绿 #788c5d。字体上标题用 Poppins 回退 Arial，正文用 Lora 回退 Georgia。适合需要品牌色、风格规范或公司设计标准的产出物。",
+   "usage": "产出物需要 Anthropic 的品牌配色、字体或整体视觉风格时用；公司设计规范和视觉统一相关的需求也归它，正文提醒字体最好提前装到环境里。",
+   "notes": "许可条款在 LICENSE.txt；正文同时给出主色、强调色以及字体的回退方案。",
+   "tier": "auto"
+  },
+  "anthropics/skills/canvas-design": {
+   "name_zh": "画布视觉设计",
+   "intro": "用设计哲学做视觉作品，输出 png 和 pdf。分两步：先写一份设计哲学，把它当成一种审美方向，再从形、空间、色彩、构图，以及图像、图形、形状、图案去落地，文字只当视觉点缀。用户给的输入是基础而不是限制创作自由。只输出 md、pdf、png 三种文件；要求原创，不能照抄现有艺术家的作品以免侵权。",
+   "usage": "用户要海报、插画、设计稿或其他静态视觉作品时用；先出设计哲学再落到画布，最终只产出 md、pdf、png 三类文件。",
+   "notes": "许可条款在 LICENSE.txt；正文强调不复制他人作品以避免版权问题。",
+   "tier": "auto"
+  },
+  "anthropics/skills/mcp-builder": {
+   "name_zh": "MCP 服务端构建",
+   "intro": "MCP 服务器开发指南，目标是把外部 API 和服务包装成设计良好的工具供大模型调用。实现路线有 Python 的 FastMCP 和 Node/TypeScript 的 MCP SDK 两条，流程分四个阶段，从调研与设计开始，讨论接口覆盖面与工作流工具之间的取舍。正文给出的质量判断标准是：能否真的帮模型完成现实任务。",
+   "usage": "新建 MCP 服务器、给已有服务补工具、决定工具粒度或选语言实现路线时用；把外部 API 接给模型之前也先过一遍这份流程。",
+   "notes": "正文把流程拆成四个阶段；许可条款在 LICENSE.txt。",
+   "tier": "auto"
+  },
+  "anthropics/skills/web-artifacts-builder": {
+   "name_zh": "网页作品构建",
+   "intro": "用来做复杂、多组件的 claude.ai HTML 作品，技术栈是 React 18 + TypeScript + Vite + Parcel 打包 + Tailwind CSS + shadcn/ui。流程是先初始化前端仓库，再改生成的代码开发，然后把代码打包成一个 HTML 文件，最后展示并按需测试。需要状态管理、路由或 shadcn/ui 组件的复杂作品才用它，简单单文件 HTML 或 JSX 不在范围内；正文还提醒别做成过度居中、紫色渐变、统一圆角加 Inter 字体那种观感。",
+   "usage": "要做需要状态管理、路由或 shadcn/ui 组件的复杂 claude.ai 网页作品时用；简单单文件页面不用它，步骤是先初始化仓库，开发完打包成单个 HTML。",
+   "notes": "正文给的设计提醒是避开过度居中、紫色渐变、统一圆角和 Inter 字体；许可条款在 LICENSE.txt。",
+   "tier": "auto"
+  },
+  "better-auth/skills/better-auth-best-practices": {
+   "name_zh": "认证服务配置",
+   "intro": "配置 Better Auth 的服务端和客户端：数据库适配器、会话管理、插件和环境变量，以及用 TypeScript 做邮箱密码或 OAuth 登录。正文反复强调文档版本要对上项目里装的版本：优先用户点名的版本，否则查锁文件、没有锁文件再看包清单；接上 MCP 时先解析出版本对应的文档标识，后续查询都带上它，返回的路径原样再用。没有 MCP 就从官方文档入口起步。",
+   "usage": "项目里出现 Better Auth 或 auth.ts，或者要用 TypeScript 接邮箱密码、OAuth、插件配置时用；换版本或升级后要重新核对对应版本的文档。",
+   "notes": "正文提醒 API 和插件名在不同发布线上会变；只有版本无法确定或用户明确要求时才用最新文档。",
+   "tier": "auto"
+  },
+  "browser-act/skills/browser-act": {
+   "name_zh": "浏览器自动化",
+   "intro": "给 AI agent 用的浏览器自动化命令行工具。正文第一条硬规则是不要直接用 Bash 跑 browser-act 命令，先加载这个技能。适用场景包括抓取和提取渲染后的网页内容、访问需要 JavaScript 的页面、处理验证提示、维持已登录会话、填表点击、输入选择上传、截图、抓取 XHR 与 HAR 响应、并行打开多个 URL、提取滚动或点击后才出现的内容，以及目视检查布局、样式和渲染。",
+   "usage": "需要抓渲染后的内容、处理要登录或有验证的页面、填表点击、截图、抓请求、并行开多个链接或隔离账号时用；查询和管理已配置的浏览器与会话也归它，别绕过它直接敲命令。",
+   "notes": "正文版本 2.0.2，作者 BrowserAct；要求 Python 3.12 以上和 uv，安装方式写在元数据里，官网 browseract.com。",
+   "tier": "auto"
+  },
+  "cloudflare/skills/workers-best-practices": {
+   "name_zh": "Workers 写法",
+   "intro": "Cloudflare Workers 生产应用的写法与审查要点。正文先提醒：关于 Workers 的 API、类型和配置，记忆可能已经过时，写或审代码时以检索为准，用项目实际装的版本、生成的类型和 Wrangler 兼容性设置当基线。参考材料分三份：配置与可观测性、运行时模式（流式、promise 生命周期、请求状态、服务调用、安全和运行时测试）、平台 API 校验（handler 签名、平台类、绑定访问和序列化）。",
+   "usage": "写、审或配置 Cloudflare Workers 时用；改兼容性日期、动绑定、核对 handler 签名或排查运行时行为时，先按参考文件取文档对照。",
+   "notes": "三份参考文件按主题拆开；正文建议拿不准就去查官方 Workers 最佳实践文档。",
+   "tier": "auto"
+  },
+  "cloudflare/skills/wrangler": {
+   "name_zh": "CF 命令行",
+   "intro": "在有 wrangler.jsonc、wrangler.json 或 wrangler.toml 的项目里跑或排查 Wrangler 命令行，覆盖本地开发、Previews、部署和资源管理。新项目、带 cloudflare.config.ts 的项目，或者完全没有 Cloudflare 配置的项目不要用 Wrangler，改用 cf 命令行。正文要求用项目自己的 Wrangler 版本，写命令和配置之前先取对应版本文档，并先摸清包管理器、已装版本、脚本、框架和配置文件。",
+   "usage": "项目里已有 Wrangler 配置文件，要跑本地开发、预览、部署或管理资源时用；命令报错或配置不生效也用它排查，动手前先确认项目实际装的版本。",
+   "notes": "正文提醒命令行参数和配置字段会变，别照搬记忆里的例子；不该用 Wrangler 的项目要改用 cf 命令行。",
+   "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/churn-prevention": {
+   "name_zh": "流失挽留设计",
+   "intro": "做 SaaS 留存和流失防控，自愿流失（用户主动取消）和非自愿流失（扣款失败）都要管。内容包括取消流程设计、动态挽留优惠、主动留存策略和失败扣款催缴，也覆盖退出问卷、暂停订阅和赢回。适合「用户老取消」「流失率太高」「怎么留住用户」这类问题。开始前先查产品营销上下文文件；取消后的赢回邮件看 emails，应用内升级付费墙看 paywalls。",
+   "usage": "要降流失、做取消挽留流程、设置挽留优惠、恢复失败扣款或确认订阅流失原因时用；想加退出问卷、暂停订阅选项也算。",
+   "notes": "正文版本 2.0.3；开工前先找产品营销上下文，赢回邮件和付费墙另有对应技能。",
+   "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/cold-email": {
+   "name_zh": "冷邮件外呼",
+   "intro": "写和跑 B2B 冷启动外呼，目标是拿到回复，覆盖冷邮件与跟进、发信设置、LinkedIn、多渠道节奏和回复处理。正文给的做法包括从备用域名发信、先验证名单、关掉打开跟踪、对方一回复就停掉所有渠道；文案要避开「不是 X，而是 Y」这类明显是模型写的句式。名单与客户调研看 prospecting，生命周期邮件看 emails，话术和销售材料看 sales-enablement。",
+   "usage": "写冷邮件、排跟进序列、设置发信域名、做 LinkedIn 触达、处理回复或查送达率时用；没人回复、想加多渠道节奏的也归它。",
+   "notes": "正文版本 2.2.0；名单与客户调研、生命周期邮件、销售材料分别有对应技能。",
+   "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/customer-research": {
+   "name_zh": "客户调研方法",
+   "intro": "做、分析或汇总客户调研：ICP 研究、访谈记录分析、问卷分析、客服工单分析、客户之声、画像和「客户要完成的任务」、Reddit 与 G2 评论挖掘、社区和论坛调研、PMF 问卷、访谈问题设计与约访。既能分析已有的调研材料，也能挖线上公开来源，还能从零跑一手访谈和问卷。目的是弄清客户到底在想什么、卡在哪，供后续文案和落地页优化使用。",
+   "usage": "要跟客户聊、分析访谈记录或问卷、挖评论和社区讨论、做画像与 JTBD、设计访谈问题，或查客户为什么流失或成交时用；已有调研素材也能拿它汇总。",
+   "notes": "正文版本 2.0.4；写文案看 copywriting，用调研结果改页面看 cro。",
+   "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/lead-magnets": {
+   "name_zh": "获客资料设计",
+   "intro": "规划、制作或优化用来换邮箱和获客的资料：电子书、速查表、清单、模板下载、Notion 与表格模板、资源库、内容升级包这类门槛内容。回答「该送什么换邮箱」「这些资料怎么分发」，也讨论能不能把课程或现有内容打包成 agent 技能。范围是决定做什么和怎么发；交互式小工具看 free-tools，正文写法看 copywriting，收集邮箱之后的邮件序列看 emails。",
+   "usage": "要设计换邮箱的下载资料、规划免费资源库或内容升级包、决定送什么给潜在客户时用；把课程或已有内容打包成技能也归它。",
+   "notes": "正文版本 2.1.0；交互式工具、内容文案和后续邮件序列分别有对应技能。",
+   "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/revops": {
+   "name_zh": "营收流程设计",
+   "intro": "做营收运营：线索生命周期管理、市场到销售的交接流程，以及把市场、销售、客户成功连成一条营收链路的系统设计。覆盖线索打分、外呼管道阶段、线索路由、MQL 与 SQL 定义、交易支持台、CRM 自动化、数据卫生和线索资格判定。适合「线索到不了销售手里」「阶段该怎么划」「市场什么时候交接给销售」这类问题，开始前先查产品营销上下文文件。",
+   "usage": "要设计或优化线索流转、打分配置、管道阶段、路由规则和 CRM 自动化时用；市场到销售的交接不清楚、数据脏或线索卡住也用它排查。",
+   "notes": "正文版本 2.2.1；冷邮件、邮件滴灌和定价分别有对应技能。",
+   "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/sales-enablement": {
+   "name_zh": "销售材料制作",
+   "intro": "做销售侧材料：销售演示稿、一页纸、异议处理文档、演示脚本、话术手册、提案模板、买家画像卡、竞品对比卡、赢单输单分析，以及冷电话和语音留言脚本。适合「为什么老是丢单」「客户这么说怎么回」「该给销售什么材料」这类问题，判断标准是能不能帮销售团队把单推进下去。公开竞品对比页看 competitors，买家访谈与流失调研看 customer-research，官网文案看 copywriting。",
+   "usage": "需要销售演示稿、一页纸、异议处理、演示脚本、竞品卡、赢单输单分析或话术手册时用；复盘丢单原因、准备冷电话和语音留言脚本也用它。",
+   "notes": "正文版本 2.4.0；竞品对比页、客户调研、文案和冷邮件各自有对应技能。",
+   "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/site-architecture": {
+   "name_zh": "站点信息架构",
+   "intro": "规划、梳理或重排网站结构：页面层级、导航、URL 规则和站内链接。适合回答「我需要哪些页面」「站点该怎么组织」「导航怎么设计」「用哪个建站工具」「怎么迁移站点」「怎么给现有站点加博客」这类问题，规划之前会先找产品营销上下文文件。不管 XML sitemap 这类技术 SEO，那属于 seo-audit；结构化数据看 schema。",
+   "usage": "要决定站点需要哪些页面、页面之间怎么连、导航与 URL 怎么定、站内链接怎么铺时用；站点改版、迁移或加博客栏目也算。",
+   "notes": "正文版本 2.1.0；规划前先读产品营销上下文文件，XML sitemap 不在范围内。",
+   "tier": "auto"
+  },
+  "emilkowalski/skills/animate-expo": {
+   "name_zh": "Expo 动画实现",
+   "intro": "在 React Native 与 Expo 里做动画，按决定手感的顺序往下走：该不该动、跑在哪个线程、动哪些属性、用弹簧还是时间曲线、手势怎么交接、性能不够时怎么降级。实现用 Reanimated、Gesture Handler、Expo Router 和 expo-haptics。适合加手势、底部弹层、页面转场、按压反馈和触感，也用来修设备上卡顿的动效；网页动画用它之外的技能。",
+   "usage": "给 Expo 应用加动画、手势、弹层、转场、按压反馈或触感时用；真机上卡顿的动效也用它排查，验收以真机为准，模拟器和开发模式的旗舰机不算。",
+   "notes": "内容来自 Emil Kowalski 的动画理念；首次无具体问题时只回一句自我介绍。",
+   "tier": "auto"
+  },
+  "emilkowalski/skills/ask-sonner": {
+   "name_zh": "Sonner 提示",
+   "intro": "React 的 toast 库 Sonner 使用指南，内容来自作者 Emil Kowalski。覆盖安装并挂载一个 Toaster、挑选合适的 toast() 调用、promise 与 loading 类型、更新与关闭与常驻提示、样式主题与图标、定位和多个 toaster 共存；也用来排查提示不出现、重复出现、样式丢失、Tailwind 类不生效、被弹窗挡住、不跟随深色模式等问题。",
+   "usage": "接入或排查 Sonner 时用它：挂载 Toaster、写 toast 调用、改样式主题与图标、处理定位和多个提示容器；提示不显示、重复出现、样式被覆盖、被模态框挡住、深色模式失效也归它。",
+   "notes": "正文先说明只需要一个 Toaster 且挂载一次；Toaster 与 toast() 的完整属性表在 API.md 里；首次无具体问题时只回一句自我介绍。",
+   "tier": "auto"
+  },
+  "emilkowalski/skills/write-swift": {
+   "name_zh": "Swift 现代写法",
+   "intro": "怎么写好现代 Swift：用值类型建模、Swift 6 的数据竞争安全与并发模型、协议与泛型的选择、API 设计、性能与 ARC、Swift Testing、宏，以及一些较新的语言特性。也用于审查和迁移 Swift 代码，或排查并发报错、卡死、数据竞争、循环引用和性能问题。工具链基线是 Swift 6.3，正文用警告标记区分尚未发布的 6.4 特性，并发部分按 Swift 6.2 的模型讲。",
+   "usage": "写、审或迁移 Swift 时用；遇到并发报错、卡死、数据竞争、循环引用或性能问题时也用它。项目还在 6.1 或更早时，关于 async 和并发的部分规则不适用。",
+   "notes": "正文以 Swift 6.3 为基线，警告标记代表 6.4 未发布特性；首次无具体问题只回一句自我介绍。",
+   "tier": "auto"
+  },
+  "firebase/agent-skills/firebase-crashlytics": {
+   "name_zh": "崩溃报告接入",
+   "intro": "Firebase Crashlytics 的接入与 SDK 使用指南，覆盖 Android 和 iOS。前置条件是已有 Firebase 项目和对应平台的 Firebase 应用；客户端采集到的崩溃数据通过 Firebase CLI 里的 MCP 服务器读取。可以配合 Firebase CLI 使用但不是必需，正文按平台分成两份接入参考文档。",
+   "usage": "要接入 Crashlytics、给 Android 或 iOS 应用加崩溃上报、或查询崩溃数据时用；按平台选 android_setup 或 ios_setup 参考文档看具体步骤。",
+   "notes": "作者是 Google LLC；正文把 Android 与 iOS 的接入步骤分开写。",
+   "tier": "auto"
+  },
+  "firebase/agent-skills/firebase-remote-config-basics": {
+   "name_zh": "远程配置管理",
+   "intro": "Firebase Remote Config 的接入指南，覆盖 Android 和 iOS：下载与部署模板 JSON、版本历史和功能开关、应用内默认值、获取并激活配置、实时监听以及 SDK 配置。核心作用是通过云端配置模板改应用的行为和外观，不用发新版本。前置条件是已有 Firebase 项目和 Firebase 应用，模板与条件通过 Firebase CLI 管理，配合 CLI 最好用但不是必需。",
+   "usage": "要下发或部署 Remote Config 模板、管功能开关与版本历史、设应用内默认值、接实时监听或配 SDK 时用；Hosting、Auth、Firestore、Data Connect、Crashlytics 和 App Hosting 不归它。",
+   "notes": "作者是 Google LLC；正文明确列出不在本技能范围内的 Firebase 产品。",
+   "tier": "auto"
+  },
+  "firebase/agent-skills/xcode-project-setup": {
+   "name_zh": "Xcode 工程配置",
+   "intro": "安全修改 Xcode 工程文件（.pbxproj）来加入 Swift Package 和链接文件，iOS 项目要装依赖（例如 Firebase、Alamofire）时用它。正文有几条硬规则：禁止用 Ruby、Rails 或任何 Ruby gem（包括 xcodeproj），不允许写或执行 Ruby 脚本；现代 Xcode 支持文件夹同步，新增源码或资源文件直接写到磁盘对应目录就会被自动纳入工程，不要手动改 .pbxproj 加文件。需要本机装了 Swift 且是 macOS。",
+   "usage": "iOS 工程需要装 Swift Package 依赖或链接文件时用；本机要有 Swift 且是 macOS，不要用 Ruby 脚本改工程文件，新增文件直接放进磁盘目录。",
+   "notes": "作者是 Google LLC；正文把禁止 Ruby 和不手动改 pbxproj 列为必须遵守的规则。",
+   "tier": "auto"
+  },
+  "higgsfield-ai/skills/higgsfield-video-explainer": {
+   "name_zh": "解说视频生成",
+   "intro": "用有序的 10 秒片段拼出完整的非写实旁白解说或故事视频：全片一个旁白音色、一个统一风格标识，每段一次配音、一段视频，最后在服务端组装。支持现成的 CMS 预设、自定义风格参考、吉祥物和不露脸两种模式、两种画幅，以及可选烧录字幕。不适用于写实影片、广告和 UGC、口播、播客、纯文字动效，也不需要旁白的一次性片段和成片剪辑。",
+   "usage": "要做解说视频、把主题或文档变成旁白视频、把故事做成动画视频、做不露脸的旁白视频时用；先定风格，再逐段写旁白和画面对应的提示词，配音全部出完再出视频。",
+   "notes": "正文版本 0.13.0；流程走 Higgsfield 命令行里的 video-explainer 工作流，风格标识全片只能有一个。",
+   "tier": "auto"
+  },
+  "higgsfield-ai/skills/higgsfield-websites": {
+   "name_zh": "站点与游戏构建",
+   "intro": "通过 Higgsfield 命令行建、改、部署全栈站点、应用和游戏，产物是跑在单个 Cloudflare Worker 上的 React 19 + TanStack Start SSR 应用，可用 D1、R2、KV、DO 和 Containers。创建时选三种产品类型之一：website 是独立站点、app 带 Higgsfield 登录与 fnf SDK、game 是实时多人房间，各有自己的流程文档和发布门槛。还负责精灵图、可平铺贴图、3D 角色动画和游戏音频。单张图片、视频、音频生成与产品图、商城卡片不在范围内。",
+   "usage": "要建网站、落地页、Web 应用、SaaS 看板或作品集，要做游戏、部署或发布站点时用；要精灵图、可平铺贴图、3D 角色动画和游戏音乐音效也归它。",
+   "notes": "正文版本 0.13.0；三种类型各自带一套规则与发布门槛；单图、视频、音频生成要走别的技能。",
+   "tier": "auto"
+  },
+  "shadcn-ui/ui/shadcn": {
+   "name_zh": "shadcn 组件",
+   "intro": "管理 shadcn 组件和项目：添加、搜索、修复、调试、改样式和组合界面，也包括聊天界面。会给出项目上下文、组件文档和用法说明。适用于 shadcn/ui、组件 registry、preset 与 preset 代码，以及任何带 components.json 的项目；初始化项目、按 preset 建应用或切 preset、做设计系统和套用品牌规范也归它。组件是以源码形式通过命令行加进项目的。",
+   "usage": "项目里有 components.json，或用到 shadcn/ui、组件 registry、preset 时用；加组件、查组件文档、改样式、组合界面、切 preset 或做设计系统都算，命令要用项目自己的包管理器跑。",
+   "notes": "组件以源码落到项目里；正文要求按 packageManager 选对应执行器，不要固定写死一种。",
+   "tier": "auto"
+  },
+  "uizze/uizze/uizze-ui": {
+   "name_zh": "Uizze 界面改造",
+   "intro": "Uizze 官方技能，用来搭和改 UI/UX：先看现有代码、素材和参考图，找出目标屏幕的组件、设计 token 和数据契约，保住已经在工作的行为，再动布局、层级、字体和间距。需要真实应用案例、设计系统、已授权字体、图标和交互动效素材时去 uizze.com 找。只做界面改造这部分不需要 Uizze 账号或 MCP 连接。许可 MIT，作者 UIZZE。",
+   "usage": "要新做或改进界面、调布局与排版间距、对照真实应用案例和设计系统找参考时用；挑字体、图标和交互动效素材也归它。",
+   "notes": "许可 MIT，作者 UIZZE，正文版本 1.0.0；只改界面的部分不用账号或 MCP。",
    "tier": "auto"
   }
  }

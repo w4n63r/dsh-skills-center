@@ -1,0 +1,177 @@
+{
+  "101-skills/superpowers/image-to-video": {
+    "name_zh": "图生视频选型",
+    "intro": "静图转动图的选型与提示词指南，通过 inference.sh 的命令行工具执行。正文比较 Wan 2.5 i2v、Seedance、Fabric、Grok Video 几个模型，说明各自什么时候用，并讲运动提示词和镜头运动怎么写。适用场景是把图片做成动图、产品动效和给静帧加运动。正文的例子先从 Flux 出静图，再用图生视频模型把它动起来。工具授权只限 belt 命令。",
+    "usage": "要把一张静图变成视频、或不确定该用哪个图生视频模型时调用；先登录命令行工具，再给出静图和运动描述。",
+    "notes": "需要 inference.sh 的额度；效果依赖运动提示词与镜头描述的具体程度。",
+    "tier": "auto"
+  },
+  "101-skills/superpowers/remotion-render": {
+    "name_zh": "代码渲染视频",
+    "intro": "把 React/Remotion 组件代码交给 inference.sh 的命令行工具，直接得到 MP4。支持的 Remotion API 包括 useCurrentFrame、useVideoConfig、spring、interpolate、AbsoluteFill 和 Sequence，分辨率、帧率、时长、编码都可配置。适用场景是程序化生成视频、动态图形、动效设计和数据驱动视频。正文说明只授权调用 belt 命令，安装方式是把 belt 的 CLI 技能加进来再登录。",
+    "usage": "已有 TSX 组件、要按代码出片时用；先装好并登录 belt 命令行，再把代码作为输入交给它。",
+    "notes": "需要 inference.sh 的额度与登录态；输入是一段代码，不是素材文件。",
+    "tier": "auto"
+  },
+  "antibrow/anti-detect-browser-skills/anti-detect-browser": {
+    "name_zh": "指纹浏览器 SDK",
+    "intro": "用标准 Playwright API 驱动 Chromium，但指纹在内核层按真实设备来，每个身份一个持久化的独立配置，每个配置配一个代理，出口 IP 决定时区和 WebRTC。Node 端是 anti-detect-browser 包，Python 端是 antibrow。适用场景：需要跨次运行保持登录又要彼此隔离的会话、被不一致的无头指纹挡住时、从别的地区看广告或价格、要用手机而不是桌面访问页面、每个任务新建配置，以及在一台机器上跑自己的多个账号。License MIT。正文提示 MCP 控制看 browser-mcp-agent，隔离看 multi-account-isolation。",
+    "usage": "要做多账号隔离、持久登录或需要真实设备指纹的抓取与巡检时调用；每个身份一个配置，代理出口决定时区。",
+    "notes": "指纹与代理要配套，配置不匹配反而更容易被识别。",
+    "tier": "auto"
+  },
+  "arvindrk/extract-design-system/extract-design-system": {
+    "name_zh": "网页设计令牌提取",
+    "intro": "从一个公开网站里反推出设计基元，生成项目本地可用的起步令牌文件。正文先说清预期：v1 只提取令牌和起步素材，不是完整组件库；结果适合初始化，不是像素级还原；未经确认不要覆盖已有的设计系统或应用样式。流程是先确认目标地址公开可访问，再用 playwright 装一次浏览器，然后运行提取命令，产出落在 .extract-design-system/normalized.json，随后归纳出主色、辅色、强调色、字体，以及间距、圆角、阴影尺度。只要提取产物时加只提取的那个参数。",
+    "usage": "要在新项目里照着一个公开站点搭设计令牌时调用；先给目标网址，并确认是只提取还是连起步文件一起出。",
+    "notes": "v1 不产出组件库；已有设计系统的先确认再动。",
+    "tier": "auto"
+  },
+  "cloudflare/skills/cloudflare": {
+    "name_zh": "CF 产品选型",
+    "intro": "帮 agent 找到能用 Cloudflare 做什么并挑对产品：从用户的目标出发，推荐相关产品，再加载对应产品的技能或文档。正文给了命令行工具的选择规则——只有项目里已有 wrangler 配置且没有 cloudflare 配置文件时才用 Wrangler，其他情况包括新项目都用 cf；资源类命令两者可以并用，迁移只在用户要求时执行。范围覆盖应用、API、AI agent、存储、网络与安全。",
+    "usage": "用户描述了一个需求但没点名 Cloudflare 产品、需要做架构选型时调用；它会先选命令行工具再找对应技能。",
+    "notes": "项目里已有 Wrangler 配置的，按正文规则改用 Wrangler，不要硬换。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-quickstart": {
+    "name_zh": "Convex 起步",
+    "intro": "从一个句子级别的想法起，把一个最简的 Convex 加 Web 模板在本地跑起来。正文说它用 Next.js 加 Convex、匿名开发部署，刻意保持最小：只有本地开发服务器，没有发布步骤，也没有预置认证。流程是跑 quickstart-recipe@^2 配方（传入想法与模板），配方会建项目、装依赖、起后端和前端开发服务器，打印出开发地址后打开给用户看，之后再做模板之外的功能前要先确认。规则里写明：成功过的配方不要重跑；convex 目录下的代码交给 convex-expert；不要加 Postgres、Redis、Express，用 Convex 原语；不要在这里加托管发布和预置认证。",
+    "usage": "只有一句话想法、想先把 Convex 模板跑起来看效果时调用；它建本地项目并起开发服务器，不做发布。",
+    "notes": "模板刻意不含认证与发布；要扩功能先确认再动。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/ad-creative": {
+    "name_zh": "广告素材生成",
+    "intro": "为一个或多个付费广告平台批量产出和迭代广告创意：标题、描述、正文文案，以及整组广告变体。正文覆盖 RSA 标题、批量广告文案、创意测试与创意路线图、钩子写法、静态广告与模板、UGC 与绿幕视频广告、无真人出镜的视频广告等格式，并给了一份创意格式的分类。写出来的文案要避开 AI 味句式。测试假设必须可被证伪：写清指标、对照物和预期方向。投放策略与定向、落地页文案各由别的技能负责。正文版本 2.12.1。",
+    "usage": "要为某个广告平台批量写或迭代标题、正文与变体时调用；只产出创意，投放策略与定向另找对应技能。",
+    "notes": "测试假设要能被证伪，指标、对照和预期方向缺一不可。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/ai-seo": {
+    "name_zh": "AI 搜索可见性",
+    "intro": "面向 AI 搜索引擎和 AI 回答的内容优化：让内容更容易被大模型抓取、引用和转述。正文覆盖 AEO、GEO、LLMO 这些叫法，以及 llms.txt、llms-full.txt、OKF（Open Knowledge Format）这类给 agent 读的产物，还讨论零点击搜索、AI 引用格式变化、网站在 AI 回答里的曝光。传统技术 SEO 审计和结构化数据实现各有别的技能负责。正文版本 2.10.1。",
+    "usage": "想让内容被 ChatGPT、Perplexity 一类 AI 回答引用，或要检查站点对 agent 是否友好时调用；传统 SEO 审计请走对应技能。",
+    "notes": "与 seo-audit、schema 的分工写在正文里：这里管 AI 侧，那边管传统 SEO 与结构化数据。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/copy-editing": {
+    "name_zh": "营销文案改稿",
+    "intro": "改已有营销文案，而不是从零写新文案。正文说每次编辑都要清掉 AI 味：比如「不是 X，而是 Y」这种句式、「没有 X、没有 Y、没有 Z」的排比，以及拖着一串从句的句子。做法是分轮聚焦修改，保留原意。用户只要求改一行时，就只动那一行，不做整篇重写。要从零写新文案有别的技能负责。正文版本 2.2.0。",
+    "usage": "手上已有文案、要润色或去 AI 味时调用；只点某一句时它会做点状修改，不动其他句子。",
+    "notes": "适合改稿与内容刷新，不适合从零起草。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/marketing-ideas": {
+    "name_zh": "营销点子库",
+    "intro": "给 SaaS 或软件产品找营销思路用的起步技能。正文说自己有一份 139 条营销点子的库，按用户的阶段和资源挑合适的方向。动手前先找产品营销上下文：正文列的路径包括当前目录下的 .agents/product-marketing.md、.claude/product-marketing.md，以及旧版文件名 product-marketing-context.md，找到了就先读，只问里面没覆盖的信息。具体渠道执行另有所属技能。正文版本 2.0.1。",
+    "usage": "团队卡在增长上、只想要一批可选的营销方向时调用；它会先读已有的产品营销上下文，再问剩下的问题。",
+    "notes": "只是点子与策略起点，落到渠道执行要换对应技能。",
+    "tier": "auto"
+  },
+  "emilkowalski/skills/prototype": {
+    "name_zh": "UI 多变体原型",
+    "intro": "给同一块界面做多个真正不同的版本，放在一个可视化选择器后面，让用户当场翻看并选中一个。正文说它只做这一件事：拿一段界面描述（比如一个 toast、一张定价卡、一个长按删除按钮），产出若干差异明显的实现并排展示。它不做已有界面的评审、不做改进计划、也不负责挑依赖库，那些各有别的技能。只能被显式调用，不会自己触发。",
+    "usage": "想做界面方案的横向对比、并当场挑一个版本时显式调用；给一句界面描述即可，它不负责评审现有界面。",
+    "notes": "正文标记了禁止模型自行调用；一次只处理一块界面。",
+    "tier": "auto"
+  },
+  "firebase/agent-skills/firebase-ai-logic-basics": {
+    "name_zh": "Gemini 接入",
+    "intro": "把 Firebase AI Logic（旧名 Vertex AI for Firebase）接进移动端和 Web 应用，让客户端代码直接调用 Gemini，不用自己维护后端。正文列出支持的端：Android、iOS、Web 和 Flutter；两种模型提供方分别是 Gemini Developer API（有免费额度，适合原型）和 Agent Platform Gemini API（旧称 Vertex AI，面向规模化生产）。适用场景包括文本生成、多模态输入、对话与流式输出、结构化输出、端侧混合推理、App Check 防护，以及用 Remote Config 切换模型。作者标为 Google LLC，版本 1.0.1。",
+    "usage": "要在应用里初始化 AI Logic 或加 Gemini 能力（生成、对话、多模态、结构化输出）时调用；后端由 Firebase 侧承担。",
+    "notes": "两条提供方路线的额度与门槛不同，选之前先看正文里的对比。",
+    "tier": "auto"
+  },
+  "firebase/agent-skills/firebase-firestore": {
+    "name_zh": "文档数据库配置",
+    "intro": "创建、查询与配置 Cloud Firestore 数据库，Standard 和 Enterprise 版都覆盖，包括数据建模、安全规则、索引，以及 Web、Python、iOS、Android、Flutter 各端 SDK 的接入。正文特别提醒：涉及编写或修改 firestore.rules 时，如果有子代理能力就交给 firestore-rules-author，否则用 firestore-rules-creation。作者标为 Google LLC，正文说最配 Firebase CLI，但不是必须，可以用一次性的 firebase-tools 命令。Hosting、Data Connect、认证、存储、Crashlytics、Functions、BigQuery 都不在范围内。",
+    "usage": "要建库、列出库、设计集合与索引、写各端查询，或接 SDK 时调用；改规则文件请走规则作者那条路。",
+    "notes": "规则编写有专门的子代理或技能，别在这里手改规则。",
+    "tier": "auto"
+  },
+  "firebase/agent-skills/firebase-security-rules-auditor": {
+    "name_zh": "规则安全审计",
+    "intro": "以审计视角检查 Firestore 和 Cloud Storage 的安全规则：权限提升、角色绕过、创建与更新规则不一致、资源耗尽、类型安全、大小限制，以及写操作里 hasOnly 式的归属校验是否可靠。正文把自己定位成红队评审，要求不要因为规则看起来复杂就假设它安全，而要主动找绕过路径，并给了一份强制检查清单，第一条就是对比创建与更新规则。作者标为 Google LLC，类别 CloudSecurity。Firebase CLI、认证、Crashlytics、Remote Config、数据库查询都不归它管。",
+    "usage": "要评审或红队式检查 Firestore 与 Storage 的规则文件、按清单打分时调用；登录与部署这类 CLI 操作不在范围。",
+    "notes": "只审规则本身；运行时数据查询与认证问题请另找对应技能。",
+    "tier": "auto"
+  },
+  "heygen-com/hyperframes/hyperframes-media": {
+    "name_zh": "配音配乐与字幕",
+    "intro": "为 HyperFrames 合成准备音频与媒体素材，全部走同一个音频引擎，正文给的路径是 scripts/audio.mjs：它读一份中性的音频请求文件，写出音频元数据，并把素材放进 assets 下的 voice、bgm、sfx 目录。TTS 支持 HeyGen、ElevenLabs 和本地 Kokoro 多家；背景音乐与音效用 HeyGen 音频库取，也可本地用 Lyria、MusicGen 生成，没凭据时回落到自带的音效库。另外还有 Whisper 转写、背景去除和字幕撰写，字幕支持逐词样式与卡拉OK。",
+    "usage": "要给合成配旁白、背景音乐、音效或字幕时调用；先把需求写成音频请求文件交给音频引擎，别自己拼音频。",
+    "notes": "没有凭据时会回落到本地或自带素材；把素材放进合成要看 core 那部分。",
+    "tier": "auto"
+  },
+  "larksuite/cli/lark-apps": {
+    "name_zh": "妙搭应用开发",
+    "intro": "妙搭（Spark/Miaoda）应用的开发与托管。覆盖应用创建、本地全栈开发、云端生成迭代；创意设计包括 UI 稿、可交互原型、线框图、落地页、仪表盘与幻灯片 deck；还包括模型能力与飞书平台能力集成、日志与 Trace、监控指标、PV/UV 查询、环境变量、协作者与协作权限、应用角色与成员，以及定时、记录变更、Webhook、审批通过这类自动化触发器。应用链接形如 /app/ 或 /page/ 开头。云盘上传、飞书文档编辑、原生幻灯片创建不在范围内。",
+    "usage": "要新建或改造一个妙搭应用、拿可分享链接、查线上日志与访问量，或给它配自动化触发时调用；默认用用户身份。",
+    "notes": "应用属于用户资产，默认用户身份；缺本域权限时再单独登录一次。",
+    "tier": "auto"
+  },
+  "larksuite/cli/lark-markdown": {
+    "name_zh": "飞书MD文件",
+    "intro": "管理飞书云空间里的原生 Markdown 文件：查看、创建、上传、覆盖、局部或正则替换，以及比较远端版本与本地草稿。正文按动作分了子命令，并提醒创建或覆盖失败时先分辨是身份问题还是权限问题，不要来回切身份重试。拿历史版本号要先用 lark-drive 的版本历史。把本地 Markdown 导入成在线文档不在范围内，纯本地文件操作也不触发。",
+    "usage": "要读写飞书里的 Markdown 文件，或比较远端版本与本地草稿时调用；默认用用户身份，首次访问前先登录。",
+    "notes": "首次以用户身份访问前要执行一次登录；导入为在线文档请改用文档相关技能。",
+    "tier": "auto"
+  },
+  "larksuite/cli/lark-note": {
+    "name_zh": "会议速记兼容入口",
+    "intro": "与 lark-vc-agent 同一类的兼容入口，只是旧名不同。不处理业务，仅在用户或上游配置显式点名 lark-note 时生效，随后要求完整读取 lark-meeting 的说明并按其路由执行。正文说明它依赖 lark-meeting 技能。",
+    "usage": "只有上游配置或用户点名 lark-note 时才会命中；命中后交给 lark-meeting 处理，不要在这里实现新逻辑。",
+    "notes": "旧名称兼容用，能力都在 lark-meeting。",
+    "tier": "auto"
+  },
+  "larksuite/cli/lark-okr": {
+    "name_zh": "飞书 OKR 管理",
+    "intro": "飞书 OKR 的读写入口：OKR 周期、目标、关键结果、对齐关系、量化指标和进展记录都在处理范围内。正文的强制第一步是先读同仓 lark-shared 的说明，认证与权限处理写在那里。身份默认按用户走；要查看他人 OKR 时改用机器人身份，但需要对得上的权限。待办任务、日程会议安排、绩效评估不在范围内。依赖 lark-cli 命令行工具。",
+    "usage": "要看或改某个周期的目标与关键结果、核对上下级对齐关系时调用；用之前先确认已读过共享的认证与权限说明。",
+    "notes": "查看他人 OKR 用机器人身份需要额外权限；待办、日程、绩效请走各自技能。",
+    "tier": "auto"
+  },
+  "larksuite/cli/lark-vc-agent": {
+    "name_zh": "会议技能兼容入口",
+    "intro": "只为兼容旧名称而存在的入口，不直接处理业务。正文写明：仅当用户或上游配置显式指定 lark-vc-agent 时才使用，命中后要求完整读取 lark-meeting 的说明，并按其中的路由和行动指南执行。它声明依赖 lark-meeting 技能。",
+    "usage": "上游配置或用户仍然点名 lark-vc-agent 时才会走到这里；命中后按 lark-meeting 的流程处理，不要在这里找具体功能。",
+    "notes": "没有自己的业务逻辑，别按名字猜能力。",
+    "tier": "auto"
+  },
+  "mattpocock/skills/caveman": {
+    "name_zh": "极简回复模式",
+    "intro": "一种持续生效的压缩表达模式，正文自称能把 token 用量砍掉约 75%：去掉冠词、填充词、客套和模糊限定，保留全部技术内容。规则包括技术名词照原样、代码块不动、报错原文引用，因果关系用箭头表示，能用一词就不用一句。触发词有 caveman mode、talk like caveman、less tokens、be brief，也可以直接调用 /caveman。一旦触发就每次都生效，不会因为对话变长而自动恢复。",
+    "usage": "用户说 caveman mode、要求更少 token 或明确嫌啰嗦时启用；关掉必须由用户说 stop caveman 或 normal mode。",
+    "notes": "正文强调不确定时也保持生效；不要自作主张切回正常风格。",
+    "tier": "auto"
+  },
+  "microsoft/azure-skills/azure-app-onboard-prereq": {
+    "name_zh": "Azure部署预检",
+    "intro": "在动基础设施之前先判断源码能不能上 Azure：检查构建健康度、应用完整度、依赖与本地服务、技术栈兼容性，以及整体部署可行性。它回答的是部署前需要什么——框架、依赖、配置是否齐，依赖之间是否兼容，哪些框架 Azure 不支持，以及有哪些阻塞项。作者标为 Microsoft，版本 1.2.3，License MIT。它只做评估，不负责后续的资源创建。",
+    "usage": "仓库要上 Azure、但还不确定能不能部署或卡在哪里时调用；它给的是部署前评估结论，不产生基础设施。",
+    "notes": "只评估不改代码；具体资源创建属于后续基础设施环节。",
+    "tier": "auto"
+  },
+  "prime-skills/runcomfy-agent-skills/ai-avatar-video": {
+    "name_zh": "数字人说话视频",
+    "intro": "在 RunComfy 上做人像开口、口型同步和数字人视频，通过 runcomfy 命令行调用。正文在几个模型之间路由：字节 OmniHuman 做音频驱动的全身数字人，Wan 2-7 用音频地址驱动人像口型，HappyHorse 1.0 负责带音频的文生视频与图生视频，Seedance v2 Pro 走多模态参考音与参考主体。选型按真实意图来：口播 UGC、虚拟主播、配音产品演示、对话场景各对不同模型，各模型的提示词写法也一并给出。主页是 runcomfy.com，License 是 MIT。",
+    "usage": "要让人像按音频开口、做口型同步或配音视频时调用；说明想要的口播形式并给出音频来源，最小调用是 runcomfy run。",
+    "notes": "需要在 RunComfy 上可用并已配置凭据；模型选择取决于输入是音频、人像还是参考主体。",
+    "tier": "auto"
+  },
+  "remotion-dev/skills/remotion-studio": {
+    "name_zh": "Remotion预览",
+    "intro": "在写或改 Remotion 视频时把 Studio 跑起来并打开预览，让用户边看边指挥。正文说项目一旦能跑就先开 Studio，不要等合成写完。在 Cursor 里不加参数运行，浏览器会自动打开；其他宿主可以用不自动打开浏览器的方式运行，再自己打开打印出来的地址。Studio 已经开着时命令会打印地址后退出，否则是常驻进程。用禁止自动打开的参数时，要在内置浏览器里打开那个地址并确认 Studio 与视频预览都能加载。正文标注版本 4.0.537。",
+    "usage": "要一边改 Remotion 合成一边看效果时用；项目能跑就先开预览，若已有实例会打印地址后退出。",
+    "notes": "无法在内置浏览器里打开地址时，不要用禁止自动打开的参数。",
+    "tier": "auto"
+  },
+  "vercel-labs/agent-skills/vercel-cli-with-tokens": {
+    "name_zh": "Vercel 部署",
+    "intro": "用访问令牌而不是交互式登录来跑 Vercel 命令，部署和管理项目。正文第一步是定位令牌来源，按顺序排查：环境变量里已经有的、项目 .env 里叫 VERCEL_TOKEN 的、以及 .env 里叫别的名字的（Vercel 令牌通常以 vca_ 开头）。找到之后导出再执行。正文作者标为 vercel，版本 1.0.0。",
+    "usage": "要在不弹交互登录的环境里部署到 Vercel、配置环境变量时调用；先确认令牌在环境变量或 .env 里能找到。",
+    "notes": "令牌一般以 vca_ 开头；找不到来源就别硬跑命令。",
+    "tier": "auto"
+  }
+}
