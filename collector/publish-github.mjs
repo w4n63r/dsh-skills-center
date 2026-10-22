@@ -146,7 +146,7 @@ export async function uploadBodiesToGitHub({
   apiBase = DEFAULT_API,
   fetchImpl = globalThis.fetch,
   concurrency = 3,
-  maxBodies = Number(process.env.GH_BODIES_MAX || 250),
+  maxBodies = Number(process.env.GH_BODIES_MAX || 120),
   message = null,
   log = () => {},
 } = {}) {
@@ -162,10 +162,9 @@ export async function uploadBodiesToGitHub({
   );
   const failed = [];
   if (!all.length) return { ok: true, stage: 'empty', uploaded: 0, failed, base, commit: null };
-  // 写请求要串行且间隔 ≥1s（ghCall 统一 pacing），一轮最多传 maxBodies 份；
-  // 250 而不是 70：采集一轮能抓到 ~500 份正文，只传 70 的话剩下 400 多份白抓（下一轮还得重抓），
-  // 正文覆盖率爬得极慢。实测 70 份并发 3 在 ~7s 内传完并不触发二级限流（早期 403 出在 tree/commit/ref
-  // 这些写请求上，现在由 ghCall 串行 pacing）；250 份约 25s，仍在函数预算内，真被限流也只落进 failed。
+  // 写请求由 ghCall 统一串行 pacing（≥1s 一次），所以 N 份正文大约要 N 秒：250 份 ≈ 275s，
+  // 而一次采集的函数预算只有 300s，前面还要花 ~120–150s 抓数据 —— 250 会把整个 run 顶到超时
+  // （2026-10-22 实测某轮 230s，已贴线）。默认 120 份 ≈ 130s，给抓取和 tree/commit/ref 留余量。
   // 超出的按失败处理 → 调用方抹掉 body.v，下一轮自然重试，不会漏。
   const entries = all.slice(0, maxBodies);
   if (entries.length < all.length) {
@@ -198,6 +197,7 @@ export async function uploadBodiesToGitHub({
 
     // 2) 每条正文建一个 blob：分批发，GitHub 对突发很敏感（secondary rate limit）。
     stage = 'blob';
+    const blobStarted = Date.now();
     const tree = [];
     for (let i = 0; i < entries.length; i += concurrency) {
       const slice = entries.slice(i, i + concurrency);
@@ -212,6 +212,7 @@ export async function uploadBodiesToGitHub({
         else failed.push(r.sha);
       }
     }
+    log(`github: ${tree.length}/${entries.length} bodies pushed in ${Date.now() - blobStarted}ms`);
     if (!tree.length) {
       return { ok: false, stage, error: `all ${failed.length} blobs failed`, uploaded: 0, failed, base, commit: null };
     }
