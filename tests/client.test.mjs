@@ -143,6 +143,8 @@ assert.ok(first.includes('--dsw-alias-'), 'panel styles use host theme tokens');
 
 // 面板挂载后会去拉 /list：用假 fetch 回两条真数据，看卡片画得对不对。
 const asked = [];
+// 默认返回 PAGE_FIXTURE；只有「空结果问上游」那一段会临时换掉列表响应。
+let listPayload = null;
 const PAGE_FIXTURE = {
   version: 'test-v1',
   total: 7572,
@@ -349,7 +351,25 @@ globalThis.fetch = async (url, options = {}) => {
       }),
     };
   }
-  return { json: async () => PAGE_FIXTURE };
+  if (target.includes('/upstream')) {
+    return {
+      ok: true,
+      json: async () => ({
+        ok: true,
+        query: 'zzz-nonexistent',
+        skills: [
+          {
+            id: 'acme/tools/zebra-skill',
+            name: 'zebra-skill',
+            source: 'acme/tools',
+            installs: 4321,
+            url: 'https://skills.sh/acme/tools/zebra-skill',
+          },
+        ],
+      }),
+    };
+  }
+  return { json: async () => listPayload || PAGE_FIXTURE };
 };
 
 render();
@@ -806,4 +826,47 @@ assert.ok(emptyText.includes('本机还没装任何技能'), 'an empty machine s
 assert.ok(emptyText.includes('去『目录』里挑一个装'), 'and points at the catalog view');
 assert.ok(emptyText.includes('项目目录来自宿主默认值'), 'a host-provided project dir is flagged as changeable');
 
-console.log('client ok — module dsh-skills-center | slots: sidebar.panellist#skills-center + main#skills-center | cards + detail rendered | local view: /local + install + uninstall + body');
+// ⑥ 本地一条都没搜到时问上游 skills.sh：只列名字/来源/装量，链接指向原页
+listPayload = { ...PAGE_FIXTURE, rows: [], matched: 0 };
+clickThrough(findByClass(expand(render()), 'dsc-view')[0]);
+await settle();
+const searchInput = (() => {
+  const walk = (node) => {
+    if (Array.isArray(node)) {
+      for (const child of node) {
+        const hit = walk(child);
+        if (hit) return hit;
+      }
+      return null;
+    }
+    if (!node || typeof node !== 'object') return null;
+    if (node.type === 'input' && node.props && node.props.type === 'search') return node;
+    const children = node.children || [];
+    for (const child of Array.isArray(children) ? children : [children]) {
+      const hit = walk(child);
+      if (hit) return hit;
+    }
+    return null;
+  };
+  return walk(expand(render()));
+})();
+assert.ok(searchInput, 'the catalog view has a search box');
+const typeMark = hooks.effects.length;
+searchInput.props.onChange({ target: { value: 'zzz-nonexistent' } });
+render();
+hooks.effects.slice(typeMark).forEach((effect) => effect());
+await settle();
+// 列表请求有 200ms 防抖，等它真的发出并把「0 条」写回状态，上游那一步才会触发
+await new Promise((resolve) => setTimeout(resolve, 300));
+await settle();
+await settle();
+const upText = textOf(render());
+assert.ok(
+  asked.some((url) => url.includes('/upstream?q=zzz-nonexistent')),
+  'an empty local result asks /upstream with the query',
+);
+assert.ok(upText.includes('本地没有，skills.sh 上有这些'), 'the panel says the local catalog has nothing instead of dead-ending');
+assert.ok(upText.includes('zebra-skill'), 'the upstream hit is listed by name');
+assert.ok(upText.includes('https://skills.sh/acme/tools/zebra-skill'), 'the upstream hit links to the skills.sh page');
+
+console.log('client ok — module dsh-skills-center | slots: sidebar.panellist#skills-center + main#skills-center | cards + detail rendered | local view: /local + install + uninstall + body | upstream fallback on empty search');

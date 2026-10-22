@@ -75,6 +75,10 @@ window.__ModuleLoader__.load({
       failed: '读取失败：',
       more: '加载更多',
       noMore: '已经到底了',
+      upstreamTitle: '本地没有，skills.sh 上有这些',
+      upstreamHint: '这些还没进本地目录（本地只收水位内、有正文的条目）。点开是 skills.sh 原页。',
+      upstreamLoading: '本地没有，正在问 skills.sh…',
+      upstreamFailed: '本地没有，上游也没问到：',
       catalog: '目录',
       matched: '匹配',
       showing: '已显示',
@@ -454,6 +458,14 @@ color:var(--dsw-alias-label-primary);font:inherit;font-size:13px;text-align:left
 .dsc-menu-item:hover{background:var(--dsw-alias-bg-layer-2)}
 .dsc-menu-item[data-on="true"]{background:var(--dsw-alias-bg-layer-2);font-weight:600}
 .dsc-empty{padding:34px 2px;color:var(--dsw-alias-label-secondary);font-size:13px}
+.dsc-up{padding:22px 2px;display:flex;flex-direction:column;gap:9px}
+.dsc-up-head{font-size:13px;font-weight:600;color:var(--dsw-alias-label-primary)}
+.dsc-up-hint{font-size:12px;color:var(--dsw-alias-label-secondary);line-height:1.6}
+.dsc-up-list{display:flex;flex-direction:column;border-top:1px solid var(--dsw-alias-border-l1)}
+.dsc-up-row{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:9px 10px;border-bottom:1px solid var(--dsw-alias-border-l1);text-decoration:none;color:var(--dsw-alias-label-primary)}
+.dsc-up-row:hover{background:var(--dsw-alias-bg-layer-1)}
+.dsc-up-name{font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dsc-up-meta{font-size:12px;color:var(--dsw-alias-label-secondary);white-space:nowrap}
 /* 遮罩用半透明黑：主题 token 里没有「遮罩色」这一项（bg-overlay 是浅色表面），所以这里显式给 */
 .dsc-overlay{position:fixed;inset:0;z-index:40;background:rgba(15,17,21,.45);display:flex;
 align-items:center;justify-content:center;padding:36px}
@@ -1397,6 +1409,9 @@ white-space:pre-wrap;word-break:break-word;max-height:40vh;overflow:auto;overscr
       const [uninstalling, setUninstalling] = useState({});
       const [uninstallErrors, setUninstallErrors] = useState({});
       const [body, setBody] = useState({ status: 'idle', text: '', error: '' });
+      // 本地搜不到时问上游 skills.sh 的公开搜索接口（30 次/分钟/IP），所以只在
+      // 「有关键词 + 当前页 0 条」时问一次，翻页与清空关键词都不再打。
+      const [upstream, setUpstream] = useState({ query: '', status: 'idle', rows: [], error: '', retryAfter: null });
       const requestId = useRef(0);
       const scroller = useRef(null);
 
@@ -1452,6 +1467,7 @@ white-space:pre-wrap;word-break:break-word;max-height:40vh;overflow:auto;overscr
         const timer = setTimeout(() => load(page, pageSize), 200);
         return () => clearTimeout(timer);
       }, [query, sort, dir, filter, category, since, page, pageSize, refreshKey]);
+
 
       // 排序菜单要标「可用 N/总数」，覆盖数据只在 /status 里。启动时取一次，同步后再取一次；
       // 取不到（旧宿主、接口报错）就不显示数字，不拿本地数据猜。
@@ -1516,6 +1532,42 @@ white-space:pre-wrap;word-break:break-word;max-height:40vh;overflow:auto;overscr
           alive = false;
         };
       }, [view, projectDir, localKey]);
+
+      // 本地 0 条且有关键词时才问上游；返回的只是「上游有这些名字」，不是本地条目。
+      // 放在 /status 与 /local 之后：既有 effect 的下标不动，避免测试和热路径错位。
+      useEffect(() => {
+        const term = query.trim();
+        if (state.status !== 'ready' || state.rows.length || term.length < 2) {
+          setUpstream({ query: '', status: 'idle', rows: [], error: '', retryAfter: null });
+          return;
+        }
+        let alive = true;
+        setUpstream({ query: term, status: 'loading', rows: [], error: '', retryAfter: null });
+        fetch(`${API}/upstream?q=${encodeURIComponent(term)}&limit=6`, { headers: { accept: 'application/json' } })
+          .then(async (response) => {
+            const payload = await response.json().catch(() => null);
+            if (!alive) return;
+            if (response.ok && payload && Array.isArray(payload.skills)) {
+              setUpstream({ query: term, status: 'ready', rows: payload.skills, error: '', retryAfter: null });
+              return;
+            }
+            setUpstream({
+              query: term,
+              status: 'error',
+              rows: [],
+              error: (payload && payload.error) || `HTTP ${response.status}`,
+              retryAfter: payload && payload.retry_after ? payload.retry_after : null,
+            });
+          })
+          .catch((error) => {
+            if (alive) {
+              setUpstream({ query: term, status: 'error', rows: [], error: String((error && error.message) || error), retryAfter: null });
+            }
+          });
+        return () => {
+          alive = false;
+        };
+      }, [query, state.status, state.rows.length]);
 
   /** 同步远端目录：宿主那边是 POST /sync；成功后让 effect 重新拉一次数据。 */
       const doSync = async () => {
@@ -1740,6 +1792,39 @@ white-space:pre-wrap;word-break:break-word;max-height:40vh;overflow:auto;overscr
       const jump = (next) => setPage(Math.min(Math.max(1, next), totalPages));
       // 全局安装目录直接取 /local 给的 roots（自己拼路径会踩 Windows 分隔符和 ~ 展开的坑）。
       const globalDir = (local.roots.find((root) => root.scope === 'global') || {}).dir || '~/.agents/skills';
+
+      // 空结果不是死路：本地只收水位内、有正文的条目，skills.sh 上还有九万多条。
+      // 上游结果只给名字、来源、装量，点开去 skills.sh 原页——这里不假装能直接安装。
+      const upstreamBlock = () => {
+        if (upstream.status === 'loading') return h('div', { className: 'dsc-empty' }, t('upstreamLoading'));
+        if (upstream.status === 'error') {
+          return h(
+            'div',
+            { className: 'dsc-empty' },
+            `${t('upstreamFailed')}${upstream.error}${upstream.retryAfter ? `（${upstream.retryAfter}s 后再试）` : ''}`,
+          );
+        }
+        if (upstream.status !== 'ready' || !upstream.rows.length) return h('div', { className: 'dsc-empty' }, t('empty'));
+        return h(
+          'div',
+          { className: 'dsc-up' },
+          h('div', { className: 'dsc-up-head' }, t('upstreamTitle')),
+          h('div', { className: 'dsc-up-hint' }, t('upstreamHint')),
+          h(
+            'div',
+            { className: 'dsc-up-list' },
+            upstream.rows.map((row) =>
+              h(
+                'a',
+                { key: row.id, className: 'dsc-up-row', href: row.url, target: '_blank', rel: 'noreferrer' },
+                h('span', { className: 'dsc-up-name' }, row.name || row.skillId || row.id),
+                h('span', { className: 'dsc-up-meta' }, `${row.source} · ${t('installs')} ${fmtInt(row.installs)}`),
+              ),
+            ),
+          ),
+        );
+      };
+
 
       return h(
         'div',
@@ -2025,7 +2110,7 @@ white-space:pre-wrap;word-break:break-word;max-height:40vh;overflow:auto;overscr
                         }),
                       ),
                     )
-                  : h('div', { className: 'dsc-empty' }, state.status === 'error' ? t('failed') + state.error : t('empty')),
+                  : upstreamBlock(),
           ),
         ),
         h(

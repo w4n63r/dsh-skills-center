@@ -1,0 +1,177 @@
+{
+  "astrolicious/agent-skills/astro": {
+    "name_zh": "Astro 站点开发",
+    "intro": "Astro 框架速查：CLI 命令（dev、build、check、add、sync）、项目结构（src/pages 必需，components、layouts、styles 按约定）、配置项 site、页面与组件写法、内容集合、SSR 适配器接入和静态站部署步骤。",
+    "usage": "碰 .astro 文件、问静态生成、islands、内容集合或要部署 Astro 项目时加载；加完插件重跑 astro sync 生成类型，先 check 再 build。",
+    "notes": "正文明确以 docs.astro.build 上的最新 API 为准。适配器可用 astro add 安装，支持 vercel、node、cloudflare、netlify。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/aso-audit": {
+    "name_zh": "应用商店优化审计",
+    "intro": "拿 App Store 或 Google Play 的商品页做审计：抓线上页面字段，按 ASO 惯例给标题、副标题、简短描述、长描述、截图与预览视频、评分评论打分，能和竞品对比，最后出一份按优先级排的行动清单。",
+    "usage": "用户发来商店链接、说要优化应用页、问排名和下载转化、或要跟竞品比时加载；先看有没有产品营销上下文文件，再按商店分别抓字段。",
+    "notes": "商店页面在前端渲染，抓不全就注明缺口，关键字段可让用户贴。截图和说明文字抓不到，需要另看。",
+    "tier": "auto"
+  },
+  "github/awesome-copilot/playwright-generate-test": {
+    "name_zh": "生成端到端测试",
+    "intro": "按给定场景用 Playwright MCP 实际操作页面，一步一个工具调用走完流程，再依据消息历史产出基于 @playwright/test 的 TypeScript 测试，写进 tests 目录并执行，调到通过为止。不允许跳过步骤、只凭场景描述就写测试代码。",
+    "usage": "先给出场景，没有的话它会反问；随后逐步操作浏览器，最后生成测试文件并运行，失败就继续改到通过。",
+    "notes": "正文唯一的硬约束是先执行后写码；测试必须真跑通才算完成。只覆盖 Web 页面。",
+    "tier": "auto"
+  },
+  "github/gh-stack/gh-stack": {
+    "name_zh": "堆叠 PR 管理",
+    "intro": "gh stack 是 GitHub CLI 扩展，用来管一串按顺序叠起来的分支和 PR：每个分支一个 PR，基于下一层分支，评审只看本层的 diff。技能给了建栈、查看、加分支、推送、提交、同步、rebase、合并、切换的命令，并指明哪些在非交互环境里会卡在菜单或全屏界面上。",
+    "usage": "要拆多层 PR、查看栈结构或做栈内导航时加载；脚本和代理里一律带参数，查看用 view 加 --json，提交用 submit 加 --auto，合并用 merge 加目标名和 --yes。",
+    "notes": "需要 Git 2.36 以上和已登录的 gh。多远端仓库不带 --remote 不要跑 push、submit、sync、rebase。modify 只有 TUI，没有脚本入口。",
+    "tier": "auto"
+  },
+  "hardikpandya/stop-slop/stop-slop": {
+    "name_zh": "去 AI 腔",
+    "intro": "清掉文字里的 AI 腔：删废话开头和起强调作用的修饰、去掉副词、打破二元对立和排比套路、把被动改主动、把抽象换成具体、句长错开、不用破折号、不写像金句的句子。附交付前的自查清单，以及五个维度的打分表，低于 35 分就重写。",
+    "usage": "起草、编辑或审稿时加载，用来消掉可预测的机器文风；按八条核心规则逐段过，再用自查清单扫一遍。",
+    "notes": "风格规则针对英文行文，中文稿按同样思路处理。只管文风，不管内容是否真实。",
+    "tier": "auto"
+  },
+  "langchain-ai/langchain-skills/langgraph-fundamentals": {
+    "name_zh": "状态图编排",
+    "intro": "写 LangGraph 代码时的参考：StateGraph、状态 schema 与 reducer、节点函数只返回部分更新、静态边与条件边、Command 与 Send、编译、调用与流式输出、错误处理。开头给了一套五步设计法，以及什么时候该用 LangGraph、什么时候换别的。",
+    "usage": "只要动手写 LangGraph 代码就加载；先按五步把步骤、状态、节点和连线定下来，再照对应语言的签名实现。",
+    "notes": "图必须先 compile 才能执行，这点容易漏。状态里存原始数据，提示词在节点内按需拼。要持久化接检查点时转另一个技能。",
+    "tier": "auto"
+  },
+  "langchain-ai/langchain-skills/langgraph-persistence": {
+    "name_zh": "检查点持久化",
+    "intro": "给 LangGraph 加持久化的做法：checkpointer 在每一步存读图状态，thread_id 区分不同会话，Store 存跨会话的用户偏好和事实，另有历史回溯和子图 checkpointer 的作用范围。附三种 checkpointer 的适用场景与生产可用性对照。",
+    "usage": "需要记住对话、跨轮续跑、回放历史或给子图单独配 checkpointer 时加载；先选定 saver，在 compile 时传入，每次调用都要带 thread_id。",
+    "notes": "InMemorySaver 只适合测试，SqliteSaver 适合本地，生产用 PostgresSaver。短期记忆走 checkpointer，长期记忆走 store。",
+    "tier": "auto"
+  },
+  "mbfinotti/revops-skills/crm-data-governance": {
+    "name_zh": "CRM 字段治理",
+    "intro": "给 CRM 做字段级治理：每个字段归谁、哪个系统是它的权威来源、多久必须刷新、规则怎么落地执行。产出字段字典、逐字段负责人、带写入优先级和冲突规则的来源映射、新鲜度 SLA、执行方案、字段从申请到废弃的流程，以及固定开会节奏。",
+    "usage": "用户提到字段归属、单一事实来源、某个字段该信哪个系统、脏数据、自定义字段泛滥时加载；先圈出对收入关键的字段，别想着管全部。",
+    "notes": "每个字段只能有一个具名负责人，按消费方而不是录入方分配。销售不该当最后的执行手段，优先靠自动化、集成写入和默认值。",
+    "tier": "auto"
+  },
+  "mbfinotti/revops-skills/pipeline-stage-definition-audit": {
+    "name_zh": "销售阶段定义审计",
+    "intro": "审现有销售管道的阶段定义，看每条退出条件写的是买方做过、说过或点头答应的事，还是销售自己的动作；按严重度出报告，重写退出条件并给一份安全的迁移方案。附带阶段停留时长、转化衰减、跳阶段率和关单日期后推的诊断。",
+    "usage": "有人说 demo 已约、方案已发这种按销售动作命名的阶段，或抱怨单子全卡在一个阶段时加载；先判管道类型，再逐条给退出条件打分。",
+    "notes": "只审不改设计，漏斗模型本身有问题就转 revenue-funnel。阶段记录的是买方位置，不是资格打分卡。流传的预测统计不要当事实引用。",
+    "tier": "auto"
+  },
+  "mbfinotti/revops-skills/revenue-data-governance-strategy": {
+    "name_zh": "收入数据治理策略",
+    "intro": "定公司层面的收入数据治理政策：客户、联系人、商机、订阅、用量事件、收入指标这些对象类，各自由哪个系统写入、哪个系统作为读侧真值、谁负责、生产方和消费方怎么用数据契约绑定、争议在哪儿仲裁。产出指定表、身份归并主线、契约登记表和联邦式归属模型。",
+    "usage": "出现两套 ARR、财务和销售报的数对不上、要定指标定义归谁时加载；先把来源与真值的指定表发出来，再谈买工具。",
+    "notes": "记录系统和真值是两件事，要按对象类分别指定。财务与销售的数字差多半是定义问题，不是数据质量问题。不做单个 CRM 内的字段规则。",
+    "tier": "auto"
+  },
+  "mbfinotti/revops-skills/revenue-funnel": {
+    "name_zh": "收入漏斗设计",
+    "intro": "从零设计公司的收入漏斗模型：阶段集合、分析单元是线索还是购买组还是客户、模型用途是流程还是规划还是预测、计划背后的分组转化假设，以及市场、销售、客户成功之间的交接归属。产出是一套带版本号的制品，不是一页幻灯片。",
+    "usage": "用户提到漏斗设计、阶段集合、转化率假设、领结模型、需求瀑布、MQL 到 SQL 的定义、市场销售交接时加载；先定用途和单元，再数阶段。",
+    "notes": "别把三种用途挤进同一套阶段，这是多数坏设计的根源。每个转化率都要写口径，否则不能出。公开基准只用来触发排查，不用来定目标。",
+    "tier": "auto"
+  },
+  "mbfinotti/revops-skills/revenue-kpi-framework": {
+    "name_zh": "收入 KPI 框架",
+    "intro": "设计公司层面的收入指标树：董事会到一线各层看哪些指标、怎么用能对账的算式层层汇总、每个分支归谁、每个数字配哪个护栏反向指标，以及整套指标如何按公司阶段和商业模式取舍。交付物是一棵带负责人和评审节奏的度量树，不是更长的一串数字。",
+    "usage": "用户提到 KPI 树、指标层级、北极星指标、驱动指标、护栏指标、NRR，或问各层该看什么收入指标时加载；只做宏观设计，不建看板、不写 SQL、不写董事会报告。",
+    "notes": "树的判据是父指标等于子指标的加、乘或比值，且数字能逐层对上。每个分支只能有一个负责人，跨团队的指标在交接处切开更合适。B2B 与 B2C 都覆盖。",
+    "tier": "auto"
+  },
+  "mbfinotti/revops-skills/revenue-leakage": {
+    "name_zh": "收入漏损排查",
+    "intro": "在某个具体漏斗实例里追查记录和钱从哪儿悄悄流走：没跟踪的步骤、没人跟的线索、手工交接、中段停滞、纸面流程卡单、计费和续费漏掉。先按三类分清真漏、健康淘汰和数据缺口，再算可回收金额而不是总额，最后按负责人排修复顺序。",
+    "usage": "用户问单子去哪了、管道怎么没了、漏斗哪里在漏时加载；锁一个漏斗、一个周期、一个进入分组，用时间戳还原实际流程而不是看流程图。",
+    "notes": "交付物是漏损清单，不是卫生检查表，停滞单数量和缺字段只是定位信号。不重做阶段定义和路由规则。",
+    "tier": "auto"
+  },
+  "mbfinotti/revops-skills/revops-career": {
+    "name_zh": "RevOps 职业",
+    "intro": "站在候选人这一侧规划 RevOps 与 Sales Ops 的职业路径：按管辖范围、决策权和带人规模而不是头衔定当前层级，补能力缺口，把平时看不见的运营工作做成经得起追问的证据，并准备面试轮实际会考的四类演练。产出含差距路线图、证据台账、面试准备和薪酬主张。",
+    "usage": "想转进 RevOps、问自己够不够格做经理、要准备 RevOps 面试、需要证明运营工作价值时加载；先问清现状，再定级、定缺口、定证据。",
+    "notes": "只做候选人一侧，招聘方一侧的岗位定义、评分表和工作样本走 revops-hiring。不出岗位列表、不代投简历。别把公司收入直接算成个人成果。",
+    "tier": "auto"
+  },
+  "mbfinotti/revops-skills/revops-hiring": {
+    "name_zh": "RevOps 招聘包",
+    "intro": "给招聘方准备一整套 RevOps 与 Sales Ops 招聘材料：先定岗位原型和层级，写成果评分表，排面试轮次并配能力题库和锚定评分刻度，出一个带评分标准的工作样本演练，最后按资历分支给 30-60-90 天上手计划。",
+    "usage": "要招第一个 ops、要 sales ops 面试题、要设计 take-home、要写评分表或上手计划时加载；先问公司阶段、团队规模、招人痛点和系统成熟度。",
+    "notes": "只做招聘方一侧，候选人备面走 revops-career。不找候选人、不发岗位、不写 offer。薪酬区间只作参考，必须带来源和日期。",
+    "tier": "auto"
+  },
+  "mbfinotti/revops-skills/revops-kickoff": {
+    "name_zh": "RevOps 分流",
+    "intro": "revops-skills 那套 20 个技能的统一入口：把当前任务指到一个具体技能上，或者直接说没有合适的；同时初始化或续上项目里版本化的 revops-context.md，让下一次开会话不用从头问。判断冷启动还是热启动只看这个文件在不在，不靠猜。",
+    "usage": "每个 RevOps 项目开头，或定期复盘时先跑它；它会先读 git 日志、清点已有文档和可用的连接器，再给候选清单和一条有序的技能链。",
+    "notes": "新项目即使天天用着同一套技能也要重跑，因为换了项目就换了上下文。带配额的销售任务不在范围内，走 sales-kickoff。",
+    "tier": "auto"
+  },
+  "mbfinotti/revops-skills/revops-radar": {
+    "name_zh": "RevOps 信息源",
+    "intro": "按你每周真能花的时间，排一份 RevOps 与 Sales Ops 的信息源观察清单：播客、newsletter、社区、行业会议、值得关注的人。每条都给可点开的链接，并标注在 2026-09-08 这个快照日仍确认活跃，另附定期重核的做法。",
+    "usage": "想知道该订阅哪些 newsletter、听哪些播客、进哪些社区、追哪些人时加载；它会先问时间预算和关注面，再给排序后的清单。",
+    "notes": "只覆盖 RevOps 与 Sales Ops，纯销售的源走 sales-radar。清单是快照，交给用户前仍要按更新流程重核链接。",
+    "tier": "auto"
+  },
+  "mbfinotti/revops-skills/sales-forecast-diagnostic": {
+    "name_zh": "销售预测诊断",
+    "intro": "查一份销售预测为什么不准，找出该改的地方：阶段虚高和乐观汇报、藏单、没有买方证据的单、被批量后推的关单日期、预测分类填错、僵尸与重复机会、临近期末才建的单、经理汇总时改写、以及奖励偏差的提成设计。每个确认的根因归到数据、行为、真实需求三类之一。",
+    "usage": "预测又打偏、commit 老是不准、单子反复往后滑时加载；先问清期限和是一次性纠偏还是建长期机制，再按根因类别定负责人和修法。",
+    "notes": "只诊断不重做方法，预测分类、汇总规则和 commit 标准都是输入。不做管道覆盖度建模。最常见的错误是拿数据问题判成行为问题。",
+    "tier": "auto"
+  },
+  "mbfinotti/revops-skills/sales-pipeline-hygiene": {
+    "name_zh": "销售管道清理",
+    "intro": "对当前管道快照做定期体检：按各分段阶段的中位时长挑出停滞的单，查关单日期被反复后推的单，找缺预测关键字段的单，最后给一份异常清单，每单一个处置结论，配整改与沟通计划和一个通过阈值。活跃按阶段、关单日期或金额有变动算，记了电话邮件不算。",
+    "usage": "QBR 前清管道、单子一直往后推、字段大面积缺时加载；RevOps 出规则和快照，一线经理做逐单处置，销售补更新和证据。",
+    "notes": "不重写阶段定义，那是阶段审计的活；也不做整体预测可靠性诊断，更不设计自动提醒的时机和渠道。",
+    "tier": "auto"
+  },
+  "neondatabase/agent-skills/neon-auth": {
+    "name_zh": "Neon 认证接入",
+    "intro": "给新应用挑身份方案并接上：默认用 Managed Better Auth，用户、会话和认证配置存在分支库的 neon_auth schema 里，跟着数据库分支走，客户端走 @neondatabase/auth 的 Better Auth 方法。已有能用的 Better Auth、Clerk、Supabase Auth 或其他 IdP 就保留，除非用户明确要求迁移。",
+    "usage": "用户说加认证、加登录，或提到注册、密码重置、邮箱 OTP、magic link、OAuth、passkey、MFA、可信域名时加载；先查现有身份和所需登录方式，再决定托管还是自管。",
+    "notes": "托管版缺所需插件时，改在应用主机或 Neon Function 上自管 Better Auth，库仍用分支上的 Postgres。托管期间留在封装层，不要换成裸 better-auth/client。父技能 neon 需另装。",
+    "tier": "auto"
+  },
+  "othmanadi/planning-with-files/planning-with-files-zh": {
+    "name_zh": "文件化任务规划",
+    "intro": "把多步骤工作的计划落到磁盘上：task_plan.md 记任务拆解，findings.md 存调研结果，progress.md 记进度；生命周期钩子在提示提交和工具调用前后把选中的规划内容注入上下文。续跑时只读项目内的规划文件，只有显式运行 session-catchup.py 加 --metadata 才会去碰本机会话元数据。适合需要 5 次以上工具调用的工作。",
+    "usage": "提到任务规划、拆项目、多步骤立项或进度跟踪时加载；先建 task_plan.md、findings.md、progress.md 三个文件，按步回写，下一轮会话先读它们再动手。",
+    "notes": "同一套模板覆盖 11 种 IDE 与语言变体；钩子脚本找不到时会提示一次并关闭注入，可用 PWF_SCRIPT_DIR 指到 scripts 目录。没有网络上传路径。",
+    "tier": "auto"
+  },
+  "riekelt/technical-writer/technical-writing": {
+    "name_zh": "技术写作规范",
+    "intro": "团队文档的写作规范：结论先行、只写当前已验证的行为、每个断言能追到来源、同一个事实只存在一处。含禁用句式清单、结构与长度规则，以及按文档类型转接的对照表，涵盖设计文档、决策记录、变更日志、runbook、issue、事后复盘、接口文档等。",
+    "usage": "写规范、设计文档、README、参考文档、计划或报告，或任何要被忙碌的人读第二遍的长文本时加载；再按对照表叠一层对应类型的技能。",
+    "notes": "规则用英文写，文档本身按各自语言写，结构与事实规则跨语言通用。不管营销文案和界面微文案，也不决定内容真假。",
+    "tier": "auto"
+  },
+  "tavily-ai/skills/tavily-extract": {
+    "name_zh": "Tavily 抽取",
+    "intro": "用 Tavily 命令行从一个或多个链接抓干净正文，输出 markdown 或纯文本：能处理前端渲染的页面，单次最多 20 个链接，可带查询词只取相关片段，也能把整份响应存成 JSON。抓不到内容时会列出失败项。",
+    "usage": "手上已有具体链接、要页面文字、或要 JS 渲染页的内容时加载；直接跑 tvly extract，要精准片段就加 --query 和 --chunks-per-source。",
+    "notes": "先用 basic，取不到再换 advanced。退出码是 0 也要看 failed_results。免密额度用完在交互环境里登录一次再重试。",
+    "tier": "auto"
+  },
+  "wshobson/agents/async-python-patterns": {
+    "name_zh": "异步 Python",
+    "intro": "asyncio 与并发编程的实践参考：事件循环、协程、任务、future、async with 与 async for 的用法，gather 并发、超时与取消、限流、异步队列、后台任务。开头给了一张同步与异步的选择表：网络和数据库并发用 asyncio，CPU 密集用多进程或线程池，简单脚本保持同步。",
+    "usage": "写 FastAPI、aiohttp 的异步接口，或做并发抓取、WebSocket 服务时加载；先按选择表判断该不该上异步，再照模式段落的代码组织协程。",
+    "notes": "核心约束是同一条调用路径要么全同步要么全异步，混着写会出现隐藏阻塞。CPU 活交给 asyncio.to_thread 或进程池，别塞进事件循环。",
+    "tier": "auto"
+  },
+  "yizhiyanhua-ai/fireworks-tech-graph/fireworks-tech-graph": {
+    "name_zh": "技术图绘制",
+    "intro": "按需求画精确的 SVG 技术图，再导出 PNG、离线 HTML，或把支持的语义 SVG 转成 GIF 动效：架构图、UML、agent 流程、云资源图、工作流。每种图有对应的 JSON 生成器和语义契约，先校验事实再排版，输出前跑检查。不做照片、位图和统计图表。",
+    "usage": "要架构图、UML、流程图、云图或观测图时加载；用 python3 调 scripts 下的 fireworks.py，依次 validate、render、check，再按需导出。",
+    "notes": "风格 1 到 7 和 9 到 12 有 JSON 生成器，风格 8 由模型直接写 SVG。文字要被完整看见就开 strict 策略，默认 report 会把截断报出来。",
+    "tier": "auto"
+  }
+}

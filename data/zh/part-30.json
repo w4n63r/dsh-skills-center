@@ -1,0 +1,177 @@
+{
+  "ast-grep/agent-skill/ast-grep": {
+    "name_zh": "AST 结构搜索",
+    "intro": "把自然语言需求翻成 ast-grep 规则，按抽象语法树结构匹配代码，能找出普通文本搜索做不到的模式，比如没做错误处理的 async 函数、参数形式特殊的调用。正文给了分步做法：先写待匹代码样本存成临时文件，再写 YAML 规则，命令行验证过之后再加复杂度。",
+    "usage": "要按代码结构而不是字面文本查找时用：说明要找的模式和语言，它会产出可运行的 YAML 规则并用测试文件先验证。关系匹配 inside、has 要带 stopBy: end，复杂查询拆成 all、any、not 子规则再逐步拼。",
+    "notes": "完整规则语法在 references/rule_reference.md；先做最小可验证规则再扩，一次写太复杂的规则常常匹配不到。",
+    "tier": "auto"
+  },
+  "cathrynlavery/diagram-design/diagram-design": {
+    "name_zh": "图表设计",
+    "intro": "把架构图、流程图、时序图、状态机、ER 图、泳道图、甘特图、桑基图等四十五种图做成自包含 HTML（内联 SVG），也能出 PNG，支持导入 .drawio、Mermaid 和 .excalidraw。先过风格指南门，再按语义模式和类型参考出图。",
+    "usage": "新项目里出第一张图之前，先确认风格指南已按品牌改过，别直接套默认皮肤；有项目 .diagram-design 标记就按 references/profiles.md 解析。之后按图类型查对应参考再画。",
+    "notes": "输出是单文件 HTML，样式和图形都在文件里；品牌项目要先定风格，否则默认配色会跟已有品牌脱节。",
+    "tier": "auto"
+  },
+  "cloudflare/skills/basin": {
+    "name_zh": "Basin 分析",
+    "intro": "搭和排查 Cloudflare Basin 的分析链路：Basin Pipelines 收事件并写进 R2 上的 Iceberg 表，Basin Catalog 管元数据和表维护，Basin SQL 做分布式查询。旧名 Data Platform、Pipelines、R2 Data Catalog、R2 SQL 都指向这里。",
+    "usage": "要把事件流进 R2、管 Iceberg 目录、查这些表时用。先按任务表选管线、目录还是查询，再取当期文档核对限制、定价、权限和 CLI 语法；旧命令族 wrangler pipelines、wrangler r2 bucket catalog、wrangler r2 sql 仍可用。",
+    "notes": "改名后资源和配置照旧；旧 API 标识和指标名可能还在用旧词，弃用细节回文档查；未发布的页面以 cloudflare-docs 的 PR 为准。",
+    "tier": "auto"
+  },
+  "cloudflare/skills/k2": {
+    "name_zh": "K2 持久日志",
+    "intro": "搭和排查 Cloudflare K2（K2 Streams）持久日志：建流、从 Worker 或 HTTP 生产记录、配输入与保留期、用订阅消费并处理租约、确认和重试。正文以官方文档为准，按任务给出对应文档页，并提醒未发布的定价和可用性别乱报。",
+    "usage": "要建流、调保留期、改输入、写生产或消费代码、估算容量时用。先取对应任务的当期文档再动手；未上线的功能以 cloudflare-docs 的 PR 页面为准；成本和配额问题先确认当前限制，没公布的直接说明没有。",
+    "notes": "正文本身只是索引，具体 API 参数、错误码和限额都要回文档核对，别凭记忆回答。",
+    "tier": "auto"
+  },
+  "docs.stripe.com/connect-recommend": {
+    "name_zh": "Connect 选型",
+    "intro": "按公司网址或业务描述推荐 Stripe Connect 的接入配置：账户类型、扣款模式、Dashboard 权限、手续费与负余额责任归属，覆盖 marketplace、平台、多商户、打款给卖家、分账这类场景，最后产出带决策摘要的 markdown 方案。",
+    "usage": "给网址或业务描述就能开始；每个决策点用编号选项让用户确认，一次只问一个。生成方案、扫代码库、读参考文件不必先问。写方案前先读 references/terminology-rules.md，用字段值描述配置，不要用简写代码。",
+    "notes": "交互阶段单条回复不超过约 40 行，警告块控制两三句；用户没问到的限制项不要主动罗列。",
+    "tier": "auto"
+  },
+  "dontbesilent2025/dbskill/dbs-wechat-html": {
+    "name_zh": "公众号 HTML",
+    "intro": "把 Markdown 文稿转成能全选复制、粘到微信公众号后台后仍保留排版的 HTML，内置 15 种风格，可以只出 1 个、6 个推荐风格或全部 15 个，多个时另附总览页方便逐个点开比较。只做排版，不改观点、不做内容诊断、不润色文案。",
+    "usage": "给 Markdown 文件或直接贴文稿，说明要几种风格；没说就等用户从推荐里挑。生成后打开文件并给出复制粘贴步骤。动手前必须读 templates/styles.md，按里面的 style id 和 CSS 展开成每个元素上的行内 style。",
+    "notes": "交付 HTML 禁用 style 标签、class 选择器、伪元素、外链资源和 JS；装饰效果保不住就删掉，先保层级和可读性。文稿第一个一级标题默认只写进 title，不进正文，避免公众号出现双标题。",
+    "tier": "auto"
+  },
+  "github/awesome-copilot/github-issues": {
+    "name_zh": "GitHub 议题",
+    "intro": "用 GitHub MCP 工具管 issue：建 bug 报告、功能请求和任务，改标签、指派人和里程碑，管理仓库标签，设日期、优先级和自定义字段这类 issue 字段，设 issue 类型，以及建立阻塞与被阻塞的依赖关系。",
+    "usage": "用户说建 issue、报 bug、提需求、改某个 issue、设优先级或开始日期、建或改标签、列标签、挂依赖时用。读用 issue_read、list_issues、search_issues 和 projects 系列方法，写操作走对应的 MCP 工具。",
+    "notes": "依赖 @modelcontextprotocol/server-github 这个 MCP 服务；issue 字段和项目字段的读写分别走 projects_list、projects_get、projects_write。",
+    "tier": "auto"
+  },
+  "giuseppe-trisciuoglio/developer-kit/tailwind-css-patterns": {
+    "name_zh": "Tailwind",
+    "intro": "Tailwind CSS 的写法参考，覆盖响应式断点、flex 与 grid 布局、间距、字号、颜色和暗色模式，按 v4.1 的 CSS-first 配置来写，给的是能直接抄的片段：居中容器、响应式卡片网格、带 hover 的按钮。",
+    "usage": "写 React、Vue、Svelte 组件或搭响应式布局时用。先写移动端基础样式，再用 sm、md、lg 前缀适配大屏；复用间距和颜色标度，重复模式抽成组件类，主题变量写在 tailwind.config.js 或用 @theme 声明。",
+    "notes": "改完在各断点用开发者工具的响应式模式看一遍，检查视觉回归和无障碍问题再提交。",
+    "tier": "auto"
+  },
+  "gmgnai/gmgn-skills/gmgn-market": {
+    "name_zh": "GMGN 行情",
+    "intro": "通过 GMGN API 查 Solana、BSC、Base、以太坊等链上代币和 meme 币行情：K 线、OHLCV、按成交量的热门榜、pump.fun 等发射台的新币、热搜榜，还能按名称、符号、合约地址、钱包地址或 ENS 搜代币和钱包。",
+    "usage": "要价格图、热门币、刚发的币、热搜、按名字或地址找币时用。跑命令前先执行 gmgn-cli config --check，返回 1 就先配置再继续；不支持 IPv6，遇到 401 或 403 先查网络接口。",
+    "notes": "正文要求只用 CLI 取数，不要用网页搜索或抓 gmgn.ai，网站要登录且不返回结构化数据。",
+    "tier": "auto"
+  },
+  "gmgnai/gmgn-skills/gmgn-token": {
+    "name_zh": "GMGN 代币尽调",
+    "intro": "按合约地址调研任意加密或 meme 代币：实时价格、市值、流动性、持有人列表、交易者列表、聪明钱和 KOL 持仓、安全审计结果（貔貅、跑路风险、开发者钱包、权限是否放弃）以及官网和 X 等社交链接，覆盖多条链。",
+    "usage": "买前做尽调、看价格和安全性、查持有人和聪明钱动向时用。先跑 gmgn-cli config --check，配置好了再取数；401 或 403 且凭据看着没问题时先排查 IPv6，命令版本旧就重装 gmgn-cli。",
+    "notes": "正文强调只用 gmgn-cli 取数，不要用网页搜索、抓取或直接访问 gmgn.ai，网站要登录且不返回结构化数据。",
+    "tier": "auto"
+  },
+  "google/skills/bigquery-basics": {
+    "name_zh": "BigQuery",
+    "intro": "在 BigQuery 里建数据集、建表、建视图、跑 SQL 和管作业，含 schema 文件写法、公开数据集的查询写法和 bq 命令行用法。动手前要求先读用量归因说明，给 gcloud 命令加上归因环境变量和 User-Agent 后缀。",
+    "usage": "要建数据集或表、跑一次性 SQL、看作业结果时用。建表先写 schema.json 再执行 bq mk；查询加 --use_legacy_sql=false 走标准 SQL；命令直接写在终端里执行，不要塞进生成脚本或 Terraform。",
+    "notes": "正文要求终端里的 gcloud 命令前缀 CLOUDSDK_METRICS_REQUEST_ATTRIBUTION 环境变量，User-Agent 追加 agent-skills/1.0 (skill:bigquery-basics)。",
+    "tier": "auto"
+  },
+  "google/skills/cloud-run-basics": {
+    "name_zh": "Cloud Run",
+    "intro": "在 Cloud Run 上部署三类资源：响应 HTTP 请求的服务、手动或定时跑完就退的作业、常驻拉取的后台工作池（如 Kafka、Pub/Sub、RabbitMQ 消费者）。含开启 API、部署、扩容和排错的命令行做法。",
+    "usage": "要发服务、跑批任务、起常驻消费者时用。执行 gcloud、REST 或 MCP 命令前先读用量归因说明，并给终端里的 gcloud 加归因环境变量和 User-Agent 后缀；命令直接在终端跑，别写进生成的脚本或 Terraform。",
+    "notes": "先启用 run.googleapis.com 和 cloudbuild.googleapis.com 两个 API；组织策略限制域名时按文档的办法处理。",
+    "tier": "auto"
+  },
+  "hypit-ai/hypit/hypit": {
+    "name_zh": "视频导演制作",
+    "intro": "以导演和制片身份做一条视频：读懂需求与给定素材，调度图像、视频、音频模型产出人物、场景、声音和表演，把生成素材和用户给的素材编进同一个作品。涉及 SVML、SVS、SVRun 编写，以及 Runtime 和凭据配置。",
+    "usage": "把需求、项目笔记和素材交给它；它先在项目文件里划清委托边界，再判断每段素材是参考、保留的表演还是独立画面或声音。给了参考片会逐帧看并读出对白时间点；改动方向、涉私信息、接服务、花费这类取舍会交回给用户确认。",
+    "notes": "作品写在 Package 里，由 Runtime 执行；能力只覆盖部分效果时，说清已演示了什么、还缺什么、下一步怎么补。",
+    "tier": "auto"
+  },
+  "ibelick/ui-skills/fixing-metadata": {
+    "name_zh": "HTML 元数据",
+    "intro": "审查并修复页面元数据：title、description、canonical、Open Graph、Twitter card、favicon、manifest、JSON-LD 和 robots 指令。分八类按优先级排序，先处理重复标签和索引配置这类严重问题，并要求 title、description、canonical、og:url 四处内容指向一致。",
+    "usage": "新页面要上线、做 SEO、社交分享卡片不对、要配 canonical 或加结构化数据时用。先找出元数据缺失或有错的页面，按优先级修，改完在真实域名上验证分享卡片，别用 localhost；改动只限元数据，不顺手重构。",
+    "notes": "分享图必须用绝对 URL，og:url 要和 canonical 一致；暂存和预览页默认 noindex；一页只在一处定义元数据，避免多套系统互相覆盖。",
+    "tier": "auto"
+  },
+  "jackwener/opencli/opencli-autofix": {
+    "name_zh": "适配器自修复",
+    "intro": "opencli 命令失败时的自修流程：收集 trace 产物、找到适配器文件、打补丁、重试，修好并验证后再往上流仓库提 issue。针对选择器失效、返回空、接口报错、页面结构变化、执行报错、超时这几类可修故障。",
+    "usage": "命令失败时加载。先跑 opencli doctor 确认扩展和守护进程通；只改 trace 里 summary.md 前置元数据标出的 adapterSourcePath，不要碰 src、extension、tests 和配置文件；同一故障最多修三轮，没解决就停下报告试过什么。",
+    "notes": "认证失效（退出码 77）、浏览器连接失败（69）、验证码或限流都直接停，不要改代码；返回空可能只是平台限流，换个查询词或在浏览器里核对清楚再判定为坏了。",
+    "tier": "auto"
+  },
+  "jakubkrehel/skills/interface-review": {
+    "name_zh": "界面改动评审",
+    "intro": "评审一个分支、PR 或未提交改动引入的界面问题，分无障碍、布局、文案、排版、配色和交互几类。它先确定改动范围，把改动文件展开成受影响的界面，再读 diff 两边，逐条给结论。",
+    "usage": "默认评审整次调用对应的改动；不给目标时按顺序找：HEAD 领先默认分支的区间加未提交改动，其次工作区脏文件。只报这次改动带来的问题，历史遗留点到为止；正确性、测试、安全、性能归项目常规代码评审。",
+    "notes": "必须先读完整份 diff 再下判断，只扫前几段容易报出后一个 hunk 已经修掉的问题。",
+    "tier": "auto"
+  },
+  "mbfinotti/revops-skills/lead-routing": {
+    "name_zh": "线索分配设计",
+    "intro": "设计把进线线索分给销售的过程：规则优先级与瀑布顺序、线索到客户的匹配、地区行业和重点客户的地域规则、轮询的几种变体（直接轮、加权、按容量、看在线）、兜底队列、SLA 升级与改派，以及改规则时怎么安全上线。",
+    "usage": "用户提到线索分配、地域划分、轮询分不均、谁该拿这条线索、CRM 队列里线索没人跟进时用。注意区分：写 CRM 负责人字段是分配，从进线到有人接手整条链才是路由。做线索评分用另一个技能。",
+    "notes": "讲成业界常见做法，不要包装成有名字的方法论；瀑布自上而下，第一条命中就结束，最后一定要有可监控的兜底队列。",
+    "tier": "auto"
+  },
+  "mbfinotti/revops-skills/revops-stack-rationalization": {
+    "name_zh": "GTM 工具栈精简",
+    "intro": "对整套 RevOps/GTM 工具栈做阶段性复盘：按四条渠道清点，画功能层重叠图，用 TIME 打分，逐个给出保留、合并、替换还是砍掉的结论，并排在各自续约窗口前，最后给防止再次膨胀的治理办法。",
+    "usage": "用户提到工具栈精简、SaaS 泛滥、销售和市场工具太多、想砍工具预算、平台与单点之争时用。分析单位是整栈而不是单个采购候选，只给建议不执行迁移，也不做合同和法律谈判。",
+    "notes": "结论锚在业务价值上，不能只看使用率——低频工具也可能在兜关键场景；这是周期性复盘，不是单次采购前的检查表。",
+    "tier": "auto"
+  },
+  "mbfinotti/revops-skills/sales-to-cs-handoff": {
+    "name_zh": "销售到 CS 交接",
+    "intro": "设计成交之后从销售交到客户成功手里的流程：什么数据要传、什么时候传、放在哪个交付物里、谁负责，产出含成交触发门、必需的信息包、时限 SLA、启动会模式和 CS 接受或打回环节的规格。",
+    "usage": "给设计和推行流程的 RevOps、Sales Ops 用，不是让 CSM 跑单次交接。用户抱怨客户签约后还要重复讲一遍、CSM 从零开始、交接没人负责时用；管账户健康打分是另一个技能的事。",
+    "notes": "设计要定六个决策：触发事件与门槛、必需数据、承载交付物、时限、启动会形式、CS 的接受或打回。",
+    "tier": "auto"
+  },
+  "shopify/shopify-ai-toolkit/shopify-admin": {
+    "name_zh": "Shopify",
+    "intro": "这个技能已被上游标记为废弃，正文只剩一句提醒：能力由 shopify 技能接管。原描述讲的是为扩展 Shopify 后台的应用写 Admin GraphQL 查询和变更，并说明哪些场景该改用 app-pricing 或 use-shopify-cli。",
+    "usage": "实际不会给你 GraphQL 写法。按正文提示先卸再换：运行 npx skills remove shopify-admin（全局安装加 -g），再安装 shopify/shopify-ai-toolkit 里的 shopify 技能。",
+    "notes": "原名里的用途边界只在描述里，正文已不展开：应用定价走 app-pricing，用 CLI 执行店铺操作走 use-shopify-cli。",
+    "tier": "auto"
+  },
+  "stripe/link-cli/financial-insights": {
+    "name_zh": "Link 账单洞察",
+    "intro": "读用户在 Link 里连着的财务数据：交易记录、余额、钱包来源，以及预先算好的消费偏好洞察，用来回答花了多少、最近买了什么、连了哪些账户这类问题。所有命令只读，不动钱、不改账户、不暴露支付凭据。",
+    "usage": "用户问余额、某段时间花了多少、看交易明细、有哪些账户、总结消费时用。未完成认证不要取数据；只取回答问题需要的那部分，不默认把所有列表命令跑一遍。",
+    "notes": "不要把敏感标识、访问令牌和凭据写进回答；能查到的范围就是用户 Link 授权过的账户。",
+    "tier": "auto"
+  },
+  "tavily-ai/skills/tavily-cli": {
+    "name_zh": "Tavily 命令行",
+    "intro": "Tavily 命令行工具 tvly 的安装、登录、升级和排错说明，也讲搜索、提取、站点地图、爬取、多源研究这几个子命令怎么选。搜索和提取可免登录用，但有速率上限；地图、爬取、研究必须登录。",
+    "usage": "没装先用安装脚本或走 uv、pip 装；不想登录就用 tvly init --skip-auth 走免密钥模式。认证用 tvly init 或 tvly login，也可以直接给 TAVILY_API_KEY。升级前先 tvly update --check，状态用 tvly --status --json 查。",
+    "notes": "地图、爬取、研究必须认证；无人值守环境别起交互式登录，改为报告限额让用户给密钥；浏览器 OAuth 回调落在本机 localhost，远程会话要保证回调可达。",
+    "tier": "auto"
+  },
+  "warpdotdev/common-skills/readout": {
+    "name_zh": "调查转 HTML",
+    "intro": "把一次调查变成能长期阅读的自包含 HTML 文档，放在 ~/.readouts 下并自动维护索引页。两种入口：对话进行到一半时把已有结论整理成文，或从零开始先提问收窄范围再研究代码库。写作在子代理里跑，不占主对话上下文。",
+    "usage": "用户说写成文档、做个页面、生成 readout，或直接调用 /readout 时用。主代理只负责问清范围、给子代理一份好简报然后退出，挖掘和写作交给子代理。",
+    "notes": "成品要让人几周后不看原对话也读得懂；索引页由技能自己维护，不用手工更新。",
+    "tier": "auto"
+  },
+  "wshobson/agents/database-migration": {
+    "name_zh": "数据库迁移",
+    "intro": "跨 ORM 做数据库结构和数据迁移：Sequelize、TypeORM、Prisma 的迁移文件写法，含 up/down 回滚、数据转换、跨库搬数据和不停机上线策略，可用来换 ORM、重构数据模型或升级数据库版本。",
+    "usage": "要改表结构、换 ORM、搬数据、加回滚方案或做不停机发版时用。正文按 ORM 分节给可改的迁移文件骨架，比如 Sequelize 在 up 里建表、down 里删表，命令行跑迁移和撤销。",
+    "notes": "每种 ORM 都给了 up/down 成对写法，回滚不留空白；变更前先备份，预发环境先跑一遍再上生产。",
+    "tier": "auto"
+  },
+  "wshobson/agents/github-actions-templates": {
+    "name_zh": "Actions 模板",
+    "intro": "产出可直接用的 GitHub Actions 工作流：测试、构建、部署、推 Docker 镜像、发到 Kubernetes、跑安全扫描、多环境矩阵构建。正文给的是完整 YAML 骨架，改镜像和命令就能接进项目。",
+    "usage": "要搭 CI/CD、自动化测试和发版、写可复用工作流时用。测试流程按 push 和 PR 触发，用矩阵跑多个 Node 版本，配 actions/checkout 和 actions/setup-node 带缓存，装依赖统一用 npm ci，别混用其它包管理器。",
+    "notes": "矩阵构建把版本差异放在 strategy.matrix 里，避免复制多份 job；上传覆盖率用 codecov 的 action，路径对齐实际报告目录。",
+    "tier": "auto"
+  }
+}
