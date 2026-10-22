@@ -147,6 +147,6 @@ node tools/zh_merge.mjs                        # 汇总进 data/zh.json，保留
 ## 已知未完成
 
 - **M3 召回（「任务开始时就命中」）**：最小版已做——宿主每步都会把「技能中心」当运行时技能列进可用技能（名字 + 描述），另有一段静态系统提示要求先调 `skill_search`、不得凭空声称技能存在。按首条用户消息检索后再注入一行（`agent/pre-step`）的强版本明确不做：那要替宿主构造消息，风险大于收益。
-- **中文层扩容**：625/3960；这是数据活，不是代码活（`tools/zh_generate.mjs plan/check/apply` + `tools/zh_merge.mjs`，一批 25 条）。
+- **中文层扩容**：按批推进（每批 25 条，进度以 `data/zh.json` 的 `count` 为准，当前 725：hand 300 + auto 425，目录 3969 条）；这是数据活，不是代码活（`tools/zh_generate.mjs plan/check/apply` + `tools/zh_merge.mjs`）。
 - **同名不同作者 = 两条技能**（用户 2026-10-22 定的规则，不是缺陷）：只有聚类键一致（内容同一份）才会并成一条并标「含 N 个副本」。实测 3961 条里 198 组同名不同内容（多出 338 条，例：`frontend-design` 9 条、`code-review` 16 条），另有 120 条带副本共 234 个副本。
 - **星标与发布时间覆盖很低**：`stars` 只覆盖 8 个仓库 / 93 条，`first_seen` 更少；页面抓取只对历史上抓过的那批生效，升 `ENRICH_VERSION` 只解决一部分。

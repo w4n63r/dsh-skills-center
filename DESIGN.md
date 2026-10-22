@@ -419,7 +419,7 @@ strict      = coverage >= 0.95          →  buildCatalog({ requireBody: strict 
 ## 10. 里程碑
 
 - **M0 目录**：Vercel 采集函数 + `catalog.json`，能按装量水位收录全量目录（2026-10-21 本轮 count 3879）——**已完成**；目录与正文分发走 GitHub `catalog` / `bodies` 分支（§5.4、§8.1）
-- **M1 中文层**：**两层**——hand 300 条（用户 2026-10-19 定 installs top 300）+ auto 机器生成层向全目录推进；当前 625/3960（auto 325），扩容是数据活（§8.2）——**hand 已完成，auto 进行中**
+- **M1 中文层**：**两层**——hand 300 条（用户 2026-10-19 定 installs top 300）+ auto 机器生成层向全目录推进；当前 725（auto 425，目录 3969 条），进度以 `data/zh.json` 的 `count` 为准，扩容是数据活（§8.2）——**hand 已完成，auto 进行中**
 - **M2 插件**：4 个工具（含远端同步）+ provider 激活 + GUI 榜单页 + GUI 面板（左侧栏入口，见 §8.3）——**已完成**
 - **M3 召回**：最小版已实现——`lib/index.js` 用 `ctx.skills.register()` 注册运行时技能 `skills-center`（宿主每步把 name + description 拼进可用技能列表，模型第一步就能看到），外加静态 `ctx.systemPrompt.section`；`agent/pre-step` 强版本（按首条消息命中后注入一行）与「每卡 15 字钩子 / 只注入已激活项」仍是设计——**最小版已完成**
 

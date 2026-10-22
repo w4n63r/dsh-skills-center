@@ -422,7 +422,7 @@ Cron **每项目 100 个、最小间隔一天**（精度 ±59 分钟）；Blob *
 
 **本地装卸**：`lib/installer.js` + `/install` `/uninstall` `/local`（对应用 `tests/install-routes.test.mjs`）。命令是官方 CLI：`npx skills@1.7.4 add <owner/repo> --skill <slug> -a codex --copy [-g] -y`；落点 `<项目>/.agents/skills/<slug>`（rank 200）/ `~/.agents/skills/<slug>`（rank 500）——正是 DSH 的扫描根，装完立刻可用、卸载就是删目录。项目根 = 从当前目录向上找最近的 `.git`。**面板还没接这三个路由**（`client/client.js` 里有「本地」视图字符串与组件，但 Panel 只渲染目录视图），别在文档里说 GUI 能一键装。
 
-**中文层**：hand 300 + auto 325 = **625/3960**，均已合并进 `data/zh.json`（`tier` 计数 hand 300 / auto 325，分片 `data/zh/part-1..19.json`）。流水线 `tools/zh_fetch_bodies.mjs` → `zh_generate.mjs plan/check/apply` → `zh_merge.mjs`；`check` 的「能力词必须在正文里出现」与 tier/正文溯源校验已生效。**没做到全量覆盖**（剩 ~3335 条，一批 25 条）。
+**中文层**：hand 300 + auto 425 = **725**（目录 3969 条），均已合并进 `data/zh.json`（分片 `data/zh/part-1..23.json`；进度以 `data/zh.json` 的 `count` 为准，每批 25 条）。流水线 `tools/zh_fetch_bodies.mjs` → `zh_generate.mjs plan/check/apply` → `zh_merge.mjs`；`check` 的「能力词必须在正文里出现」与 tier/正文溯源校验已生效。
 
 **测试**：`npm test` 14 套全绿（清单见 §6）。
 
