@@ -9,7 +9,9 @@
 // 分工：
 //   plan  只挑素材、不写文案。排序 = 总安装量（installs_merged ?? installs）降序；
 //         已经有人工中文卡的（目录里的 zh/name_zh、data/zh/part-*.json 里的 id）直接跳过。
-//         正文从 bodies/<sha256>.md 读，取前 1200 字符当 body_excerpt；读不到就是 null。
+//         正文从 bodies/<sha256>.md 读，取前 3000 字符当 body_excerpt；读不到就是 null。
+//         1200 → 3000（2026-10-22）：写手反馈摘录常在目录/开头就断掉，导致 usage 只能复述
+//         description；校验用的正文仍是全量（check 自己读 bodies），摘录只影响写手能看到多少。
 //   check 校验回填文件 { entries: { <id>: { name_zh, intro, usage, notes, tier } } }，
 //         规则全部 import 自 tools/zh_validate.mjs（不复制）；tier 缺省补 auto，非法值报错。
 //         回填里多出输入之外的 id、或某条不合格 → 逐条打印并非 0 退出；
@@ -102,7 +104,7 @@ export function buildPlanRows(slice, { bodyBase = null, bodies = new Map() } = {
       total_installs: totalInstalls(skill),
       description_en: skill.description_en ?? null,
       body_url: bodyBase && sha ? `${String(bodyBase).replace(/\/$/, '')}/${sha}.md` : null,
-      body_excerpt: body ? body.slice(0, 1200) : null,
+      body_excerpt: body ? body.slice(0, 3000) : null,
     };
   });
 }
