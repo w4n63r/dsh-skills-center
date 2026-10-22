@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-10-22T07:39:44.530Z",
- "count": 1065,
+ "generated_at": "2026-10-22T08:00:44.553Z",
+ "count": 1165,
  "sources": [
   {
    "file": "part-1.json",
@@ -127,8 +127,24 @@
    "count": 25
   },
   {
+   "file": "part-38.json",
+   "count": 25
+  },
+  {
+   "file": "part-39.json",
+   "count": 25
+  },
+  {
    "file": "part-4.json",
    "count": 50
+  },
+  {
+   "file": "part-40.json",
+   "count": 25
+  },
+  {
+   "file": "part-41.json",
+   "count": 25
   },
   {
    "file": "part-5.json",
@@ -5803,8 +5819,8 @@
   },
   "shopify/shopify-ai-toolkit/shopify-storefront-graphql": {
    "name_zh": "前台 GraphQL",
-   "intro": "这是给自建 Shopify 店面直接写 GraphQL 查询与购物车变更的旧技能，正文已明确标为废弃，只留一段迁移指引：改用 shopify 那个技能，装着本技能的话先卸掉再装新的。除了废弃声明与替换命令，正文不再有查询、变更或加购的写法，所以别指望照它写代码。",
-   "usage": "需要自建店面直接写 GraphQL 查询与购物车操作时先看这里，但正文要求改走 `shopify`；已装本技能就按正文给的命令卸载后再装。",
+   "intro": "这是给自建 Shopify 店面直接写 GraphQL 查询与购物车变更的旧技能，正文已明确标为废弃，只留一段迁移指引：改用 shopify 那个技能，装过这一条的话先卸掉再装新的。除了废弃声明与替换命令，正文不再有查询、变更或加购的写法，所以别指望照它写代码。",
+   "usage": "需要自建店面直接写 GraphQL 查询与购物车操作时先看这里，但正文要求改走 `shopify`；已装过这一条就按正文给的命令卸载后再装。",
    "notes": "已废弃，由 shopify 技能取代；正文给的迁移命令是 `npx skills remove shopify-storefront-graphql`（全局装加 `-g`）与 `npx skills add shopify/shopify-ai-toolkit --skill shopify`。",
    "tier": "auto"
   },
@@ -6030,6 +6046,356 @@
    "intro": "React、Vue、Svelte 三个框架下的组件写法与组织方式：CSS-in-JS、组件组合策略、可复用组件的架构。做 UI 组件库、设计组件对外的 API，或者给项目搭一套前端设计系统时用它。",
    "usage": "在做组件库、要定组件 API 的约定，或给项目立一套前端设计系统时用它。",
    "notes": "这批里没有抓到正文，卡片只按目录描述写。",
+   "tier": "auto"
+  },
+  "affaan-m/ecc/laravel-security": {
+   "name_zh": "Laravel 安全",
+   "intro": "Laravel 应用的安全实践清单：生产环境配置、认证与授权（Sanctum、Passport、Jetstream、Breeze）、Eloquent 查询安全、CSRF 与 XSS 防护、API 安全，以及部署时的环境变量与会话 cookie 设置。",
+   "usage": "审查 Laravel 项目的认证授权、Eloquent 写法、CSRF/XSS 或部署配置时加载；生产环境要确认 `APP_DEBUG` 为 false 且 `APP_KEY` 已设置，缺了可用 `php artisan key:generate` 生成。",
+   "notes": "正文按生产配置、环境文件、认证授权等分节，给出 PHP 配置片段与对应检查项，开篇还列了何时启用这个技能。",
+   "tier": "auto"
+  },
+  "affaan-m/ecc/liquid-glass-design": {
+   "name_zh": "液态玻璃设计",
+   "intro": "iOS 26 Liquid Glass 材质的实现要点：模糊背后内容、反射周围颜色与光线、响应触摸与指针交互，覆盖 SwiftUI、UIKit 与 WidgetKit。适用于玻璃按钮、卡片、工具栏、容器，以及玻璃元素之间的形变转场。",
+   "usage": "SwiftUI 里给视图加 `.glassEffect()` 就是默认胶囊形玻璃；要定制就组合 `.regular`、`.tint(Color)` 与 `.interactive()`，多个玻璃视图记得包进 `GlassEffectContainer`。",
+   "notes": "正文还给了玻璃按钮样式 `.glass` 与 `.glassProminent`，以及把旧 blur 与 material 效果迁到新 API 的场合。",
+   "tier": "auto"
+  },
+  "anthropics/claude-code/claude-opus-4-5-migration": {
+   "name_zh": "Opus4.5迁移",
+   "intro": "把提示词和代码从 Sonnet 4.0、Sonnet 4.5 或 Opus 4.1 迁到 Opus 4.5 的一次性流程：搜出模型字符串与 API 调用、按平台替换、删掉不支持的 beta 头、补上 effort 参数，最后汇总改动。不含 Haiku 4.5。",
+   "usage": "先判断代码库走哪个平台，再按表替换，例如 Anthropic API 用 `claude-opus-4-5-20251101`；同时移除 `context-1m-2025-08-07` 这个 beta 头并留注释说明。",
+   "notes": "正文给了各平台目标字符串与来源字符串的对照表，effort 参数细节在 `references/effort.md`，迁移完要提示用户遇到问题可再调提示词。",
+   "tier": "auto"
+  },
+  "anthropics/skills/discernment-nudge": {
+   "name_zh": "答复前追问",
+   "intro": "在给出用户会照着行动的实质答复后，追加两三个短问题：哪些事实值得核对、逻辑哪一步需要理由、缺了哪些上下文。普通查资料、纯格式转换、用户自己跑代码或闲聊时跳过，整个会话最多一次。",
+   "usage": "写完建议、方案、估算或数据分析，定稿前对照适用边界决定是否追加问题；每个问题都要挂在答复里的具体内容上，不泛泛地问还要注意什么。",
+   "notes": "正文说明了这三种自省习惯的来源与不该触发的场合，也规定了追加问题的输出格式；属于 anthropics/skills 官方技能。",
+   "tier": "auto"
+  },
+  "bmad-code-org/bmad-method/bmad-build": {
+   "name_zh": "BMAD 实现",
+   "intro": "把委派下来的功能、故事、修 bug 或其它有意义的改动，落成经过评审和验证的代码。只改 ignore 文件、错字、格式化之类的低风险杂活可以跳过；明确点名 BMAD 的请求则一律算数。",
+   "usage": "在含 `_bmad/` 的项目根目录执行一次正文给出的 `uv run` 渲染命令；输出里写明 HALT 就按原因停下，脚本不存在说明项目还没初始化 BMad，改用 bmad 技能先装。",
+   "notes": "正文强调命令只跑一次、不要切工作目录；点名 route 或 review 时用附加参数传入，不要直接跑工作流源文件。",
+   "tier": "auto"
+  },
+  "czlonkowski/n8n-skills/n8n-workflow-patterns": {
+   "name_zh": "n8n 工作流模式",
+   "intro": "从真实 n8n 工作流归纳出的六种架构：Webhook 处理、HTTP API 集成、数据库读写、AI Agent、定时任务、批量处理。每种都给出从触发到输出的节点顺序套路，也用于判断慢流程和大量条目该怎么处理。",
+   "usage": "要新建或设计 n8n 工作流、把某流程自动化、连接服务时先看这里，即使没提 patterns；优化慢流程时关注节点数量、`batchSize`，以及逐条处理与全量处理的取舍。",
+   "notes": "正文按六种模式各给一条链路，另有模式选择指引，单个模式的细节放在对应的 md 文件里。",
+   "tier": "auto"
+  },
+  "github/awesome-copilot/dotnet-design-pattern-review": {
+   "name_zh": "C# 设计模式评审",
+   "intro": "审 C#/.NET 代码里的设计模式落地情况并给改进建议，只评审不改代码。要求逐项检查 Command、Factory、Provider、Repository 与资源本地化等模式，以及命名空间约定、主构造函数、异步写法和 SOLID。",
+   "usage": "选中一段代码后让它按清单审：模式是否实现到位、分层是否符合 `{Core|Console|App|Service}.{Feature}`、有没有漏掉有用的模式、是否存在 SOLID 与性能问题。",
+   "notes": "正文把要求分成必需模式与评审清单两块，并明确只出评审结论、不动代码。",
+   "tier": "auto"
+  },
+  "github/awesome-copilot/java-junit": {
+   "name_zh": "JUnit 5 测试",
+   "intro": "为 JUnit 5 单元测试提供实践建议，包括数据驱动测试的写法。适合给 Java 项目补测试、整理测试结构，或想知道 JUnit 5 惯用写法时查阅，也可以当作评审测试代码的对照清单。",
+   "usage": "给 Java 项目写或补 JUnit 5 单测时用它，尤其是需要参数化数据驱动测试的场合；具体注解与写法以项目实际依赖的版本为准。",
+   "notes": "目录里只留了描述，本地没有缓存正文，所以这张卡只按描述写适用场合，未涉及具体命令。",
+   "tier": "auto"
+  },
+  "interfacex-co-jp/genshijin/genshijin-crew": {
+   "name_zh": "原始人子代理",
+   "intro": "把 subagent 委派判断写成对照表的技能：investigator 负责定位代码位置、builder 只改一两个文件、reviewer 审 diff。三者的输出都被压缩成「原始人」格式，回到主上下文的 tool-result 体积明显变小，长会话因此能撑下去。",
+   "usage": "委派前照表选人：查定义与调用点用 `genshijin-investigator`，范围明确的少量文件改动用 `genshijin-builder`，diff 审查用 `genshijin-reviewer`；文件还没定位就别直接叫 builder。",
+   "notes": "正文给了三种输出契约与链式用法，也列了禁止事项，例如跨五个文件的改造会让 builder 直接返回 too-big.。",
+   "tier": "auto"
+  },
+  "interfacex-co-jp/genshijin/genshijin-stats": {
+   "name_zh": "原始人统计",
+   "intro": "显示当前会话的真实 token 用量与估算节省量，数据直接读 Claude Code 会话日志，不靠模型推算。输出由 mode-tracker 钩子注入，模型本身不参与计算，用户马上就能看到数字。",
+   "usage": "输入 `/genshijin-stats` 看当前会话；加 `--share` 得到一行可分享摘要，加 `--all` 看累计统计，`--since 7d` 或 `--since 24h` 指定区间。",
+   "notes": "正文只有参数列表，并说明它由 `hooks/genshijin-stats.js` 提供，mode-tracker 检测到命令后以 block 决策回注结果。",
+   "tier": "auto"
+  },
+  "paramchoudhary/resumeskills/resume-bullet-writer": {
+   "name_zh": "简历条目改写",
+   "intro": "把简历里「负责管理团队」这类职责式条目改写成带结果的成就句：套 STAR 与 X-Y-Z 公式，加可量化指标，换强动词，再按目标岗位调整措辞。看到被动、含糊、没有数字的条目就该用它。",
+   "usage": "用户说想把简历写强、把成就量化、要 results-driven 的表述时加载；改写后每条都要能看出做了什么、用什么指标衡量、靠哪些动作达成。",
+   "notes": "正文先用弱条目与强条目做对照，再展开 X-Y-Z 公式与按岗位定制的改写方法。",
+   "tier": "auto"
+  },
+  "referodesign/refero_skill/refero-design": {
+   "name_zh": "Refero 设计",
+   "intro": "以参考研究为先的 UI、产品与网页设计技能，覆盖落地页、仪表盘、设计系统、响应式、排版、配色、间距、动效、图标、无障碍与转化文案。要求每次设计先落到参考上，再谈实现。",
+   "usage": "定视觉方向先用 Styles 层，找具体界面模式用 Screens 层，多步流程用 Flows 层；不要只抄一个参考，要研究多个后综合。没有 MCP 工具时用自带的 craft 参考，保持同样的锁定流程。",
+   "notes": "正文列了不可协商的几条：先研究再做、可用时优先用 styles、维持 reference lock 与决策台账，并用质量门防止做平均化的设计。",
+   "tier": "auto"
+  },
+  "runpod/runpod-plugins-official/runpod-mcp": {
+   "name_zh": "Runpod MCP",
+   "intro": "通过已连接的 Runpod MCP server 管理基础设施：Pod、Serverless 端点与作业、模板、网络卷、镜像凭据、secret、集群、GPU/CPU 目录和账单；server 没连上时也负责把它接起来。",
+   "usage": "一次请求里第一次调用 Runpod MCP 工具之前先加载它，由它把任务路由到带流程的 journey 技能；终端操作、文件传输与 SSH 仍交给 `runpodctl`，模板工程走 runpod-build-template。",
+   "notes": "正文定义了每次回复都要遵守的 answer contract，并提醒多步任务先看 golden-paths 里的端到端序列再发工具调用，免得顺序错。",
+   "tier": "auto"
+  },
+  "runpod/runpod-plugins-official/runpod-usage": {
+   "name_zh": "Runpod 概念",
+   "intro": "Runpod 的概念与选型知识：Pod 与 Serverless 的取舍、GPU 与 VRAM 选择、镜像构建、存储、网络，以及任何负载的开发循环。这条技能只做解释，不执行操作，动手交给 MCP 或命令行。",
+   "usage": "按问题读一个 reference 文件：`reference/concepts.md` 讲 Pod 与 Serverless、冷启动，`reference/development-loop.md` 讲从规划到拆除的开发循环；真正执行用 runpod-mcp 或 runpodctl。",
+   "notes": "正文强调它只管背景知识，端到端流程看 golden-paths；自建模板另用 runpod-build-template，这条不参与打包流程。",
+   "tier": "auto"
+  },
+  "saadeghi/daisyui/daisyui": {
+   "name_zh": "daisyUI 配色",
+   "intro": "daisyUI 5 的语义色命名与用法规则：primary、secondary、accent、neutral、base-100/200/300、info/success/warning/error 各自配有对应的 -content 前景色。这些颜色值都是变量，会随主题切换，所以背景、文字、边框应使用这些名字而不是固定色阶。",
+   "usage": "写 Tailwind 工具类配色时按 `bg-primary` 这类 daisyUI 颜色名选色；不要给 daisyUI 颜色名配 `dark:` 前缀，也不要混用 red-500 这样的固定 Tailwind 色阶。",
+   "notes": "正文逐个解释二十个颜色名的用途，再给六条使用规则；主题切换靠这些变量名自动生效。",
+   "tier": "auto"
+  },
+  "shopify/shopify-ai-toolkit/shopify-custom-data": {
+   "name_zh": "Shopify元字段",
+   "intro": "讲 Shopify 的 Metafields 与 Metaobjects 怎么建模存自定义数据：Metafields 给商品、客户等内置类型挂扩展字段，Metaobjects 是自定义数据结构，两者的 definition 提供 schema 与配置。此技能已被 shopify 取代。",
+   "usage": "这条已弃用：正文要求告知用户改用 `shopify`，先移除旧的再装新的——执行 `npx skills remove shopify-custom-data`，然后 `npx skills add shopify/shopify-ai-toolkit --skill shopify`。",
+   "notes": "正文只有一段弃用说明和迁移命令，没有别的内容；提示词提到 Metafields 或 Metaobjects 时按迁移后装的那条走。",
+   "tier": "auto"
+  },
+  "stablyai/orca/orca-per-workspace-env": {
+   "name_zh": "Orca 工作区环境",
+   "intro": "给 Orca 的每个 workspace 配置按需创建、用完即弃的运行环境：云沙箱、虚拟机、SSH 主机或本地容器。覆盖从零搭一套 recipe、修 orca.yaml 里的 environmentRecipes、写 provider 生命周期脚本，以及排查 orca vm recipe doctor 的失败。",
+   "usage": "先为本次会话定下一个可执行文件（`ORCA_CLI_COMMAND`、orca-dev、orca-ide 或 orca），再执行 `ORCA skills get orca-per-workspace-env` 取版本匹配的指南；不要直接跑裸 orca。",
+   "notes": "正文解释了为何在 Linux 上不能裸跑 orca（会命中 GNOME 的屏幕阅读器并开口朗读），并要求命令优先带 --json。",
+   "tier": "auto"
+  },
+  "usestrix/strix/application-security-testing": {
+   "name_zh": "应用安全测试",
+   "intro": "面向整个产品的 AppSec 入口：先判断每类资产（源码、运行中的 Web、API、CI 流水线）该做哪种测试，跑完后整理成按实际可达性排序的修复计划。Strix 的自主代理会真的去利用漏洞来证明问题，而不是只报静态扫描告警。",
+   "usage": "先确认授权与目标环境，优先在 staging 上跑，因为代理会发真实利用载荷、可能改动数据；CLI 细节在渗透测试那份技能里，`strix --version` 跑不通就先读它。",
+   "notes": "正文要求先列清源码、运行环境、API 与 CI 四类资产再开扫；没有 Docker 或 LLM key 时可走托管平台，即 `strix cloud login`。",
+   "tier": "auto"
+  },
+  "wshobson/agents/gitops-workflow": {
+   "name_zh": "GitOps 流程",
+   "intro": "用 ArgoCD 或 Flux 做声明式 Kubernetes 持续交付：期望状态放进 Git，由代理自动拉取并持续对账。覆盖集群接入、仓库目录结构、应用定义、自动同步策略、多集群与渐进发布，以及 GitOps 下的密钥管理。",
+   "usage": "搭 GitOps 时先按 OpenGitOps 四条原则核对：声明式、版本化不可变、自动拉取、持续对账；ArgoCD 的安装命令与初始密码取法在正文代码块里，细节看 `references/argocd-setup.md`。",
+   "notes": "正文用一份 gitops-repo 目录样例说明 apps、infrastructure 与 argocd 三类内容该怎么放，并指向更细的搭建文档。",
+   "tier": "auto"
+  },
+  "wshobson/agents/market-sizing-analysis": {
+   "name_zh": "市场规模测算",
+   "intro": "测算 TAM、SAM、SOM 的三种方法：自上而下看行业报告往下收窄、自下而上按客群与定价推算、价值理论按愿付价格估算。三者互补，分别适用于成熟市场验证、细分新市场与全新品类。",
+   "usage": "有现成行业研究时用自上而下，面向具体客群时用自下而上（投资人最认这套），做新品类时用价值理论；SOM 按三到五年内能实际拿到的份额估。",
+   "notes": "正文先定义三层市场框架并各配一句说明，再讲三种方法各自适配的市场类型；更细的演算模式在 `references/details.md`。",
+   "tier": "auto"
+  },
+  "wshobson/agents/memory-safety-patterns": {
+   "name_zh": "内存安全模式",
+   "intro": "Rust、C++、C 的内存安全写法：RAII、所有权、智能指针与资源管理。列出 use-after-free、double-free、内存泄漏、缓冲区溢出、悬垂指针、数据竞争六类问题及各自的预防手段，并画出从手动管理到 GC 的安全光谱。",
+   "usage": "写系统层代码或管理文件、socket、内存等资源时参考；排查内存问题时按调试工具那节来跑，例如 `cargo +nightly miri run` 或 `valgrind --leak-check=full ./program`。",
+   "notes": "细粒度模式放在 `references/details.md`；Do 与 Don't 两栏强调少用裸指针、别返回局部引用、谨慎使用 unsafe。",
+   "tier": "auto"
+  },
+  "wshobson/agents/python-resilience": {
+   "name_zh": "Python 容错",
+   "intro": "Python 的容错写法：自动重试、指数退避、抖动、超时与熔断。核心是先分清瞬时故障和永久故障——网络超时、服务临时不可用可以重试，凭据错误和坏请求不该重试，且重试次数和总时长都要设上限。",
+   "usage": "给外部服务调用加重试时可用 `tenacity` 的装饰器写法，正文给了 `stop_after_attempt` 与 `wait_exponential_jitter` 的组合；加抖动是为了避免大量客户端同时重试。",
+   "notes": "正文按瞬时与永久故障、指数退避、抖动、有界重试四节展开，再给基础重试等模式的具体 Python 代码。",
+   "tier": "auto"
+  },
+  "yuan1z0825/nature-skills/nature-downloader": {
+   "name_zh": "学术全文下载",
+   "intro": "走合规渠道取学术全文：开放获取、出版商 API、CNKI 机构访问，以及借用户已登录的浏览器走机构入口。编排入口是 batch_download.mjs，学校配置、凭据、元数据解析、各来源下载与清单各自独立成模块。",
+   "usage": "下载前先确认要不要补充材料，然后必须带 `--si` 或 `--no-si` 二者之一；两个都不带时脚本返回 `si_confirmation_required`，也不会创建输出目录。",
+   "notes": "正文提醒已验证路线只是参考不是默认，应从用户实际的图书馆资源页出发；另需 Node.js 22+ 与 Python 3，走浏览器路线时需 Chrome 远程调试。",
+   "tier": "auto"
+  },
+  "yuan1z0825/nature-skills/nature-ref-verifier": {
+   "name_zh": "参考文献核对",
+   "intro": "对学术文献逐条做多源交叉验证，按字段比对作者、标题、年份、卷期、页码，标出卷年与 DOI 年冲突、作者顺序异常、页码偏差等问题并输出结构化报告。整篇参考文献列表可批量处理，也能单条校验。",
+   "usage": "性价比最高的一步是先用 `https://api.crossref.org/works/` 查 DOI 能否解析，404 基本说明号码错了；超过 20 条时按十到十五条一组拆给并行子代理。",
+   "notes": "正文把错误分成 Critical 等三级并要求逐字段对比，批量差异、DOI 与标题冲突等经验放在 `references/common-patterns.md`。",
+   "tier": "auto"
+  },
+  "yuan1z0825/nature-skills/researchwrite": {
+   "name_zh": "开题报告写作",
+   "intro": "写、改、审科研课题申请书、研究计划和开题报告的状态机式流程：先立证据表与硬事实，再定论证地图，每节写清允许与禁止的主张，最后才做语言清理。不是通用的「帮我写论文」提示词。",
+   "usage": "从题目或模糊想法起步走 compose 模式，已有段落走 revise，草稿要扩写补写走 hybrid；项目文件落在 `researchwrite` 目录下，模板与条件加载看 `manifest.yaml`。",
+   "notes": "正文给了九条核心原则，例如证据先于文字、论证先于章节、删除胜于解释，并强调不把「可能表明」自动升级成「证明」。",
+   "tier": "auto"
+  },
+  "affaan-m/ecc/database-migrations": {
+   "name_zh": "数据库迁移",
+   "intro": "生产库的迁移规约：只向前、schema 与数据迁移分开、大表加列加索引走并发、回填分批、已上线的迁移不再改。附 PostgreSQL、Prisma、Drizzle、Kysely、Django 和 golang-migrate 的分工具做法。",
+   "usage": "写 schema 或数据迁移、给大表加列或索引、规划回滚、准备零停机发布时用它；动手前过一遍清单，看有没有 DOWN、会不会锁全表、新列是否可空或带默认值。",
+   "notes": "正文要求拿生产量级的数据副本试跑，并提醒百行能过的迁移在千万行上可能锁表。",
+   "tier": "auto"
+  },
+  "affaan-m/ecc/laravel-patterns": {
+   "name_zh": "Laravel 模式",
+   "intro": "生产环境 Laravel 的架构分工：控制器保持薄，编排放 service，单一用途放 action，配合 Eloquent 的类型转换与作用域；重 IO 的活交给队列，贵读上缓存，API 用 resource 与分页。",
+   "usage": "新建或评审 Laravel 应用、梳理控制器与模型与服务的边界、要加队列事件缓存或 API 资源时用它。",
+   "notes": "正文给了推荐的 app/ 目录分层，把 Actions、Services、Jobs、Policies、Requests、Resources 各自归位；路由用显式绑定但仍要授权。",
+   "tier": "auto"
+  },
+  "affaan-m/ecc/rust-testing": {
+   "name_zh": "Rust 测试模式",
+   "intro": "Rust 的测试写法与 TDD 流程：单测放 cfg(test) 模块，rstest 做参数化，proptest 做属性测试，mockall 隔离依赖，cargo-llvm-cov 看覆盖率，按 RED-GREEN-REFACTOR 推进。",
+   "usage": "写新的函数、trait 或模块，给旧代码补测试，或给性能关键路径加基准时用它；先写失败测试，再写最小实现。",
+   "notes": "正文给的覆盖率目标是 80% 以上。",
+   "tier": "auto"
+  },
+  "affaan-m/ecc/strategic-compact": {
+   "name_zh": "上下文压缩时机",
+   "intro": "建议在任务阶段的自然边界手动压缩上下文，而不是等自动压缩在任意位置触发。判断看两个信号：真实上下文 token 量与工具调用次数，前者按窗口比例给阈值，之后每增长一段再提醒。",
+   "usage": "长会话接近上下文上限、任务从研究转实现、完成一个里程碑要开新阶段，或回答开始变慢变散时，用它挑压缩点。",
+   "notes": "脚本在 PreToolUse 的 Edit/Write 上读会话记录里的 usage 记录，把输入与两个缓存 token 相加当作该轮真实上下文大小。",
+   "tier": "auto"
+  },
+  "alchaincyf/zhangxuefeng-skill/zhangxuefeng-perspective": {
+   "name_zh": "张雪峰视角",
+   "intro": "用张雪峰的思维框架和语气作答，用于分析教育选择、职业规划、阶层流动。先判断问题要不要查数据：涉及具体专业、院校、行业时先搜就业率、薪资中位数和录取线，再给判断，不凭印象编。",
+   "usage": "用户说「用张雪峰的视角」「张雪峰会怎么看」「切换到张雪峰」时触发；纯框架问题直接用心智模型答，混合问题先取数据再分析。",
+   "notes": "首次激活只说一次免责声明，之后不再重复；用户说「退出」或「切回正常」就恢复普通模式。",
+   "tier": "auto"
+  },
+  "analogjs/angular-skills/angular-component": {
+   "name_zh": "Angular 组件",
+   "intro": "已废弃的 Angular 组件技能。正文不再留具体指导，只说明该技能停止维护，改用 Angular 官方的 angular/skills，并给出安装官方技能与移除本技能的命令。",
+   "usage": "只在需要解释旧引用为何失效时用它；真要写 Angular 组件，装官方技能。",
+   "notes": "正文指向 https://github.com/angular/skills，原有内容留在仓库 git 历史里。",
+   "tier": "auto"
+  },
+  "bmad-code-org/bmad-method/bmad-code-review": {
+   "name_zh": "BMad 代码评审",
+   "intro": "让多个独立评审并行看同一批代码改动，再把发现汇总、去重、分诊后呈现。依赖项目里已装好的 BMad 框架，正文给的是渲染项目内工作流并照做的一条命令。",
+   "usage": "用户说要跑代码评审或审这段改动时用它；快速审还是细审、要不要顺手改代码，通过参数区分。",
+   "notes": "找不到 _bmad/ 目录说明项目还没装 BMad，先装再跑；命令出错就照输出报告停下，别绕过工作流直接跑源码。",
+   "tier": "auto"
+  },
+  "github/awesome-copilot/dotnet-upgrade": {
+   "name_zh": ".NET 升级提示词",
+   "intro": "一组可直接取用的提示词，覆盖 .NET 项目升级的分析与执行：给解决方案里的项目按类型分类、查依赖兼容性、找还留在 packages.config 的项目、排升级顺序、定目标框架、改废弃 API，并跟踪构建测试部署的进度。",
+   "usage": "准备把 .NET Framework 项目往新版迁时逐条取用；先做项目发现与依赖评估，再定顺序和回滚检查点。",
+   "notes": "正文提到可选 Upgrade Assistant 或手工升级，取舍看项目结构。",
+   "tier": "auto"
+  },
+  "lignertys/reddit-research-skills/reddit-leads": {
+   "name_zh": "Reddit 找线索",
+   "intro": "从 Reddit 挖 B2B 线索：按购买意图给帖子打 0 到 100 分，再分成痛点、求方案、抱怨、功能请求和对比五类，用来做竞品挖客、痛点发现和销售线索筛选。数据来自 reddapi.dev 的 Leads API。",
+   "usage": "想找正在抱怨竞品或主动求方案的人时用它；需要 REDDAPI_API_KEY，接口要付费套餐，Key 只放在执行请求的 shell 环境里，不写进对话。",
+   "notes": "正文称会滤掉工单、梗图和无关提及；免费额度只有网页端搜索，不含 API。",
+   "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/affiliate-disclosure-compliance": {
+   "name_zh": "联盟披露合规",
+   "intro": "拿一条具体的联盟或达人内容（文案、口播稿、转录、截图或线上链接）对照披露规则审，逐项给通过与否，并给位置、措辞和各渠道形态的修改建议。覆盖 FTC 16 CFR 255 与 465、英国 CAP/CMA、欧盟 UCPD 与 DSA，以及德法意的本地规则。",
+   "usage": "发布前审达人内容，或补救已上线的旧内容时用它；只做合规审查，不替代法律意见。",
+   "notes": "拿不准的地方要求就地标 COUNSEL 问题；欧盟 trader 身份与受监管行业必须升级给人判断。",
+   "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/affiliate-fraud-detection": {
+   "name_zh": "联盟作弊检测",
+   "intro": "给联盟项目搭一套作弊识别规则，加上后续调查与升级路径：cookie 塞入、假线索与假表单、自推环、流量质量基线、佣金暂扣与追回，并把真作弊和低增量的优惠券返现伙伴分开。",
+   "usage": "看到可疑联盟流量、无效点击或线索、机器人流量，或某个联盟商的数字好得反常时用它。",
+   "notes": "正文说最有效的控制是 30 到 90 天的佣金暂扣与验证窗口，而不是检测算法，并借用 IAB/MRC 的 GIVT 与 SIVT 拆分。",
+   "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/affiliate-payout-audit": {
+   "name_zh": "联盟佣金发放审计",
+   "intro": "在一笔联盟或伙伴佣金发放出去之前核对金额：逐行重算费率与阶梯、查重复计佣、看过回访与验证窗口、结算截止、币种、取整和税表状态，最后出一份带严重级别与建议暂扣项的审计报告。",
+   "usage": "提到联盟发放审计、佣金准确性、发放对账、多付或少付、放款前复核时用它；它只判断金额对不对，不判断流量是否作弊。",
+   "notes": "正文假定活动已过反作弊筛查；要查欺诈应改用同仓库的 affiliate-fraud-detection。",
+   "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/affiliate-performance-dashboard": {
+   "name_zh": "联盟看板规格",
+   "intro": "定联盟项目看板看哪些指标、怎么排：指标定义带明确公式、按读者分视图、刷新与复盘节奏，以及头部联盟商集中度、按来源的转化和项目 ROI 的告警阈值。交付物是规格文档，由 BI 那边照着建。",
+   "usage": "提到联盟项目报表、联盟 KPI、联盟 ROI、收入集中度，或问联盟看板该放什么时用它；只定指标，不建看板。",
+   "notes": "正文要求区分归因 ROAS 与归因 ROI，并把 sourced 与 influenced 分开统计。",
+   "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/affiliate-program-terms": {
+   "name_zh": "联盟计划条款",
+   "intro": "起草联盟加入时接受的条款：标准条款集、禁止手段条款与逐级处罚、佣金核验、追回与终止机制，还有 FTC 背书规则、欧盟 P2B、英国 ASA/CAP、GDPR 角色这些辖区差异。",
+   "usage": "写联盟协议、补禁止手段条款、定品牌词竞价政策时用它；产出是条款完整的草稿，须标出必须法务复核，不能当法律意见。",
+   "notes": "正文的原则是没明确禁止的即视为允许，所以靠穷举条款，不靠兜底条款。",
+   "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/affiliate-recruitment-outreach": {
+   "name_zh": "联盟招募外联",
+   "intro": "起草招募新联盟商的外联文案与节奏：筛选与分层候选人、定切入角度、写首封招募邮件、跟进序列（含最后一封告别信）、渠道组合和外联跟踪。它只管主动外联，不管被动被发现那部分。",
+   "usage": "要拉内容站、测评站、优惠券与返现站、newsletter 主理人、社群、播客或代理加入项目时用它；单个已筛过的达人另走 influencer-outreach。",
+   "notes": "正文区分主动与被动的招募，并提醒市面上流传的飞轮与完美伙伴名单只是商业课程，不是行业标准。",
+   "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/alliance-prioritization": {
+   "name_zh": "联盟伙伴排序",
+   "intro": "把几个具体候选的战略联盟和技术合作放一起排优先级：先过必过门槛，再用加权评分卡打分并做敏感性分析，加共同创新与平台依赖风险检查，最后给排序短名单和 go/no-go 建议。",
+   "usage": "要决定伙伴团队的人力往哪投、几个指名候选谁先做时用它；只做组合层面比较，不建模单个伙伴的损益。",
+   "notes": "正文提醒加权评分卡本身脆弱（权重随意、排序反转），所以权重要有理由，必过门槛不参与加权。",
+   "tier": "auto"
+  },
+  "starchild-ai-agent/official-skills/coinglass": {
+   "name_zh": "币圈衍生品数据",
+   "intro": "加密衍生品数据查询：资金费率、未平仓合约量、多空比、爆仓数据、ETF 资金流，也能看巨鲸转账和 Hyperliquid 巨鲸提醒。走 v4 接口，需要平台注入的 COINGLASS_API_KEY。",
+   "usage": "研究永续合约市场或比较 ETF 资金流时用，比如查 BTC 资金费率、ETH 未平仓量；币种符号要写成交易对，如 BTCUSDT。",
+   "notes": "平台 Key 属 Startup 档，爆仓热力图、全币种行情汇总、单笔爆仓订单和 Hyperliquid 持仓这几类接口不可用，正文要求直接跳过别调用。",
+   "tier": "auto"
+  },
+  "vuejs-ai/skills/vue-options-api-best-practices": {
+   "name_zh": "Vue 选项式写法",
+   "intro": "Vue 3 选项式 API 的实践索引：TypeScript 类型推断、this 上下文类型、事件处理器参数类型、provide/inject 的类型缺口，以及方法里别用箭头函数、生命周期钩子里取不到组件数据这类坑，每条都指向单独的参考文件。",
+   "usage": "项目按 data()、methods、this 这套选项式写法，又要补类型、避开实例上下文坑时，按症状查对应条目。",
+   "notes": "正文按 TypeScript、方法与生命周期分节，只给选项式 API 的解法。",
+   "tier": "auto"
+  },
+  "wshobson/agents/cost-optimization": {
+   "name_zh": "云成本优化",
+   "intro": "跨 AWS、Azure、GCP、OCI 的云成本优化：先做成本可见性（分摊标签、预算告警、成本面板），再压资源规格、清闲置、上预留与节省计划、混用 Spot，并在架构侧用托管服务、缓存和数据生命周期策略。",
+   "usage": "要降云账单、分析基础设施成本、给团队定成本治理规则时用它；先处理闲置与超配资源，再谈采购折扣。",
+   "notes": "正文按 AWS 侧列出预留实例、节省计划、Spot 的适用负载、折扣空间和中断风险。",
+   "tier": "auto"
+  },
+  "wshobson/agents/python-configuration": {
+   "name_zh": "Python 配置",
+   "intro": "把配置从代码里挪到环境变量，用 pydantic-settings 建带类型的设置对象，在启动时一次性解析校验；缺必填项就立刻带着清楚的报错崩掉。本地给合理默认值，敏感项必须显式提供。",
+   "usage": "新建项目的配置体系、把硬编码改成环境变量、做 dev/staging/prod 分环境设置、启动时校验配置时用它。",
+   "notes": "正文把四条列为核心概念：配置外置、类型化设置、快速失败、合理默认值。",
+   "tier": "auto"
+  },
+  "wshobson/agents/python-observability": {
+   "name_zh": "Python 可观测",
+   "intro": "Python 服务的可观测做法：JSON 结构化日志、Prometheus 指标、跨服务链路追踪，以及贯穿一条请求的 correlation id。指标标签要有界，别把用户 ID 这类高基数值当标签，否则存储成本会失控。",
+   "usage": "给应用加结构化日志、实现指标采集、接分布式追踪、排查线上问题或搭建可观测面板时用它；本地开发可以换成人类可读的日志格式。",
+   "notes": "正文按四大黄金信号逐服务边界打点：延迟、流量、错误、饱和度。",
+   "tier": "auto"
+  },
+  "wshobson/agents/shellcheck-configuration": {
+   "name_zh": "Shell 静态检查",
+   "intro": "配置并使用 ShellCheck 做 shell 脚本静态检查：在 CI 里跑、按目标 shell 选方言、为具体项目调规则集、抑制误报时写清原因，让脚本的质量门槛统一。",
+   "usage": "给 CI/CD 加 shell 检查、排查脚本里的错误码与告警、把脚本迁到统一质量门禁时用它；别把 bash 脚本当 sh 分析。",
+   "notes": "正文建议用 `--enable=all` 配合谨慎的排除项，并保持 ShellCheck 版本更新以拿到新检查。",
+   "tier": "auto"
+  },
+  "yuan1z0825/nature-skills/nature-literature-pipeline": {
+   "name_zh": "文献流水线",
+   "intro": "从检索到存档的文献流水线：多源搜索出候选，六维打分筛到少量，再精读、按固定格式推送、去重归档。可挂每日定时任务，推送端支持飞书、Telegram 或其它消息平台。",
+   "usage": "装好后告诉它研究方向、关键词、推送目标和归档路径，再让它按指定时区定时跑；打分由主题匹配、方法学、期刊质量、网络相关度、应用价值和存档价值六项加权。",
+   "notes": "搜索源是 arXiv、OpenAlex、Crossref、Semantic Scholar，按可用性自动降级；精读结果会标 Full-text、Abstract only 或 Metadata only。",
+   "tier": "auto"
+  },
+  "yuan1z0825/nature-skills/nature-statistics": {
+   "name_zh": "统计报告审查",
+   "intro": "审查或改写稿件的统计报告：实验单位、重复数、不确定度、检验定义与图注统计。默认把独立实验单位当作 n，不把细胞、视野、重复读数或技术重复当成独立样本，缺的信息只标出来不编造。",
+   "usage": "输入可以是统计方法小节、含检验统计量或 p 值的结果段、图注、审稿人关于统计的意见；材料不全时做有限审查，并标明哪些部分无法评估。",
+   "notes": "缺失的样本量、检验、软件、剔除规则一律记 AUTHOR_INPUT_NEEDED；与期刊或领域规范冲突时以更具体的来源为准并注明。",
+   "tier": "auto"
+  },
+  "zhjiang22/openclaw-xhs/xiaohongshu": {
+   "name_zh": "小红书内容工具",
+   "intro": "基于 xiaohongshu-mcp 的一组 shell 脚本，覆盖笔记搜索、帖子详情与评论、用户主页、点赞收藏、发布图文或视频笔记、热点分析报告和导出长图。多数操作要 feed_id 与 xsec_token 配对使用。",
+   "usage": "先 `cd scripts/` 跑 install-check.sh 与 start-mcp.sh 起服务，status.sh 确认登录；未登录用 get_login_qrcode 取二维码扫码，搜索用 search.sh。",
+   "notes": "正文强调 feed_id 与 xsec_token 必须成对，只能从搜索、推荐或用户主页结果里取，不可自行构造。",
    "tier": "auto"
   },
   "leonxlnx/taste-skill/full-output-enforcement": {
@@ -6381,6 +6747,356 @@
    "usage": "界面做完一轮想系统性地过一遍问题清单时；或者从零起一套设计系统。",
    "notes": "Socket 判 warn；只管界面，纯后端任务不适用；带 has_references。",
    "tier": "hand"
+  },
+  "affaan-m/ecc/e2e-testing": {
+   "name_zh": "E2E 测试",
+   "intro": "Playwright 端到端测试的写法合集：页面对象模型、配置、CI 集成、产物管理和不稳定用例的处理。正文给出按 auth、features、api 分层的测试目录，用 @playwright/test 写页面对象与断言的样板，以及进页面前后等待加载状态的做法。",
+   "usage": "要写 Playwright 用例、拆页面对象或排查 CI 上反复失败的 E2E 时用它；配置入口是 `playwright.config.ts`。",
+   "notes": "正文建议测试目录按业务域分组，fixtures 单独存放；不稳定用例靠重试与产物收集定位。",
+   "tier": "auto"
+  },
+  "anthropics/skills/academy-guide": {
+   "name_zh": "学院课程推荐",
+   "intro": "回答 Claude 或 Claude 产品的用法问题前，先查 Claude Academy（academy.claude.com）里有没有对得上的课程、教程或用例，再在正常回答末尾自然带出。正文区分课程、教程、用例三类内容，要求只在强匹配时推荐，不编造学院内容。",
+   "usage": "用户问怎么上手某个 Claude 功能、要培训材料或团队落地方案时查一次；只在确实对得上时推荐，别把日常任务问答也引到课程上。",
+   "notes": "推荐入口是 academy.claude.com 的产品 hub；正文强调它与产品文档答案并列给出，两者不互相替代。",
+   "tier": "auto"
+  },
+  "bmad-code-org/bmad-method/bmad-brainstorming": {
+   "name_zh": "头脑风暴主持",
+   "intro": "带一场头脑风暴：以主持人、创作搭档或全权代跑三种立场之一推进，用更多角度和更硬的约束把想法推离显而易见的答案，不赶时间收尾。正文给了启用时先解析 customize.toml 的步骤、会话约定和按立场分工的规则。",
+   "usage": "用户说帮他头脑风暴、想点子，或卡在一堆浅答案上需要被追问时用它；先跑 `uv run {project-root}/_bmad/scripts/resolve_customization.py --skill {skill-root} --project-root {project-root} --key workflow` 解析配置。",
+   "notes": "没跑过 BMad 初始化时，正文会让你先装 bmad 技能再重跑解析脚本。",
+   "tier": "auto"
+  },
+  "caffeinelabs/skills/extension-inference": {
+   "name_zh": "接推理服务",
+   "intro": "规定 Caffeine 应用里调用大模型必须走的唯一路径：用官方推理客户端包拿到可用的鉴权配置，应用自己不接触、不保存也不返回密钥。正文把手写 HTTP 请求直接打到推理端点列为禁止的反模式，并说明什么情况下才该改用对接 OpenAI 的那种方式。",
+   "usage": "只要 Caffeine 应用需要接聊天模型，或规格里提到让应用自己调模型，就先加载它再写代码；规格明确要求用户或管理员粘贴密钥时才换用另一个技能。",
+   "notes": "本地没抓到这份技能的正文，以上按仓库描述写；具体包名和配置写法以正文为准。",
+   "tier": "auto"
+  },
+  "ceorkm/mobile-app-ui-design/mobile-app-ui-design": {
+   "name_zh": "移动端 UI 设计",
+   "intro": "按成熟应用的通行做法设计移动端界面：正文先用三个问题定目标（用户要完成什么、该有什么感受、第一眼该看到什么），再按上下文、结构、视觉的顺序推进，并给行业惯例、组件与动效约定，覆盖 React Native、Flutter、SwiftUI 风格的原型。",
+   "usage": "要出新页面、做 onboarding 流程、改一版界面或画应用原型时用它；行业惯例清单在 `references/industry-conventions.md`。",
+   "notes": "正文把可读性、留白与层级放在花哨效果之前，并要求每个间距和颜色都有理由。",
+   "tier": "auto"
+  },
+  "digitalsamba/claude-code-video-toolkit/ffmpeg": {
+   "name_zh": "FFmpeg 转码",
+   "intro": "用 FFmpeg 做格式转换、缩放、压缩、抽音轨和给 Remotion 准备素材：正文给 GIF 转 MP4 的兼容参数、等比留黑边与裁切填充两种缩放写法、按 CRF 或目标码率压缩、抽 MP3 与 AAC 的命令，并说明每个参数为什么这么写。",
+   "usage": "要转格式、压体积、抽音频或改视频尺寸时用它，例如把 GIF 转成网页能播的 MP4：`ffmpeg -i input.gif -movflags faststart -pix_fmt yuv420p`。",
+   "notes": "正文明说这是给 Remotion 项目备素材用的；输出尺寸要是偶数，多数编码器不接受奇数宽高。",
+   "tier": "auto"
+  },
+  "elevenlabs/skills/speech-to-text": {
+   "name_zh": "语音转文字",
+   "intro": "用 ElevenLabs 的 Scribe v2 把音频或视频转成文字，支持九十多种语言、说话人分离和词级时间戳。正文给 Python、JavaScript 和 CLI 三种调用的最短可用代码，说明通用模型与医疗模型的分工，并交代先配好密钥再写代码。",
+   "usage": "要出字幕、整理会议录音或批量转写口述内容时用它；没配密钥就先跑 `npx -y @elevenlabs/cli@latest onboard init`。",
+   "notes": "需要联网和 ELEVENLABS_API_KEY；JavaScript 只用 @elevenlabs 自家的包。",
+   "tier": "auto"
+  },
+  "firecrawl/cli/firecrawl-browser": {
+   "name_zh": "网页交互抓取",
+   "intro": "给已经抓下来的页面开一个真实浏览器会话，用自然语言指令或代码去点击、填表、翻页、登录和取数。正文明确 browser 命令已废弃，改用 scrape 加 interact，并给保存浏览器状态的 profile 做法、超时与输出参数，以及何时该退回 search 或 crawl。",
+   "usage": "静态抓取拿不到内容、页面要点击或登录才出数据时用它：先 `firecrawl scrape \"<url>\"`，再 `firecrawl interact --prompt \"Click the login button\"`。",
+   "notes": "interact 必须基于上一次 scrape；结束用 firecrawl interact stop 释放会话，搜索场景不要用它。",
+   "tier": "auto"
+  },
+  "github/awesome-copilot/apple-appstore-reviewer": {
+   "name_zh": "上架审核预检",
+   "intro": "站在 App Store 审核员的角度审一遍 iOS 工程的源码与元数据，第一轮不改代码，只输出按优先级排的拒审风险和上架优化建议。正文要求把结论对到审核指南的类别上，检查 Info.plist、entitlements、隐私清单、StoreKit 配置、引导流程和付费墙。",
+   "usage": "提审前想降低被拒概率、或刚被拒要找原因时用它；正文要求联网核对指南原文，不凭记忆引用条款。",
+   "notes": "第一轮只出建议不动代码；缺失信息时仍给尽力而为的判断，并区分假设与已核实的检查项。",
+   "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/affiliate-commission-structure": {
+   "name_zh": "联盟佣金结构",
+   "intro": "设计按成交付费的联盟计划里的佣金与结算结构：费率模型（分成、固定 CPA、混合）、从单位经济推出来的费率水平、阶梯、循环佣金时长与上限、归因窗口、校验、扣回和付款条款。正文的主线是先从毛利算出上限再定对外费率，不照抄行业基准。",
+   "usage": "用户问联盟佣金给多少、要不要设阶梯、循环佣金按终身还是 12 个月、cookie 窗口多长，或要迁移费率表时用它。",
+   "notes": "终端用户的推荐奖励不在范围内，那属于 referral-incentive-design；条款起草、结算审计和反作弊另有技能。",
+   "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/affiliate-onboarding-sequence": {
+   "name_zh": "联盟伙伴引导",
+   "intro": "为刚通过审核的联盟推广伙伴设计从通过到首次可追踪转化的引导流程：触点节奏（时间、渠道、每次只要求一个动作）、素材包、限时激活提醒，以及始终没激活的后续分支。正文把日历节奏当起点而非标准，主张用首次点击、首次成交等行为触发覆盖固定天数。",
+   "usage": "当用户要写联盟伙伴的欢迎邮件序列、问新伙伴头 30 天该收到什么、或有一批通过审核却始终没带来点击和成交的伙伴时用它。",
+   "notes": "正文明确流程起点是通过审核之后；招募还没加入的伙伴属于另一个技能 affiliate-recruitment-outreach。",
+   "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/influencer-campaign-brief": {
+   "name_zh": "创作者合作简报",
+   "intro": "给已签约的创作者写单场活动的创作简报：交付物与精确规格、带证据点的核心信息、品牌红线、披露要求、时间表和有限的修改轮次，并把不可让步项与偏好项分开。正文对每条说法标注来源强度，不把任何单一厂商的模板说成行业标准。",
+   "usage": "要写创作者简报、内容需求、交付清单，或刚签下创作者要交代这期怎么做时用它；挑选和背调创作者不在范围内。",
+   "notes": "简报要在合同签好之后写，并严格照合同条款；正文强调不可让步项与偏好项分开是唯一被多家出版方共同印证的写法。",
+   "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/partner-ecosystem-expansion": {
+   "name_zh": "伙伴生态扩张",
+   "intro": "决定下一步该加哪类合作伙伴、按什么顺序加：正文给分阶段的品类扩张路线图，每阶段设就绪门槛、容量上限和叫停条件，覆盖技术伙伴、经销、托管服务商、系统集成商、代理、联盟和市场等 B2B 类别与零售、创作者、授权等消费侧对应项。",
+   "usage": "要排伙伴品类优先级、做伙伴组合路线图或定下一个该开的伙伴类型时用它；它只排品类顺序，不评估具体公司。",
+   "notes": "正文先承认没有同行评议的最优扩张顺序，主要依据最小可行生态的思路；给具体候选公司排名属于另一个技能。",
+   "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/partnerships-kickoff": {
+   "name_zh": "伙伴项目入口",
+   "intro": "合作项目的入口路由：把当前任务（渠道、联盟、联合销售、市场、推广伙伴、创作者或推荐）对到合集里唯一一个对口技能，对不上就直说没有，并建立或续接项目共享的 partnerships-context.md，让下一次会话从已有上下文开始而不是从零问起。",
+   "usage": "开一个新的合作项目、隔了一阵要继续、或只描述伙伴与佣金问题但没点名该用哪个技能时，先跑它。",
+   "notes": "它只做路由和维护共享上下文，不替任何子技能干活；每次输出都带完整的 owner/repo@skill 目标。",
+   "tier": "auto"
+  },
+  "minimax-ai/minimax-h3/h3-prompt-writing": {
+   "name_zh": "H3 视频提示词",
+   "intro": "按 MiniMax H3 的结构写视频生成提示词，覆盖 T2VA、I2VA、FL2VA、L2VA 和全参考的 Ref2VA 五种输入模式：正文规定各模式该读哪份参考文件、字段与段落顺序、参考标签怎么统一，以及英文写正文但保留原文台词和画面文字的输出规则。",
+   "usage": "要把一段多模态需求改写成 H3 提示词时用它；先认模式，基础模式读 `references/base-en.txt`，全参考模式读 `references/ref-en.txt`。",
+   "notes": "时长要和请求的 4–15 秒对齐，参考标签要全篇一致；正文不建议堆 cinematic 这类空词。",
+   "tier": "auto"
+  },
+  "openai/skills/gh-fix-ci": {
+   "name_zh": "PR CI 修复",
+   "intro": "用 gh 定位 GitHub PR 上失败的 Actions 检查、拉运行日志、摘出关键报错，先给修复计划，得到明确同意后才动手改。正文给了脚本 inspect_pr_checks.py 的用法、手动回退的命令序列，并规定非 Actions 的外部检查只报链接不追。",
+   "usage": "PR 检查红了要排查时用它：先 `gh auth status` 确认登录，再 `gh pr checks` 列出失败项，必要时 `gh run view <run_id> --log` 取日志。",
+   "notes": "改动前必须拿到明确同意；Buildkite 等外部提供方不在范围内，正文只让报 detailsUrl。",
+   "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-pkg-go-dev": {
+   "name_zh": "Go 包文档查询",
+   "intro": "通过 godig 查 Go 包与模块的资料：文档、API 签名、符号、用例、可用版本、许可证、依赖有没有已知漏洞、谁在引用它。正文说明 godig 既是 CLI 也是 MCP server，操作只读且不用认证，并给了分组子命令、过滤表达式和退出码约定。",
+   "usage": "要查某个 Go 库的接口怎么用、有哪些版本或谁 import 了它时用它，例如 `godig package examples github.com/samber/ro --symbol Map -o md`。",
+   "notes": "升级依赖、选库或查本地符号分别属于同系列的其他技能；用前先装 godig 或接上它的 MCP server。",
+   "tier": "auto"
+  },
+  "shopify/shopify-ai-toolkit/shopify-use-shopify-cli": {
+   "name_zh": "店铺命令行",
+   "intro": "这份技能已废弃，只保留替代指引：它原本用于校验 app 与扩展的配置文件、审计应用代码的安全问题、跑店铺登录与执行命令，以及在指定店铺域名上做有范围限制的读写。正文要求转告用户先移除旧技能再装新的 shopify。",
+   "usage": "遇到旧项目还在引用这个技能名时用它取替代方案：`npx skills remove shopify-use-shopify-cli`，再装 `npx skills add shopify/shopify-ai-toolkit --skill shopify`。",
+   "notes": "正文只剩一句废弃声明；它指向的替代技能是 shopify，装之前先按提示卸掉旧的。",
+   "tier": "auto"
+  },
+  "wshobson/agents/billing-automation": {
+   "name_zh": "订阅计费自动化",
+   "intro": "搭自动计费系统：循环扣款、账单生成与送达、失败重试与催收、改套餐时的按比例计费，以及销售税、增值税和按用量计费。正文给订阅状态流转、计费周期与支持的几种间隔，并用一段创建订阅、跑计费周期的代码说明最小可用流程。",
+   "usage": "要做 SaaS 订阅扣款、自动出账、催收失败付款或处理升级折算时用它，更多模式在 `references/details.md`。",
+   "notes": "正文是概念骨架加一段 Python 起步代码，具体实现要结合自有支付网关补。",
+   "tier": "auto"
+  },
+  "wshobson/agents/data-quality-frameworks": {
+   "name_zh": "数据质量校验",
+   "intro": "用 Great Expectations、dbt 测试和数据契约把数据质量校验落到管道里：正文按完整性、唯一性、有效性、准确性、一致性和时效性六个维度列出对应断言，给检查的金字塔分层、期待套件与检查点的搭法，以及在 CI 里自动跑校验的做法。",
+   "usage": "要建数据质量规则、写 dbt 测试或和上游定数据契约时用它，起步先 `pip install great_expectations` 再初始化项目。",
+   "notes": "正文提醒别对每列都写测试、别硬编码阈值，也别忽略新鲜度；关系型检查要跨表做。",
+   "tier": "auto"
+  },
+  "wshobson/agents/embedding-strategies": {
+   "name_zh": "嵌入模型选型",
+   "intro": "为语义检索和 RAG 选嵌入模型并调优：正文按维度、最大 token 数和适用场景对比 voyage-3-large、text-embedding-3-large、bge-large-en-v1.5 等模型，再给切块与预处理的流水线，以及归一化、批量请求、缓存等实践和常见错误。",
+   "usage": "挑嵌入模型、定切块大小与重叠、比较多语言表现或要降维时用它；细节模板在 `references/details.md`。",
+   "notes": "正文提醒别混用不同模型的向量，也别忽略 token 上限造成截断；静态内容建议缓存向量。",
+   "tier": "auto"
+  },
+  "wshobson/agents/go-concurrency-patterns": {
+   "name_zh": "Go 并发模式",
+   "intro": "Go 并发的生产写法：goroutine、channel、select、互斥锁、等待组和 context 的职责划分，配工人池、管道、优雅退出和竞态排查的样板。正文用带超时的 context、缓冲 channel 加等待组的例子说明如何拉起工人、收结果并在退出时关闭通道。",
+   "usage": "要写并发任务、搭工人池、管 goroutine 生命周期或查竞态时用它，细节在 `references/details.md`。",
+   "notes": "通道只由发送方关闭；别用 time.Sleep 做同步，也别忽略 ctx.Done()。",
+   "tier": "auto"
+  },
+  "wshobson/agents/prometheus-configuration": {
+   "name_zh": "指标采集配置",
+   "intro": "配 Prometheus 做指标采集、存储和告警：正文讲抓取配置、记录规则、告警规则设计与服务发现，给指标命名、抓取间隔、保留期、重打标签、高可用、联邦和长期存储的经验条目，并用三条 curl 请求演示怎么查目标、查配置和试查询。",
+   "usage": "要新搭 Prometheus、调抓取或告警规则、排查采集不到指标时用它，例如 `curl http://localhost:9090/api/v1/targets`。",
+   "notes": "长周期存储建议上 Thanos 或 Cortex；正文也提醒把 Prometheus 自身纳入监控。",
+   "tier": "auto"
+  },
+  "wshobson/agents/startup-metrics-framework": {
+   "name_zh": "创业指标框架",
+   "intro": "按种子轮到 A 轮的阶段跟踪创业公司的关键指标：市场型的 GMV、抽成率与流动性，以及单位经济、增长效率和现金管理。正文给每个指标的计算式、合理区间和健康信号，并要求先读通用的收入、单位经济与现金指标，再按业务类型看专门部分。",
+   "usage": "要定指标口径、算 CAC、LTV 或燃烧倍数、做投资人报表和董事会看板时用它。",
+   "notes": "正文把成交率、复购率当成流动性的判据；不同业务模型该看的指标不同，别一套口径套所有公司。",
+   "tier": "auto"
+  },
+  "yuan1z0825/nature-skills/nature-experiment-log": {
+   "name_zh": "实验日志标准化",
+   "intro": "把图片、语音和文字的实验材料整理成带 YAML frontmatter 的 Markdown 日志：正文规定了实验 ID 与样品批次 ID 的编码规则、raw 归档目录、按体系与类型分层的日志结构，以及索引、异常记录和设备追踪模板。可选接飞书 CLI 与 Obsidian。",
+   "usage": "手上有一批实验照片、语音记录或零散笔记要归档时用它；缺温度、样品编号这类信息会先问你，不猜测写入。",
+   "notes": "飞书群取材料要 bot 在群里且有消息与资源权限；不指定输出目录时先给可保存的 Markdown，不擅自选路径。",
+   "tier": "auto"
+  },
+  "affaan-m/ecc/codebase-onboarding": {
+   "name_zh": "代码库上手",
+   "intro": "系统分析一个不熟悉的代码库，产出结构化的上手指南：架构图、关键入口、项目约定，以及一份起步用的 CLAUDE.md。按侦察、架构映射、约定提取、写指南几个阶段推进，先跑轻量信号再决定读哪些代码。",
+   "usage": "刚接手一个仓库、第一次在这个项目里用 Claude Code，或让 agent「带我看懂这个库」时用它。",
+   "notes": "正文的侦察阶段先看包清单、框架指纹、入口文件、目录浅层结构、工具配置和测试结构，避免一上来通读全部文件。",
+   "tier": "auto"
+  },
+  "affaan-m/ecc/springboot-tdd": {
+   "name_zh": "Spring TDD",
+   "intro": "Spring Boot 的测试驱动流程：先用 JUnit 5 与 Mockito 写单元测试，再用 MockMvc 覆盖 Web 层，SpringBootTest 做集成测试，DataJpaTest 管持久层，最后用 JaCoCo 卡覆盖率。适用于加功能、修缺陷和重构。",
+   "usage": "加接口、修缺陷或重构 Spring Boot 服务时用它先写会失败的测试，再补最小实现，绿了再整理，最后过 JaCoCo 覆盖率。",
+   "notes": "正文给的是代码骨架，并建议避免部分 mock、变体用参数化测试。",
+   "tier": "auto"
+  },
+  "backnotprop/plannotator/plannotator-compound": {
+   "name_zh": "计划驳回分析",
+   "intro": "分析用户的 Plannotator 计划档案，找出被驳回的模式、反馈分类和随时间的变化，再提炼成可执行的提示词改进建议，最后生成一份 HTML 看板报告。Plannotator 数据缺失时退回 Claude Code 的 ExitPlanMode 驳回理由。",
+   "usage": "先确认数据源：优先读 Plannotator 的计划目录，没有就改用 Claude Code 项目目录并读随附的回退说明；各阶段跑完再出报告。",
+   "notes": "报告按 v2、v3 递增命名，续跑时会以最新一份报告的修改日期作为截止点。",
+   "tier": "auto"
+  },
+  "bmad-code-org/bmad-method/bmad-agent-architect": {
+   "name_zh": "系统架构师",
+   "intro": "以 Winston 这个系统架构师人格工作，把工单里的需求转成能落地的技术架构，偏好成熟的技术、开发者效率和写清取舍，而不是只给结论。激活时先解析定制配置，再按团队与个人覆盖合并人格设定，之后保持这个角色直到用户主动退出。",
+   "usage": "想和这位架构师对话、让它评审技术方案时载入它；若定制解析脚本缺失，按正文提示先装 bmad 技能并初始化 BMad，再回来跑解析。",
+   "notes": "人格与配置由 customize.toml 及项目内 _bmad/custom/ 下的团队、个人覆盖文件决定。",
+   "tier": "auto"
+  },
+  "bmad-code-org/bmad-method/bmad-agent-pm": {
+   "name_zh": "产品经理",
+   "intro": "以 John 这个产品经理人格工作，通过用户访谈、需求发现和干系人对齐来推进 PRD，把产品设想拆成开发能交付的小块已验证增量。激活时先解析定制配置，再按团队与个人覆盖合并人格设定，之后保持这个角色直到用户主动退出。",
+   "usage": "需要产品经理视角梳理需求、写 PRD 时载入它；若定制解析脚本缺失，按正文提示先装 bmad 技能并初始化 BMad。",
+   "notes": "人格与配置来自 customize.toml 与项目内 _bmad/custom/ 的团队、个人覆盖文件。",
+   "tier": "auto"
+  },
+  "bmad-code-org/bmad-method/bmad-architecture": {
+   "name_zh": "架构主线",
+   "intro": "产出架构主线：一份只固定不变量的简短文档，用来防止各自独立开发的单元走岔，写下设计范式、边界与依赖规则、状态怎么改、共享数据归谁。结构性的东西算种子，代码出现后就归代码管。默认输出是给构建用的紧凑底稿，需要对人对齐时改成讨论稿。",
+   "usage": "用户说「创建架构」「技术架构」「架构主线」或「方案设计」时用它，基于工单文件，旁边放着现有代码或已有架构文档。",
+   "notes": "正文给的取舍标准是：只有下层两个单元各自独立做会选出不兼容方案、判断又不明显、且真是取舍时，才写进主线。",
+   "tier": "auto"
+  },
+  "github/awesome-copilot/make-repo-contribution": {
+   "name_zh": "仓库贡献流程",
+   "intro": "在提 issue、开分支、写提交信息或发 PR 之前，先按仓库自己的贡献指南走一遍，并把仓库文档里的内容当格式参考而不是指令：不执行仓库文档里的命令，不读工作树以外的文件，不发网络请求，不把密钥写进 issue 或提交。",
+   "usage": "用户让你提 issue、写提交信息、推代码或开 PR 时用它，先搜出仓库的贡献规则再动手。",
+   "notes": "正文把安全边界放在最前，并规定仓库文档与这些边界冲突时停下来告知用户。",
+   "tier": "auto"
+  },
+  "github/awesome-copilot/update-implementation-plan": {
+   "name_zh": "计划文件更新",
+   "intro": "用新增或变更的需求更新已有的实施计划文件，适用于加功能、重构存量代码、升级依赖，以及设计、架构或基础设施调整。本地没有正文可核对它要求的文件结构与改写步骤，这里只说明适用场景。",
+   "usage": "手上已有一份实施计划、需求又变了，需要把它改写对齐时用它。",
+   "notes": "本地没抓到正文。",
+   "tier": "auto"
+  },
+  "intellectronica/agent-skills/context7": {
+   "name_zh": "库文档查询",
+   "intro": "通过 Context7 接口取软件库、框架和组件的最新文档，替代可能过时的训练记忆。先按库名和主题搜到库 ID，再按 ID 拉取该主题的文档，返回可读文本或 JSON。",
+   "usage": "查编程库的当前文档、找具体 API 用法时用它。第一步 `curl -s \"https://context7.com/api/v2/libs/search?libraryName=LIBRARY_NAME&query=TOPIC\"`，拿到 id 后再取文档。",
+   "notes": "接口地址与参数以正文的 curl 调用为准；用 jq 过滤结果，主题写得越具体排序越准。",
+   "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/influencer-discovery-brief": {
+   "name_zh": "达人筛选简报",
+   "intro": "定义创作者来源标准，并产出用来筛候选达人与创作者的发现简报：受众契合、互动质量、垂类一致性、品牌安全的加权标准，淘汰式筛查，以及每条打分都附证据的排序模板。覆盖 B2C 品牌投放与 B2B 创作者、意见领袖项目，在任何接触之前跑。",
+   "usage": "要找创作者、筛达人、判断受众是否契合、定候选人名单时用它；写外联话术不归它管。",
+   "notes": "本地没抓到正文。",
+   "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/partner-channel-conflict": {
+   "name_zh": "渠道冲突规则",
+   "intro": "写清直销与渠道伙伴之间、或伙伴彼此之间争抢同一笔生意时的规则：交战规则、客户分层、具名客户例外、以交易注册作为主张凭据（保护窗口、平手裁决、驳回理由）、直销代表的薪酬中立、升级与裁决阶梯、治理节奏。也覆盖消费品品牌的 D2C 与零售冲突、MAP 政策、渠道专属货品。",
+   "usage": "出现渠道冲突、伙伴争夺同一客户、两条销售路径撞单时用它写规则；设计共建销售模式不归它管。",
+   "notes": "本地没抓到正文；共销运营模型请用同仓库的 co-selling-strategy。",
+   "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/partner-channel-program": {
+   "name_zh": "伙伴渠道项目",
+   "intro": "从零设计 B2B 伙伴或渠道项目的整体结构：可能得出「还不适合」结论的准备度门槛、伙伴价值主张、要跑哪几种模式（推荐、分销、服务、技术）、层级数量、权益栈、项目级经济包络、治理方式和成功时间线。也覆盖 B2C 的经销商、加盟、大使等类似形态。",
+   "usage": "要搭伙伴项目、设计渠道、判断公司是否具备做伙伴的条件时用它；改已有项目的分层不归它管。",
+   "notes": "本地没抓到正文。",
+   "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/partner-economics": {
+   "name_zh": "伙伴经济模型",
+   "intro": "为单个伙伴关系算经济账：伙伴损益、毛利建模、服务成本、推荐费与终身价值拆分、渠道伙伴 ROI、伙伴获客成本与直销获客成本对比、爬坡期与回本周期，用来判断该签约、加码、重谈还是退出。覆盖 B2B 渠道与联盟伙伴，也含 B2C 联盟营销与创作者侧算法。",
+   "usage": "要判断某个伙伴值不值得投入、算单个伙伴的商业案例或分成结构时用它；给多个候选伙伴排序不归它管。",
+   "notes": "本地没抓到正文。",
+   "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/partner-ecosystem": {
+   "name_zh": "伙伴生态地图",
+   "intro": "把某条业务线的伙伴与渠道版图画出来：各类伙伴（分销、代理、托管服务商、独立软件商、系统集成商、联盟、市场，以及消费品牌的零售、创作者、授权、联名）清点，伙伴客户重叠分析，覆盖空白与冲突区，加权评分卡和优先级四象限。产出是决策材料，不是伙伴项目本身。",
+   "usage": "要盘伙伴版图、看渠道覆盖缺口、给伙伴类型分类或判断哪类伙伴值得投入时用它；排下一类先开哪个不归它管。",
+   "notes": "正文把项目设计、分层标准、冲突规则和单个伙伴经济账都交给同仓库的其他技能。",
+   "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/partner-enablement": {
+   "name_zh": "伙伴培训路线",
+   "intro": "排布 B2B 伙伴项目需要的培训、内容和认证顺序，让伙伴能自己卖：技能差距评估、按伙伴角色与类型分轨、认证设计与复审节奏、试点批次，全部从伙伴的第一笔成交倒推。只做路线，不写具体课程、战卡或考卷；也覆盖加盟商、经销商、大使培训等 B2C 类似形态。",
+   "usage": "要规划伙伴培训体系、认证、上手课程或把伙伴带到首单时用它；联盟营销的欢迎邮件序列不归它管。",
+   "notes": "正文说明这类方法论多来自教学设计领域或厂商内容，没有渠道原生的独立方法。",
+   "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/partner-marketplace-strategy": {
+   "name_zh": "市场上架策略",
+   "intro": "决定在哪些第三方市场上架、每个市场投多少、预期回报如何，以及什么条件下下架：云市场、SaaS 应用商店与集成目录的优先级，电商侧的一方、三方与混合模式选择，配一个准备度门槛、加权评分卡和标注来源的回报预期。产出是让管理层拍板的策略备忘，不是执行工作。",
+   "usage": "在权衡上哪个云市场、应用商店或集成目录，或判断某个市场上架值不值得做时用它；选下一类要开的伙伴类别不归它管。",
+   "notes": "正文提醒这一行的成熟度模型多由卖工具或卖咨询的一方撰写，只能当结构，不能当证据。",
+   "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/partner-performance": {
+   "name_zh": "伙伴绩效评估",
+   "intro": "定义 B2B 伙伴项目怎么衡量和复盘单个伙伴：按伙伴维度的评分卡（维度、权重、目标、预警阈值、数据来源）、复盘节奏与 QBR 结构，以及从触发、纠正动作到降级或退出的处理阶梯。也对比 B2C 联盟营销与创作者侧的复盘方式，一次只处理一个伙伴。",
+   "usage": "针对某一个伙伴做评分卡、季度复盘或健康检查时用它；设计分层阶梯请改用同仓库的 partner-tiering。",
+   "notes": "正文明确说这一行没有公认的伙伴绩效方法，给出的模型只当证据输入，权重需要和用户一起定。",
+   "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/partner-tiering": {
+   "name_zh": "伙伴分层设计",
+   "intro": "在已有的 B2B 伙伴项目里设计或重做分层：准入标准、权益组合、层级数量、升降级规则、复盘节奏，以及把现有伙伴迁到新结构。也对比 B2C 联盟、创作者和会员积分侧的分层做法。正文点明这一行没有公认的分层方法论，只把分析师与从业者的观点当结构来用。",
+   "usage": "分层拥挤、没人升级、权益被忽视或长尾被落下时用它重设层级；从零搭项目请改用同仓库的 partner-channel-program。",
+   "notes": "正文要求先问清现有层级分布与销售周期，因为交易注册保护窗口要按周期长度来定。",
+   "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/partnerships-career": {
+   "name_zh": "伙伴岗求职",
+   "intro": "从候选人一侧规划伙伴关系方向的职业路径，覆盖渠道与联盟、联盟营销、达人与创作者、推荐计划几条线：内部转岗的切入办法、不同公司类型的招聘门槛、渠道经理面试流程准备（含谈判演练和判断测试）、招聘启事的红旗识别，以及以现场核实为前提的 offer 评估。会明确说明这一行没有公开的跨公司晋升阶梯。",
+   "usage": "准备进入这一行、准备渠道经理面试、读招聘启事或评估 offer 时用它；雇主侧招聘不归它管。",
+   "notes": "本地没抓到正文。",
+   "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/partnerships-hiring": {
+   "name_zh": "伙伴岗位招聘",
+   "intro": "站在雇主一侧，为渠道与联盟、联盟营销、达人与创作者、推荐计划几条线搭招聘材料：按公司类型校准评分卡，设计带具名判断测试和谈判演练的面试流程，规划候选人来源，并强调薪酬判断要现场核实，因为公开基准彼此不一致。遇到没有现成流程的细分方向会直接说明。",
+   "usage": "先说清招的是哪条线、公司处于什么阶段、这个岗位考核什么，再让它产出评分卡、面试流程和招聘启事；候选人一侧的准备不在范围内，要转去求职侧的对应技能。",
+   "notes": "同仓库的 partnerships-career 是它的镜像技能，一个管招人一个管求职，不要混用。",
+   "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/referral-abuse-guardrails": {
+   "name_zh": "推荐防刷规则",
+   "intro": "定义阻止终端客户薅推荐奖励的运营护栏：奖励上限、频次限制与冷却期、与退款窗口对齐的奖励持有期、资格规则、身份核验门槛、公开的处罚阶梯和滥用监控信号。产出给 B2C 与 B2B SaaS 的推荐项目负责人用的护栏规格。",
+   "usage": "遇到自我推荐、假账号领奖、推荐小圈子或推荐码流到优惠券论坛时用它。",
+   "notes": "本地没抓到正文；职业联盟的流量作弊另有技能处理。",
+   "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/referral-incentive-design": {
+   "name_zh": "推荐奖励设计",
+   "intro": "设计客户推荐朋友的奖励结构：奖给谁（推荐人、被推荐人还是双方）、奖励形式（现金、账户抵扣、折扣、产品权益、身份）、按终身价值与获客成本及毛利定金额、什么时候发放、要不要做阶梯奖励。只覆盖终端客户的奖励。",
+   "usage": "要定推荐奖金金额、设计双向奖励或 give-X-get-Y 形式时用它。",
+   "notes": "本地没抓到正文；职业联盟的佣金比例另有技能处理。",
+   "tier": "auto"
+  },
+  "molezzz/openclaw-stock-skill/akshare-stock": {
+   "name_zh": "A股行情分析",
+   "intro": "基于 akshare 与自然语言路由做 A 股分析，描述里给出的方向是实时行情、技术面、基本面、板块、衍生品和跨市场。本地没有正文可核对具体接口、参数和数据口径，这里只说明适合在什么场景下取用，不代它承诺能算哪些指标。",
+   "usage": "问 A 股个股行情、技术指标、财务基本面、板块轮动或相关衍生品数据时用它。",
+   "notes": "本地没抓到正文，接口与数据口径无法核对。",
+   "tier": "auto"
+  },
+  "wshobson/agents/k8s-manifest-generator": {
+   "name_zh": "K8s 清单生成",
+   "intro": "按 Kubernetes 惯例和云原生实践，逐步产出可用于生产的清单：Deployment、Service、ConfigMap、Secret 和持久卷声明，含资源请求与上限、健康检查、安全上下文、镜像标签和命名规范，也顾及多环境部署。",
+   "usage": "要新建 K8s 资源清单、补健康检查与资源限制、设计多环境部署时用它；排障可查正文里的 `kubectl describe pod` 一类命令。",
+   "notes": "更细的模式在 references/details.md；正文另附 Pod 起不来、Service 访问不通、配置没加载的排查顺序。",
+   "tier": "auto"
+  },
+  "wshobson/agents/python-background-jobs": {
+   "name_zh": "Py 后台任务",
+   "intro": "Python 后台任务的做法：任务队列、worker 与事件驱动架构。用于实现异步任务处理、作业队列、耗时操作，或把工作从请求响应链路里拆出去。本地没有正文可核对具体框架与代码，这里只说明适用场景。",
+   "usage": "需要把耗时处理挪出请求链路、引入任务队列或 worker 时用它。",
+   "notes": "本地没抓到正文，未核对具体库与版本。",
+   "tier": "auto"
   },
   "mattpocock/skills/to-issues": {
    "name_zh": "拆工单",

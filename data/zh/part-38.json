@@ -1,0 +1,177 @@
+{
+  "affaan-m/ecc/laravel-security": {
+    "name_zh": "Laravel 安全",
+    "intro": "Laravel 应用的安全实践清单：生产环境配置、认证与授权（Sanctum、Passport、Jetstream、Breeze）、Eloquent 查询安全、CSRF 与 XSS 防护、API 安全，以及部署时的环境变量与会话 cookie 设置。",
+    "usage": "审查 Laravel 项目的认证授权、Eloquent 写法、CSRF/XSS 或部署配置时加载；生产环境要确认 `APP_DEBUG` 为 false 且 `APP_KEY` 已设置，缺了可用 `php artisan key:generate` 生成。",
+    "notes": "正文按生产配置、环境文件、认证授权等分节，给出 PHP 配置片段与对应检查项，开篇还列了何时启用这个技能。",
+    "tier": "auto"
+  },
+  "affaan-m/ecc/liquid-glass-design": {
+    "name_zh": "液态玻璃设计",
+    "intro": "iOS 26 Liquid Glass 材质的实现要点：模糊背后内容、反射周围颜色与光线、响应触摸与指针交互，覆盖 SwiftUI、UIKit 与 WidgetKit。适用于玻璃按钮、卡片、工具栏、容器，以及玻璃元素之间的形变转场。",
+    "usage": "SwiftUI 里给视图加 `.glassEffect()` 就是默认胶囊形玻璃；要定制就组合 `.regular`、`.tint(Color)` 与 `.interactive()`，多个玻璃视图记得包进 `GlassEffectContainer`。",
+    "notes": "正文还给了玻璃按钮样式 `.glass` 与 `.glassProminent`，以及把旧 blur 与 material 效果迁到新 API 的场合。",
+    "tier": "auto"
+  },
+  "anthropics/claude-code/claude-opus-4-5-migration": {
+    "name_zh": "Opus4.5迁移",
+    "intro": "把提示词和代码从 Sonnet 4.0、Sonnet 4.5 或 Opus 4.1 迁到 Opus 4.5 的一次性流程：搜出模型字符串与 API 调用、按平台替换、删掉不支持的 beta 头、补上 effort 参数，最后汇总改动。不含 Haiku 4.5。",
+    "usage": "先判断代码库走哪个平台，再按表替换，例如 Anthropic API 用 `claude-opus-4-5-20251101`；同时移除 `context-1m-2025-08-07` 这个 beta 头并留注释说明。",
+    "notes": "正文给了各平台目标字符串与来源字符串的对照表，effort 参数细节在 `references/effort.md`，迁移完要提示用户遇到问题可再调提示词。",
+    "tier": "auto"
+  },
+  "anthropics/skills/discernment-nudge": {
+    "name_zh": "答复前追问",
+    "intro": "在给出用户会照着行动的实质答复后，追加两三个短问题：哪些事实值得核对、逻辑哪一步需要理由、缺了哪些上下文。普通查资料、纯格式转换、用户自己跑代码或闲聊时跳过，整个会话最多一次。",
+    "usage": "写完建议、方案、估算或数据分析，定稿前对照适用边界决定是否追加问题；每个问题都要挂在答复里的具体内容上，不泛泛地问还要注意什么。",
+    "notes": "正文说明了这三种自省习惯的来源与不该触发的场合，也规定了追加问题的输出格式；属于 anthropics/skills 官方技能。",
+    "tier": "auto"
+  },
+  "bmad-code-org/bmad-method/bmad-build": {
+    "name_zh": "BMAD 实现",
+    "intro": "把委派下来的功能、故事、修 bug 或其它有意义的改动，落成经过评审和验证的代码。只改 ignore 文件、错字、格式化之类的低风险杂活可以跳过；明确点名 BMAD 的请求则一律算数。",
+    "usage": "在含 `_bmad/` 的项目根目录执行一次正文给出的 `uv run` 渲染命令；输出里写明 HALT 就按原因停下，脚本不存在说明项目还没初始化 BMad，改用 bmad 技能先装。",
+    "notes": "正文强调命令只跑一次、不要切工作目录；点名 route 或 review 时用附加参数传入，不要直接跑工作流源文件。",
+    "tier": "auto"
+  },
+  "czlonkowski/n8n-skills/n8n-workflow-patterns": {
+    "name_zh": "n8n 工作流模式",
+    "intro": "从真实 n8n 工作流归纳出的六种架构：Webhook 处理、HTTP API 集成、数据库读写、AI Agent、定时任务、批量处理。每种都给出从触发到输出的节点顺序套路，也用于判断慢流程和大量条目该怎么处理。",
+    "usage": "要新建或设计 n8n 工作流、把某流程自动化、连接服务时先看这里，即使没提 patterns；优化慢流程时关注节点数量、`batchSize`，以及逐条处理与全量处理的取舍。",
+    "notes": "正文按六种模式各给一条链路，另有模式选择指引，单个模式的细节放在对应的 md 文件里。",
+    "tier": "auto"
+  },
+  "github/awesome-copilot/dotnet-design-pattern-review": {
+    "name_zh": "C# 设计模式评审",
+    "intro": "审 C#/.NET 代码里的设计模式落地情况并给改进建议，只评审不改代码。要求逐项检查 Command、Factory、Provider、Repository 与资源本地化等模式，以及命名空间约定、主构造函数、异步写法和 SOLID。",
+    "usage": "选中一段代码后让它按清单审：模式是否实现到位、分层是否符合 `{Core|Console|App|Service}.{Feature}`、有没有漏掉有用的模式、是否存在 SOLID 与性能问题。",
+    "notes": "正文把要求分成必需模式与评审清单两块，并明确只出评审结论、不动代码。",
+    "tier": "auto"
+  },
+  "github/awesome-copilot/java-junit": {
+    "name_zh": "JUnit 5 测试",
+    "intro": "为 JUnit 5 单元测试提供实践建议，包括数据驱动测试的写法。适合给 Java 项目补测试、整理测试结构，或想知道 JUnit 5 惯用写法时查阅，也可以当作评审测试代码的对照清单。",
+    "usage": "给 Java 项目写或补 JUnit 5 单测时用它，尤其是需要参数化数据驱动测试的场合；具体注解与写法以项目实际依赖的版本为准。",
+    "notes": "目录里只留了描述，本地没有缓存正文，所以这张卡只按描述写适用场合，未涉及具体命令。",
+    "tier": "auto"
+  },
+  "interfacex-co-jp/genshijin/genshijin-crew": {
+    "name_zh": "原始人子代理",
+    "intro": "把 subagent 委派判断写成对照表的技能：investigator 负责定位代码位置、builder 只改一两个文件、reviewer 审 diff。三者的输出都被压缩成「原始人」格式，回到主上下文的 tool-result 体积明显变小，长会话因此能撑下去。",
+    "usage": "委派前照表选人：查定义与调用点用 `genshijin-investigator`，范围明确的少量文件改动用 `genshijin-builder`，diff 审查用 `genshijin-reviewer`；文件还没定位就别直接叫 builder。",
+    "notes": "正文给了三种输出契约与链式用法，也列了禁止事项，例如跨五个文件的改造会让 builder 直接返回 too-big.。",
+    "tier": "auto"
+  },
+  "interfacex-co-jp/genshijin/genshijin-stats": {
+    "name_zh": "原始人统计",
+    "intro": "显示当前会话的真实 token 用量与估算节省量，数据直接读 Claude Code 会话日志，不靠模型推算。输出由 mode-tracker 钩子注入，模型本身不参与计算，用户马上就能看到数字。",
+    "usage": "输入 `/genshijin-stats` 看当前会话；加 `--share` 得到一行可分享摘要，加 `--all` 看累计统计，`--since 7d` 或 `--since 24h` 指定区间。",
+    "notes": "正文只有参数列表，并说明它由 `hooks/genshijin-stats.js` 提供，mode-tracker 检测到命令后以 block 决策回注结果。",
+    "tier": "auto"
+  },
+  "paramchoudhary/resumeskills/resume-bullet-writer": {
+    "name_zh": "简历条目改写",
+    "intro": "把简历里「负责管理团队」这类职责式条目改写成带结果的成就句：套 STAR 与 X-Y-Z 公式，加可量化指标，换强动词，再按目标岗位调整措辞。看到被动、含糊、没有数字的条目就该用它。",
+    "usage": "用户说想把简历写强、把成就量化、要 results-driven 的表述时加载；改写后每条都要能看出做了什么、用什么指标衡量、靠哪些动作达成。",
+    "notes": "正文先用弱条目与强条目做对照，再展开 X-Y-Z 公式与按岗位定制的改写方法。",
+    "tier": "auto"
+  },
+  "referodesign/refero_skill/refero-design": {
+    "name_zh": "Refero 设计",
+    "intro": "以参考研究为先的 UI、产品与网页设计技能，覆盖落地页、仪表盘、设计系统、响应式、排版、配色、间距、动效、图标、无障碍与转化文案。要求每次设计先落到参考上，再谈实现。",
+    "usage": "定视觉方向先用 Styles 层，找具体界面模式用 Screens 层，多步流程用 Flows 层；不要只抄一个参考，要研究多个后综合。没有 MCP 工具时用自带的 craft 参考，保持同样的锁定流程。",
+    "notes": "正文列了不可协商的几条：先研究再做、可用时优先用 styles、维持 reference lock 与决策台账，并用质量门防止做平均化的设计。",
+    "tier": "auto"
+  },
+  "runpod/runpod-plugins-official/runpod-mcp": {
+    "name_zh": "Runpod MCP",
+    "intro": "通过已连接的 Runpod MCP server 管理基础设施：Pod、Serverless 端点与作业、模板、网络卷、镜像凭据、secret、集群、GPU/CPU 目录和账单；server 没连上时也负责把它接起来。",
+    "usage": "一次请求里第一次调用 Runpod MCP 工具之前先加载它，由它把任务路由到带流程的 journey 技能；终端操作、文件传输与 SSH 仍交给 `runpodctl`，模板工程走 runpod-build-template。",
+    "notes": "正文定义了每次回复都要遵守的 answer contract，并提醒多步任务先看 golden-paths 里的端到端序列再发工具调用，免得顺序错。",
+    "tier": "auto"
+  },
+  "runpod/runpod-plugins-official/runpod-usage": {
+    "name_zh": "Runpod 概念",
+    "intro": "Runpod 的概念与选型知识：Pod 与 Serverless 的取舍、GPU 与 VRAM 选择、镜像构建、存储、网络，以及任何负载的开发循环。这条技能只做解释，不执行操作，动手交给 MCP 或命令行。",
+    "usage": "按问题读一个 reference 文件：`reference/concepts.md` 讲 Pod 与 Serverless、冷启动，`reference/development-loop.md` 讲从规划到拆除的开发循环；真正执行用 runpod-mcp 或 runpodctl。",
+    "notes": "正文强调它只管背景知识，端到端流程看 golden-paths；自建模板另用 runpod-build-template，这条不参与打包流程。",
+    "tier": "auto"
+  },
+  "saadeghi/daisyui/daisyui": {
+    "name_zh": "daisyUI 配色",
+    "intro": "daisyUI 5 的语义色命名与用法规则：primary、secondary、accent、neutral、base-100/200/300、info/success/warning/error 各自配有对应的 -content 前景色。这些颜色值都是变量，会随主题切换，所以背景、文字、边框应使用这些名字而不是固定色阶。",
+    "usage": "写 Tailwind 工具类配色时按 `bg-primary` 这类 daisyUI 颜色名选色；不要给 daisyUI 颜色名配 `dark:` 前缀，也不要混用 red-500 这样的固定 Tailwind 色阶。",
+    "notes": "正文逐个解释二十个颜色名的用途，再给六条使用规则；主题切换靠这些变量名自动生效。",
+    "tier": "auto"
+  },
+  "shopify/shopify-ai-toolkit/shopify-custom-data": {
+    "name_zh": "Shopify元字段",
+    "intro": "讲 Shopify 的 Metafields 与 Metaobjects 怎么建模存自定义数据：Metafields 给商品、客户等内置类型挂扩展字段，Metaobjects 是自定义数据结构，两者的 definition 提供 schema 与配置。此技能已被 shopify 取代。",
+    "usage": "这条已弃用：正文要求告知用户改用 `shopify`，先移除旧的再装新的——执行 `npx skills remove shopify-custom-data`，然后 `npx skills add shopify/shopify-ai-toolkit --skill shopify`。",
+    "notes": "正文只有一段弃用说明和迁移命令，没有别的内容；提示词提到 Metafields 或 Metaobjects 时按迁移后装的那条走。",
+    "tier": "auto"
+  },
+  "stablyai/orca/orca-per-workspace-env": {
+    "name_zh": "Orca 工作区环境",
+    "intro": "给 Orca 的每个 workspace 配置按需创建、用完即弃的运行环境：云沙箱、虚拟机、SSH 主机或本地容器。覆盖从零搭一套 recipe、修 orca.yaml 里的 environmentRecipes、写 provider 生命周期脚本，以及排查 orca vm recipe doctor 的失败。",
+    "usage": "先为本次会话定下一个可执行文件（`ORCA_CLI_COMMAND`、orca-dev、orca-ide 或 orca），再执行 `ORCA skills get orca-per-workspace-env` 取版本匹配的指南；不要直接跑裸 orca。",
+    "notes": "正文解释了为何在 Linux 上不能裸跑 orca（会命中 GNOME 的屏幕阅读器并开口朗读），并要求命令优先带 --json。",
+    "tier": "auto"
+  },
+  "usestrix/strix/application-security-testing": {
+    "name_zh": "应用安全测试",
+    "intro": "面向整个产品的 AppSec 入口：先判断每类资产（源码、运行中的 Web、API、CI 流水线）该做哪种测试，跑完后整理成按实际可达性排序的修复计划。Strix 的自主代理会真的去利用漏洞来证明问题，而不是只报静态扫描告警。",
+    "usage": "先确认授权与目标环境，优先在 staging 上跑，因为代理会发真实利用载荷、可能改动数据；CLI 细节在渗透测试那份技能里，`strix --version` 跑不通就先读它。",
+    "notes": "正文要求先列清源码、运行环境、API 与 CI 四类资产再开扫；没有 Docker 或 LLM key 时可走托管平台，即 `strix cloud login`。",
+    "tier": "auto"
+  },
+  "wshobson/agents/gitops-workflow": {
+    "name_zh": "GitOps 流程",
+    "intro": "用 ArgoCD 或 Flux 做声明式 Kubernetes 持续交付：期望状态放进 Git，由代理自动拉取并持续对账。覆盖集群接入、仓库目录结构、应用定义、自动同步策略、多集群与渐进发布，以及 GitOps 下的密钥管理。",
+    "usage": "搭 GitOps 时先按 OpenGitOps 四条原则核对：声明式、版本化不可变、自动拉取、持续对账；ArgoCD 的安装命令与初始密码取法在正文代码块里，细节看 `references/argocd-setup.md`。",
+    "notes": "正文用一份 gitops-repo 目录样例说明 apps、infrastructure 与 argocd 三类内容该怎么放，并指向更细的搭建文档。",
+    "tier": "auto"
+  },
+  "wshobson/agents/market-sizing-analysis": {
+    "name_zh": "市场规模测算",
+    "intro": "测算 TAM、SAM、SOM 的三种方法：自上而下看行业报告往下收窄、自下而上按客群与定价推算、价值理论按愿付价格估算。三者互补，分别适用于成熟市场验证、细分新市场与全新品类。",
+    "usage": "有现成行业研究时用自上而下，面向具体客群时用自下而上（投资人最认这套），做新品类时用价值理论；SOM 按三到五年内能实际拿到的份额估。",
+    "notes": "正文先定义三层市场框架并各配一句说明，再讲三种方法各自适配的市场类型；更细的演算模式在 `references/details.md`。",
+    "tier": "auto"
+  },
+  "wshobson/agents/memory-safety-patterns": {
+    "name_zh": "内存安全模式",
+    "intro": "Rust、C++、C 的内存安全写法：RAII、所有权、智能指针与资源管理。列出 use-after-free、double-free、内存泄漏、缓冲区溢出、悬垂指针、数据竞争六类问题及各自的预防手段，并画出从手动管理到 GC 的安全光谱。",
+    "usage": "写系统层代码或管理文件、socket、内存等资源时参考；排查内存问题时按调试工具那节来跑，例如 `cargo +nightly miri run` 或 `valgrind --leak-check=full ./program`。",
+    "notes": "细粒度模式放在 `references/details.md`；Do 与 Don't 两栏强调少用裸指针、别返回局部引用、谨慎使用 unsafe。",
+    "tier": "auto"
+  },
+  "wshobson/agents/python-resilience": {
+    "name_zh": "Python 容错",
+    "intro": "Python 的容错写法：自动重试、指数退避、抖动、超时与熔断。核心是先分清瞬时故障和永久故障——网络超时、服务临时不可用可以重试，凭据错误和坏请求不该重试，且重试次数和总时长都要设上限。",
+    "usage": "给外部服务调用加重试时可用 `tenacity` 的装饰器写法，正文给了 `stop_after_attempt` 与 `wait_exponential_jitter` 的组合；加抖动是为了避免大量客户端同时重试。",
+    "notes": "正文按瞬时与永久故障、指数退避、抖动、有界重试四节展开，再给基础重试等模式的具体 Python 代码。",
+    "tier": "auto"
+  },
+  "yuan1z0825/nature-skills/nature-downloader": {
+    "name_zh": "学术全文下载",
+    "intro": "走合规渠道取学术全文：开放获取、出版商 API、CNKI 机构访问，以及借用户已登录的浏览器走机构入口。编排入口是 batch_download.mjs，学校配置、凭据、元数据解析、各来源下载与清单各自独立成模块。",
+    "usage": "下载前先确认要不要补充材料，然后必须带 `--si` 或 `--no-si` 二者之一；两个都不带时脚本返回 `si_confirmation_required`，也不会创建输出目录。",
+    "notes": "正文提醒已验证路线只是参考不是默认，应从用户实际的图书馆资源页出发；另需 Node.js 22+ 与 Python 3，走浏览器路线时需 Chrome 远程调试。",
+    "tier": "auto"
+  },
+  "yuan1z0825/nature-skills/nature-ref-verifier": {
+    "name_zh": "参考文献核对",
+    "intro": "对学术文献逐条做多源交叉验证，按字段比对作者、标题、年份、卷期、页码，标出卷年与 DOI 年冲突、作者顺序异常、页码偏差等问题并输出结构化报告。整篇参考文献列表可批量处理，也能单条校验。",
+    "usage": "性价比最高的一步是先用 `https://api.crossref.org/works/` 查 DOI 能否解析，404 基本说明号码错了；超过 20 条时按十到十五条一组拆给并行子代理。",
+    "notes": "正文把错误分成 Critical 等三级并要求逐字段对比，批量差异、DOI 与标题冲突等经验放在 `references/common-patterns.md`。",
+    "tier": "auto"
+  },
+  "yuan1z0825/nature-skills/researchwrite": {
+    "name_zh": "开题报告写作",
+    "intro": "写、改、审科研课题申请书、研究计划和开题报告的状态机式流程：先立证据表与硬事实，再定论证地图，每节写清允许与禁止的主张，最后才做语言清理。不是通用的「帮我写论文」提示词。",
+    "usage": "从题目或模糊想法起步走 compose 模式，已有段落走 revise，草稿要扩写补写走 hybrid；项目文件落在 `researchwrite` 目录下，模板与条件加载看 `manifest.yaml`。",
+    "notes": "正文给了九条核心原则，例如证据先于文字、论证先于章节、删除胜于解释，并强调不把「可能表明」自动升级成「证明」。",
+    "tier": "auto"
+  }
+}

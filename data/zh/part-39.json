@@ -1,0 +1,177 @@
+{
+  "affaan-m/ecc/database-migrations": {
+    "name_zh": "数据库迁移",
+    "intro": "生产库的迁移规约：只向前、schema 与数据迁移分开、大表加列加索引走并发、回填分批、已上线的迁移不再改。附 PostgreSQL、Prisma、Drizzle、Kysely、Django 和 golang-migrate 的分工具做法。",
+    "usage": "写 schema 或数据迁移、给大表加列或索引、规划回滚、准备零停机发布时用它；动手前过一遍清单，看有没有 DOWN、会不会锁全表、新列是否可空或带默认值。",
+    "notes": "正文要求拿生产量级的数据副本试跑，并提醒百行能过的迁移在千万行上可能锁表。",
+    "tier": "auto"
+  },
+  "affaan-m/ecc/laravel-patterns": {
+    "name_zh": "Laravel 模式",
+    "intro": "生产环境 Laravel 的架构分工：控制器保持薄，编排放 service，单一用途放 action，配合 Eloquent 的类型转换与作用域；重 IO 的活交给队列，贵读上缓存，API 用 resource 与分页。",
+    "usage": "新建或评审 Laravel 应用、梳理控制器与模型与服务的边界、要加队列事件缓存或 API 资源时用它。",
+    "notes": "正文给了推荐的 app/ 目录分层，把 Actions、Services、Jobs、Policies、Requests、Resources 各自归位；路由用显式绑定但仍要授权。",
+    "tier": "auto"
+  },
+  "affaan-m/ecc/rust-testing": {
+    "name_zh": "Rust 测试模式",
+    "intro": "Rust 的测试写法与 TDD 流程：单测放 cfg(test) 模块，rstest 做参数化，proptest 做属性测试，mockall 隔离依赖，cargo-llvm-cov 看覆盖率，按 RED-GREEN-REFACTOR 推进。",
+    "usage": "写新的函数、trait 或模块，给旧代码补测试，或给性能关键路径加基准时用它；先写失败测试，再写最小实现。",
+    "notes": "正文给的覆盖率目标是 80% 以上。",
+    "tier": "auto"
+  },
+  "affaan-m/ecc/strategic-compact": {
+    "name_zh": "上下文压缩时机",
+    "intro": "建议在任务阶段的自然边界手动压缩上下文，而不是等自动压缩在任意位置触发。判断看两个信号：真实上下文 token 量与工具调用次数，前者按窗口比例给阈值，之后每增长一段再提醒。",
+    "usage": "长会话接近上下文上限、任务从研究转实现、完成一个里程碑要开新阶段，或回答开始变慢变散时，用它挑压缩点。",
+    "notes": "脚本在 PreToolUse 的 Edit/Write 上读会话记录里的 usage 记录，把输入与两个缓存 token 相加当作该轮真实上下文大小。",
+    "tier": "auto"
+  },
+  "alchaincyf/zhangxuefeng-skill/zhangxuefeng-perspective": {
+    "name_zh": "张雪峰视角",
+    "intro": "用张雪峰的思维框架和语气作答，用于分析教育选择、职业规划、阶层流动。先判断问题要不要查数据：涉及具体专业、院校、行业时先搜就业率、薪资中位数和录取线，再给判断，不凭印象编。",
+    "usage": "用户说「用张雪峰的视角」「张雪峰会怎么看」「切换到张雪峰」时触发；纯框架问题直接用心智模型答，混合问题先取数据再分析。",
+    "notes": "首次激活只说一次免责声明，之后不再重复；用户说「退出」或「切回正常」就恢复普通模式。",
+    "tier": "auto"
+  },
+  "analogjs/angular-skills/angular-component": {
+    "name_zh": "Angular 组件",
+    "intro": "已废弃的 Angular 组件技能。正文不再留具体指导，只说明该技能停止维护，改用 Angular 官方的 angular/skills，并给出安装官方技能与移除本技能的命令。",
+    "usage": "只在需要解释旧引用为何失效时用它；真要写 Angular 组件，装官方技能。",
+    "notes": "正文指向 https://github.com/angular/skills，原有内容留在仓库 git 历史里。",
+    "tier": "auto"
+  },
+  "bmad-code-org/bmad-method/bmad-code-review": {
+    "name_zh": "BMad 代码评审",
+    "intro": "让多个独立评审并行看同一批代码改动，再把发现汇总、去重、分诊后呈现。依赖项目里已装好的 BMad 框架，正文给的是渲染项目内工作流并照做的一条命令。",
+    "usage": "用户说要跑代码评审或审这段改动时用它；快速审还是细审、要不要顺手改代码，通过参数区分。",
+    "notes": "找不到 _bmad/ 目录说明项目还没装 BMad，先装再跑；命令出错就照输出报告停下，别绕过工作流直接跑源码。",
+    "tier": "auto"
+  },
+  "github/awesome-copilot/dotnet-upgrade": {
+    "name_zh": ".NET 升级提示词",
+    "intro": "一组可直接取用的提示词，覆盖 .NET 项目升级的分析与执行：给解决方案里的项目按类型分类、查依赖兼容性、找还留在 packages.config 的项目、排升级顺序、定目标框架、改废弃 API，并跟踪构建测试部署的进度。",
+    "usage": "准备把 .NET Framework 项目往新版迁时逐条取用；先做项目发现与依赖评估，再定顺序和回滚检查点。",
+    "notes": "正文提到可选 Upgrade Assistant 或手工升级，取舍看项目结构。",
+    "tier": "auto"
+  },
+  "lignertys/reddit-research-skills/reddit-leads": {
+    "name_zh": "Reddit 找线索",
+    "intro": "从 Reddit 挖 B2B 线索：按购买意图给帖子打 0 到 100 分，再分成痛点、求方案、抱怨、功能请求和对比五类，用来做竞品挖客、痛点发现和销售线索筛选。数据来自 reddapi.dev 的 Leads API。",
+    "usage": "想找正在抱怨竞品或主动求方案的人时用它；需要 REDDAPI_API_KEY，接口要付费套餐，Key 只放在执行请求的 shell 环境里，不写进对话。",
+    "notes": "正文称会滤掉工单、梗图和无关提及；免费额度只有网页端搜索，不含 API。",
+    "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/affiliate-disclosure-compliance": {
+    "name_zh": "联盟披露合规",
+    "intro": "拿一条具体的联盟或达人内容（文案、口播稿、转录、截图或线上链接）对照披露规则审，逐项给通过与否，并给位置、措辞和各渠道形态的修改建议。覆盖 FTC 16 CFR 255 与 465、英国 CAP/CMA、欧盟 UCPD 与 DSA，以及德法意的本地规则。",
+    "usage": "发布前审达人内容，或补救已上线的旧内容时用它；只做合规审查，不替代法律意见。",
+    "notes": "拿不准的地方要求就地标 COUNSEL 问题；欧盟 trader 身份与受监管行业必须升级给人判断。",
+    "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/affiliate-fraud-detection": {
+    "name_zh": "联盟作弊检测",
+    "intro": "给联盟项目搭一套作弊识别规则，加上后续调查与升级路径：cookie 塞入、假线索与假表单、自推环、流量质量基线、佣金暂扣与追回，并把真作弊和低增量的优惠券返现伙伴分开。",
+    "usage": "看到可疑联盟流量、无效点击或线索、机器人流量，或某个联盟商的数字好得反常时用它。",
+    "notes": "正文说最有效的控制是 30 到 90 天的佣金暂扣与验证窗口，而不是检测算法，并借用 IAB/MRC 的 GIVT 与 SIVT 拆分。",
+    "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/affiliate-payout-audit": {
+    "name_zh": "联盟佣金发放审计",
+    "intro": "在一笔联盟或伙伴佣金发放出去之前核对金额：逐行重算费率与阶梯、查重复计佣、看过回访与验证窗口、结算截止、币种、取整和税表状态，最后出一份带严重级别与建议暂扣项的审计报告。",
+    "usage": "提到联盟发放审计、佣金准确性、发放对账、多付或少付、放款前复核时用它；它只判断金额对不对，不判断流量是否作弊。",
+    "notes": "正文假定活动已过反作弊筛查；要查欺诈应改用同仓库的 affiliate-fraud-detection。",
+    "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/affiliate-performance-dashboard": {
+    "name_zh": "联盟看板规格",
+    "intro": "定联盟项目看板看哪些指标、怎么排：指标定义带明确公式、按读者分视图、刷新与复盘节奏，以及头部联盟商集中度、按来源的转化和项目 ROI 的告警阈值。交付物是规格文档，由 BI 那边照着建。",
+    "usage": "提到联盟项目报表、联盟 KPI、联盟 ROI、收入集中度，或问联盟看板该放什么时用它；只定指标，不建看板。",
+    "notes": "正文要求区分归因 ROAS 与归因 ROI，并把 sourced 与 influenced 分开统计。",
+    "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/affiliate-program-terms": {
+    "name_zh": "联盟计划条款",
+    "intro": "起草联盟加入时接受的条款：标准条款集、禁止手段条款与逐级处罚、佣金核验、追回与终止机制，还有 FTC 背书规则、欧盟 P2B、英国 ASA/CAP、GDPR 角色这些辖区差异。",
+    "usage": "写联盟协议、补禁止手段条款、定品牌词竞价政策时用它；产出是条款完整的草稿，须标出必须法务复核，不能当法律意见。",
+    "notes": "正文的原则是没明确禁止的即视为允许，所以靠穷举条款，不靠兜底条款。",
+    "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/affiliate-recruitment-outreach": {
+    "name_zh": "联盟招募外联",
+    "intro": "起草招募新联盟商的外联文案与节奏：筛选与分层候选人、定切入角度、写首封招募邮件、跟进序列（含最后一封告别信）、渠道组合和外联跟踪。它只管主动外联，不管被动被发现那部分。",
+    "usage": "要拉内容站、测评站、优惠券与返现站、newsletter 主理人、社群、播客或代理加入项目时用它；单个已筛过的达人另走 influencer-outreach。",
+    "notes": "正文区分主动与被动的招募，并提醒市面上流传的飞轮与完美伙伴名单只是商业课程，不是行业标准。",
+    "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/alliance-prioritization": {
+    "name_zh": "联盟伙伴排序",
+    "intro": "把几个具体候选的战略联盟和技术合作放一起排优先级：先过必过门槛，再用加权评分卡打分并做敏感性分析，加共同创新与平台依赖风险检查，最后给排序短名单和 go/no-go 建议。",
+    "usage": "要决定伙伴团队的人力往哪投、几个指名候选谁先做时用它；只做组合层面比较，不建模单个伙伴的损益。",
+    "notes": "正文提醒加权评分卡本身脆弱（权重随意、排序反转），所以权重要有理由，必过门槛不参与加权。",
+    "tier": "auto"
+  },
+  "starchild-ai-agent/official-skills/coinglass": {
+    "name_zh": "币圈衍生品数据",
+    "intro": "加密衍生品数据查询：资金费率、未平仓合约量、多空比、爆仓数据、ETF 资金流，也能看巨鲸转账和 Hyperliquid 巨鲸提醒。走 v4 接口，需要平台注入的 COINGLASS_API_KEY。",
+    "usage": "研究永续合约市场或比较 ETF 资金流时用，比如查 BTC 资金费率、ETH 未平仓量；币种符号要写成交易对，如 BTCUSDT。",
+    "notes": "平台 Key 属 Startup 档，爆仓热力图、全币种行情汇总、单笔爆仓订单和 Hyperliquid 持仓这几类接口不可用，正文要求直接跳过别调用。",
+    "tier": "auto"
+  },
+  "vuejs-ai/skills/vue-options-api-best-practices": {
+    "name_zh": "Vue 选项式写法",
+    "intro": "Vue 3 选项式 API 的实践索引：TypeScript 类型推断、this 上下文类型、事件处理器参数类型、provide/inject 的类型缺口，以及方法里别用箭头函数、生命周期钩子里取不到组件数据这类坑，每条都指向单独的参考文件。",
+    "usage": "项目按 data()、methods、this 这套选项式写法，又要补类型、避开实例上下文坑时，按症状查对应条目。",
+    "notes": "正文按 TypeScript、方法与生命周期分节，只给选项式 API 的解法。",
+    "tier": "auto"
+  },
+  "wshobson/agents/cost-optimization": {
+    "name_zh": "云成本优化",
+    "intro": "跨 AWS、Azure、GCP、OCI 的云成本优化：先做成本可见性（分摊标签、预算告警、成本面板），再压资源规格、清闲置、上预留与节省计划、混用 Spot，并在架构侧用托管服务、缓存和数据生命周期策略。",
+    "usage": "要降云账单、分析基础设施成本、给团队定成本治理规则时用它；先处理闲置与超配资源，再谈采购折扣。",
+    "notes": "正文按 AWS 侧列出预留实例、节省计划、Spot 的适用负载、折扣空间和中断风险。",
+    "tier": "auto"
+  },
+  "wshobson/agents/python-configuration": {
+    "name_zh": "Python 配置",
+    "intro": "把配置从代码里挪到环境变量，用 pydantic-settings 建带类型的设置对象，在启动时一次性解析校验；缺必填项就立刻带着清楚的报错崩掉。本地给合理默认值，敏感项必须显式提供。",
+    "usage": "新建项目的配置体系、把硬编码改成环境变量、做 dev/staging/prod 分环境设置、启动时校验配置时用它。",
+    "notes": "正文把四条列为核心概念：配置外置、类型化设置、快速失败、合理默认值。",
+    "tier": "auto"
+  },
+  "wshobson/agents/python-observability": {
+    "name_zh": "Python 可观测",
+    "intro": "Python 服务的可观测做法：JSON 结构化日志、Prometheus 指标、跨服务链路追踪，以及贯穿一条请求的 correlation id。指标标签要有界，别把用户 ID 这类高基数值当标签，否则存储成本会失控。",
+    "usage": "给应用加结构化日志、实现指标采集、接分布式追踪、排查线上问题或搭建可观测面板时用它；本地开发可以换成人类可读的日志格式。",
+    "notes": "正文按四大黄金信号逐服务边界打点：延迟、流量、错误、饱和度。",
+    "tier": "auto"
+  },
+  "wshobson/agents/shellcheck-configuration": {
+    "name_zh": "Shell 静态检查",
+    "intro": "配置并使用 ShellCheck 做 shell 脚本静态检查：在 CI 里跑、按目标 shell 选方言、为具体项目调规则集、抑制误报时写清原因，让脚本的质量门槛统一。",
+    "usage": "给 CI/CD 加 shell 检查、排查脚本里的错误码与告警、把脚本迁到统一质量门禁时用它；别把 bash 脚本当 sh 分析。",
+    "notes": "正文建议用 `--enable=all` 配合谨慎的排除项，并保持 ShellCheck 版本更新以拿到新检查。",
+    "tier": "auto"
+  },
+  "yuan1z0825/nature-skills/nature-literature-pipeline": {
+    "name_zh": "文献流水线",
+    "intro": "从检索到存档的文献流水线：多源搜索出候选，六维打分筛到少量，再精读、按固定格式推送、去重归档。可挂每日定时任务，推送端支持飞书、Telegram 或其它消息平台。",
+    "usage": "装好后告诉它研究方向、关键词、推送目标和归档路径，再让它按指定时区定时跑；打分由主题匹配、方法学、期刊质量、网络相关度、应用价值和存档价值六项加权。",
+    "notes": "搜索源是 arXiv、OpenAlex、Crossref、Semantic Scholar，按可用性自动降级；精读结果会标 Full-text、Abstract only 或 Metadata only。",
+    "tier": "auto"
+  },
+  "yuan1z0825/nature-skills/nature-statistics": {
+    "name_zh": "统计报告审查",
+    "intro": "审查或改写稿件的统计报告：实验单位、重复数、不确定度、检验定义与图注统计。默认把独立实验单位当作 n，不把细胞、视野、重复读数或技术重复当成独立样本，缺的信息只标出来不编造。",
+    "usage": "输入可以是统计方法小节、含检验统计量或 p 值的结果段、图注、审稿人关于统计的意见；材料不全时做有限审查，并标明哪些部分无法评估。",
+    "notes": "缺失的样本量、检验、软件、剔除规则一律记 AUTHOR_INPUT_NEEDED；与期刊或领域规范冲突时以更具体的来源为准并注明。",
+    "tier": "auto"
+  },
+  "zhjiang22/openclaw-xhs/xiaohongshu": {
+    "name_zh": "小红书内容工具",
+    "intro": "基于 xiaohongshu-mcp 的一组 shell 脚本，覆盖笔记搜索、帖子详情与评论、用户主页、点赞收藏、发布图文或视频笔记、热点分析报告和导出长图。多数操作要 feed_id 与 xsec_token 配对使用。",
+    "usage": "先 `cd scripts/` 跑 install-check.sh 与 start-mcp.sh 起服务，status.sh 确认登录；未登录用 get_login_qrcode 取二维码扫码，搜索用 search.sh。",
+    "notes": "正文强调 feed_id 与 xsec_token 必须成对，只能从搜索、推荐或用户主页结果里取，不可自行构造。",
+    "tier": "auto"
+  }
+}

@@ -35,13 +35,13 @@ npm test        # 14 套测试，见下
 
 **严格门禁是自动的**：水位内「正文已入库」覆盖率 ≥ **0.95** 才开严格过滤（`requireBody` 打开）；覆盖率不到就照旧全量收录，避免一轮采集把目录掏空。
 
-**结果**：目录条数从改造前的 7800–8100 条下降到 **3879 条**（2026-10-21 采集一轮，version `full-2026-10-21T08-05-00-484Z`：水位内正文覆盖率 0.974，严格过滤已打开）。这是预期行为，不是数据丢失——留下的 3879 条每条都有正文与描述。水位外的条目没有正文，因此不在目录里。
+**结果**：目录条数从改造前的 7800–8100 条降到 **约 4000 条**（截至 2026-10-22T07:53Z：**3987 条**，version `full-2026-10-22T07-53-30-067Z`；水位内正文覆盖率持续在 0.95 以上，严格过滤打开）。这是预期行为，不是数据丢失——留下的每条都有正文与描述。水位外的条目没有正文，因此不在目录里；之后每轮采集会把「正文已入库」的条目逐步补进来，所以条数会缓慢上移。
 
 ## 数据从哪来
 
 - **上游**：`skills.sh` 的 `/api/v1`（列表 / curated / detail / audit）与技能页 HTML（8 周周量、First Seen）。
 - **采集**：Vercel Cron 每天 `0 5 * * *`（UTC）打 `GET /api/collect`，需要 `CRON_SECRET`；富集每轮受 `MAX_REQUESTS=1500` 预算裁剪，2026-10-21 那轮 `used=1458`。
-- **正文**：按内容寻址存在 GitHub 的 `bodies` 分支——`https://raw.githubusercontent.com/w4n63r/dsh-skills-center/bodies/<sha256>.md`。目录顶层有 `body_base`，每条技能有 `body: { length, sha256, v }`（`v` = 已入库的正文版本戳，当前 `1`）。
+- **正文**：按内容寻址存在 GitHub 的 `bodies` 分支——`https://raw.githubusercontent.com/w4n63r/dsh-skills-center/bodies/<sha256>.md`。目录顶层有 `body_base`，每条技能有 `body: { length, sha256, v }`（`v` = 已入库的正文版本戳，当前 `2`；换过存储就升版，旧戳不算已分发）。
 - **目录**：主分发走 GitHub `catalog` 分支的 `https://raw.githubusercontent.com/w4n63r/dsh-skills-center/catalog/catalog.json`（另有 ~230 字节的 `catalog-meta.json`）；`/api/catalog` 302 到它。目录已 10MB+（函数响应 4.5MB 是上限），所以只走「先传文件、再回 302」这条路。
 - **Vercel Blob 是可选回退**，不是主存储（线上 store 曾被 Vercel 停用：`This store has been suspended.`）。两条路都失败，采集接口才返回 500。
 - **插件本地**：目录缓存在 `~/.dsh/skills-center/catalog/`（`catalog.json` / `catalog.prev.json` / `meta.json`）；正文按 `sha256` 缓存在 `~/.dsh/skills-center/bodies/<sha256>.md`。
@@ -147,6 +147,6 @@ node tools/zh_merge.mjs                        # 汇总进 data/zh.json，保留
 ## 已知未完成
 
 - **M3 召回（「任务开始时就命中」）**：最小版已做——宿主每步都会把「技能中心」当运行时技能列进可用技能（名字 + 描述），另有一段静态系统提示要求先调 `skill_search`、不得凭空声称技能存在。按首条用户消息检索后再注入一行（`agent/pre-step`）的强版本明确不做：那要替宿主构造消息，风险大于收益。
-- **中文层扩容**：按批推进（每批 25 条，进度以 `data/zh.json` 的 `count` 为准，当前 725：hand 300 + auto 425，目录 3969 条）；这是数据活，不是代码活（`tools/zh_generate.mjs plan/check/apply` + `tools/zh_merge.mjs`）。
-- **同名不同作者 = 两条技能**（用户 2026-10-22 定的规则，不是缺陷）：只有聚类键一致（内容同一份）才会并成一条并标「含 N 个副本」。实测 3969 条里 198 组同名不同内容（多出 338 条，例：`frontend-design` 9 条、`code-review` 16 条），另有 120 条带副本共 234 个副本。
+- **中文层扩容**：按批推进（每批 25 条，进度以 `data/zh.json` 的 `count` 为准；截至 2026-10-22 下午 **1065 条** = hand 300 + auto 765，目录 3987 条里有 **1060 条**能对上目录条目）；这是数据活，不是代码活（`tools/zh_generate.mjs plan/check/apply` + `tools/zh_merge.mjs`）。
+- **同名不同作者 = 两条技能**（用户 2026-10-22 定的规则，不是缺陷）：只有聚类键一致（内容同一份）才会并成一条并标「含 N 个副本」。2026-10-21 按 3969 条口径实测：198 组同名不同内容（多出 338 条，例：`frontend-design` 9 条、`code-review` 16 条），另有 120 条带副本共 234 个副本。
 - **星标与发布时间覆盖很低**：`stars` 只覆盖 8 个仓库 / 93 条，`first_seen` 更少；页面抓取只对历史上抓过的那批生效，升 `ENRICH_VERSION` 只解决一部分。

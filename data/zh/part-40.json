@@ -1,0 +1,177 @@
+{
+  "affaan-m/ecc/e2e-testing": {
+    "name_zh": "E2E 测试",
+    "intro": "Playwright 端到端测试的写法合集：页面对象模型、配置、CI 集成、产物管理和不稳定用例的处理。正文给出按 auth、features、api 分层的测试目录，用 @playwright/test 写页面对象与断言的样板，以及进页面前后等待加载状态的做法。",
+    "usage": "要写 Playwright 用例、拆页面对象或排查 CI 上反复失败的 E2E 时用它；配置入口是 `playwright.config.ts`。",
+    "notes": "正文建议测试目录按业务域分组，fixtures 单独存放；不稳定用例靠重试与产物收集定位。",
+    "tier": "auto"
+  },
+  "anthropics/skills/academy-guide": {
+    "name_zh": "学院课程推荐",
+    "intro": "回答 Claude 或 Claude 产品的用法问题前，先查 Claude Academy（academy.claude.com）里有没有对得上的课程、教程或用例，再在正常回答末尾自然带出。正文区分课程、教程、用例三类内容，要求只在强匹配时推荐，不编造学院内容。",
+    "usage": "用户问怎么上手某个 Claude 功能、要培训材料或团队落地方案时查一次；只在确实对得上时推荐，别把日常任务问答也引到课程上。",
+    "notes": "推荐入口是 academy.claude.com 的产品 hub；正文强调它与产品文档答案并列给出，两者不互相替代。",
+    "tier": "auto"
+  },
+  "bmad-code-org/bmad-method/bmad-brainstorming": {
+    "name_zh": "头脑风暴主持",
+    "intro": "带一场头脑风暴：以主持人、创作搭档或全权代跑三种立场之一推进，用更多角度和更硬的约束把想法推离显而易见的答案，不赶时间收尾。正文给了启用时先解析 customize.toml 的步骤、会话约定和按立场分工的规则。",
+    "usage": "用户说帮他头脑风暴、想点子，或卡在一堆浅答案上需要被追问时用它；先跑 `uv run {project-root}/_bmad/scripts/resolve_customization.py --skill {skill-root} --project-root {project-root} --key workflow` 解析配置。",
+    "notes": "没跑过 BMad 初始化时，正文会让你先装 bmad 技能再重跑解析脚本。",
+    "tier": "auto"
+  },
+  "caffeinelabs/skills/extension-inference": {
+    "name_zh": "接推理服务",
+    "intro": "规定 Caffeine 应用里调用大模型必须走的唯一路径：用官方推理客户端包拿到可用的鉴权配置，应用自己不接触、不保存也不返回密钥。正文把手写 HTTP 请求直接打到推理端点列为禁止的反模式，并说明什么情况下才该改用对接 OpenAI 的那种方式。",
+    "usage": "只要 Caffeine 应用需要接聊天模型，或规格里提到让应用自己调模型，就先加载它再写代码；规格明确要求用户或管理员粘贴密钥时才换用另一个技能。",
+    "notes": "本地没抓到这份技能的正文，以上按仓库描述写；具体包名和配置写法以正文为准。",
+    "tier": "auto"
+  },
+  "ceorkm/mobile-app-ui-design/mobile-app-ui-design": {
+    "name_zh": "移动端 UI 设计",
+    "intro": "按成熟应用的通行做法设计移动端界面：正文先用三个问题定目标（用户要完成什么、该有什么感受、第一眼该看到什么），再按上下文、结构、视觉的顺序推进，并给行业惯例、组件与动效约定，覆盖 React Native、Flutter、SwiftUI 风格的原型。",
+    "usage": "要出新页面、做 onboarding 流程、改一版界面或画应用原型时用它；行业惯例清单在 `references/industry-conventions.md`。",
+    "notes": "正文把可读性、留白与层级放在花哨效果之前，并要求每个间距和颜色都有理由。",
+    "tier": "auto"
+  },
+  "digitalsamba/claude-code-video-toolkit/ffmpeg": {
+    "name_zh": "FFmpeg 转码",
+    "intro": "用 FFmpeg 做格式转换、缩放、压缩、抽音轨和给 Remotion 准备素材：正文给 GIF 转 MP4 的兼容参数、等比留黑边与裁切填充两种缩放写法、按 CRF 或目标码率压缩、抽 MP3 与 AAC 的命令，并说明每个参数为什么这么写。",
+    "usage": "要转格式、压体积、抽音频或改视频尺寸时用它，例如把 GIF 转成网页能播的 MP4：`ffmpeg -i input.gif -movflags faststart -pix_fmt yuv420p`。",
+    "notes": "正文明说这是给 Remotion 项目备素材用的；输出尺寸要是偶数，多数编码器不接受奇数宽高。",
+    "tier": "auto"
+  },
+  "elevenlabs/skills/speech-to-text": {
+    "name_zh": "语音转文字",
+    "intro": "用 ElevenLabs 的 Scribe v2 把音频或视频转成文字，支持九十多种语言、说话人分离和词级时间戳。正文给 Python、JavaScript 和 CLI 三种调用的最短可用代码，说明通用模型与医疗模型的分工，并交代先配好密钥再写代码。",
+    "usage": "要出字幕、整理会议录音或批量转写口述内容时用它；没配密钥就先跑 `npx -y @elevenlabs/cli@latest onboard init`。",
+    "notes": "需要联网和 ELEVENLABS_API_KEY；JavaScript 只用 @elevenlabs 自家的包。",
+    "tier": "auto"
+  },
+  "firecrawl/cli/firecrawl-browser": {
+    "name_zh": "网页交互抓取",
+    "intro": "给已经抓下来的页面开一个真实浏览器会话，用自然语言指令或代码去点击、填表、翻页、登录和取数。正文明确 browser 命令已废弃，改用 scrape 加 interact，并给保存浏览器状态的 profile 做法、超时与输出参数，以及何时该退回 search 或 crawl。",
+    "usage": "静态抓取拿不到内容、页面要点击或登录才出数据时用它：先 `firecrawl scrape \"<url>\"`，再 `firecrawl interact --prompt \"Click the login button\"`。",
+    "notes": "interact 必须基于上一次 scrape；结束用 firecrawl interact stop 释放会话，搜索场景不要用它。",
+    "tier": "auto"
+  },
+  "github/awesome-copilot/apple-appstore-reviewer": {
+    "name_zh": "上架审核预检",
+    "intro": "站在 App Store 审核员的角度审一遍 iOS 工程的源码与元数据，第一轮不改代码，只输出按优先级排的拒审风险和上架优化建议。正文要求把结论对到审核指南的类别上，检查 Info.plist、entitlements、隐私清单、StoreKit 配置、引导流程和付费墙。",
+    "usage": "提审前想降低被拒概率、或刚被拒要找原因时用它；正文要求联网核对指南原文，不凭记忆引用条款。",
+    "notes": "第一轮只出建议不动代码；缺失信息时仍给尽力而为的判断，并区分假设与已核实的检查项。",
+    "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/affiliate-commission-structure": {
+    "name_zh": "联盟佣金结构",
+    "intro": "设计按成交付费的联盟计划里的佣金与结算结构：费率模型（分成、固定 CPA、混合）、从单位经济推出来的费率水平、阶梯、循环佣金时长与上限、归因窗口、校验、扣回和付款条款。正文的主线是先从毛利算出上限再定对外费率，不照抄行业基准。",
+    "usage": "用户问联盟佣金给多少、要不要设阶梯、循环佣金按终身还是 12 个月、cookie 窗口多长，或要迁移费率表时用它。",
+    "notes": "终端用户的推荐奖励不在范围内，那属于 referral-incentive-design；条款起草、结算审计和反作弊另有技能。",
+    "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/affiliate-onboarding-sequence": {
+    "name_zh": "联盟伙伴引导",
+    "intro": "为刚通过审核的联盟推广伙伴设计从通过到首次可追踪转化的引导流程：触点节奏（时间、渠道、每次只要求一个动作）、素材包、限时激活提醒，以及始终没激活的后续分支。正文把日历节奏当起点而非标准，主张用首次点击、首次成交等行为触发覆盖固定天数。",
+    "usage": "当用户要写联盟伙伴的欢迎邮件序列、问新伙伴头 30 天该收到什么、或有一批通过审核却始终没带来点击和成交的伙伴时用它。",
+    "notes": "正文明确流程起点是通过审核之后；招募还没加入的伙伴属于另一个技能 affiliate-recruitment-outreach。",
+    "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/influencer-campaign-brief": {
+    "name_zh": "创作者合作简报",
+    "intro": "给已签约的创作者写单场活动的创作简报：交付物与精确规格、带证据点的核心信息、品牌红线、披露要求、时间表和有限的修改轮次，并把不可让步项与偏好项分开。正文对每条说法标注来源强度，不把任何单一厂商的模板说成行业标准。",
+    "usage": "要写创作者简报、内容需求、交付清单，或刚签下创作者要交代这期怎么做时用它；挑选和背调创作者不在范围内。",
+    "notes": "简报要在合同签好之后写，并严格照合同条款；正文强调不可让步项与偏好项分开是唯一被多家出版方共同印证的写法。",
+    "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/partner-ecosystem-expansion": {
+    "name_zh": "伙伴生态扩张",
+    "intro": "决定下一步该加哪类合作伙伴、按什么顺序加：正文给分阶段的品类扩张路线图，每阶段设就绪门槛、容量上限和叫停条件，覆盖技术伙伴、经销、托管服务商、系统集成商、代理、联盟和市场等 B2B 类别与零售、创作者、授权等消费侧对应项。",
+    "usage": "要排伙伴品类优先级、做伙伴组合路线图或定下一个该开的伙伴类型时用它；它只排品类顺序，不评估具体公司。",
+    "notes": "正文先承认没有同行评议的最优扩张顺序，主要依据最小可行生态的思路；给具体候选公司排名属于另一个技能。",
+    "tier": "auto"
+  },
+  "mbfinotti/partnerships-skills/partnerships-kickoff": {
+    "name_zh": "伙伴项目入口",
+    "intro": "合作项目的入口路由：把当前任务（渠道、联盟、联合销售、市场、推广伙伴、创作者或推荐）对到合集里唯一一个对口技能，对不上就直说没有，并建立或续接项目共享的 partnerships-context.md，让下一次会话从已有上下文开始而不是从零问起。",
+    "usage": "开一个新的合作项目、隔了一阵要继续、或只描述伙伴与佣金问题但没点名该用哪个技能时，先跑它。",
+    "notes": "它只做路由和维护共享上下文，不替任何子技能干活；每次输出都带完整的 owner/repo@skill 目标。",
+    "tier": "auto"
+  },
+  "minimax-ai/minimax-h3/h3-prompt-writing": {
+    "name_zh": "H3 视频提示词",
+    "intro": "按 MiniMax H3 的结构写视频生成提示词，覆盖 T2VA、I2VA、FL2VA、L2VA 和全参考的 Ref2VA 五种输入模式：正文规定各模式该读哪份参考文件、字段与段落顺序、参考标签怎么统一，以及英文写正文但保留原文台词和画面文字的输出规则。",
+    "usage": "要把一段多模态需求改写成 H3 提示词时用它；先认模式，基础模式读 `references/base-en.txt`，全参考模式读 `references/ref-en.txt`。",
+    "notes": "时长要和请求的 4–15 秒对齐，参考标签要全篇一致；正文不建议堆 cinematic 这类空词。",
+    "tier": "auto"
+  },
+  "openai/skills/gh-fix-ci": {
+    "name_zh": "PR CI 修复",
+    "intro": "用 gh 定位 GitHub PR 上失败的 Actions 检查、拉运行日志、摘出关键报错，先给修复计划，得到明确同意后才动手改。正文给了脚本 inspect_pr_checks.py 的用法、手动回退的命令序列，并规定非 Actions 的外部检查只报链接不追。",
+    "usage": "PR 检查红了要排查时用它：先 `gh auth status` 确认登录，再 `gh pr checks` 列出失败项，必要时 `gh run view <run_id> --log` 取日志。",
+    "notes": "改动前必须拿到明确同意；Buildkite 等外部提供方不在范围内，正文只让报 detailsUrl。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-pkg-go-dev": {
+    "name_zh": "Go 包文档查询",
+    "intro": "通过 godig 查 Go 包与模块的资料：文档、API 签名、符号、用例、可用版本、许可证、依赖有没有已知漏洞、谁在引用它。正文说明 godig 既是 CLI 也是 MCP server，操作只读且不用认证，并给了分组子命令、过滤表达式和退出码约定。",
+    "usage": "要查某个 Go 库的接口怎么用、有哪些版本或谁 import 了它时用它，例如 `godig package examples github.com/samber/ro --symbol Map -o md`。",
+    "notes": "升级依赖、选库或查本地符号分别属于同系列的其他技能；用前先装 godig 或接上它的 MCP server。",
+    "tier": "auto"
+  },
+  "shopify/shopify-ai-toolkit/shopify-use-shopify-cli": {
+    "name_zh": "店铺命令行",
+    "intro": "这份技能已废弃，只保留替代指引：它原本用于校验 app 与扩展的配置文件、审计应用代码的安全问题、跑店铺登录与执行命令，以及在指定店铺域名上做有范围限制的读写。正文要求转告用户先移除旧技能再装新的 shopify。",
+    "usage": "遇到旧项目还在引用这个技能名时用它取替代方案：`npx skills remove shopify-use-shopify-cli`，再装 `npx skills add shopify/shopify-ai-toolkit --skill shopify`。",
+    "notes": "正文只剩一句废弃声明；它指向的替代技能是 shopify，装之前先按提示卸掉旧的。",
+    "tier": "auto"
+  },
+  "wshobson/agents/billing-automation": {
+    "name_zh": "订阅计费自动化",
+    "intro": "搭自动计费系统：循环扣款、账单生成与送达、失败重试与催收、改套餐时的按比例计费，以及销售税、增值税和按用量计费。正文给订阅状态流转、计费周期与支持的几种间隔，并用一段创建订阅、跑计费周期的代码说明最小可用流程。",
+    "usage": "要做 SaaS 订阅扣款、自动出账、催收失败付款或处理升级折算时用它，更多模式在 `references/details.md`。",
+    "notes": "正文是概念骨架加一段 Python 起步代码，具体实现要结合自有支付网关补。",
+    "tier": "auto"
+  },
+  "wshobson/agents/data-quality-frameworks": {
+    "name_zh": "数据质量校验",
+    "intro": "用 Great Expectations、dbt 测试和数据契约把数据质量校验落到管道里：正文按完整性、唯一性、有效性、准确性、一致性和时效性六个维度列出对应断言，给检查的金字塔分层、期待套件与检查点的搭法，以及在 CI 里自动跑校验的做法。",
+    "usage": "要建数据质量规则、写 dbt 测试或和上游定数据契约时用它，起步先 `pip install great_expectations` 再初始化项目。",
+    "notes": "正文提醒别对每列都写测试、别硬编码阈值，也别忽略新鲜度；关系型检查要跨表做。",
+    "tier": "auto"
+  },
+  "wshobson/agents/embedding-strategies": {
+    "name_zh": "嵌入模型选型",
+    "intro": "为语义检索和 RAG 选嵌入模型并调优：正文按维度、最大 token 数和适用场景对比 voyage-3-large、text-embedding-3-large、bge-large-en-v1.5 等模型，再给切块与预处理的流水线，以及归一化、批量请求、缓存等实践和常见错误。",
+    "usage": "挑嵌入模型、定切块大小与重叠、比较多语言表现或要降维时用它；细节模板在 `references/details.md`。",
+    "notes": "正文提醒别混用不同模型的向量，也别忽略 token 上限造成截断；静态内容建议缓存向量。",
+    "tier": "auto"
+  },
+  "wshobson/agents/go-concurrency-patterns": {
+    "name_zh": "Go 并发模式",
+    "intro": "Go 并发的生产写法：goroutine、channel、select、互斥锁、等待组和 context 的职责划分，配工人池、管道、优雅退出和竞态排查的样板。正文用带超时的 context、缓冲 channel 加等待组的例子说明如何拉起工人、收结果并在退出时关闭通道。",
+    "usage": "要写并发任务、搭工人池、管 goroutine 生命周期或查竞态时用它，细节在 `references/details.md`。",
+    "notes": "通道只由发送方关闭；别用 time.Sleep 做同步，也别忽略 ctx.Done()。",
+    "tier": "auto"
+  },
+  "wshobson/agents/prometheus-configuration": {
+    "name_zh": "指标采集配置",
+    "intro": "配 Prometheus 做指标采集、存储和告警：正文讲抓取配置、记录规则、告警规则设计与服务发现，给指标命名、抓取间隔、保留期、重打标签、高可用、联邦和长期存储的经验条目，并用三条 curl 请求演示怎么查目标、查配置和试查询。",
+    "usage": "要新搭 Prometheus、调抓取或告警规则、排查采集不到指标时用它，例如 `curl http://localhost:9090/api/v1/targets`。",
+    "notes": "长周期存储建议上 Thanos 或 Cortex；正文也提醒把 Prometheus 自身纳入监控。",
+    "tier": "auto"
+  },
+  "wshobson/agents/startup-metrics-framework": {
+    "name_zh": "创业指标框架",
+    "intro": "按种子轮到 A 轮的阶段跟踪创业公司的关键指标：市场型的 GMV、抽成率与流动性，以及单位经济、增长效率和现金管理。正文给每个指标的计算式、合理区间和健康信号，并要求先读通用的收入、单位经济与现金指标，再按业务类型看专门部分。",
+    "usage": "要定指标口径、算 CAC、LTV 或燃烧倍数、做投资人报表和董事会看板时用它。",
+    "notes": "正文把成交率、复购率当成流动性的判据；不同业务模型该看的指标不同，别一套口径套所有公司。",
+    "tier": "auto"
+  },
+  "yuan1z0825/nature-skills/nature-experiment-log": {
+    "name_zh": "实验日志标准化",
+    "intro": "把图片、语音和文字的实验材料整理成带 YAML frontmatter 的 Markdown 日志：正文规定了实验 ID 与样品批次 ID 的编码规则、raw 归档目录、按体系与类型分层的日志结构，以及索引、异常记录和设备追踪模板。可选接飞书 CLI 与 Obsidian。",
+    "usage": "手上有一批实验照片、语音记录或零散笔记要归档时用它；缺温度、样品编号这类信息会先问你，不猜测写入。",
+    "notes": "飞书群取材料要 bot 在群里且有消息与资源权限；不指定输出目录时先给可保存的 Markdown，不擅自选路径。",
+    "tier": "auto"
+  }
+}
