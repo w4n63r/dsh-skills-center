@@ -12,7 +12,7 @@
 //   1. JSON 形状 { id: { name_zh, intro, usage, notes } }
 //   2. id 集合与输入分片完全一致（不许多、不许少、不许改名）
 //   3. 四个字段都在，且都是字符串
-//   4. name_zh 2–10 个字符；intro 60–500 字；usage 20–300 字；notes 0–300 字
+//   4. name_zh 2–16 个字符；intro 60–500 字；usage 20–300 字；notes 0–300 字
 //   5. 禁用词（用户明确要求不要的那批营销词）
 //   6. intro 里不许留占位符（TODO/TBD/xxx/XXX/示例/待补）
 //   7. tier 只能是 hand / auto（缺失按 hand，兼容没有 tier 的旧数据）
@@ -32,7 +32,7 @@ export const BANNED = ['专治', '逼出', '无死角', '一站式', '深度赋�
 export const PLACEHOLDERS = ['TODO', 'TBD', 'xxx', 'XXX', '示例', '待补'];
 export const FIELDS = ['name_zh', 'intro', 'usage', 'notes'];
 export const LENGTH_RULES = {
-  name_zh: { min: 2, max: 10 },
+  name_zh: { min: 2, max: 16 },
   intro: { min: 60, max: 500 },
   usage: { min: 20, max: 300 },
   notes: { min: 0, max: 300 },

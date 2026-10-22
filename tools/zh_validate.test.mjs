@@ -53,8 +53,11 @@ try {
   const shortIntro = validateEntry({ ...good, intro: '太短了' }, { id, body });
   assert.equal(shortIntro.ok, false);
   assert.ok(shortIntro.errors.some((e) => /intro 长度/.test(e)), `expected intro length error: ${shortIntro.errors.join(' | ')}`);
-  const longName = validateEntry({ ...good, name_zh: '这个中文名字实在太长了一点' }, { id, body });
-  assert.ok(longName.errors.some((e) => /name_zh 长度/.test(e)), 'name_zh 超过 10 字要报错');
+  const longName = validateEntry({ ...good, name_zh: '这是一个明显超过十六个码点上限的中文名字' }, { id, body });
+  assert.ok(longName.errors.some((e) => /name_zh 长度/.test(e)), 'name_zh 超过 16 个码点要报错');
+  // 放宽到 16 之后，产品名不再被迫缩写（例如「Spring Boot 测试」15 个码点）
+  const roomyName = validateEntry({ ...good, name_zh: 'Spring Boot 测试' }, { id, body });
+  assert.equal(roomyName.errors.some((e) => /name_zh 长度/.test(e)), false, '15 个码点的产品名应当通过');
 
   // ---- 3) 禁用词失败 ----
   const banned = validateEntry({ ...good, notes: '这就是个神器' }, { id, body });
