@@ -38,8 +38,8 @@ const USAGE = `usage:
   --require-all 只按这段判缺失（写手只负责其中一段时不会把别段算成错误）。`;
 
 const PLAN_FLAGS = { catalog: null, bodies: null, from: '0', count: null, batch: null, out: 'tmp/zh-batches', parts: 'data/zh' };
-const CHECK_FLAGS = { input: null, written: null, catalog: null, bodies: null, from: '0', count: null, 'require-all': false };
-const APPLY_FLAGS = { input: null, written: null, part: null, catalog: null, bodies: null, from: '0', count: null, 'require-all': false };
+const CHECK_FLAGS = { input: null, written: null, out: null, catalog: null, bodies: null, from: '0', count: null, 'require-all': false };
+const APPLY_FLAGS = { input: null, written: null, out: null, part: null, catalog: null, bodies: null, from: '0', count: null, 'require-all': false };
 
 function parseFlags(argv, spec) {
   const out = { ...spec };
@@ -249,6 +249,8 @@ function reportContext(bodiesDir) {
 
 export async function check(argv) {
   const opts = parseFlags(argv, CHECK_FLAGS);
+  // 写手习惯照 plan 的 --out 来写；这里认成 --written 的别名，省一轮试错。
+  opts.written = opts.written || opts.out || null;
   if (!opts.input || !opts.written) {
     console.error(USAGE);
     console.error('check 必须给 --input 和 --written');
@@ -288,6 +290,7 @@ const entryKey = (entry) => JSON.stringify([entry.name_zh, entry.intro, entry.us
 
 export async function apply(argv) {
   const opts = parseFlags(argv, APPLY_FLAGS);
+  opts.written = opts.written || opts.out || null;
   if (!opts.input || !opts.written || !opts.part) {
     console.error(USAGE);
     console.error('apply 必须给 --input、--written 和 --part');

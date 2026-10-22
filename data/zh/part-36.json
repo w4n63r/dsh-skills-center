@@ -1,0 +1,177 @@
+{
+  "antfu/skills/turborepo": {
+    "name_zh": "turbo 构建配置",
+    "intro": "JavaScript 与 TypeScript monorepo 的构建系统用法：任务默认写在各包自己的 package.json 里，再在根 turbo.json 注册并声明 dependsOn 与 outputs，根 package.json 只做转发；把任务逻辑堆在根脚本里会毁掉并行。写进代码或 CI 的一律用 `turbo run`，`turbo build` 这种简写只给终端临时敲。缓存按依赖图复用，remote cache 与 `--filter`、`--affected` 用来只跑改动的包。",
+    "usage": "配 turbo.json 任务管线、新建包、拆内部包共享代码、只跑改动包、调缓存或优化 CI 时用。",
+    "notes": "正文按决策树指向 references/configuration/tasks.md 等子文件；版本 2.9.19-canary.9。",
+    "tier": "auto"
+  },
+  "anthropics/claude-code/plugin-settings": {
+    "name_zh": "插件配置存储",
+    "intro": "为 Claude Code 插件存用户可改的配置与状态：在项目目录的 `.claude/plugin-name.local.md` 里放 YAML frontmatter 加 markdown 正文，frontmatter 放布尔、数值、列表这类结构化设置，正文放提示词与补充上下文。文件按项目隔离、由用户自己管，不进 git，应该写进 .gitignore；钩子、命令与 agent 都从同一份文件读。钩子里先用 sed 与 grep 抠出 frontmatter 字段，文件不存在或 enabled 不为 true 就直接静默退出。",
+    "usage": "要加插件配置、插件状态文件、按项目覆盖设置、读取 `.claude/plugin-name.local.md` 的 YAML frontmatter，或让插件行为可配置时用。",
+    "notes": "正文含钩子里解析 frontmatter 的完整 bash 写法，另有 examples/read-settings-hook.sh。",
+    "tier": "auto"
+  },
+  "cloudai-x/threejs-skills/threejs-interaction": {
+    "name_zh": "三维场景交互",
+    "intro": "three.js 场景里做拾取与操作：pointerdown、pointermove、pointerup 一套监听就覆盖鼠标、触摸与笔，不用另写触摸分支；把事件坐标按画布矩形换算成 NDC，`setFromCamera` 之后 `intersectObject` 就能拿到命中。射线只测 layers 不看可见性，所以能拿不可见代理去接复杂模型；背面默认打不中，需要两面都中就改材质；OrbitControls 开了阻尼就要每帧 update。WebGL 与 WebGPU 下行为一致。",
+    "usage": "要在 3D 场景里点选物体、加相机控制、做拖拽、悬停或框选，或处理触摸与键盘输入时用。",
+    "notes": "正文以 three.js r186 为准；代码用 WebGLRenderer，WebGPU 与 TSL 段落换 WebGPURenderer。",
+    "tier": "auto"
+  },
+  "dmmulroy/anti-slop/install-anti-slop": {
+    "name_zh": "slop 规则安装",
+    "intro": "把 anti-slop 这套 Oxlint 插件以 vendored 方式落进目标仓库：从技能里跑 `node <skill-directory>/scripts/install.mjs`，默认生成 tools/oxlint/anti-slop/，仓库有自己的工具目录布局时可传别的相对路径。已有安装不要覆盖，走升级或迁移流程并保住本地定制。依赖按仓库现有 oxlint 版本精确装同版本 @oxlint/plugins，别写成范围；拷过去的 vendor/eslint-stylistic/LICENSE 与 UPSTREAM.md 要留着，它们是随规则走的来源说明。",
+    "usage": "要新增 anti-slop、跟进上游规则或修复、或迁移重配已有安装又不想丢本地改动时用。",
+    "notes": "脚本拒绝覆盖已存在的目标目录，别用强制参数绕过；oxlint 与插件走开发依赖。",
+    "tier": "auto"
+  },
+  "github/awesome-copilot/create-specification": {
+    "name_zh": "规格文档撰写",
+    "intro": "为解决方案写一份给生成式 AI 读的规格文件：写清需求、约束与接口，语言精确不靠语境，缩写与领域词逐个定义，结构用标题、列表与表格，文档自身要完整到不依赖外部上下文。存进 `/spec/` 目录，文件名按 `spec-[a-z0-9-]+.md`，前缀说明用途属于 schema、tool、data、infrastructure、process、architecture 还是 design。正文给了完整模板：目的与范围、定义、需求与约束（REQ-001、SEC-001、CON-001 这类编号）、接口与数据契约、验收标准。",
+    "usage": "要新建规格或需求文档、希望它结构化且能被 AI 直接读懂，或按固定模板补齐各章节时用。",
+    "notes": "正文给了 front matter 字段：title、version、date_created、last_updated、owner、tags。",
+    "tier": "auto"
+  },
+  "okx/onchainos-skills/okx-agent-payments-protocol": {
+    "name_zh": "OKX 代理支付",
+    "intro": "处理遇到付费墙的 agent 调用：三条路径按 HTTP 签名区分，accepts 式 402（v1 把挑战放响应体，v2 放 PAYMENT-REQUIRED 头）、`WWW-Authenticate: Payment` 式 402（可开 channel，intent 为 charge 或 session）、以及基于 paymentId 不走 402 的 a2a-pay。共享步骤是检测、解码、确认、钱包检查，再按路径分派到参考文件。每次支付只出一张确认卡，从检测到出卡之间不输出任何用户可见文字，也不许以用户偏好为由跳过确认。",
+    "usage": "碰到 HTTP 402 或 payment-required、付费的 Agent 或 A2MCP 端点、x402 与 Permit2、MPP 的 channel、voucher、session、HTTP 支付订阅、paymentId 与 payment link 操作时用。",
+    "notes": "面向用户统一写 OKX Agent Payments Protocol 并加粗；MIT。",
+    "tier": "auto"
+  },
+  "openai/skills/pdf": {
+    "name_zh": "PDF 处理",
+    "intro": "读写 PDF 且版式要紧时的流程：先把页面渲染成 PNG 用眼睛看版式，能用 `pdftoppm` 就用，不行就装 Poppler 或请用户本地确认；新建文档用 reportlab，抽文字用 pdfplumber 或 pypdf，但别拿抽取结果当版式依据。每轮改动后重渲染并核对对齐、间距与可读性。中间文件放 tmp/pdfs/，成品放 output/pdf/，文件名保持稳定可读；只用 ASCII 连字符，别在交付物里留工具 token。",
+    "usage": "要读版式敏感的 PDF、用代码生成 PDF、或在交付前验证渲染效果时用；依赖缺失时正文给了 uv 与系统包的安装写法。",
+    "notes": "依赖 reportlab、pdfplumber、pypdf 与 Poppler；不需要环境变量。",
+    "tier": "auto"
+  },
+  "parallel-web/parallel-agent-skills/parallel-data-enrichment": {
+    "name_zh": "批量数据增补",
+    "intro": "给公司、人物或产品名单补网页来源字段，比如 CEO、融资、联系方式，输入可以是 CSV 也可以是内联数据。不确定要补哪些列时先让 `enrich suggest` 出建议，把返回里的 `enriched_columns` 数组传给 `--enriched-columns`，它与 `--intent` 二选一。跑起来按行数和字段数可能要几分钟，动手前先跟用户说。接着上次研究任务做时用 `--previous-interaction-id` 承接上下文，ZDR 账户不支持就显式给上下文；增补不返回新的 interaction_id，后续还得用原来那个。",
+    "usage": "要把一份公司或人物清单批量补列、给 CSV 加网页来源字段，或续着上次研究任务继续增补时用。",
+    "notes": "需要 parallel-cli（`enrich suggest` 要 0.3.0 及以上）与网络；显式给列默认走 core-fast 处理器。",
+    "tier": "auto"
+  },
+  "parallel-web/parallel-agent-skills/parallel-web-extract": {
+    "name_zh": "网页正文抽取",
+    "intro": "用并行抽取把一批 URL 的正文抓下来：每个地址单独作为带引号的位置参数传，一次最多 20 个，别把多个地址塞进一个字符串。`-o` 落盘 JSON 后以文件为准，stdout 可能截断；要聚焦加 `--objective`，要完整正文加 `--full-content` 并用 `--full-content-max-chars` 限长，只要正文可用 `--no-excerpts`，相关调用用 `--session-id` 归组。失败时看退出码与逐地址的 errors，成功与失败可以同时存在，只呈现成功部分并点名失败地址与原因。",
+    "usage": "用户点名要这个技能、需要 CLI 参数控制或落盘 JSON，或没有 Parallel 的 web_fetch MCP 工具时用；普通网页优先用 MCP 的 web_fetch。",
+    "notes": "需要 parallel-cli 与网络；页面改名时正文建议用 `parallel-cli search` 找现址。",
+    "tier": "auto"
+  },
+  "parallel-web/parallel-agent-skills/result": {
+    "name_zh": "研究结果获取",
+    "intro": "按 run ID 取已完成研究任务的结果。正文只有一条调用：带 run ID 跑 research poll 并加 `--json`，然后把 JSON 里的结果整理成清晰有序的形态呈现；若本机没有 CLI，则提示用户先运行 parallel-cli 的安装命令。",
+    "usage": "研究任务已经跑完、要把结果取回来整理呈现时用；需要提供 run ID。",
+    "notes": "需要 parallel-cli；正文只有一条取结果命令与呈现要求。",
+    "tier": "auto"
+  },
+  "parallel-web/parallel-agent-skills/status": {
+    "name_zh": "研究任务状态",
+    "intro": "按 run ID 查 Parallel 研究任务还在不在跑。正文只有一条调用：带 run ID 跑 research status 并加 `--json`，拿回 JSON 后再呈现；若本机没有 CLI，则提示用户先运行 parallel-cli 的安装命令。它只回答状态，不负责取回研究结果。",
+    "usage": "要看某个研究任务跑到哪一步、是否还在运行，或要轮询状态时用；需要提供 run ID。",
+    "notes": "需要 parallel-cli；正文没有额外参数说明，只给了这一条状态查询命令。",
+    "tier": "auto"
+  },
+  "pilioai/skills/nano-banana-2": {
+    "name_zh": "Pilio 出图",
+    "intro": "通过 Pilio CLI 调 Nano Banana 2 出图与改图：环境里要有 PILIO_API_KEY，不要让人把密钥贴进对话。文生图用 `pnpm dlx @pilio/cli nano-banana-2` 加 `--prompt` 与 `--aspect-ratio`；拿本地参考图改图或拼图时重复传 `--input`；`--resolution` 取 0.5K 到 4K。命令返回任务载荷，还在排队或处理中就用 `pnpm dlx @pilio/cli task wait <task_id>` 等结果。",
+    "usage": "要文生图、用本地参考图改图、拼图或做商品海报时用；密钥只从环境变量读。",
+    "notes": "需要 Pilio 账号与 PILIO_API_KEY；同一流程也能在 https://pilio.ai/nano-banana-2 网页上跑。",
+    "tier": "auto"
+  },
+  "rebelytics/one-skill-to-rule-them-all/task-observer": {
+    "name_zh": "任务观察记录",
+    "intro": "在真实干活的过程中顺手记录摩擦：用户纠正、临时绕开的手法、值得留下的方法，都写进一个跨会话稳定的 workspace，再做周度复盘把它们变成技能更新，反复出现的活儿标成新技能候选。workspace 要钉在一个生存期长于单次会话的绝对路径上，装在用户级或全局的技能用对应的用户级路径，别放进技能发现目录，否则会被当成技能扫进去。整个过程不联网，正文里的链接也不会被打开。",
+    "usage": "任何多步任务、agent 流程或工作会话开始时用，正文要求在第一次工具调用与写计划之前就加载；用户提到技能观察、观察日志、技能分类时也用。",
+    "notes": "父会话已在跑时，子代理不重复执行，只把发现写进自己的报告；CC-BY-4.0。",
+    "tier": "auto"
+  },
+  "rohitg00/agentmemory/commit-history": {
+    "name_zh": "提交历史查询",
+    "intro": "按分支、仓库、条数过滤出与 agent 会话关联的提交并倒序列出：每条给短 sha、分支、提交时间、消息首行、关联会话 id 与观察条数，响应里带文件信息时再补文件数。裸数字当条数，默认 100、上限 500；结果为空说明过滤没命中，不代表没干活，这时建议去掉分支或仓库条件。REST 兜底必须把参数做 URL 编码，否则带问号或井号的分支名会把查询串弄坏。",
+    "usage": "用户问 agent 交付了什么、要看关联提交、或按分支与仓库查提交及其会话上下文时用。",
+    "notes": "依赖 agentmemory：先调 `memory_commits`；工具不可用时正文指向 TROUBLESHOOTING.md。",
+    "tier": "auto"
+  },
+  "rohitg00/agentmemory/handoff": {
+    "name_zh": "会话恢复交接",
+    "intro": "接回当前目录上一次的 agent 会话：先列会话，挑 cwd 与本项目在目录边界上对得上的最近一条，再用 recall 拉关键概念。上次若停在用户没答的问题上，先把它摆最前面；然后给标题、关键文件、关键决定与错误，最后落成一个具体的下一步。匹配要按目录边界而非字符串前缀，否则 /repo-a 会把 /repo-a-staging 认成同一个项目；找不到就直说，别拿别的项目顶替。",
+    "usage": "用户说我们上次做到哪、继续、交接、接着上次的活，或新会话没有上下文要接上时用。",
+    "notes": "依赖 agentmemory 的 MCP 工具；空会话要如实说明，可提议重新开始。",
+    "tier": "auto"
+  },
+  "runpod/runpod-plugins-official/runpodctl": {
+    "name_zh": "Runpod 命令行",
+    "intro": "从终端管 Runpod 的 GPU 与 CPU 资源：pod、serverless 端点、模板、网络卷、Hub 部署、模型、SSH 与文件收发。动手前先 `runpodctl update` 到最新版并全程钉住一个版本，别在新旧二进制之间来回切，旧版缺参数会引出莫名其妙的错。agent 场景用环境变量 RUNPOD_API_KEY 做无交互认证，人第一次配用 `runpodctl doctor` 走 API key 与 SSH。",
+    "usage": "要在终端或 CI 里开 pod、建 serverless 端点、传文件、配 SSH，或 MCP 工具没接上时用；有 MCP 时优先结构化工具。",
+    "notes": "正文只支持 Linux 与 macOS，Windows 走 WSL；装法有 `curl -sSL https://cli.runpod.net | bash` 与 `brew install runpod/runpodctl/runpodctl`。",
+    "tier": "auto"
+  },
+  "sanyuan0704/sanyuan-skills/code-review-expert": {
+    "name_zh": "代码评审专家",
+    "intro": "以资深工程师视角审当前 git 改动，默认只出评审意见不改代码：先用 `git status -sb`、`git diff --stat` 与 `git diff` 圈定范围，再按 P0 到 P3 分级，P0 是安全漏洞、数据丢失或正确性 bug，必须挡合并。检查面包括 SOLID 与架构味道、可删代码（分清现在能删与留计划删）、安全与可靠性（XSS、注入、SSRF、路径穿越、鉴权缺口、密钥泄漏、竞态）。diff 超过 500 行先按文件汇总再分批审。",
+    "usage": "要审当前改动、判断这次提交能不能合、找 SOLID 违规或安全风险时用；要顺手改代码得另外说明。",
+    "notes": "正文引用 references/solid-checklist.md、removal-plan.md 与 security-checklist.md 三份清单。",
+    "tier": "auto"
+  },
+  "shopify/shopify-ai-toolkit/shopify-storefront-graphql": {
+    "name_zh": "前台 GraphQL",
+    "intro": "这是给自建 Shopify 店面直接写 GraphQL 查询与购物车变更的旧技能，正文已明确标为废弃，只留一段迁移指引：改用 shopify 那个技能，装过这一条的话先卸掉再装新的。除了废弃声明与替换命令，正文不再有查询、变更或加购的写法，所以别指望照它写代码。",
+    "usage": "需要自建店面直接写 GraphQL 查询与购物车操作时先看这里，但正文要求改走 `shopify`；已装过这一条就按正文给的命令卸载后再装。",
+    "notes": "已废弃，由 shopify 技能取代；正文给的迁移命令是 `npx skills remove shopify-storefront-graphql`（全局装加 `-g`）与 `npx skills add shopify/shopify-ai-toolkit --skill shopify`。",
+    "tier": "auto"
+  },
+  "vuejs-ai/skills/create-adaptable-composable": {
+    "name_zh": "可适配组合函数",
+    "intro": "写库级 Vue composable，让入参同时吃得下普通值、ref 和 getter：只读且要能跟随计算的用 MaybeRefOrGetter，需要可写双向绑定的用 MaybeRef。在 watch 或 watchEffect 里用 `toValue()` 把值取出来、用 `toRef()` 拿到响应式引用，行为才可预期。参数本身可能是函数（回调、谓词、比较器）时不要用 MaybeRefOrGetter，否则会被当成 getter 调掉；DOM 目标想要派生值时才用它。",
+    "usage": "用户要写可复用、可适配的 Vue composable，或把写死入参的函数改成同时接受值与 ref 时用。",
+    "notes": "需要 Vue 3 或 Nuxt 3 及以上；正文附 useDocumentTitle 与 useCounter 两个写法；MIT。",
+    "tier": "auto"
+  },
+  "vuejs-ai/skills/vue-testing-best-practices": {
+    "name_zh": "Vue 测试指引",
+    "intro": "Vue.js 测试的实践与坑位索引，按症状指向对应参考文件：搭 Vue 3 测试设施、重构组件内部就挂的测试、偶发竞态失败、用生命周期钩子或 inject 的 composable 测不了、报 injection Symbol(pinia) not found、异步 setup 的组件渲染不出、快照一直过但功能坏了、给 Vue 应用选端到端框架、要断言计算样式与真实 DOM 事件，都各有条目。E2E 方向推荐 Playwright。",
+    "usage": "给 Vue 项目搭测试、写组件测试、排查偶发失败用例、处理 Pinia 与异步组件在测试里的问题，或选 E2E 框架时用。",
+    "notes": "与 antfu/skills 版本内容相同；版本 1.0.0，MIT。",
+    "tier": "auto"
+  },
+  "wshobson/agents/bash-defensive-patterns": {
+    "name_zh": "Bash 防御式脚本",
+    "intro": "写生产级 Bash 的防御做法：开头 `set -Eeuo pipefail`，变量一律加引号防分词，条件用 `[[]]`，加错误捕获，校验输入的文件存在性与权限，函数化复用，日志带时间戳与级别，支持 dry-run，临时文件用 mktemp 并靠 trap 清理，脚本要可重复执行。查可执行文件用 `command -v` 而不是 which，输出优先 printf，跨平台时更可预期。",
+    "usage": "写生产自动化脚本、CI/CD 管线脚本、系统管理工具，或要让脚本安全处理边界情况并跨平台运行时用。",
+    "notes": "更细的写法与成品放在正文引用的 references/details.md。",
+    "tier": "auto"
+  },
+  "wshobson/agents/debugging-strategies": {
+    "name_zh": "系统化调试",
+    "intro": "把调试从猜变成流程：按科学方法走观察、假设、实验、分析、重复五步，直到找到根因；先稳定复现并压成最小复现，再收集完整堆栈、错误码、环境与依赖版本、近期改动与影响范围，然后从什么变了、哪里不一样、哪一层可能失败形成假设，用二分法缩小区间验证。心态上不信「不可能是我改的」与「我机器上是好的」，卡住就走橡皮鸭或先休息。",
+    "usage": "查难复现的 bug、性能退化、内存泄漏、线上故障、崩溃与堆栈，或接手陌生代码库时用。",
+    "notes": "正文按复现、收集信息、形成假设、测试验证四阶段给了检查清单。",
+    "tier": "auto"
+  },
+  "wshobson/agents/stripe-integration": {
+    "name_zh": "Stripe 收款",
+    "intro": "在 Web 与移动端接 Stripe 收款：多数场景用 Checkout Sessions，托管页、内嵌表单、Elements 自定义界面三条路都支持，行项目、折扣、税、运费、地址与已存支付方式都由它处理；要自己算含税金额与币种就上 Payment Intents，但维护成本更高且必须走 Stripe.js；只想存支付方式不扣款用 Setup Intents。订阅由 Product、Price、Subscription、Invoice 组成；webhook 要覆盖支付成功与失败、订阅变更与取消、退款、订阅扣款成功，还要处理退款、争议、欧洲的强客户认证与 Connect 分账。",
+    "usage": "要接 Stripe 收款、做订阅计费、实现安全结账、接 webhook 或处理退款与分账时用。",
+    "notes": "正文给 Python SDK 创建 Checkout Session 的写法；卡数据走 Stripe.js 以满足 PCI。",
+    "tier": "auto"
+  },
+  "wshobson/agents/visual-design-foundations": {
+    "name_zh": "视觉设计基础",
+    "intro": "用字体、色彩、间距、图标四套基础搭出一致的视觉系统：字号按模块化比例排阶，行高按文本类型分（标题 1.1–1.3、正文 1.5–1.7、界面标签 1.2–1.4），间距走 8 点网格，颜色用语义 token 区分品牌、成功、警告、错误、信息与中性色阶，暗色主题也从同一套 token 派生。正文给了 CSS 变量与 Tailwind 主题扩展两种落地写法。",
+    "usage": "新项目要定 design token、搭字号与间距体系、挑配对字体、做无障碍色板、设计图标系统或审视觉一致性时用。",
+    "notes": "正文含 Tailwind 的 theme.extend 配置片段与中性色阶取法。",
+    "tier": "auto"
+  },
+  "yuan1z0825/nature-skills/nature-reviewer": {
+    "name_zh": "模拟同行评审",
+    "intro": "从审稿人一侧出一份 Nature 风格的评估包：按原创性、科学重要性、跨学科可读性、技术可靠性、对非本行读者的可读性五条轴评，技术关注清单只当内部覆盖表。默认返回 3 份互盲审稿报告加 1 份复审综述，每位审稿人只拿到同一份稿件与各自侧重点，且各自在独立上下文里跑；报告先冻结再比较，比较后再单独跑一遍一致性核查，查算术、指标边界、重复呈现与可复现性。意见分 Major Concerns 与 Minor Comments，每条带稳定编号与可核对的证据位置，不设条数配额。",
+    "usage": "投稿前自审、要审稿人视角评估、模拟同行评审，或预判会被挑什么问题，就用这个；写作者回复（rebuttal）不在范围内，正文指向 `nature-response`。",
+    "notes": "上下文不能真正隔离时要明说互盲不成立；报告一旦冻结就不许按比较结果回改。",
+    "tier": "auto"
+  }
+}

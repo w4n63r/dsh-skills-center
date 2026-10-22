@@ -1,0 +1,177 @@
+{
+  "affaan-m/ecc/video-editing": {
+    "name_zh": "视频剪辑流程",
+    "intro": "面向实拍素材的剪辑流程：切分长录制、重构成片、补字幕音乐与配音、按平台改画幅，串联 FFmpeg、Remotion、ElevenLabs、fal.ai 与 Descript 或 CapCut 收尾；不做从提示词直接生成整片。",
+    "usage": "先定素材范围与目标时长，再按环节挑工具：切分转码走 FFmpeg，程序化合成走 Remotion，配音走 ElevenLabs；每步产出单独落成版本化文件再进下一步。",
+    "notes": "动编辑器或 DAW 之前先存一份带版本的工程快照并确认文件在，改完再存一次；API 回读只反映当前内存状态，不代表已保存。",
+    "tier": "auto"
+  },
+  "antfu/skills/slidev": {
+    "name_zh": "Slidev 幻灯片",
+    "intro": "用 Markdown 加 Vue 组件写面向开发者的网页幻灯片：代码高亮、点击动画、LaTeX 公式、Mermaid 与 PlantUML 图，本地起服务看效果，之后导出 PDF、PPTX 或打包成单页应用，也能录带备注的演示。",
+    "usage": "`pnpm create slidev` 建项目，`pnpm run dev` 起本地预览，`pnpm run build` 出静态单页，`pnpm run export` 导 PDF（需要 playwright-chromium）。",
+    "notes": "单页之间用 --- 分隔，首段 frontmatter 是整份 deck 的配置，HTML 注释即演讲者备注。",
+    "tier": "auto"
+  },
+  "anthropics/claude-code/plugin-structure": {
+    "name_zh": "插件目录结构",
+    "intro": "讲清 Claude Code 插件的标准目录布局与自动发现规则：清单放在 .claude-plugin/plugin.json，commands、agents、skills、hooks 各自成目录，路径引用用 ${CLAUDE_PLUGIN_ROOT} 保证可移植。",
+    "usage": "新建插件时按约定摆好各组件目录，把必需项写进 plugin.json；不确定某类文件放哪就对照正文的目录树，再决定显式声明还是交给自动发现。",
+    "notes": "正文把显式声明与自动发现分成两条路径讲；改目录名或挪位置前先确认清单和代码里的引用。",
+    "tier": "auto"
+  },
+  "anthropics/knowledge-work-plugins/data-visualization": {
+    "name_zh": "数据可视化图表",
+    "intro": "用 Python 的 matplotlib、seaborn、plotly 画图：按数据关系挑折线、柱状、堆叠、直方、散点、热力、地图、桑基或网络图，并交代配色、无障碍与出版级排版上的取舍。",
+    "usage": "先说清数据关系和读者要看的重点，照正文的图表选择表定类型；再避开饼图与立体图这类容易读错的画法，并按无障碍要求检查对比度。",
+    "notes": "正文按数据关系列了首选图与替代图，也说明了哪些场合不该用某种图。",
+    "tier": "auto"
+  },
+  "benjitaylor/agentation/agentation": {
+    "name_zh": "页面反馈工具条",
+    "intro": "在 Next.js 项目里挂上 Agentation 的可视化反馈工具条，按需把它接到编码 agent：安装包、在根布局里渲染组件、配 endpoint 指向本地 MCP 服务，让浏览器里的标注传回 agent。",
+    "usage": "先读项目说明并确认包管理器，检查是否已装 agentation 与是否已有挂载，缺则补装；App Router 放在根布局 body 里 children 之后，Pages Router 放在 pages/_app 里 Component 之后。",
+    "notes": "工具条看得见、MCP 服务健康都不等于反馈真的到了 agent，最后一步要实测过才敢说装好了。",
+    "tier": "auto"
+  },
+  "caffeinelabs/skills/connector-slack": {
+    "name_zh": "Slack 发消息",
+    "intro": "从 Caffeine canister 往 Slack 频道发消息的配方，用 slack-client 这个 mops 包对接 Slack Web API；描述把它标为实验性且未测通，请求路径验过，成功响应的解析还没在运行时确认。",
+    "usage": "用户要让应用往 Slack 频道发消息时用；优先调生成的客户端，而不是手写 ic.http_request，鉴权用机器人或用户 token。",
+    "notes": "描述明确说它是起点而非已完整支持的平台能力，接入前自己验一遍响应解析。",
+    "tier": "auto"
+  },
+  "clerk/skills/clerk-nuxt-patterns": {
+    "name_zh": "Nuxt 鉴权集成",
+    "intro": "给 Nuxt 3 项目接上 @clerk/nuxt：装模块并配置密钥后，中间件、插件和组件自动注册；组件里用 useAuth 与 useUser，Nitro 服务端路由里用 clerkClient，路由保护交给 clerkMiddleware。",
+    "usage": "执行 `npm install @clerk/nuxt`，在 .env 里写 `NUXT_PUBLIC_CLERK_PUBLISHABLE_KEY` 和 `NUXT_CLERK_SECRET_KEY`，把模块加进 nuxt.config.ts 的 modules；页面用 definePageMeta 指定 middleware 来挡未登录访问。",
+    "notes": "细节拆在 references/ 下的中间件、服务端路由、组合式函数和 SSR 四份文档，按任务读对应那份。",
+    "tier": "auto"
+  },
+  "cloudai-x/threejs-skills/threejs-geometry": {
+    "name_zh": "three 几何体",
+    "intro": "在 three.js 里造形状与自定义网格：内置几何体、3D 文字、顶点缓冲与属性、几何体合并、实例化与批处理，以及点云和线段；WebGL 与 WebGPU 加 TSL 两条渲染路径都覆盖。",
+    "usage": "按要做的形状挑构造器，比如 `new THREE.BoxGeometry(1, 1, 1)` 或 `new THREE.SphereGeometry(1, 32, 16)`；几何体只是形状，多个网格可以共用同一个实例。",
+    "notes": "内容对的是 r186，旧版本里类名和参数可能有出入；实例化适合大量重复物体，比逐个网格省。",
+    "tier": "auto"
+  },
+  "cloudai-x/threejs-skills/threejs-materials": {
+    "name_zh": "three 材质选择",
+    "intro": "在 three.js 里挑与调材质：不受光的 Basic、漫反射的 Lambert、带便宜高光的 Phong、PBR 的 Standard 与 Physical、卡通材质，以及点与线材质；还讲混合、模板缓冲等共用属性与环境响应。",
+    "usage": "先判断表面要不要受光，再选材质类型；受光材质记得布灯，否则渲染出来是黑的。调参从颜色、粗糙度、金属度三项入手。",
+    "notes": "内容对的是 r186；WebGPU 与 TSL 用的是另一套节点材质写法，别直接照搬网格材质的参数。",
+    "tier": "auto"
+  },
+  "code.deepline.com/deepline-engine": {
+    "name_zh": "Play 状态机",
+    "intro": "在 Customer DB 的表之上，把一份 Deepline Play 搭成可持久的状态机，并完成发布与验证，其中包含一次小规模付费试点；描述要求用户明确说要做引擎时才启用。",
+    "usage": "用户明确提出要搭引擎时启用，围绕 Customer DB 现有表设计状态流转，跑通发布与验证之后再做付费试点。",
+    "notes": "本地没抓到这份技能的正文，具体命令与接口以仓库里的 SKILL.md 为准。",
+    "tier": "auto"
+  },
+  "earthtojake/text-to-cad/cad": {
+    "name_zh": "参数化 CAD 建模",
+    "intro": "用 Python 模型文件做参数化 CAD：建零件与装配、整理多模型项目、导出 STEP、STL、3MF、GLB，按提示里的引用解析已有文档，并用原生几何做尺寸测量与检查。",
+    "usage": "先找现成的 Python 模型文件或新建一个装饰过的模型，改源码后跑 `python <model>.py`；只导出网格时给格式加装饰器，或直接执行该格式的 build 命令。",
+    "notes": "装配定位与项目布局各有单独参考，按任务只读需要的那份；从图片或图纸建模要记下假设的尺寸。",
+    "tier": "auto"
+  },
+  "elysiajs/skills/elysiajs": {
+    "name_zh": "Elysia 后端",
+    "intro": "Elysia v2 的 TypeScript 后端开发：路由、校验、插件组合、类型化客户端与部署，也讲从 v1 迁过来时要改的写法，以及怎么避免返回类型被悄悄放宽。",
+    "usage": "先看 package.json 和锁文件确认版本，再按需读参考文档；改完检查类型并实际打一次受影响路由，连它的失败分支一起验。",
+    "notes": "内容对应 2.0.0-rc.0 及更新版本；选项参数要写在处理函数前面，链式调用或另存变量才不会丢返回类型。",
+    "tier": "auto"
+  },
+  "github/awesome-copilot/playwright-automation-fill-in-form": {
+    "name_zh": "表单自动填写",
+    "intro": "用 Playwright MCP 打开指定表单页，按字段逐项填入下拉、日期、时间、文本和图片上传，填完先请人复核再决定是否提交；正文其实是一份写死了具体值的一次性填单脚本。",
+    "usage": "照正文步骤把表单地址、各字段的取值和图片路径换成自己的，用 Playwright MCP 驱动浏览器填写，走到提交前停下来请人检查。",
+    "notes": "原正文写死了表单链接、日期和本机图片路径，并明确要求不要提交，直接套用会填错表单。",
+    "tier": "auto"
+  },
+  "jakubkrehel/skills/variant": {
+    "name_zh": "界面多方案对比",
+    "intro": "针对同一段界面说明，做出三份在同一条轴上明显不同的方案，挂进真实页面的选择器里来回切换挑一个；只产出候选，不替人排序，也不做颜色深浅这种换皮。",
+    "usage": "先选一条主轴，结构、密度、重点、字体或文案，每个方案在这条轴上取不同位置，再接到页面里的切换器；无障碍底线要先过。",
+    "notes": "与 interface-review、break、state-machine 分工不同：审查已有界面、压测单个组件、梳理状态走别的技能。",
+    "tier": "auto"
+  },
+  "paramchoudhary/resumeskills/resume-ats-optimizer": {
+    "name_zh": "简历 ATS 优化",
+    "intro": "针对招聘系统的解析规则检查并改写简历：解析文件、对比职位描述提取关键词、指出会打断解析的排版问题、算简历与岗位的匹配程度，再给出格式与措辞上的调整建议。",
+    "usage": "把简历文件和目标职位描述一起给出，先过一遍解析兼容清单，再按缺失关键词补写到对应小节，最后复核格式项。",
+    "notes": "文件用 docx 或文字可选的 PDF；正文对字体、字号、分节标题都有硬性要求，别用表格分栏和页眉页脚。",
+    "tier": "auto"
+  },
+  "rohitg00/agentmemory/commit-context": {
+    "name_zh": "提交来源追溯",
+    "intro": "把一个文件、函数或行段追溯回产生当前提交的那次 agent 会话：先用 blame 或 log 拿到提交号，再查出关联会话与重要度较高的观察，最终讲清这段代码当时在做什么。",
+    "usage": "按范围选 `git blame -L 40,52 src/auth/refresh.ts` 或 `git log -L`，拿到提交号后调 `memory_commit_lookup`；查不到就说提交早于会话关联。",
+    "notes": "查询返回 commit 为 null 时只报 git show 显示的事实，不推断动机；会话细节照抄查询结果。",
+    "tier": "auto"
+  },
+  "rohitg00/agentmemory/forget": {
+    "name_zh": "删除长期记忆",
+    "intro": "按要求从 agentmemory 里删掉指定记忆：先检索出命中的条目，把 id、标题和范围列出来，等用户明确确认后再按记忆 id 删除。观察记录和整段会话不支持用这条路径擦除。",
+    "usage": "先用 `memory_smart_search` 检索，targetLayer 取 memory、limit 给 20，选中后调 `memory_governance_delete`，memoryIds 用逗号串，可附 reason 说明原因。",
+    "notes": "删除不可逆，沉默或一句随便不算确认；经验条目要用 memory_lesson_delete 单独删，别把局部删除说成清空会话。",
+    "tier": "auto"
+  },
+  "rohitg00/agentmemory/recall": {
+    "name_zh": "跨会话记忆回溯",
+    "intro": "在 agentmemory 里按主题检索过去的观察、会话与经验，走 BM25 加向量加图谱的混合检索；只呈现工具真正返回的记录，查不到就直说，不编会话号也不编重要度。",
+    "usage": "调用 `memory_smart_search`，query 用用户原话、limit 一般给 10；要引用全文或说明出处时再带上选中 id 展开，作用域按 project 或 agentId 收窄。",
+    "notes": "结果是相关命中，不是全量清单；重要度低的条目别抬到结论前面，扩展失败要说明这条限制。",
+    "tier": "auto"
+  },
+  "rohitg00/agentmemory/recap": {
+    "name_zh": "阶段工作回顾",
+    "intro": "把当前项目最近若干次 agent 会话按日期分组汇总，每组列出会话号前八位、标题或首条提示、观察条数与状态，再用检索取出每条会话里值得看的要点。",
+    "usage": "调用 `memory_sessions`、limit 给 30，再对留下的会话逐个调 `memory_recall` 取要点；参数留空按最近 10 次算，today 指当天、this week 指最近七天。",
+    "notes": "窗口里没有记录就如实说没有，不要凭印象补活动；末尾交一句会话数、天数和观察条数的汇总。",
+    "tier": "auto"
+  },
+  "rohitg00/agentmemory/session-history": {
+    "name_zh": "会话历史时间线",
+    "intro": "把本项目最近几次会话按时间倒序列成干净的时间线：每条给出会话号前八位、所属项目、开始时间、状态和观察条数，有会话摘要时再带出标题与关键决定。",
+    "usage": "调用 `memory_sessions`，project 用记录在案的准确标识、limit 可取 20；要翻页就沿 nextCursor 继续并保持同样的过滤条件，别换成别的项目。",
+    "notes": "空历史本身就是答案，不要凭印象补；只显示了部分页时要说清楚这是片段。",
+    "tier": "auto"
+  },
+  "schpet/linear-cli/linear-cli": {
+    "name_zh": "Linear 命令行",
+    "intro": "用 linear 命令行工具管理 Linear 议题：按团队、状态、项目、标签、负责人和更新时间组合过滤查询，创建与更新议题，并从 git 与 jj 的上下文里带出关联信息。装上之后日常查单和录入都在终端里完成。",
+    "usage": "先跑 `linear --version` 确认命令在 PATH，没装可直接用 `npx @schpet/linear-cli` 代替；筛议题用 `linear issue query --team ENG --state started --json`，新建议题用 `linear issue create --team ENG --title`，脚本里加 --no-input 免得被追问。",
+    "notes": "专属命令优先于 `linear api` 的 GraphQL 兜底；多行 markdown 描述写进文件后用 --description-file 传入。",
+    "tier": "auto"
+  },
+  "sickn33/agentic-awesome-skills/nodejs-best-practices": {
+    "name_zh": "Node 架构准则",
+    "intro": "面向 Node.js 的判断准则而非现成代码：按部署目标在 Hono、Fastify、NestJS、Express 之间选框架，讨论原生 TypeScript 支持、异步写法、安全与部署取舍，先问清场景再给方案。",
+    "usage": "把部署目标、冷启动要求、团队经验和存量代码这几点说清，正文的决策树与提问清单会据此给出框架选择和异步模式建议，不要照默认模板套。",
+    "notes": "正文标了 risk: critical、来源写的是 community；重点是判断方法，具体版本与库选择按项目现状核对。",
+    "tier": "auto"
+  },
+  "wecomteam/wecom-unified/wecom-unified": {
+    "name_zh": "企业微信套件",
+    "intro": "通过 wecom-cli 调用企业微信各项能力：通讯录与身份、在线文档与表格、智能表格、演示文稿、日程与会议、待办、微盘、邮件和消息；先判断意图属于哪个业务域，再读该域的参数说明拼命令。",
+    "usage": "先跑 `wecom-cli --version` 确认不低于 1.2.1，再用 `wecom-cli auth show --status` 看授权状态，未授权时执行 `wecom-cli auth init --noninteractive` 扫码。",
+    "notes": "最终回复里不出现 userid、chat_id 这类内部标识，用户主动索要也不放宽；版本不达标先装 @wecom/cli，仍不行就停下报错。",
+    "tier": "auto"
+  },
+  "wshobson/agents/changelog-automation": {
+    "name_zh": "变更日志自动化",
+    "intro": "按 Keep a Changelog 与语义化版本整理提交和 PR，自动生成变更日志与发布说明：约定式提交、按 Added 与 Changed 等小节分组、破坏性变更标注、依赖升级表格都在覆盖范围内。",
+    "usage": "先把提交信息格式统一，再把提交与 PR 按类型映射到对应小节，最后按版本号生成发布说明；破坏性变更和升级步骤单独成段。",
+    "notes": "更细的模式说明在正文的 references/details.md 里；分类与版本号规则先跟项目既有约定对齐再改。",
+    "tier": "auto"
+  },
+  "wshobson/agents/deployment-pipeline-design": {
+    "name_zh": "发布流水线设计",
+    "intro": "设计带审批卡点、安全检查与渐进发布的多阶段 CI/CD 流水线：确定阶段划分、健康检查深浅、门禁指标阈值、金丝雀灰度或蓝绿切换参数，并交代多环境晋级与回滚路径。",
+    "usage": "先说清应用类型、部署目标、环境拓扑、可接受停机时间与门禁约束，产出会落到阶段定义、发布策略、健康检查和指标阈值上，再逐项核对。",
+    "notes": "自动晋级依赖监控数据源，Prometheus、Datadog、CloudWatch 之类要先确认拿到指标。",
+    "tier": "auto"
+  }
+}
