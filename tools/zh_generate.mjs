@@ -32,7 +32,10 @@ import { discoverBodyContext, makeBodyReader, validateEntry } from './zh_validat
 const USAGE = `usage:
   node tools/zh_generate.mjs plan  --catalog <catalog.json> [--bodies <dir>] --from <n> --count <m> [--batch 25] [--out tmp/zh-batches] [--parts data/zh]
   node tools/zh_generate.mjs check --input <in.json> --written <out.json> [--catalog <catalog.json>] [--bodies <dir>] [--require-all]
-  node tools/zh_generate.mjs apply --input <in.json> --written <out.json> --part <part-N.json> [--catalog <catalog.json>] [--bodies <dir>] [--require-all]`;
+  node tools/zh_generate.mjs apply --input <in.json> --written <out.json> --part <part-N.json> [--catalog <catalog.json>] [--bodies <dir>] [--require-all]
+
+  --from 是 0 基下标，取输入文件的 slice(from, from+count)；check/apply 也认这段切片，
+  --require-all 只按这段判缺失（写手只负责其中一段时不会把别段算成错误）。`;
 
 const PLAN_FLAGS = { catalog: null, bodies: null, from: '0', count: null, batch: null, out: 'tmp/zh-batches', parts: 'data/zh' };
 const CHECK_FLAGS = { input: null, written: null, catalog: null, bodies: null, from: '0', count: null, 'require-all': false };

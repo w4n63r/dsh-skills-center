@@ -1,0 +1,177 @@
+{
+  "dontbesilent2025/dbskill/dbs-agent-migration": {
+    "name_zh": "工作台迁移",
+    "intro": "把一个项目的 Agent 配置从混乱或半迁移状态整理成多端一致：审计 CLAUDE.md、AGENTS.md、SOURCE_OF_TRUTH.md 和散落各处的 skill，判断属于哪一类规则层结构，确定 skills/ 为真源，把 ~/.claude/skills、~/.grok/skills、~/.agents/skills 当桥接或安装入口，而不是长期维护处。支持 Claude Code 与 Codex、Grok、通用 Agents（豆包 Mac App、Trae Solo、Codex 读的目录）之间互相迁移，也包括多端统一。Grok 的桥接必须在 frontmatter 写 user_invocable 为 true，并在正文标出真源绝对路径，否则在 TUI 里搜不到。",
+    "usage": "要把项目迁到 Codex 或统一多端时，先让它审计现有规则文件和 skill 散落位置，确认真源目录后再生成桥接。",
+    "notes": "只管结构与桥接，不做单个 skill 的方法论评审，也不做业务诊断；切换位置或改 .gitignore 前会先确认。",
+    "tier": "auto"
+  },
+  "dontbesilent2025/dbskill/dbs-goal": {
+    "name_zh": "目标变可验收",
+    "intro": "把模糊愿望整理成能指导行动、能判断完成的交付目标。先从上下文提取已有约束：交付物、使用对象、范围、规格、完成条件、约束，不要求用户重复；信息够用就直接放行，给出交付物与下一步，不再追问。缺一项会改变交付物、执行路径或验收的信息时，只交代已经明确的部分，再问 1 个具体问题并停下等回答；只有「做个人 IP」这类愿望式表达时，每轮问 1 个缩小范围的问题。判断用五项特征：可指物性、可否证性、有完成态、语法健全、嵌在上下文里，满足三项即算可用，不设硬门槛。对「更好、深入、系统、全面」这类词做语义做工检测，看它是否改变了交付物、对象、范围格式、执行路径或验收结果，而不是看删掉后句子还通不通顺。",
+    "usage": "目标说法含糊时，先让它提取已有约束出一张目标卡，被追问就每轮只答一个问题，最后确认完成条件有可识别证据。",
+    "notes": "只做目标清晰化，不做概念拆解、研究问题改写、顾客购买动机分析；不替你定数字、期限与成功标准；一次只问一个问题，要逐轮回答。",
+    "tier": "auto"
+  },
+  "dontbesilent2025/dbskill/dbs-report": {
+    "name_zh": "诊断报告合并",
+    "intro": "把同一项目下多份 dbs-save 存档合并成一份 Markdown 报告，固定六段：主诉演进、已确认的结论、已否决的方向、当前未解决的问题、已确认的下一步、存档索引附录。结论后来被推翻时新旧都列，旧条目标注已被修正。写到 reports 下按项目名和带时间戳的文件，每次新生成一份、永不覆盖，方便对比不同时点的快照。只有一份存档时会先问要不要强制出报告，零份则直接说明没有可汇总内容。",
+    "usage": "项目里存过两次以上诊断后，跑 /dbs-report，需要只看近期就加 --since 2026-04-01 这样的日期参数。",
+    "notes": "只读存档、不修改配置；存档是本地纯文本，不做脱敏，也不出 PDF 或 HTML。",
+    "tier": "auto"
+  },
+  "dontbesilent2025/dbskill/dbs-restore": {
+    "name_zh": "恢复诊断",
+    "intro": "从本地存档里拉回最近一次诊断状态，紧凑展示主诉、已得出的结论、已否决的方向、待验证假设和上次留的下一步，末尾只问一句从哪儿继续，不替用户挑下一步，也不主动跳到别的 skill。支持按序号取、按项目名切到别的项目、以及 list 模式；「最新」按文件名前缀的时间判断，不看文件修改时间。当前项目没有存档时列出最近活跃的三个项目让用户选。用户说按上次的下一步走，才把存档内容当输入交给对应 skill。",
+    "usage": "隔了几天要接着上次诊断，跑 /dbs-restore 看状态摘要，再回答从哪儿继续。",
+    "notes": "只读配置、不改存档位置；不会跨目录自动搜私人文件；文件被手改坏时尽量用现有信息展示。",
+    "tier": "auto"
+  },
+  "dontbesilent2025/dbskill/dbs-save": {
+    "name_zh": "诊断存档",
+    "intro": "把当前对话里诊断出的主诉、已得出的结论、用户已否决的方向、待验证假设和已确认的下一步写成一个结构化 Markdown 存档：frontmatter 字段固定，正文六段按顺序，文件名带时间戳，同一状态存两次也不会冲突。同时负责存档位置：默认 ~/.dbs/，也可用项目内 .dbs/ 或指定的本地、云同步目录，只有明确执行 location 子命令才写配置。对话里还没有结论时会拒绝写空文件。list 模式列出存档的时间、标题、状态和来源。",
+    "usage": "有结论要留时说「保存」，或跑 /dbs-save 加标题；要查已有记录就跑 /dbs-save list。",
+    "notes": "存档是不加密的本地纯文本，可能含收入与客户信息；项目用 Git 时建议把 .dbs/ 加进 .gitignore，改前会先确认。",
+    "tier": "auto"
+  },
+  "expo/skills/expo-examples": {
+    "name_zh": "Expo 样例库",
+    "intro": "对应 expo/examples 仓库里约 70 个 with- 开头的集成范例（Stripe、Clerk、Supabase、OpenAI、地图、Reanimated、SQLite、Skia、NativeWind 等），每个只围绕一个库或服务，是 managed 项目，典型情况就一屏 100 到 200 行，所以拿来抄的是官方维护的依赖集、app.json 配置插件和最小接线，而不是整套应用架构。已有项目时按它的模式改造自己的代码，新项目时直接用 create-expo 的范例参数起。查名要用 gh api 列目录，meta.json 是改名与废弃的唯一依据，废弃的不要再推荐。",
+    "usage": "要接某个第三方库时，先按名字找对应的 with 范例（支付找 with-stripe、鉴权找 with-clerk），读它的依赖和 app.json 插件配置再搬到自己项目。",
+    "notes": "范例是单点集成，不提供应用架构；references/catalog.md 会漂移，需用 gh api 核对；需要 gh 已登录或能 clone 仓库。",
+    "tier": "auto"
+  },
+  "flutter/agent-plugins/dart-setup-ffi-assets": {
+    "name_zh": "原生资源编译",
+    "intro": "用 Dart 的 Native Assets 钩子把 C/C++ 代码编成 Code Assets：hook/build.dart 按目标架构编译本地源码或打包预编译二进制，hook/link.dart 负责链接并用 record_use 映射做链接期裁剪，依赖 package:hooks 与 package:native_toolchain_c。推荐本地编译加链接期裁剪这条路线；也可以下载哈希校验过的预编译动态库。产物随后在 dart run、dart test、dart build、flutter run 里自动打包。验收清单覆盖本地执行沙箱、目标产物是否存在、裁剪是否真的去掉未用符号、离线可用性。",
+    "usage": "要把 C 源码打进 Dart 包时，按它的模板在包内建 hook/build.dart 和 hook/link.dart，配好 native_toolchain_c 的库规格再跑 dart build。",
+    "notes": "需要宿主机 C 工具链；选下载预编译库时要做好哈希校验，并自己想清楚离线场景怎么过。",
+    "tier": "auto"
+  },
+  "flutter/agent-plugins/dart-use-ffigen": {
+    "name_zh": "FFI 绑定生成",
+    "intro": "用 package:ffigen 的 FfiGenerator 从 C 头文件生成 Dart FFI 绑定，取代手写 DynamicLibrary.lookup、@Native 外部函数和结构体类。约定：生成脚本放 tool/ffigen.dart；第三方头文件放 third_party/；用 include 正向白名单精确控制范围，不要整库导入；第三方库的产物放 lib/src/third_party/，主文件必须是 g.dart 后缀；preamble 要写清原生库的许可证、原头文件版权和不要手改的生成警告。收尾要重跑生成器确认产物有变化，并跑 dart analyze 验证。",
+    "usage": "要在 Dart 里接一个 C 库时，先写 tool/ffigen.dart 配好头文件路径与 include 白名单，生成后跑 dart analyze 验证。",
+    "notes": "需要本机 C 工具链与 dart analyze；头文件不在 third_party/ 或包根 src/ 时，先建议挪到标准位置再生成。",
+    "tier": "auto"
+  },
+  "google-gemini/gemini-skills/gemini-api-dev": {
+    "name_zh": "Gemini 开发",
+    "intro": "写调用 Gemini API 的代码时用：文本生成、多轮对话、多模态理解、图像与视频生成、语音合成与音色设计复刻、流式输出、后台调研任务、function calling、结构化输出，以及从旧 generateContent 接口迁移。给 Python 的 google-genai 与 TypeScript 的 @google/genai 两套用法。正文直接摆出当前模型清单（含推理、flash、图像、TTS、embedding 系列）和可用的托管 agent，并说明 2.5 及更早的型号已废弃：用户点名旧型号时换成当前型号并说明替换。",
+    "usage": "写 Gemini 调用前先照它列的当前模型 ID 建 client，多模态、流式、结构化输出照对应片段改，别沿用训练数据里的旧型号。",
+    "notes": "正文声明其模型与 SDK 版本优先于模型自身训练数据；Python SDK 需 google-genai 2.30.1 以上。",
+    "tier": "auto"
+  },
+  "google-labs-code/stitch-skills/stitch-design": {
+    "name_zh": "Stitch 界面",
+    "intro": "用 Stitch MCP 出高保真界面的统一入口：先把模糊需求扩写成带 UI/UX 术语的提示词（references/design-mappings.md 给对照，把「好看的头部」改成具体描述），再按生成新页、编辑现有页、写设计系统三条工作流走。项目里有 .stitch/DESIGN.md 就把它的颜色与字体 tokens 带进提示词，没有就建议先生成。生成的 HTML 和截图会下载到 .stitch/designs。提示词模板固定为整体氛围、DESIGN SYSTEM、PAGE STRUCTURE 三段。",
+    "usage": "要它出一页界面时，先说清页面用途和风格，让它按三段模板扩写提示词，再调生成工具并把产物下载回来。",
+    "notes": "需要有可用的 Stitch MCP server 和 projectId；没有设计系统文档时，多页之间的一致性会差。",
+    "tier": "auto"
+  },
+  "jimliu/baoyu-skills/baoyu-translate": {
+    "name_zh": "三档翻译",
+    "intro": "按投入分三档翻译：quick 直接译，normal 先做文本分析再译，refined 走完整出版级流程，含审校与润色。支持自定义术语表（内联或指向文件）、默认目标语言、目标读者、译文风格和分块设置；偏好按项目级、XDG、用户目录的顺序找 EXTEND.md，没找到就强制先做一轮首次配置，而不是悄悄用默认值。长文通过 scripts/main.ts 按 markdown 切块处理。",
+    "usage": "给一个链接或文件要翻译时，先确认走 quick、normal 还是 refined 档，术语表和目标读者写进 EXTEND.md 再开跑。",
+    "notes": "依赖 bun 或 npx 运行 scripts 下的脚本；缺少 EXTEND.md 时会先问配置，不想被打断就提前写好。",
+    "tier": "auto"
+  },
+  "jimliu/baoyu-skills/release-skills": {
+    "name_zh": "版本发布流程",
+    "intro": "通用发版流程：自动识别项目类型与版本文件（Node 的 package.json、Python 的 pyproject.toml、Rust 的 Cargo.toml、Claude 插件 marketplace.json、通用的 VERSION 或 version.txt），扫描 CHANGELOG、HISTORY、CHANGES 系列文件并按文件名后缀判断语言，再检测 origin 是否指向 GitHub、gh 是否已登录。支持 --dry-run 预览、--major、--minor、--patch 强制升档、--backfill-releases 为已有 tag 补建 GitHub Release。项目里有 .releaserc.yml 时可以挂钩子，把打包发布这类项目特有动作交出去。",
+    "usage": "在要发版的仓库里跑 /release-skills，先加 --dry-run 确认它识别到的版本文件、changelog 语言和 GitHub Release 状态。",
+    "notes": "改 tag、推送、建 Release 前先跑一次 dry-run；GitHub Release 部分依赖 gh 已登录。",
+    "tier": "auto"
+  },
+  "neondatabase/agent-skills/neon-ai-gateway": {
+    "name_zh": "Neon 模型网关",
+    "intro": "在 Neon 分支上调 LLM 和 embedding：一个 Neon 凭据就能用多家厂商的模型（Anthropic、OpenAI、Google、Meta 等），由 Databricks 托管，模型清单以 /v1/models 和 models.dev 的 Neon 页为准。端点兼容 OpenAI，现有 OpenAI、Anthropic、Gemini SDK 只改 base URL 就能用，也能接 Vercel AI SDK 和 Mastra；换厂商只改 model 字段，不用重写代码。适合不想自己管各家密钥、账单和轮换的场景。",
+    "usage": "要把现有 SDK 调用切到网关时，把 base URL 换成 Neon 端点、凭据换成 Neon 的，再改 model 字段切换厂商。",
+    "notes": "只在 aws-us-east-2、aws-us-east-1、aws-eu-central-1、aws-ap-southeast-1 可用；embedding 的模型 ID 与维度查官方 embeddings 文档。",
+    "tier": "auto"
+  },
+  "neondatabase/agent-skills/neon-functions": {
+    "name_zh": "Neon 长时函数",
+    "intro": "把长时运行的 Node.js HTTP 函数部署到 Neon 分支上，自动注入 DATABASE_URL，计算和数据库同区域。相比 lambda 式 10 到 60 秒的执行上限，这里只要处理器在 15 分钟内开始响应，流只要还有字节就继续，适合一次请求里多次调 LLM 和工具的 agent、图片视频生成、SSE、WebSocket、webhook、Discord bot、MCP server。还支持 Function Triggers：cron 定时或对象存储事件 POST 到函数。用同一套 Neon CLI、neon.ts 和 API 部署管理，本地用 neon dev 起开发循环。",
+    "usage": "要在数据库旁边跑长流式接口时，用 Neon CLI 或 neon.ts 定义函数并部署到分支，先在本地用 neon dev 跑通流式响应。",
+    "notes": "目前只在 aws-us-east-2、aws-us-east-1、aws-eu-central-1、aws-ap-southeast-1 可用；要 Neon 账号和该功能的开通权限。",
+    "tier": "auto"
+  },
+  "software-mansion/argent/argent-create-flow": {
+    "name_zh": "录制回放流程",
+    "intro": "把设备上的一段操作录成 .argent/flows 下的 yaml，之后能回放、编辑、修复。硬性规则：第一次走查就开录，不按回忆重建；检查项在状态出现时当场录，再转成断言；目标优先用稳定 id，其次稳定文本或无障碍标签，离屏元素用 scroll-to，出现原始坐标警告必须当场处理；每次界面切换都要有目的页校验，静止等待不能替代身份校验。同一段交互要重复三次以上，就值得先录成 flow。真机上回放不会自动绑定设备，必须显式传 udid。",
+    "usage": "要把重复的设备操作固定下来时，先开录制完整走一遍，再按稳定 id 改写成 YAML，最后回放验证。",
+    "notes": "真机回放需显式传 udid 且设备处于已连接状态；捏合和旋转在真机上会失败。",
+    "tier": "auto"
+  },
+  "software-mansion/argent/argent-device-interact": {
+    "name_zh": "模拟器交互",
+    "intro": "一套工具同时驱动 iOS 模拟器、Android 模拟器和 Chromium（CDP）应用：点按、滑动与滚动、捏合缩放、旋转、输入文字、按硬件键、启动应用、打开 URL、截图、等待元素出现或消失、读当前界面状态。按 udid 的形状自动分派平台：UUID 走 iOS 模拟器，chromium-cdp 加端口号走 Chromium，其余当 Android adb serial。坐标一律归一化到 0.0 到 1.0 而不是像素；列表滚动用 gesture-swipe，需要精确停位时传 momentum 为 false；每次操作后优先用返回的元素树导航，没有新树再调 describe。手势工具的参数 schema 可能延迟加载，调用前先取一次。",
+    "usage": "要在这个模拟器或模拟机上点某处时，先 list-devices 选目标，再 gesture-tap 传归一化坐标，然后读操作后返回的元素树。",
+    "notes": "不支持 TV 目标；Chromium 目标的滚动、标签页和 cookie 与移动端不同，动手前先读 references/chromium.md。",
+    "tier": "auto"
+  },
+  "software-mansion/argent/argent-ios-simulator-setup": {
+    "name_zh": "iOS 模拟器连接",
+    "intro": "用 argent MCP 工具准备 iOS 模拟器目标：先调 list-devices，筛出 platform 为 ios 且 kind 不是 device 的条目（真机不作为模拟器目标），已启动的排在最前；一个都没启动时用 boot-device 传 udid 启动。之后的 gesture-tap、gesture-swipe 等交互工具会自动拉起服务，不用单独启动。UDID 形如 A1B2C3D4-E5F6-7890-ABCD-EF1234567890。把模拟器任务派给子代理前，确认子代理有 MCP 权限。",
+    "usage": "新会话或要操作模拟器前，先 list-devices 看有没有已启动的 iOS 模拟器，没有就 boot-device 传它的 UDID 启动。",
+    "notes": "只管模拟器，kind 为 device 的物理 iPhone 不在范围内。",
+    "tier": "auto"
+  },
+  "software-mansion/argent/argent-metro-debugger": {
+    "name_zh": "JS 运行时调试",
+    "intro": "通过 CDP 调 JS 运行时。RN 走 Metro（iOS、Android、Vega Fire TV），连上后能看 React 组件树、检查元素、读 console、执行 JS、重载 Metro；Electron 或开着 CDP 端口的 Chromium 浏览器也能用其中一部分：连接、状态、执行、log registry 和网络日志，但组件树、元素检查、重载和 profiler 系列在 Chromium 上会被能力门直接拒绝。前置是 Metro 在跑且至少有一个应用连上，用 debugger-status 判断，它返回状态与原因而不报错。Android 必须先把 8081 端口反向转发，否则应用连不到 Metro。",
+    "usage": "连不上时先 debugger-status 看状态和原因；Android 上补一次 adb reverse tcp:8081 tcp:8081 再试。",
+    "notes": "物理 iPhone 不支持；Vega 需要 Debug 版 vpkg 且 Metro 从设备可达。",
+    "tier": "auto"
+  },
+  "software-mansion/argent/argent-native-profiler": {
+    "name_zh": "原生性能分析",
+    "intro": "查原生层的 CPU 热点、UI 卡住和内存问题。iOS 后端是 xctrace（Xcode Instruments），能录 CPU、hang 和 Instruments 的 Leaks；Android 后端是 Perfetto 加内置的 WASM 解析引擎，会给出每个 hang 的 jank 原因码、带 blocked_function 归因的主线程状态分解和 GC 重叠标注。流程是 start 录、stop 导出带时间戳的 XML、analyze 出结构化瓶颈，再用 profiler-stack-query 按 hang_stacks、thread_breakdown、function_callers、leak_stacks 下钻到具体调用链和库。iOS 泄漏若归因到栈上限，可开 malloc_stack_logging 重录一次。",
+    "usage": "怀疑问题出在原生层时，native-profiler-start 录一段、stop 导出 trace，再 analyze 看瓶颈并用 profiler-stack-query 查调用链。",
+    "notes": "物理 iPhone 不支持；Android 要求应用可调试或清单里声明可被 shell 采样；Android 的内存增长只是提示，需人工确认。",
+    "tier": "auto"
+  },
+  "software-mansion/argent/argent-react-native-app-workflow": {
+    "name_zh": "RN 开发调试流程",
+    "intro": "在 iOS 模拟器或 Android 模拟器上启动、调试 RN 应用的分步流程。第一步是读项目自己的构建与运行配置，别默认敲 react-native start 或 run-ios：看 package.json 里有没有 start:local、ios 之类的自定义脚本，看 metro.config.js 有没有非默认端口或 watchFolders，iOS 侧优先打开 .xcworkspace。启动前确认 node_modules、Podfile 与 Pods 状态、默认端口上没有冲突的 Metro；用 debugger-status 判断 Metro 是否就绪；跑通之后把发现的工作流写进项目记忆，省得每次重问。",
+    "usage": "RN 项目启动或排查调试问题时，先看 package.json 的自定义脚本和 metro 配置，再依次起 Metro、跑应用、用 debugger-status 确认连接。",
+    "notes": "面向模拟器；物理 iPhone 会被 Metro 调试与 profiling 工具直接拒绝。",
+    "tier": "auto"
+  },
+  "software-mansion/argent/argent-react-native-profiler": {
+    "name_zh": "RN 渲染性能测量",
+    "intro": "在 Hermes 上量 React Native 的渲染与 CPU：react-profiler-start 开 CPU 采样并挂 React commit 捕获（sample_interval_us 默认 100），stop 存下 cpuProfile 与 commitTree，analyze 出按总渲染耗时降序的热点报告并把原始数据落盘。react-profiler-renders 不开 profiling 也能实时列出每个组件的渲染次数与耗时；component-source 给文件、行号、是否已 memo 化和 50 行源码；fiber-tree 追组件祖先与渲染成本。中途被打断过（Metro 重载、子代理交接）用 status 看会话状态。它只负责测量，优化策略交给 argent-react-native-optimization。",
+    "usage": "要确认哪个组件在重复渲染时，先 react-profiler-renders 拿实时表；要 CPU 归因就走 start、操作、stop、analyze。",
+    "notes": "物理 iPhone 不支持，只能在模拟器上跑；profiler 系列工具在 Chromium 目标上不可用。",
+    "tier": "auto"
+  },
+  "software-mansion/argent/argent-test-ui-flow": {
+    "name_zh": "UI 流程自测",
+    "intro": "用交互、截图、核对的循环自动跑一遍应用 UI：iOS 和 Android 用同一套工具名，按 udid 自动分派。开始先截图留基线，要做视觉对比时用 1.0 的缩放且不回传图像、只留返回的路径。找目标分三种：RN 应用优先用 debugger-component-tree，它直接给出带可点坐标的组件；普通界面和弹窗用 describe 拿元素树；权限弹窗先 describe，拿不到再退回截图。实现改了可见 UI 时，也能把它当视觉验收用。",
+    "usage": "改完界面要验一遍时，先截图留基线，再按 describe 或 debugger-component-tree 拿坐标点击，每步之后截图核对。",
+    "notes": "真机要先读 argent-ios-device-interact；Android 上用 RN 调试前得先 adb reverse 转发 Metro 端口。",
+    "tier": "auto"
+  },
+  "warpdotdev/common-skills/respond-to-pr-comments-in-blocklist": {
+    "name_zh": "逐条回 PR 评论",
+    "intro": "把 PR 上的评审意见逐条处理：先过滤掉机器人发的总览或状态评论、以及当前用户已经回过的线程，剩下真正需要处理的逐条问用户决定，改完代码后给一份预览，用户批准才在 GitHub 上发回复并 resolve 对应线程。评论已经在上下文里（比如刚跑过 pr-comments）就不重复拉取，只有缺正文、作者、路径等字段时才补取。适合想批量清 review、但不允许 agent 自己拍板回复的场合。",
+    "usage": "PR 评论要一条条处理时，先确认评论已加载，再跟着它逐条确认决定，最后批准预览之后才发回复和 resolve。",
+    "notes": "只在用户明确要发回复或 resolve 时才用；只要评论列表用 pr-comments，只改代码不往 GitHub 回东西就别用这个。",
+    "tier": "auto"
+  },
+  "warpdotdev/common-skills/validate-changes-match-specs": {
+    "name_zh": "规格实现核对",
+    "intro": "核对一个分支或 PR 是否真的实现了它带来的规格：先用 merge-base 和 diff 的改动文件名定位，再到 specs/ 下找 PRODUCT.md、TECH.md、SECURITY.md 这类文档，任何 specs 下按单号建目录的 markdown 都算有效规格；把产品行为、技术实现、安全隐私、迁移回滚、验证步骤这些承诺分门别类抽出来，跟代码、测试、文档对照，列出实质不符处，再一条条问用户是改实现还是改规格，可以逐条也能批量应用。没有相关规格时会停下来直说没有可对的东西。",
+    "usage": "规格驱动的 PR 要验收时，让它先找 specs/ 下的文档并抽出承诺，再逐条确认不一致的地方按哪边改。",
+    "notes": "规格、PR 描述、评论都当不可信输入，只取事实与承诺；找不到规格时不会硬凑结论。",
+    "tier": "auto"
+  },
+  "wshobson/agents/mobile-android-design": {
+    "name_zh": "安卓界面设计",
+    "intro": "写原生 Android 界面的参考：Material Design 3（Material You）和 Jetpack Compose 的用法，覆盖 Navigation Compose 导航、手机平板折叠屏的自适应布局（WindowSizeClass）、Material 3 动态取色主题、无障碍、Android 特有的手势与不同屏幕配置。原则里明确颜色统一从 MaterialTheme.colorScheme 取以自动适配深色模式、Android 12 及以上开启动态取色。正文给了一个 Compose 卡片列表项的可运行片段，Card 套 Row，图标加两行文本。",
+    "usage": "要写 Compose 界面时，照它的卡片列表片段改布局，颜色统一走 MaterialTheme.colorScheme 并开启动态取色。",
+    "notes": "正文的部分细节已移到 references/details.md；片段是 Kotlin 与 Compose，不适用 Flutter 或 RN。",
+    "tier": "auto"
+  }
+}

@@ -1,0 +1,177 @@
+{
+  "antfu/skills/pnpm": {
+    "name_zh": "pnpm 用法",
+    "intro": "按 pnpm 12（Rust 重写的稳定版，保持 v11 的命令、参数和锁文件格式）整理的用法手册：CLI 命令、pnpm-workspace.yaml 的 camelCase 配置模型、workspace 过滤和 workspace 协议、内容寻址存储与 node linker 模式，以及 catalogs、overrides、patches、packageExtensions、allowBuilds、全局虚拟存储这些机制。核心是配置模型变了：设置只放 pnpm-workspace.yaml 和全局 config.yaml，.npmrc 只留认证和 registry，package.json 里的 pnpm 字段不再读。",
+    "usage": "配 monorepo 或调依赖冲突时，把 pnpm-workspace.yaml 和报错一起贴出来；CI 里用 `pnpm ci` 或加 `--frozen-lockfile` 锁住版本。",
+    "notes": "v12 有几处行为差异：git 依赖走 HTTPS、全局 bin 感知项目、Linux 下 packageImportMethod 默认先硬链接、移除 --resolution-only，升级时看迁移那节。",
+    "tier": "auto"
+  },
+  "code.deepline.com/deepline-pre-research": {
+    "name_zh": "研究技能旧名",
+    "intro": "这是 deepline-pre-research 的兼容别名：技能已经改名成 deepline-research，本文件不含自己的指令，只负责把人送过去。被 /deepline-pre-research 或老脚本调用时，应当立刻加载 deepline-research 并按它执行；加载器支持按名字调用就直接用新名，不支持就按 .skills/、~/.claude/skills/、~/.agents/skills/ 的顺序找 deepline-research/SKILL.md，用第一个存在的。同时用一行告诉用户旧名换成了新名，然后继续原来的请求。",
+    "usage": "遇到 /deepline-pre-research 时不要按本文件做，改为加载 deepline-research 并按其说明继续，顺带告知用户入口已改名。",
+    "notes": "这个别名是临时的，会被移除；按本文件作答等于什么也没做。",
+    "tier": "auto"
+  },
+  "cursor/plugins/thermo-nuclear-code-quality-review": {
+    "name_zh": "严格代码质量审查",
+    "intro": "要求很严的可维护性评审：先看当前分支的改动，再问能不能换个结构让实现更小、更直白，专门找那种能让整段分支、helper、模式、条件消失的重构，而不是挑几个局部清理点。几条硬标准：不让文件从 1k 行以下被这次改动撑过 1k 行，除非有明确的结构理由；不允许在无关流程里塞临时条件分支；抽象要放对位置，测量两次再下刀。评审要给出重构方案，不只是问题清单。",
+    "usage": "说「跑一次 thermonuclear 代码质量审查」或指定某个分支，让它按上面的硬标准审改动并给重构方案，而不是列一堆小修小补。",
+    "notes": "默认关了模型自动调用，需要显式触发；它针对实现质量和结构，不改行为，也不做功能评审。",
+    "tier": "auto"
+  },
+  "dontbesilent2025/dbskill/dbs-decision": {
+    "name_zh": "长期决策跟踪",
+    "intro": "中文写的个人决策系统，给需要长期跟踪的业务、关系、健康、职业、学习、投资问题建一个本地 Markdown 工程，固定四层：01_事实只追加不改写，02_规律缓慢追加修正并用 [修正 日期] 标注，03_定格是写完不改的月度状态画像和事件诊断，04_待解放开放问题、待验证假设、观察指标和决策事件。每条信息按来源打标签，[AI 推测]、[AI 结论]、[结果回填 日期] 不能省，事实、阶段判断和结果回填分开写，不把后见之明倒灌回最初判断。支持初始化、更新当前状态、给重大分叉立决策事件、回填结果、出阶段快照几种模式。",
+    "usage": "在空目录里说要在某个领域做长期跟踪，先回答是否开隐私模式和存放位置；之后直接说近况或要回填的结果，它会更新 我的当前状态.md 并把新信息分到四层里。",
+    "notes": "默认落在 ~/.dbs/decisions/{项目名}/，加 --here 才放进当前项目；涉及人名、商业机密、财务时开隐私模式（强制代号加提交黑名单提示），但它不替你拍决定，也不改写已有事实和旧快照。",
+    "tier": "auto"
+  },
+  "expo/skills/eas-app-stores": {
+    "name_zh": "EAS 上架发布",
+    "intro": "用 EAS 构建并提交 iOS、Android 应用到 TestFlight、App Store 或 Google Play：eas.json 配置、发布流水线、签名、版本号和 build number、商店提交与商店页元数据。Expo 和其他 React Native 项目都行，已有原生应用也能只把它当发布通道，不必引入 RN 运行时；纯 SwiftUI/UIKit 项目要先看原生 iOS 的说明，保留 Xcode 工程作为源头。正文反复提醒：构建成功或提交排队不等于苹果已接受，处理和可用性要另外查。",
+    "usage": "说「发布到 TestFlight」并给出 bundle id 和当前版本号，它会按对应参考文件给构建和提交步骤；CI 里的自动发布看 workflows 那份参考。",
+    "notes": "EAS 云构建会消耗套餐额度，Apple 开发者账号和 Google Play 会员另算；原生 Android 目前只有提交到 Play 的说明，没有独立的原生 Android 配置走查。",
+    "tier": "auto"
+  },
+  "flutter/agent-plugins/dart-use-primary-constructors": {
+    "name_zh": "Dart 主构造器",
+    "intro": "Dart 主构造器（primary constructors）的写法与迁移：在类头部的参数表里同时声明字段和生成式构造函数，区分 var/final 的声明参数、this./super. 的初始化参数和只在初始化期可用的普通参数，空声明体用分号收尾，类体内的初始化列表和简写构造语法也都讲。正文标了版本门槛：Dart 3.13 起默认开启，3.12 要显式开 primary-constructors 实验（--enable-experiment 或 analysis_options.yaml），3.11 及更早不支持，并给了迁移与排错的步骤。",
+    "usage": "让它把某个类改成主构造器写法时先说清 Dart 版本；3.12 需要先在 analysis_options.yaml 里开 primary-constructors 实验。",
+    "notes": "低于 3.12 无法使用该语法；开实验后分析器和构建工具都要带同一个 flag，否则报错会看起来像语法错误。",
+    "tier": "auto"
+  },
+  "github/awesome-copilot/refactor": {
+    "name_zh": "渐进式重构",
+    "intro": "在不改外部行为的前提下改善结构：拆长函数、拆解巨型函数、提取重复逻辑、改名、加强类型、消掉代码坏味道。规则是先有测试再动手（没有测试只是编辑不是重构）、每次小步改完就跑测试、重构和加功能不混在一起、每个安全状态前后都提交。正文给了长函数、重复代码等坏味道的对照改法，也列了不该重构的情况：不会变的代码、没有测试的生产代码、赶工期的时候。",
+    "usage": "说「重构这段」「把这个函数拆开」，让它按小步走的顺序给 diff 和每一步的理由；先确认目标代码有测试，没有就先补测试。",
+    "notes": "只做渐进改进，不做整仓重写；生产关键代码没测试时它应当先停下来让你补测试。",
+    "tier": "auto"
+  },
+  "giuseppe-trisciuoglio/developer-kit/shadcn-ui": {
+    "name_zh": "shadcn 组件",
+    "intro": "shadcn/ui 的组件做法：组件是复制进项目的，代码归你改；底层是 Radix 原语，样式走 Tailwind 和 CSS 变量。正文有初始化和按组件安装的命令表（button、input、form、card、dialog、sheet、select、toast、table、menubar、chart、textarea、checkbox、label 等），表单部分接 React Hook Form 加 Zod 校验，图表用 Recharts 包一层，还讲了暗色模式和主题变量怎么改，以及 dialog、表格这类组件的实际写法。",
+    "usage": "新项目先 `npx shadcn@latest init`，再按需装组件比如 `npx shadcn@latest add form`；然后把要的界面和校验规则贴给它改。",
+    "notes": "要求项目已有 Tailwind，老项目初始化前还要补 tailwindcss-animate、clsx、tailwind-merge、lucide-react 等依赖；组件是复制进仓库的，后续升级要自己处理。",
+    "tier": "auto"
+  },
+  "kunchenguid/lavish-axi/lavish": {
+    "name_zh": "HTML 评审稿",
+    "intro": "把计划、方案对比、图表、表格、代码 diff、报告、原型这类用文字讲不清的东西做成浏览器里打开的 HTML 页面，人在页面上圈注写意见，反馈再回到 agent 形成评审循环。工作流刻意不写在 SKILL.md 里（安装副本会过时），每步都从 CLI 现取：--help 看命令和评审循环，design 看当前设计取向，playbook 拿具体产物的写法。不必全局安装，把 HTML 文件作为参数调用就会在浏览器打开。",
+    "usage": "把结论写成 HTML 后跑 `npx -y lavish-axi <html-file>` 在浏览器打开等用户标注；要给 agent 回话用 `npx -y lavish-axi reply --help` 看参数再发。",
+    "notes": "依赖 npx 现取最新版 CLI；文件里的工作流说明是旧的，命令和设计规范以 CLI 输出为准，输出里以 lavish-axi 开头的后续命令也要换成 npx -y lavish-axi 形式。",
+    "tier": "auto"
+  },
+  "limrun-inc/skills/limrun-bazel": {
+    "name_zh": "Bazel 远程构建",
+    "intro": "把 Bazel 工作区的 iOS、Android 目标放到 Limrun 的共享构建机上跑：lim bazel setup 在 MODULE.bazel 所在目录生成被 gitignore 的 .limrun/，往 .bazelrc 加一条 try-import，之后 bazel build --config=limrun 就走远程，Apple 动作落在 Mac、Android 动作落在 Linux worker，全组织共用一个远端缓存，本机不需要装 Xcode 或 Android SDK。要求 Bazel 8 以上和 rules_apple 或 rules_android；Android 还要 rules_cc、rules_java、protobuf、hermetic_android_toolchains，缺的行会打印出来，非交互环境要加 --yes。",
+    "usage": "在工作区装好 lim 后跑 `lim bazel setup`，再 `bazel build --config=limrun` 构建；CI 里补 --yes 免去确认，换 CLI 版本或开始用 Apple/Android 规则后重跑 setup。",
+    "notes": "只适用于有 MODULE.bazel 且根模块声明了 rules_apple 或 rules_android 的工作区；旧的 lim xcode rbe 走 limrun-xcode-bazel，非 Bazel 的 Android 构建走 limrun-gradle。凭证只认 lim login 或 LIM_API_KEY，用 npm 全局安装才会带上 lim-bazel-credentials。",
+    "tier": "auto"
+  },
+  "mbfinotti/sales-skills/sales-account-tiering": {
+    "name_zh": "客户分层设计",
+    "intro": "在已有的账户匹配分之上设计分层：切分线画在哪、层级怎么命名、每个销售各层能带多少账户、每层给什么覆盖（触达节奏、渠道组合、QBR 频率、高管参与度）、用什么比值看覆盖健康度、多久重新校准一次。产物是一份分层章程，不重造匹配分；没有 ICP 或匹配分时先送回上游技能，否则等于把两层压成一层，切分线怎么画都救不回来。也能诊断「所有账户都掉进 Tier 1」：查容量上限和默认归属，再从容量那步重做。",
+    "usage": "说「把账户分层」或「每个销售该带多少账户」，它会先确认有没有可用的匹配分，再给切分线、容量上限和各层覆盖模型。",
+    "notes": "只吃现成的匹配分；B2C 直接面向消费者时不适用，走零售/分销关键账户才适用。",
+    "tier": "auto"
+  },
+  "mbfinotti/sales-skills/sales-career": {
+    "name_zh": "销售职业辅导",
+    "intro": "站在候选人一侧：从进第一份 SDR/BDR，到转 AE，再到之后的路径（管理、CSM、RevOps、能力建设），B2B SaaS 和佣金制高客单 B2C（房产、保险、光伏、汽车）都覆盖。内容包括冷呼模拟、卖笔题、自己写的 30-60-90 计划、把业绩量化成证据、技能差路线图、对雇主的尽调，以及从候选人角度评估 offer；建议都挂到有日期的基准上（RepVue、Bridge Group、NAR）或用户给的事实。只做策略，不代找工作也不生成简历。",
+    "usage": "说「想进科技销售」「SDR 面试怎么准备」或「这个 offer 值不值」，它会先问你现在的位置和目标市场，再逐步给方案，不直接甩一份成品计划。",
+    "notes": "每套排序都是默认值不是定律，会随本地人脉、技术背景、执照属地、存款跑道重新排；不覆盖用人方视角、自动投递和成交战术。",
+    "tier": "auto"
+  },
+  "mbfinotti/sales-skills/sales-discovery-questions": {
+    "name_zh": "需求挖掘问题稿",
+    "intro": "按通话时长排一套销售需求挖掘问题：把 SPIN、Sandler 痛苦漏斗、MEDDPICC 三问、GAP 销售四个公开框架收敛成一条主线——隔离真实问题、挖根因、量化影响、确认为什么是现在，分段依次是开场约定、现状、痛点、根因、影响、紧迫、决策上下文、收尾，每段都有退出条件，只往前走不回退。每个主问题配 2–3 级追问和一句「听什么」，另加分支触发条件和一份别问清单，最后拼成通话用的提问表。可覆盖 SDR 资格确认（15–30 分钟）、AE 深挖（30–45 分钟）、跑着的单子按角色补问、单次高客单 B2C 咨询；先访谈再动笔，按每 3–4 分钟一道实质问题控制篇幅，面向高管更少更深。",
+    "usage": "说「帮我准备这次需求挖掘」，并交代 B2B 还是 B2C、对方职位、通话类型和时长；它会先问几个问题，再照着 `references/question-bank.md` 的题库和通话表模板出稿。",
+    "notes": "提问表是地图不是剧本，要顺着客户回答走分支；不负责异议应对话术、冷呼开场白，也不给已完成的通话打分。",
+    "tier": "auto"
+  },
+  "mbfinotti/sales-skills/sales-hiring": {
+    "name_zh": "销售招聘流程",
+    "intro": "招 SDR/BDR 和 AE 的用人方流程，产出四样东西：基于结果的岗位记分卡、结构化面试环节加题库、打过分的模拟电话工作样本、带认证关口的 30-60-90 上手计划。角色选型从 ACV、成交周期和入站量推，ACV 小周期短入站多就偏 SDR 加 AE 分工。每条基准数字都要标来源等级（同行评议、调研、众包、厂商数据），不能把厂商说法当事实；整个技能建立在结构化面试、独立打分、不出脑筋急转弯这些选人有效性证据上。",
+    "usage": "说「招一个 SDR」或「设计销售面试题」，它会先问团队阶段、角色、ACV 和周期，再给记分卡、面试环路和 ramp 计划。",
+    "notes": "只做用人方，候选人视角的面试准备归 sales-career；不 sourcing、不写招聘广告、不管 ATS，也不设计提成方案。",
+    "tier": "auto"
+  },
+  "mbfinotti/sales-skills/sales-icp-definition": {
+    "name_zh": "ICP 定义",
+    "intro": "在销售负责人层面定理想客户画像：企业规模、技术栈、行为、意向四类标准，配一张带权重的打分表、明确的排除条件和刷新周期。有成交/丢单数据时从数据走，成交笔数少于约 20 就先用创始人访谈做假设版；B2B 账户和 B2C 的人群/心理画像都覆盖。做法是先访谈（每轮只问一个问题，能读官网、产品文档或 CRM 导出就先起草 v1 让人改），按成交笔数选分支，再产出标准与评分表；分群、分层、市场测算不在这里做。",
+    "usage": "说「定义我们的 ICP」或「销售什么客户都追」，它会先问成交笔数等一两个问题，再给标准、权重和排除条件；有官网或 CRM 导出可以先让它起草再改。",
+    "notes": "15 笔成交上跑出来的评分表只是猜想的表格化，数据薄的阶段会先给假设版并说明依据；进入新市场要单独建一份 ICP，不能把现有 ICP 放宽了凑。",
+    "tier": "auto"
+  },
+  "mbfinotti/sales-skills/sales-kickoff": {
+    "name_zh": "销售技能路由",
+    "intro": "27 个销售技能的分诊入口：先判断当前任务在哪个高度——CRO 层的动作设计、ICP、市场测算、分群、分层、组织、配额、覆盖、薪酬，还是执行层的陌拜、冷呼、需求挖掘、异议、MEDDPICC、复盘、招聘、职业——然后只路由到一个技能，或者直说没有合适的。同时维护项目里的 sales-context.md：文件存在就是接续，不存在就是冷启动；先做环境探测（git 历史、README、已有的 ICP 或人物画像文档），再问人，避免重复访谈。",
+    "usage": "开新销售项目、或者一个问题跨了多个销售主题时先跑它，说清目标和手上已有的材料，它会给出一个技能加一条有序技能链，并写好或更新 sales-context.md。",
+    "notes": "事实能从环境推出来就不该问用户；同一项目的后续会话重新跑是为了汇总和重新路由，不是重新访谈。",
+    "tier": "auto"
+  },
+  "mbfinotti/sales-skills/sales-market-sizing": {
+    "name_zh": "市场规模测算",
+    "intro": "算 TAM/SAM/SOM 来支撑销售容量、区域和配额：TAM 自下而上按具名账户或人群数量乘单价建，SAM 用 GTM 实际能用的过滤条件收窄，SOM 再用团队真实产能封顶，然后和自上而下的数字三角验证，每层定各自的刷新周期。ICP 一变就强制重算 SOM，TAM 和 SAM 除非定价、产品或打包也动了才跟着动。用来做规划，不是拿去融资讲故事。",
+    "usage": "给出产品、定价和目标细分，让它做一次自下而上的 TAM/SAM/SOM；如果只是董事会要个数，会先给一个标注为背景的量级，再排完整的三角验证。",
+    "notes": "不负责定义 ICP，也不把 SOM 换算成编制和配额；临时给董事会的量级不能直接进入配额和区域规划。",
+    "tier": "auto"
+  },
+  "mbfinotti/sales-skills/sales-pipeline-coverage-modeling": {
+    "name_zh": "管线覆盖建模",
+    "intro": "算要完成配额需要多少管线、现在还差多少：用历史赢率推覆盖倍数，给了原始倍数、按阶段加权、按转化率反推三种算法，再按细分市场设不同目标，看季度内时间点和不可回头点，做季节性折算，最后把缺口换算成每周每个销售要新建多少管线。也用来诊断「背着 4 倍覆盖还是没完成」——分三步查：目标背后的赢率口径、三种倍数之间的差距、节奏，三者里必有一个在骗人。",
+    "usage": "给出配额、细分市场、成交周期和赢率历史，让它算目标覆盖倍数和缺口；问「这季度 3.8 倍够不够安全」会先清掉不可信的管线再算。",
+    "notes": "配额本身怎么定不在范围里，覆盖是个比值，没有分母时会先让你去定配额；纯自助 PLG 没有管线概念，会被直接劝退。",
+    "tier": "auto"
+  },
+  "mbfinotti/sales-skills/sales-radar": {
+    "name_zh": "销售信息源清单",
+    "intro": "按角色、市场和每周能花的时间，给一份带链接的销售信息源清单：该跟的人、播客、newsletter、社群、基准报告，交付时带快照日期和每个源的状态。B2B SaaS 和 B2C 高客单被当成两个生态分开做——前者在 LinkedIn、Slack 社群、Substack，后者在 YouTube、Facebook 群和付费教练漏斗——不把一个生态的清单换个标签给另一个。还带新鲜度检查，能发现改名或已经停掉的源，正文给了一批已核验的 B2B 源作起点。",
+    "usage": "说「给我几个销售播客」或「怎么跟上销售行业」，它会先问角色、市场和每周时间预算，再出一份带日期的核验清单。",
+    "notes": "清单里的链接有时效，交付时看快照日期；只做信息源，不做职业规划或面试准备。",
+    "tier": "auto"
+  },
+  "mitsuhiko/gh-issue-sync/gh-issue-sync": {
+    "name_zh": "issue 本地同步",
+    "intro": "把 GitHub issue 同步成本地 Markdown：开放的统一放 .issues/open/，关闭的放 .issues/closed/，每条文件带 frontmatter 写标题、标签、经办人、里程碑和状态，编号由文件名决定而不是写在 frontmatter 里。改完 Markdown 用 push 推回，pull 拉取时跳过冲突、加 --force 覆盖本地，diff 看本地改了什么、--remote 会先重新拉。新建 issue 先拿 T 开头的临时编号，push 时自动换成正式编号并同步改写其他 issue 里的引用；旁边放一个 .comment.md 就能在推送时发评论，发完即删。",
+    "usage": "在仓库里跑 `gh-issue-sync init` 初始化，`gh-issue-sync pull` 拉取，编辑完 Markdown 用 `gh-issue-sync push` 推回，推之前先 `gh-issue-sync status` 看改动。",
+    "notes": "文件头里的 parent、blocked_by、blocks 只做记录，不同步成 GitHub 端的关系；pull 默认不覆盖本地冲突，需要强推才用 --force。",
+    "tier": "auto"
+  },
+  "openclaw/openclaw/summarize": {
+    "name_zh": "链接视频摘要",
+    "intro": "steipete 写的命令行工具 summarize：给一个 URL、本地文件、PDF 或 YouTube 链接就出摘要，也能只转录——加 --extract 直接打原文不调模型，YouTube 用 --youtube auto 做尽量完整的字幕提取，不需要 yt-dlp。摘要长度用 --length 控制（short/medium/long/xl/xxl 或直接给字数），--json 出机器可读结果，被挡的站点可以挂 Firecrawl 兜底。默认模型是 auto，密钥按厂商从环境变量读，配置写在 ~/.summarize/config.json。",
+    "usage": "跑 `summarize \"https://example.com\"` 出摘要，要原文加 `--extract`；转录视频用 `summarize \"https://youtu.be/dQw4w9WgXcQ\" --youtube auto`，太长就先出摘要再问要看哪段。",
+    "notes": "需要装 summarize 本体并提供所选厂商的 API key（OPENAI_API_KEY、ANTHROPIC_API_KEY、XAI_API_KEY 或 GEMINI_API_KEY）；YouTube 字幕是尽力而为，兜底需要 APIFY_API_TOKEN。",
+    "tier": "auto"
+  },
+  "sanity-io/agent-toolkit/sanity-migration": {
+    "name_zh": "迁到 Sanity",
+    "intro": "从别的 CMS 或内容系统迁到 Sanity 的做法：先读通用说明，再按源平台读对应指南（AEM、Contentful、Strapi、Webflow、WordPress/WXR、Payload、Drupal、Markdown/MDX），动代码前先出一份迁移计划——源访问、内容范围、schema 决策、抽取、转换、导入、校验、重定向、切换。内容先快照到磁盘再转换，文档 ID 由源 ID、slug 或路径派生保证幂等和可重跑，富文本转 Portable Text，资源上传到 Sanity，最后按文档统计质量问题再切流。",
+    "usage": "说「从 WordPress 迁到 Sanity」并给出导出文件或 API 访问方式，它会先出计划，再写可重复运行的迁移脚本和校验清单。",
+    "notes": "大内容量不靠一次性手工操作，要写确定性脚本；生产内容不能继续依赖旧 CDN 上的资源地址。",
+    "tier": "auto"
+  },
+  "wshobson/agents/architecture-decision-records": {
+    "name_zh": "架构决策记录",
+    "intro": "写和维护 ADR：一条记录只讲背景、决定和后果，状态走 Proposed → Accepted → Deprecated → Superseded（另有 Rejected），放在 docs/adr/ 下按 0001-短横线标题.md 编号，README 做索引表，被取代的旧记录保留并标 [DEPRECATED]。正文有该写和不该写的对照（换框架、选数据库、API 设计、安全架构、集成方式要写；小版本升级、修 bug、实现细节、配置调整不写），以及标准版、轻量版、Y-statement、废弃与 RFC 几套模板的取用说明。",
+    "usage": "说「给这个决定写一份 ADR」，它会先判断该不该写，再挑模板填背景、决定、后果，并更新 docs/adr/README.md 的索引和状态。",
+    "notes": "ADR 只记录决策和理由，不承载设计文档细节；被推翻时新增一条取代记录，不直接改写原记录。",
+    "tier": "auto"
+  },
+  "wshobson/agents/error-handling-patterns": {
+    "name_zh": "错误处理模式",
+    "intro": "覆盖异常、Result 类型、错误码、Option 四种风格的取舍，并按可恢复和不可恢复给错误分类。正文给的原则是：入口先校验快速失败、保留堆栈和元数据、消息写清发生了什么和怎么修、在能真正处理的那层捕获、用 try-finally 或 defer 清资源、不吞错、尽量用类型化错误。还讲了异步与并发下的错误处理、重试和断路器、降级路径，以及给用户和给开发者两套消息的写法，附带分语言的完整例子。",
+    "usage": "写新的错误处理或评审一个 API 的错误契约时，把失败路径贴进来，让它按上面的原则挑模式并指出被吞掉或被过度包装的错误。",
+    "notes": "",
+    "tier": "auto"
+  },
+  "wshobson/agents/python-design-patterns": {
+    "name_zh": "Python 分层",
+    "intro": "在写新服务、拆巨型类、决定要不要抽抽象时给判断标准：KISS、单一职责、关注点分离、组合优先于继承、三次法则（出现第三处再抽象，重复往往好过过早抽象）。落到可执行的规则上——函数 20–50 行、构造注入依赖、先删死代码再考虑模式、每层单独可测、显式优于聪明。正文还带一组排障问答，比如一个类看着有多重职责但拆起来别扭时，用「变更原因」清单判断该不该拆。",
+    "usage": "评审新模块或 PR 时把类和依赖关系贴进来，要它按变更原因划职责、判断该不该抽抽象，并给出组合替代继承的改法。",
+    "notes": "正文把细节例子放在 references/details.md，导航层不够用时才需要读那份文件。",
+    "tier": "auto"
+  }
+}

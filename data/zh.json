@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-10-22T02:39:29.664Z",
- "count": 725,
+ "generated_at": "2026-10-22T06:50:10.627Z",
+ "count": 820,
  "sources": [
   {
    "file": "part-1.json",
@@ -65,6 +65,22 @@
   {
    "file": "part-23.json",
    "count": 25
+  },
+  {
+   "file": "part-24.json",
+   "count": 25
+  },
+  {
+   "file": "part-25.json",
+   "count": 25
+  },
+  {
+   "file": "part-27.json",
+   "count": 25
+  },
+  {
+   "file": "part-28.json",
+   "count": 20
   },
   {
    "file": "part-3.json",
@@ -3244,6 +3260,671 @@
    "intro": "用 Tailwind CSS v4 搭可扩展的设计系统：设计令牌、组件变体、响应式模式和可访问性都在内。技能只针对 v4（2024 年以后），v3 项目要先去升级；v4 把配置从 JS 配置文件挪进了 CSS，正文用一张对照表列这个变化。",
    "usage": "做组件库、统一全站 UI 写法、补暗色模式，或从 v3 迁到 v4 时用。迁移入口是 https://tailwindcss.com/docs/upgrade-guide；v4 的配置写在 CSS 里，不再是 tailwind.config。",
    "notes": "只覆盖 v4，v3 要先按官方升级指南迁移。正文给的是建系统的方法和写法约定，不含构建配置实操。",
+   "tier": "auto"
+  },
+  "alchaincyf/nuwa-skill/huashu-nuwa": {
+   "name_zh": "人物思维蒸馏",
+   "intro": "输入一个人名、一个主题，或者只是一句模糊的困惑，它先做调研再提炼出可运行的思维框架，产出一个只讲怎么想、不讲说过什么的人物技能。提炼的是五样东西：用什么心智模型看世界、用什么决策启发式做判断、怎么表达、绝对不会做什么、以及这个技能做不到什么。两个入口：给了明确人名就直接开工，只有模糊需求就先做需求诊断再推荐人选。档位分快速、标准、完整三档，调研维度和是否全量下载一手材料不同，成本差别很大，开跑前会说明量级。也支持本地语料模式，用你手上的书、访谈、字幕代替网络检索。",
+   "usage": "说「造 skill 芒格」或直接讲你的困惑，它先确认对象、用途和档位，再跑多轮检索，最后落成一个可调用的人物技能目录。",
+   "notes": "完整档是多 agent 多轮检索的长任务，单次可能花掉数十美元，务必先确认档位；输出是基于公开材料的模拟框架，不是本人原话，遇到材料不足会标出边界。",
+   "tier": "auto"
+  },
+  "caffeinelabs/skills/extension-oql": {
+   "name_zh": "数据查询接口接入",
+   "intro": "把 canister 里的结构化数据（Map、List、数组里的记录）变成能自然语言提问的表：给 Caffeine 数据智能 agent 提供一个可发现的 schema 入口和一个返回 JSON 的 execute 查询端点，靠 caffeineai-oql 包里的 Expose 混入实现。做法是先过一遍 actor 的非临时字段，为每个值得查询的集合声明一个 entity，相当于数据库里的一张表，再给每张表挑授权级别，默认的仅控制器可见是安全选项，对用户私有但仍可被数据智能 agent 读到。声明完自动派生出行结构，也能手写 payload 映射。",
+   "usage": "在 canister 项目里加上 caffeineai-oql 依赖，为每个要查询的集合声明一个 entity 并选好授权级别，之后就能让 agent 用 schema 和 execute 提问。",
+   "notes": "依赖要和第一次 import 放在同一批写入里加；自动派生要求 moc 1.11 以上；用到大 Region 时需在应用自己的构建里加 --max-stable-pages 1638400；缺导入只会对集合模块给出提示。",
+   "tier": "auto"
+  },
+  "code.deepline.com/deepline-ads-audiences": {
+   "name_zh": "广告受众上传",
+   "intro": "把 CRM 或客户名单做成可投放的广告受众，并上传到 Google Customer Match、Meta 自定义受众或 LinkedIn 匹配受众。入口是一张决策表：说「要最高覆盖率」就走显式的逐级提升流程并设预算闸门；做整包富化上传有对应的配方文件；只做审计或只算匹配率也各有一条。用个人邮箱是为了提升付费广告的匹配率，不是拿去发信。执行前要求先按一句话任务去检索工具并查看工具说明，因为工具名和参数会变；命中某行决策再读链接的那份文件，不凭印象直接跑。",
+   "usage": "手里有一份客户名单要投广告时，说明目标平台和覆盖率要求，它按决策表选配方，补全字段后上传成对应平台的受众。",
+   "notes": "需要安装 deepline 命令行并登录；只做付费广告受众，不做出站外联、冷邮件或文案；名单里的个人邮箱只用于匹配，不用于直接联系。",
+   "tier": "auto"
+  },
+  "cursor/plugins/unslop": {
+   "name_zh": "去 AI 写作痕迹",
+   "intro": "按编号规则扫描并改写文本里的机器味，保留原意并贴合原本语气。规则分五组：内容上删掉「体现出、确保了」这类空转分词结构和没有出处的模糊归因；用词上换掉那批高频 AI 词汇、别用「充当、堪称」绕开「是」、别写「不只是 X 还是 Y」、别硬凑三连、别为同一事物轮换同义词、别造虚假区间；排版上不用破折号、不把冒号当连接词、不滥用加粗、标题用句首大写、去掉装饰性表情、直引号；交流痕迹上删掉「希望这有帮助」这类客套和谄媚开场；最后清掉填充短语和过度含糊。规则编号稳定，别的技能会引用。",
+   "usage": "把要发的稿子交给它，让它按编号规则扫一遍再改写，改完可以对着编号逐条追问某处为什么删或为什么换。",
+   "notes": "该技能禁用了模型自动调用，需要手动指定；规则里的标点要求（不用破折号、改直引号）与中文排版习惯不一致，中文稿要自己取舍。",
+   "tier": "auto"
+  },
+  "dontbesilent2025/dbskill/dbs-ai-check": {
+   "name_zh": "AI 味检测",
+   "intro": "扫文案里的 AI 写作特征，默认只诊断不改写。做法是按文本顺序逐处指出问题，每处先引用原文，再用一两句直白的话说明问题在哪，后面标注特征编号、特征名和严重度（强、中、弱三种信号），最后给一句总结并注明体裁判断。它内置 22 个特征，例如堵住所有反驳、把知识全部倒出来、匀速排比、同一个让步模板反复用、给概念起名的仪式、情绪曲线过于光滑、替读者说蠢话再纠正、「不是 X 是 Y」高密度、精确到不真实的情绪细节、每段都收金句、句子节奏过于均匀，并提醒短视频文稿段段金句属于体裁要求而非 AI 味。",
+   "usage": "发一段文案说「查下 AI 味」，先拿检测报告；想改就说「我想改」，它会一处一处问你当时想达成什么，再给修改方向而不是直接重写。",
+   "notes": "它明确反对靠改写伪装成人写，不会未追问就动笔；正文没有明显 AI 味时会直说没问题，不硬找；不负责选题诊断。",
+   "tier": "auto"
+  },
+  "dontbesilent2025/dbskill/dbs-chatroom": {
+   "name_zh": "专家聊天室",
+   "intro": "给一个话题开一场多角色讨论。没指定人物时先推荐 3 到 5 位专家，每人一句话说明理论框架和分工，停下等你确认；确认后每位专家独立发言约 200 字，第一轮附模拟声明，再由判官总结讨论质量、两人都没覆盖的盲区、以及可执行建议。选人的逻辑是先选可检验的理论再选代表人物，要求命题清楚、经过长期批评与修正、能独立验证、能处理当前变量、原始材料足够，主动排除主要靠表达和平台声量立足的人。讨论可一直追问，直到你明确说结束才退回主流程。",
+   "usage": "给一个话题说「开个聊天室」，它先给候选专家名单等你确认，确认后逐轮出专家发言和判官总结，想退出就说结束聊天室。",
+   "notes": "第一轮会声明内容是模拟，不复述本人原话，也不替在世人物对公司、产品或他人表态；推荐名单避开泛财经、泛商业、泛知识类博主。",
+   "tier": "auto"
+  },
+  "dontbesilent2025/dbskill/dbs-chatroom-austrian": {
+   "name_zh": "奥派经济聊天室",
+   "intro": "固定三人的多角色讨论：哈耶克从知识分散出发，追问决策需要哪些知识、分散在谁手里，秩序是设计出来的还是自发涌现的，有没有类似价格的信号在聚合分散信息；米塞斯从人会行动这条公理出发做先验推理，追问现象的因果链，并拒绝因为现实困难而在原则上让步。两人各写 200 字以内且互不参考，第一轮开头附模拟声明，随后由判官检查有没有生搬理论、补两人都没提到的视角、给出可带走的判断或行动建议。多轮时保留最近三轮完整对话，更早的压成摘要。",
+   "usage": "说「奥派聊天室」再给一个问题，哈耶克和米塞斯各出一段回应，判官随后点评并给判断，可以继续追问直到你说结束。",
+   "notes": "每轮开头都有模拟声明，引号内的话是模拟表达而非本人原话；只做奥派视角，不接其他学派或用户点名的人物；判官会直接点出套公式的发言。",
+   "tier": "auto"
+  },
+  "dontbesilent2025/dbskill/dbs-xhs-title": {
+   "name_zh": "小红书标题公式",
+   "intro": "从 75 个在小红书上验证过的标题公式里挑匹配的，生成定制标题并说明为什么选它。公式按 12 类心理触发器编号：认知冲突、好奇缺口、恐惧与损失、身份代入、数字锚定、结果承诺、社会证明、争议挑衅、场景条件、行动号召、权威借力、互动测试。流程是先确认讲什么和给谁看，再按话题属性挑 5 到 8 个公式且至少覆盖三类，每个标题都要标出公式编号、给出对应的原始爆款例子、附一句推荐理由，最后给前三推荐。硬性要求是标题必须能追溯到编号，不允许自由发挥。",
+   "usage": "说清话题和行业，它从公式库挑几条匹配的，每个标题都标出公式编号和对应爆款例子，最后给前三推荐。",
+   "notes": "已标记为废弃，只作旧版对照保留，新任务应走新的标题封面入口；规则里还有五条标题铁律，比如留悬念不给答案、话题放大不缩窄、击中真实痛点。",
+   "tier": "auto"
+  },
+  "emilkowalski/skills/animation-performance": {
+   "name_zh": "动画掉帧诊断",
+   "intro": "只回答一个问题：每一帧能不能按时画完。它不讲缓动曲线和时长，也不判断这段动效该不该存在，只查为什么掉帧。核心立场是默认只动 transform 和 opacity，别的属性要给出理由；will-change 是最后一步而不是第一步，多数卡顿来自属性选错或主线程被占。诊断时要求先说出原因再改代码，并区分哪些结论是从代码看出来的、哪些必须在真机上录屏才算数。还覆盖布局、绘制、合成三段的取舍，CSS 与 WAAPI 与逐帧脚本的适用差别，以及 React 每帧重渲染、CSS 变量继承导致的重算、模糊滤镜的开销。",
+   "usage": "动画卡顿时把相关代码贴进来，让它先判断属于属性选错、主线程繁忙还是测量抖动，再给具体改法，而不是直接加一行硬件加速。",
+   "notes": "选缓动和时长看 animate，判断动效是否该存在看 review-animations，React Native 线程问题另有技能；开发机的性能不能代表中端手机，120Hz 屏预算还要减半。",
+   "tier": "auto"
+  },
+  "expo/skills/expo-data-fetching": {
+   "name_zh": "Expo 网络请求",
+   "intro": "所有请求、取数、缓存的统一规范。要求每个取数屏幕设计四种状态：加载中、失败、空列表、有内容，它们可以叠加出现，比如刷新失败时仍显示缓存内容。强调加载不等于空：空是已经返回零条，不是还没拿到；列表为空时用空态组件解释原因并给下一步动作。刷新要保留旧内容并用不打断的方式提示重试；首次加载用骨架，用户下拉用刷新控件。首屏或跳转依赖本地持久状态（登录态、引导标记）时，必须先等状态读完再渲染。保存类操作要防重复提交，失败保留草稿并允许重试。附离线与取消、路由级数据加载两份参考。",
+   "usage": "接接口时按它的四态模型写屏幕：加载、出错、空列表、有数据各长什么样，再定好缓存、刷新与离线的处理方式。",
+   "notes": "偏好使用自带的 fetch 而不是 axios；路由级加载器只在 web 且 SDK 55 以上可用；离线与取消需要状态监听和中断控制器配合。",
+   "tier": "auto"
+  },
+  "expo/skills/expo-router": {
+   "name_zh": "Expo 路由导航",
+   "intro": "Expo Router 的路由与导航约定：路由文件放 app 目录，组件、类型、工具函数不要跟着塞进去；用分组和动态段组织路径，保证始终有一条匹配根路径的路由；用 Link 跳转，尽量配 Link.Preview 和长按菜单，贴近 iOS 习惯；Stack 必须由 _layout 文件定义，页面标题用 Stack.Title；模态和表单页有单独写法；原生标签栏、头部工具栏、搜索栏各有对应组件，搜索优先用 Stack.SearchBar。另附路由结构、标签栏、工具栏与头部、表单页、搜索、缩放转场六份参考文档。",
+   "usage": "在 app 目录按文件建路由，Stack 用 _layout 定义，跳转写 Link 并带上 Preview，具体资源位置去 references 里查对应那篇。",
+   "notes": "只讲导航与路由，配色控件看 expo-native-ui，动效手势看 expo-animation；SDK 56 起不要直接从 @react-navigation 各包导入，改从 expo-router 的入口拿。",
+   "tier": "auto"
+  },
+  "expo/skills/expo-upgrade": {
+   "name_zh": "Expo 版本升级",
+   "intro": "按步骤把 Expo SDK 升到新版本并收拾依赖问题：先升 expo 本体再让安装器修依赖，跑一遍项目体检，清缓存重装后逐项过破坏性变更清单。会先看项目里有没有 ios 和 android 目录来判断是不是托管原生生成，没有就跳过后面的预构建和原生缓存清理；有的话再走预构建、CocoaPods 仓库更新、Xcode 构建缓存、Gradle 清理。附多份针对性迁移参考：React 19 的用法变化、新架构迁移、React 编译器接入、原生标签栏的获取方式改动、音频与视频从旧模块迁出、以及导航导入改到新入口，含 codemod 与手工映射。",
+   "usage": "要升 SDK 时照它的顺序做：升 expo 与依赖、跑体检、清缓存重装，然后按破坏性变更清单逐条核对导航、相机、音视频是否还能用。",
+   "notes": "从 SDK 55 及更早升级时跳过 56 直接上 57，且不要用 57.0.8 及以下的版本，那批带 Hermes V1 内存回归；有原生目录才需要清原生缓存。",
+   "tier": "auto"
+  },
+  "googleworkspace/cli/gws-script": {
+   "name_zh": "谷歌脚本项目管理",
+   "intro": "用命令行管理 Apps Script 项目：建空项目、取项目元信息、取项目内容（含每个脚本文件的源码和元数据）、取执行次数与活跃用户之类的指标、整体更新项目内容，以及查询某个脚本已执行过的进程。项目和进程两组资源都有列出与查询的方法，部署和版本另有两组资源，脚本还能直接触发运行。调用前先浏览资源和方法，再看某个方法的必填参数、类型和默认值，照着输出的结构去拼参数和 JSON 负载，不要凭记忆猜接口形状。",
+   "usage": "用 gws script 接资源和动作来管项目，比如取内容或更新代码；不确定参数就先看对应方法的 schema 输出再拼。",
+   "notes": "先读 gws-shared 里的鉴权、全局参数和安全规则，缺了要先让它生成；更新内容是整体覆盖，会清空项目里所有已有文件，属于写操作。",
+   "tier": "auto"
+  },
+  "googleworkspace/cli/gws-script-push": {
+   "name_zh": "上传脚本到项目",
+   "intro": "把本地脚本文件整包推到 Apps Script 项目里。给项目 ID 就能跑，可选指定目录，不给就用当前目录；支持 .gs、.js、.html 和 appsscript.json，自动跳过隐藏文件和 node_modules。它做的是整体替换，不是增量同步，项目里原有的文件会被这一批覆盖，所以运行前要确认本地就是完整版本。属于写操作，执行前应当先跟用户确认。",
+   "usage": "本地脚本改完后，用 gws script +push 带上项目 ID 推上去，目录不是当前路径时再加 --dir 指过去。",
+   "notes": "会替换项目里的全部文件，误用会丢线上代码，先确认版本；需要已登录的 gws 命令行；只认那四种文件类型和后缀。",
+   "tier": "auto"
+  },
+  "higgsfield-ai/skills/higgsfield-game-generation": {
+   "name_zh": "浏览器游戏生成",
+   "intro": "从一个游戏构想做到可玩链接：先读设计系统参考，定下核心循环、胜负与重开、性能预算、输入方式和语言处理，写出一份资产清单（每行标注 id、角色、类型、描述、尺寸或比例、风格引用、来源），再用 Higgsfield 生成精灵图、可平铺贴图、带动画的 3D 角色、音乐、音效和配音，组装后部署并交付网址。请求会先分流：整局游戏、只做资产、只做设计、迭代已有游戏、还是只要预告片。支持单机、同屏多人，以及需要平台服务器模块的在线多人。已有游戏则先看源码，保留原架构与未改资产，改清单后重建并沿用原游戏 ID 重新部署。",
+   "usage": "给一句游戏构想，它先读设计参考、列出资产清单，再生成素材、组装、部署，最后把能直接玩的链接给你。",
+   "notes": "依赖 Higgsfield 命令行与账号登录，会话过期要用户自己登录；不做普通图片视频、游戏预告片、原生移动或桌面打包；改已有游戏必须有源码。",
+   "tier": "auto"
+  },
+  "ibelick/ui-skills/fixing-motion-performance": {
+   "name_zh": "动效性能审查",
+   "intro": "按优先级分九类规则审查界面动效：绝不这样做的模式（同一帧里交替读写布局、给大面积元素连续做布局动画、用滚动位置驱动动画、没有停止条件的逐帧循环、混用多个各自测量和改布局的动画系统）、机制选择（默认只动变换和透明度，需要交互时才上脚本，绘制与布局动画只留给小块孤立区域）、测量（先量一次再动，读操作集中在前）、滚动（优先用滚动或视图时间线，可见性交给交叉观察器，离屏要暂停）、绘制、图层、模糊与滤镜、视图转场，以及工具边界。",
+   "usage": "说 /fixing-motion-performance 加上文件路径，它按规则逐条报出违规的那行、用一句话说明为什么有问题，并给出具体改法。",
+   "notes": "不主动更换动画库，只在现有技术栈内套规则；规则按严重度分档，画布与模糊类开销需要真机验证，静态审查只能定位可疑写法。",
+   "tier": "auto"
+  },
+  "neondatabase/agent-skills/neon-object-storage": {
+   "name_zh": "分支式对象存储",
+   "intro": "Neon 项目内置的 S3 兼容文件存储，跟数据库一起分支：从父分支拉一个新分支，子分支立刻继承那一刻的桶和对象，靠写时复制实现，不重复占空间；子分支上的上传覆盖删除也不会碰到父分支。适合放应用和用户产生的文件，比如上传、附件、头像、图片、文档、生成产物和备份。已经在用 Neon 的应用尤其省事：一个后端、一张账单、一套凭据、一套分支，不必再接 AWS S3、Cloudflare R2 或 Supabase Storage 这类独立存储。产出可以是可用的桶和上传下载流程、接好注入环境变量的分支感知客户端，或针对官方文档的准确答复。",
+   "usage": "要给应用存上传文件时，用它建一个桶，把 S3 客户端指向注入的环境变量，预览分支就会各自拿到一份文件和数据。",
+   "notes": "目前只在四个区域提供；需要先有 Neon 项目并安装父技能 neon；签名链接、桶日志、前面挂 CDN 这些细节要到官方文档核对。",
+   "tier": "auto"
+  },
+  "neondatabase/agent-skills/neon-postgres-egress-optimizer": {
+   "name_zh": "数据库出网流量优化",
+   "intro": "排查应用侧把数据库网传流量（egress）拉高的查询写法。四步按顺序走：先用 pg_stat_statements 找出返回总行数最多、单次返回行数最多、以及被调用最频繁的查询，再回到代码看这些查询背后的取数方式，改掉多取字段、重复查询、宽行全表拉取这类模式，最后确认功能没坏、流量真的降了。诊断查询按 rows、rows 除以 calls 等维度排序，重点盯返回行多、行宽大（JSONB、TEXT、BYTEA）或频次高的语句。统计被清空时先重置再让应用跑足一小时代表性流量。拿不到生产统计也可以直接从代码判断。",
+   "usage": "账单里数据传输费突然涨了，就按它给的诊断查询先定位最费流量的几条语句，再逐个回代码改掉多余的字段和重复请求。",
+   "notes": "需要先装父技能 neon 了解基础；Neon 计算缩到零重启后统计会清空；扩展可能需要手动创建；没有生产库统计时只能靠代码模式推断。",
+   "tier": "auto"
+  },
+  "pbakaus/impeccable/layout": {
+   "name_zh": "版式与间距调整",
+   "intro": "把平淡拥挤的版面改出节奏。先按五项评估：间距是否一致还是随手填的数值、是否所有地方留白一样多导致没有松紧、眯眼后能不能认出第一和第二重要的元素、有没有一个能看出来的底层结构还是全靠运气、密度是否和内容类型匹配（数据密集的界面该紧，营销页该留白）。再给改动方案：定一套间距刻度（框架自带或自建 token 都行，关键是统一）、用空间表达层级、按内容选布局方式（一维用弹性，二维用网格，复杂区域命名）、打破千篇一律的卡片阵列。参考文件里有网格、节奏、容器查询的细则。",
+   "usage": "界面看着挤或乱时，让它按间距、层级、网格、节奏、密度五项过一遍，再给一套间距刻度和具体版式改法。",
+   "notes": "必须先加载 /impeccable 并按里面的上下文采集流程走，没有设计上下文时要先做那一步教学；只处理空间与结构，配色字体另算。",
+   "tier": "auto"
+  },
+  "software-mansion/argent/argent-android-emulator-setup": {
+   "name_zh": "安卓模拟器准备",
+   "intro": "安卓侧开工前的固定动作。先列出设备，只留平台为安卓且状态就绪的条目，取第一个序列号，除非用户指定；没有就绪设备就按名字启动虚拟设备，工具会自己判断热启动还是冷启动：先试默认快照，能在时限内恢复就走热启，否则退回完整冷启，热启约半分钟，冷启两到十分钟，任一环节失败都会把它刚启动的模拟器进程杀掉，下次从干净状态重来。设备起来后为 React Native 做端口反向映射，让设备能连到本机的打包服务，设备重启要重做。之后把序列号当统一标识传给点击、滑动、界面描述、截图、启动应用这些工具，平台由标识形状自动判断。",
+   "usage": "开会话时先列设备挑一台安卓的，没有就用启动工具起一个虚拟设备，然后把序列号传给点击、截图这些交互工具。",
+   "notes": "需要 adb 和模拟器在 PATH 里，以及事先建好的虚拟设备；电视型设备是焦点驱动，不能点击滑动，要用遥控与键盘类工具；关模拟器要用命令正常退出，硬杀会留下坏状态。",
+   "tier": "auto"
+  },
+  "software-mansion/argent/argent-react-native-optimization": {
+   "name_zh": "RN 性能优化流程",
+   "intro": "React Native 性能工作的总入口，原则是先测后改：不许散弹式优化，先定义什么算够好（目标指标加阈值），修最贵的那一处，再诚实复测。四阶段清单：第一轮静态扫机械问题（跑一遍 lint 规则集，按文件派子 agent 修）；第二轮语义判断（记忆化、列表、动画等需要人判断的点）；第三轮采基线 profile 找真实瓶颈，用渲染计数表快速定位热点组件，用起停分析拿到报告，用组件源码和组件树追渲染成本与祖先关系；第四轮确认没有新崩溃和红屏。一次只改一处架构性改动，机械问题可以批量改完复测一次。",
+   "usage": "App 卡顿时按四阶段清单走：先跑静态扫，再采基线 profile 找最贵的组件，改一处复测一次，最后确认没有新的崩溃。",
+   "notes": "子 agent 不能碰设备，所有采样和端到端验证必须在主 agent 做；开了 React 编译器时不要乱加记忆化钩子，除非组件树里确认它没生效。",
+   "tier": "auto"
+  },
+  "vuejs-ai/skills/vue-debug-guides": {
+   "name_zh": "Vue 3 排错手册",
+   "intro": "Vue 3 的运行期排错索引，按症状直达对应的参考文件。响应式一组覆盖：追踪意外重渲染、漏写取值导致引用不更新、解构响应式对象后不再更新、数组与 Map 与 Set 里的引用不自动解包、嵌套引用在模板里印成对象、代理身份比较永远为假、第三方实例被代理后出错、同一 tick 内只触发一次。计算属性一组覆盖：取值里做副作用、改计算值导致改动消失、条件分支导致依赖不更新、排序反转污染原数组、给计算属性传参。监听器一组覆盖：异步竞态用旧数据覆盖、在异步回调里创建监听器泄漏、监听对象属性不触发、await 之后丢依赖、回调里读到过期 DOM、深层监听新旧值同一引用。",
+   "usage": "报错或状态不更新时，先按症状在这份索引里找到对应的参考文件，再照里面的复现条件和改法处理，别凭印象乱改。",
+   "notes": "只讲调试与错误处理，开发规范和常见坑请看 vue-best-practices；针对 Vue 3；另有 hydration 与异步失败相关条目需要按索引进入。",
+   "tier": "auto"
+  },
+  "warpdotdev/common-skills/check-impl-against-spec": {
+   "name_zh": "PR 与规格对照",
+   "intro": "PR 评审时的补充检查：当仓库里存在 spec_context.md 时，先把规格里做出的具体承诺抽出来，包括产品侧要求的行为、技术侧要求改动的文件或子系统、明确写下的约束、以及必须做的验证、迁移、兼容步骤，再拿 pr_diff.txt 和检出的分支文件逐条比对。命名、结构、底层写法上的无害差异不算问题，只有实质偏差才记录：规格要求的行为缺失、实现与规格决定相反、引入大块计划外范围、缺了必须的验证或迁移。结论不单独出报告，折进 review.json 的摘要和内联评论。",
+   "usage": "评 PR 前先确认仓库里有 spec_context.md，然后让它逐条核对实现是否兑现规格，把实质偏差写进 review.json，能对上改动行的才留内联评论。",
+   "notes": "只在 PR 评审且有规格上下文时使用；不直接往 GitHub 发评论；不推测 spec_context.md 里没写的规格内容；实现与规格等价且安全时不强行要求字面对应。",
+   "tier": "auto"
+  },
+  "warpdotdev/common-skills/reproduce-bug-report": {
+   "name_zh": "云端复现界面缺陷",
+   "intro": "针对界面类缺陷报告，派出带电脑操作能力的云端 agent 去真的跑起来、点一遍并把过程录下来。先读报告抽出现象、预期、复现步骤和相关环境（系统、版本与渠道、终端、开关、账号状态），只对界面、交互、渲染、引导这类看得到的问题用；纯后端、构建、依赖问题不适用。复现路径明确就派一个 agent，有多种可能就一次批量派出多个，每个带一个不同假设或环境变体，比如不同系统、全新状态对比已有状态、稳定版对比开发版。等全部回报后再汇总，区分已确认、部分复现、未复现、被卡住、以及没测的假设。",
+   "usage": "拿到一条界面 issue，把报告里的版本和复现步骤交给它，它会并行派几个云端 agent 各试一种假设，回传录屏并给出复现结论。",
+   "notes": "需要 Oz 云端 agent 与电脑操作能力；报告要求凭据或私有账号状态而环境没有时，应直接说明限制而不是猜；主 agent 不要自己在本机手搓复现。",
+   "tier": "auto"
+  },
+  "wshobson/agents/fastapi-templates": {
+   "name_zh": "FastAPI 骨架",
+   "intro": "一套可以直接照抄的 FastAPI 异步后端结构：接口层按版本分目录并单独放路由聚合，核心配置、安全、数据库各一文件，模型、数据结构、业务逻辑、数据访问四层分开放，共享依赖集中在依赖文件里。用内置的依赖注入挂数据库会话、鉴权和共享逻辑；异步覆盖路由处理、数据库操作、后台任务、中间件。依赖清单给到具体包和用途，包括异步 SQLAlchemy、异步 Postgres 驱动、JWT、口令哈希、表单解析，开发侧还有测试与异步 SQLite 内存库。测试部分用异步传输客户端直接打应用。",
+   "usage": "新建 FastAPI 后端时按它的目录骨架起项目，数据库会话和鉴权用依赖注入挂上，测试用内存 SQLite 跑异步客户端。",
+   "notes": "更细的实现模式在 references/details.md 里，读之前先看导航摘要够不够；依赖的版本下限要自己核对；只覆盖异步技术栈。",
+   "tier": "auto"
+  },
+  "dontbesilent2025/dbskill/dbs-agent-migration": {
+   "name_zh": "工作台迁移",
+   "intro": "把一个项目的 Agent 配置从混乱或半迁移状态整理成多端一致：审计 CLAUDE.md、AGENTS.md、SOURCE_OF_TRUTH.md 和散落各处的 skill，判断属于哪一类规则层结构，确定 skills/ 为真源，把 ~/.claude/skills、~/.grok/skills、~/.agents/skills 当桥接或安装入口，而不是长期维护处。支持 Claude Code 与 Codex、Grok、通用 Agents（豆包 Mac App、Trae Solo、Codex 读的目录）之间互相迁移，也包括多端统一。Grok 的桥接必须在 frontmatter 写 user_invocable 为 true，并在正文标出真源绝对路径，否则在 TUI 里搜不到。",
+   "usage": "要把项目迁到 Codex 或统一多端时，先让它审计现有规则文件和 skill 散落位置，确认真源目录后再生成桥接。",
+   "notes": "只管结构与桥接，不做单个 skill 的方法论评审，也不做业务诊断；切换位置或改 .gitignore 前会先确认。",
+   "tier": "auto"
+  },
+  "dontbesilent2025/dbskill/dbs-goal": {
+   "name_zh": "目标变可验收",
+   "intro": "把模糊愿望整理成能指导行动、能判断完成的交付目标。先从上下文提取已有约束：交付物、使用对象、范围、规格、完成条件、约束，不要求用户重复；信息够用就直接放行，给出交付物与下一步，不再追问。缺一项会改变交付物、执行路径或验收的信息时，只交代已经明确的部分，再问 1 个具体问题并停下等回答；只有「做个人 IP」这类愿望式表达时，每轮问 1 个缩小范围的问题。判断用五项特征：可指物性、可否证性、有完成态、语法健全、嵌在上下文里，满足三项即算可用，不设硬门槛。对「更好、深入、系统、全面」这类词做语义做工检测，看它是否改变了交付物、对象、范围格式、执行路径或验收结果，而不是看删掉后句子还通不通顺。",
+   "usage": "目标说法含糊时，先让它提取已有约束出一张目标卡，被追问就每轮只答一个问题，最后确认完成条件有可识别证据。",
+   "notes": "只做目标清晰化，不做概念拆解、研究问题改写、顾客购买动机分析；不替你定数字、期限与成功标准；一次只问一个问题，要逐轮回答。",
+   "tier": "auto"
+  },
+  "dontbesilent2025/dbskill/dbs-report": {
+   "name_zh": "诊断报告合并",
+   "intro": "把同一项目下多份 dbs-save 存档合并成一份 Markdown 报告，固定六段：主诉演进、已确认的结论、已否决的方向、当前未解决的问题、已确认的下一步、存档索引附录。结论后来被推翻时新旧都列，旧条目标注已被修正。写到 reports 下按项目名和带时间戳的文件，每次新生成一份、永不覆盖，方便对比不同时点的快照。只有一份存档时会先问要不要强制出报告，零份则直接说明没有可汇总内容。",
+   "usage": "项目里存过两次以上诊断后，跑 /dbs-report，需要只看近期就加 --since 2026-04-01 这样的日期参数。",
+   "notes": "只读存档、不修改配置；存档是本地纯文本，不做脱敏，也不出 PDF 或 HTML。",
+   "tier": "auto"
+  },
+  "dontbesilent2025/dbskill/dbs-restore": {
+   "name_zh": "恢复诊断",
+   "intro": "从本地存档里拉回最近一次诊断状态，紧凑展示主诉、已得出的结论、已否决的方向、待验证假设和上次留的下一步，末尾只问一句从哪儿继续，不替用户挑下一步，也不主动跳到别的 skill。支持按序号取、按项目名切到别的项目、以及 list 模式；「最新」按文件名前缀的时间判断，不看文件修改时间。当前项目没有存档时列出最近活跃的三个项目让用户选。用户说按上次的下一步走，才把存档内容当输入交给对应 skill。",
+   "usage": "隔了几天要接着上次诊断，跑 /dbs-restore 看状态摘要，再回答从哪儿继续。",
+   "notes": "只读配置、不改存档位置；不会跨目录自动搜私人文件；文件被手改坏时尽量用现有信息展示。",
+   "tier": "auto"
+  },
+  "dontbesilent2025/dbskill/dbs-save": {
+   "name_zh": "诊断存档",
+   "intro": "把当前对话里诊断出的主诉、已得出的结论、用户已否决的方向、待验证假设和已确认的下一步写成一个结构化 Markdown 存档：frontmatter 字段固定，正文六段按顺序，文件名带时间戳，同一状态存两次也不会冲突。同时负责存档位置：默认 ~/.dbs/，也可用项目内 .dbs/ 或指定的本地、云同步目录，只有明确执行 location 子命令才写配置。对话里还没有结论时会拒绝写空文件。list 模式列出存档的时间、标题、状态和来源。",
+   "usage": "有结论要留时说「保存」，或跑 /dbs-save 加标题；要查已有记录就跑 /dbs-save list。",
+   "notes": "存档是不加密的本地纯文本，可能含收入与客户信息；项目用 Git 时建议把 .dbs/ 加进 .gitignore，改前会先确认。",
+   "tier": "auto"
+  },
+  "expo/skills/expo-examples": {
+   "name_zh": "Expo 样例库",
+   "intro": "对应 expo/examples 仓库里约 70 个 with- 开头的集成范例（Stripe、Clerk、Supabase、OpenAI、地图、Reanimated、SQLite、Skia、NativeWind 等），每个只围绕一个库或服务，是 managed 项目，典型情况就一屏 100 到 200 行，所以拿来抄的是官方维护的依赖集、app.json 配置插件和最小接线，而不是整套应用架构。已有项目时按它的模式改造自己的代码，新项目时直接用 create-expo 的范例参数起。查名要用 gh api 列目录，meta.json 是改名与废弃的唯一依据，废弃的不要再推荐。",
+   "usage": "要接某个第三方库时，先按名字找对应的 with 范例（支付找 with-stripe、鉴权找 with-clerk），读它的依赖和 app.json 插件配置再搬到自己项目。",
+   "notes": "范例是单点集成，不提供应用架构；references/catalog.md 会漂移，需用 gh api 核对；需要 gh 已登录或能 clone 仓库。",
+   "tier": "auto"
+  },
+  "flutter/agent-plugins/dart-setup-ffi-assets": {
+   "name_zh": "原生资源编译",
+   "intro": "用 Dart 的 Native Assets 钩子把 C/C++ 代码编成 Code Assets：hook/build.dart 按目标架构编译本地源码或打包预编译二进制，hook/link.dart 负责链接并用 record_use 映射做链接期裁剪，依赖 package:hooks 与 package:native_toolchain_c。推荐本地编译加链接期裁剪这条路线；也可以下载哈希校验过的预编译动态库。产物随后在 dart run、dart test、dart build、flutter run 里自动打包。验收清单覆盖本地执行沙箱、目标产物是否存在、裁剪是否真的去掉未用符号、离线可用性。",
+   "usage": "要把 C 源码打进 Dart 包时，按它的模板在包内建 hook/build.dart 和 hook/link.dart，配好 native_toolchain_c 的库规格再跑 dart build。",
+   "notes": "需要宿主机 C 工具链；选下载预编译库时要做好哈希校验，并自己想清楚离线场景怎么过。",
+   "tier": "auto"
+  },
+  "flutter/agent-plugins/dart-use-ffigen": {
+   "name_zh": "FFI 绑定生成",
+   "intro": "用 package:ffigen 的 FfiGenerator 从 C 头文件生成 Dart FFI 绑定，取代手写 DynamicLibrary.lookup、@Native 外部函数和结构体类。约定：生成脚本放 tool/ffigen.dart；第三方头文件放 third_party/；用 include 正向白名单精确控制范围，不要整库导入；第三方库的产物放 lib/src/third_party/，主文件必须是 g.dart 后缀；preamble 要写清原生库的许可证、原头文件版权和不要手改的生成警告。收尾要重跑生成器确认产物有变化，并跑 dart analyze 验证。",
+   "usage": "要在 Dart 里接一个 C 库时，先写 tool/ffigen.dart 配好头文件路径与 include 白名单，生成后跑 dart analyze 验证。",
+   "notes": "需要本机 C 工具链与 dart analyze；头文件不在 third_party/ 或包根 src/ 时，先建议挪到标准位置再生成。",
+   "tier": "auto"
+  },
+  "google-gemini/gemini-skills/gemini-api-dev": {
+   "name_zh": "Gemini 开发",
+   "intro": "写调用 Gemini API 的代码时用：文本生成、多轮对话、多模态理解、图像与视频生成、语音合成与音色设计复刻、流式输出、后台调研任务、function calling、结构化输出，以及从旧 generateContent 接口迁移。给 Python 的 google-genai 与 TypeScript 的 @google/genai 两套用法。正文直接摆出当前模型清单（含推理、flash、图像、TTS、embedding 系列）和可用的托管 agent，并说明 2.5 及更早的型号已废弃：用户点名旧型号时换成当前型号并说明替换。",
+   "usage": "写 Gemini 调用前先照它列的当前模型 ID 建 client，多模态、流式、结构化输出照对应片段改，别沿用训练数据里的旧型号。",
+   "notes": "正文声明其模型与 SDK 版本优先于模型自身训练数据；Python SDK 需 google-genai 2.30.1 以上。",
+   "tier": "auto"
+  },
+  "google-labs-code/stitch-skills/stitch-design": {
+   "name_zh": "Stitch 界面",
+   "intro": "用 Stitch MCP 出高保真界面的统一入口：先把模糊需求扩写成带 UI/UX 术语的提示词（references/design-mappings.md 给对照，把「好看的头部」改成具体描述），再按生成新页、编辑现有页、写设计系统三条工作流走。项目里有 .stitch/DESIGN.md 就把它的颜色与字体 tokens 带进提示词，没有就建议先生成。生成的 HTML 和截图会下载到 .stitch/designs。提示词模板固定为整体氛围、DESIGN SYSTEM、PAGE STRUCTURE 三段。",
+   "usage": "要它出一页界面时，先说清页面用途和风格，让它按三段模板扩写提示词，再调生成工具并把产物下载回来。",
+   "notes": "需要有可用的 Stitch MCP server 和 projectId；没有设计系统文档时，多页之间的一致性会差。",
+   "tier": "auto"
+  },
+  "jimliu/baoyu-skills/baoyu-translate": {
+   "name_zh": "三档翻译",
+   "intro": "按投入分三档翻译：quick 直接译，normal 先做文本分析再译，refined 走完整出版级流程，含审校与润色。支持自定义术语表（内联或指向文件）、默认目标语言、目标读者、译文风格和分块设置；偏好按项目级、XDG、用户目录的顺序找 EXTEND.md，没找到就强制先做一轮首次配置，而不是悄悄用默认值。长文通过 scripts/main.ts 按 markdown 切块处理。",
+   "usage": "给一个链接或文件要翻译时，先确认走 quick、normal 还是 refined 档，术语表和目标读者写进 EXTEND.md 再开跑。",
+   "notes": "依赖 bun 或 npx 运行 scripts 下的脚本；缺少 EXTEND.md 时会先问配置，不想被打断就提前写好。",
+   "tier": "auto"
+  },
+  "jimliu/baoyu-skills/release-skills": {
+   "name_zh": "版本发布流程",
+   "intro": "通用发版流程：自动识别项目类型与版本文件（Node 的 package.json、Python 的 pyproject.toml、Rust 的 Cargo.toml、Claude 插件 marketplace.json、通用的 VERSION 或 version.txt），扫描 CHANGELOG、HISTORY、CHANGES 系列文件并按文件名后缀判断语言，再检测 origin 是否指向 GitHub、gh 是否已登录。支持 --dry-run 预览、--major、--minor、--patch 强制升档、--backfill-releases 为已有 tag 补建 GitHub Release。项目里有 .releaserc.yml 时可以挂钩子，把打包发布这类项目特有动作交出去。",
+   "usage": "在要发版的仓库里跑 /release-skills，先加 --dry-run 确认它识别到的版本文件、changelog 语言和 GitHub Release 状态。",
+   "notes": "改 tag、推送、建 Release 前先跑一次 dry-run；GitHub Release 部分依赖 gh 已登录。",
+   "tier": "auto"
+  },
+  "neondatabase/agent-skills/neon-ai-gateway": {
+   "name_zh": "Neon 模型网关",
+   "intro": "在 Neon 分支上调 LLM 和 embedding：一个 Neon 凭据就能用多家厂商的模型（Anthropic、OpenAI、Google、Meta 等），由 Databricks 托管，模型清单以 /v1/models 和 models.dev 的 Neon 页为准。端点兼容 OpenAI，现有 OpenAI、Anthropic、Gemini SDK 只改 base URL 就能用，也能接 Vercel AI SDK 和 Mastra；换厂商只改 model 字段，不用重写代码。适合不想自己管各家密钥、账单和轮换的场景。",
+   "usage": "要把现有 SDK 调用切到网关时，把 base URL 换成 Neon 端点、凭据换成 Neon 的，再改 model 字段切换厂商。",
+   "notes": "只在 aws-us-east-2、aws-us-east-1、aws-eu-central-1、aws-ap-southeast-1 可用；embedding 的模型 ID 与维度查官方 embeddings 文档。",
+   "tier": "auto"
+  },
+  "neondatabase/agent-skills/neon-functions": {
+   "name_zh": "Neon 长时函数",
+   "intro": "把长时运行的 Node.js HTTP 函数部署到 Neon 分支上，自动注入 DATABASE_URL，计算和数据库同区域。相比 lambda 式 10 到 60 秒的执行上限，这里只要处理器在 15 分钟内开始响应，流只要还有字节就继续，适合一次请求里多次调 LLM 和工具的 agent、图片视频生成、SSE、WebSocket、webhook、Discord bot、MCP server。还支持 Function Triggers：cron 定时或对象存储事件 POST 到函数。用同一套 Neon CLI、neon.ts 和 API 部署管理，本地用 neon dev 起开发循环。",
+   "usage": "要在数据库旁边跑长流式接口时，用 Neon CLI 或 neon.ts 定义函数并部署到分支，先在本地用 neon dev 跑通流式响应。",
+   "notes": "目前只在 aws-us-east-2、aws-us-east-1、aws-eu-central-1、aws-ap-southeast-1 可用；要 Neon 账号和该功能的开通权限。",
+   "tier": "auto"
+  },
+  "software-mansion/argent/argent-create-flow": {
+   "name_zh": "录制回放流程",
+   "intro": "把设备上的一段操作录成 .argent/flows 下的 yaml，之后能回放、编辑、修复。硬性规则：第一次走查就开录，不按回忆重建；检查项在状态出现时当场录，再转成断言；目标优先用稳定 id，其次稳定文本或无障碍标签，离屏元素用 scroll-to，出现原始坐标警告必须当场处理；每次界面切换都要有目的页校验，静止等待不能替代身份校验。同一段交互要重复三次以上，就值得先录成 flow。真机上回放不会自动绑定设备，必须显式传 udid。",
+   "usage": "要把重复的设备操作固定下来时，先开录制完整走一遍，再按稳定 id 改写成 YAML，最后回放验证。",
+   "notes": "真机回放需显式传 udid 且设备处于已连接状态；捏合和旋转在真机上会失败。",
+   "tier": "auto"
+  },
+  "software-mansion/argent/argent-device-interact": {
+   "name_zh": "模拟器交互",
+   "intro": "一套工具同时驱动 iOS 模拟器、Android 模拟器和 Chromium（CDP）应用：点按、滑动与滚动、捏合缩放、旋转、输入文字、按硬件键、启动应用、打开 URL、截图、等待元素出现或消失、读当前界面状态。按 udid 的形状自动分派平台：UUID 走 iOS 模拟器，chromium-cdp 加端口号走 Chromium，其余当 Android adb serial。坐标一律归一化到 0.0 到 1.0 而不是像素；列表滚动用 gesture-swipe，需要精确停位时传 momentum 为 false；每次操作后优先用返回的元素树导航，没有新树再调 describe。手势工具的参数 schema 可能延迟加载，调用前先取一次。",
+   "usage": "要在这个模拟器或模拟机上点某处时，先 list-devices 选目标，再 gesture-tap 传归一化坐标，然后读操作后返回的元素树。",
+   "notes": "不支持 TV 目标；Chromium 目标的滚动、标签页和 cookie 与移动端不同，动手前先读 references/chromium.md。",
+   "tier": "auto"
+  },
+  "software-mansion/argent/argent-ios-simulator-setup": {
+   "name_zh": "iOS 模拟器连接",
+   "intro": "用 argent MCP 工具准备 iOS 模拟器目标：先调 list-devices，筛出 platform 为 ios 且 kind 不是 device 的条目（真机不作为模拟器目标），已启动的排在最前；一个都没启动时用 boot-device 传 udid 启动。之后的 gesture-tap、gesture-swipe 等交互工具会自动拉起服务，不用单独启动。UDID 形如 A1B2C3D4-E5F6-7890-ABCD-EF1234567890。把模拟器任务派给子代理前，确认子代理有 MCP 权限。",
+   "usage": "新会话或要操作模拟器前，先 list-devices 看有没有已启动的 iOS 模拟器，没有就 boot-device 传它的 UDID 启动。",
+   "notes": "只管模拟器，kind 为 device 的物理 iPhone 不在范围内。",
+   "tier": "auto"
+  },
+  "software-mansion/argent/argent-metro-debugger": {
+   "name_zh": "JS 运行时调试",
+   "intro": "通过 CDP 调 JS 运行时。RN 走 Metro（iOS、Android、Vega Fire TV），连上后能看 React 组件树、检查元素、读 console、执行 JS、重载 Metro；Electron 或开着 CDP 端口的 Chromium 浏览器也能用其中一部分：连接、状态、执行、log registry 和网络日志，但组件树、元素检查、重载和 profiler 系列在 Chromium 上会被能力门直接拒绝。前置是 Metro 在跑且至少有一个应用连上，用 debugger-status 判断，它返回状态与原因而不报错。Android 必须先把 8081 端口反向转发，否则应用连不到 Metro。",
+   "usage": "连不上时先 debugger-status 看状态和原因；Android 上补一次 adb reverse tcp:8081 tcp:8081 再试。",
+   "notes": "物理 iPhone 不支持；Vega 需要 Debug 版 vpkg 且 Metro 从设备可达。",
+   "tier": "auto"
+  },
+  "software-mansion/argent/argent-native-profiler": {
+   "name_zh": "原生性能分析",
+   "intro": "查原生层的 CPU 热点、UI 卡住和内存问题。iOS 后端是 xctrace（Xcode Instruments），能录 CPU、hang 和 Instruments 的 Leaks；Android 后端是 Perfetto 加内置的 WASM 解析引擎，会给出每个 hang 的 jank 原因码、带 blocked_function 归因的主线程状态分解和 GC 重叠标注。流程是 start 录、stop 导出带时间戳的 XML、analyze 出结构化瓶颈，再用 profiler-stack-query 按 hang_stacks、thread_breakdown、function_callers、leak_stacks 下钻到具体调用链和库。iOS 泄漏若归因到栈上限，可开 malloc_stack_logging 重录一次。",
+   "usage": "怀疑问题出在原生层时，native-profiler-start 录一段、stop 导出 trace，再 analyze 看瓶颈并用 profiler-stack-query 查调用链。",
+   "notes": "物理 iPhone 不支持；Android 要求应用可调试或清单里声明可被 shell 采样；Android 的内存增长只是提示，需人工确认。",
+   "tier": "auto"
+  },
+  "software-mansion/argent/argent-react-native-app-workflow": {
+   "name_zh": "RN 开发调试流程",
+   "intro": "在 iOS 模拟器或 Android 模拟器上启动、调试 RN 应用的分步流程。第一步是读项目自己的构建与运行配置，别默认敲 react-native start 或 run-ios：看 package.json 里有没有 start:local、ios 之类的自定义脚本，看 metro.config.js 有没有非默认端口或 watchFolders，iOS 侧优先打开 .xcworkspace。启动前确认 node_modules、Podfile 与 Pods 状态、默认端口上没有冲突的 Metro；用 debugger-status 判断 Metro 是否就绪；跑通之后把发现的工作流写进项目记忆，省得每次重问。",
+   "usage": "RN 项目启动或排查调试问题时，先看 package.json 的自定义脚本和 metro 配置，再依次起 Metro、跑应用、用 debugger-status 确认连接。",
+   "notes": "面向模拟器；物理 iPhone 会被 Metro 调试与 profiling 工具直接拒绝。",
+   "tier": "auto"
+  },
+  "software-mansion/argent/argent-react-native-profiler": {
+   "name_zh": "RN 渲染性能测量",
+   "intro": "在 Hermes 上量 React Native 的渲染与 CPU：react-profiler-start 开 CPU 采样并挂 React commit 捕获（sample_interval_us 默认 100），stop 存下 cpuProfile 与 commitTree，analyze 出按总渲染耗时降序的热点报告并把原始数据落盘。react-profiler-renders 不开 profiling 也能实时列出每个组件的渲染次数与耗时；component-source 给文件、行号、是否已 memo 化和 50 行源码；fiber-tree 追组件祖先与渲染成本。中途被打断过（Metro 重载、子代理交接）用 status 看会话状态。它只负责测量，优化策略交给 argent-react-native-optimization。",
+   "usage": "要确认哪个组件在重复渲染时，先 react-profiler-renders 拿实时表；要 CPU 归因就走 start、操作、stop、analyze。",
+   "notes": "物理 iPhone 不支持，只能在模拟器上跑；profiler 系列工具在 Chromium 目标上不可用。",
+   "tier": "auto"
+  },
+  "software-mansion/argent/argent-test-ui-flow": {
+   "name_zh": "UI 流程自测",
+   "intro": "用交互、截图、核对的循环自动跑一遍应用 UI：iOS 和 Android 用同一套工具名，按 udid 自动分派。开始先截图留基线，要做视觉对比时用 1.0 的缩放且不回传图像、只留返回的路径。找目标分三种：RN 应用优先用 debugger-component-tree，它直接给出带可点坐标的组件；普通界面和弹窗用 describe 拿元素树；权限弹窗先 describe，拿不到再退回截图。实现改了可见 UI 时，也能把它当视觉验收用。",
+   "usage": "改完界面要验一遍时，先截图留基线，再按 describe 或 debugger-component-tree 拿坐标点击，每步之后截图核对。",
+   "notes": "真机要先读 argent-ios-device-interact；Android 上用 RN 调试前得先 adb reverse 转发 Metro 端口。",
+   "tier": "auto"
+  },
+  "warpdotdev/common-skills/respond-to-pr-comments-in-blocklist": {
+   "name_zh": "逐条回 PR 评论",
+   "intro": "把 PR 上的评审意见逐条处理：先过滤掉机器人发的总览或状态评论、以及当前用户已经回过的线程，剩下真正需要处理的逐条问用户决定，改完代码后给一份预览，用户批准才在 GitHub 上发回复并 resolve 对应线程。评论已经在上下文里（比如刚跑过 pr-comments）就不重复拉取，只有缺正文、作者、路径等字段时才补取。适合想批量清 review、但不允许 agent 自己拍板回复的场合。",
+   "usage": "PR 评论要一条条处理时，先确认评论已加载，再跟着它逐条确认决定，最后批准预览之后才发回复和 resolve。",
+   "notes": "只在用户明确要发回复或 resolve 时才用；只要评论列表用 pr-comments，只改代码不往 GitHub 回东西就别用这个。",
+   "tier": "auto"
+  },
+  "warpdotdev/common-skills/validate-changes-match-specs": {
+   "name_zh": "规格实现核对",
+   "intro": "核对一个分支或 PR 是否真的实现了它带来的规格：先用 merge-base 和 diff 的改动文件名定位，再到 specs/ 下找 PRODUCT.md、TECH.md、SECURITY.md 这类文档，任何 specs 下按单号建目录的 markdown 都算有效规格；把产品行为、技术实现、安全隐私、迁移回滚、验证步骤这些承诺分门别类抽出来，跟代码、测试、文档对照，列出实质不符处，再一条条问用户是改实现还是改规格，可以逐条也能批量应用。没有相关规格时会停下来直说没有可对的东西。",
+   "usage": "规格驱动的 PR 要验收时，让它先找 specs/ 下的文档并抽出承诺，再逐条确认不一致的地方按哪边改。",
+   "notes": "规格、PR 描述、评论都当不可信输入，只取事实与承诺；找不到规格时不会硬凑结论。",
+   "tier": "auto"
+  },
+  "wshobson/agents/mobile-android-design": {
+   "name_zh": "安卓界面设计",
+   "intro": "写原生 Android 界面的参考：Material Design 3（Material You）和 Jetpack Compose 的用法，覆盖 Navigation Compose 导航、手机平板折叠屏的自适应布局（WindowSizeClass）、Material 3 动态取色主题、无障碍、Android 特有的手势与不同屏幕配置。原则里明确颜色统一从 MaterialTheme.colorScheme 取以自动适配深色模式、Android 12 及以上开启动态取色。正文给了一个 Compose 卡片列表项的可运行片段，Card 套 Row，图标加两行文本。",
+   "usage": "要写 Compose 界面时，照它的卡片列表片段改布局，颜色统一走 MaterialTheme.colorScheme 并开启动态取色。",
+   "notes": "正文的部分细节已移到 references/details.md；片段是 Kotlin 与 Compose，不适用 Flutter 或 RN。",
+   "tier": "auto"
+  },
+  "antfu/skills/pnpm": {
+   "name_zh": "pnpm 用法",
+   "intro": "按 pnpm 12（Rust 重写的稳定版，保持 v11 的命令、参数和锁文件格式）整理的用法手册：CLI 命令、pnpm-workspace.yaml 的 camelCase 配置模型、workspace 过滤和 workspace 协议、内容寻址存储与 node linker 模式，以及 catalogs、overrides、patches、packageExtensions、allowBuilds、全局虚拟存储这些机制。核心是配置模型变了：设置只放 pnpm-workspace.yaml 和全局 config.yaml，.npmrc 只留认证和 registry，package.json 里的 pnpm 字段不再读。",
+   "usage": "配 monorepo 或调依赖冲突时，把 pnpm-workspace.yaml 和报错一起贴出来；CI 里用 `pnpm ci` 或加 `--frozen-lockfile` 锁住版本。",
+   "notes": "v12 有几处行为差异：git 依赖走 HTTPS、全局 bin 感知项目、Linux 下 packageImportMethod 默认先硬链接、移除 --resolution-only，升级时看迁移那节。",
+   "tier": "auto"
+  },
+  "code.deepline.com/deepline-pre-research": {
+   "name_zh": "研究技能旧名",
+   "intro": "这是 deepline-pre-research 的兼容别名：技能已经改名成 deepline-research，本文件不含自己的指令，只负责把人送过去。被 /deepline-pre-research 或老脚本调用时，应当立刻加载 deepline-research 并按它执行；加载器支持按名字调用就直接用新名，不支持就按 .skills/、~/.claude/skills/、~/.agents/skills/ 的顺序找 deepline-research/SKILL.md，用第一个存在的。同时用一行告诉用户旧名换成了新名，然后继续原来的请求。",
+   "usage": "遇到 /deepline-pre-research 时不要按本文件做，改为加载 deepline-research 并按其说明继续，顺带告知用户入口已改名。",
+   "notes": "这个别名是临时的，会被移除；按本文件作答等于什么也没做。",
+   "tier": "auto"
+  },
+  "cursor/plugins/thermo-nuclear-code-quality-review": {
+   "name_zh": "严格代码质量审查",
+   "intro": "要求很严的可维护性评审：先看当前分支的改动，再问能不能换个结构让实现更小、更直白，专门找那种能让整段分支、helper、模式、条件消失的重构，而不是挑几个局部清理点。几条硬标准：不让文件从 1k 行以下被这次改动撑过 1k 行，除非有明确的结构理由；不允许在无关流程里塞临时条件分支；抽象要放对位置，测量两次再下刀。评审要给出重构方案，不只是问题清单。",
+   "usage": "说「跑一次 thermonuclear 代码质量审查」或指定某个分支，让它按上面的硬标准审改动并给重构方案，而不是列一堆小修小补。",
+   "notes": "默认关了模型自动调用，需要显式触发；它针对实现质量和结构，不改行为，也不做功能评审。",
+   "tier": "auto"
+  },
+  "dontbesilent2025/dbskill/dbs-decision": {
+   "name_zh": "长期决策跟踪",
+   "intro": "中文写的个人决策系统，给需要长期跟踪的业务、关系、健康、职业、学习、投资问题建一个本地 Markdown 工程，固定四层：01_事实只追加不改写，02_规律缓慢追加修正并用 [修正 日期] 标注，03_定格是写完不改的月度状态画像和事件诊断，04_待解放开放问题、待验证假设、观察指标和决策事件。每条信息按来源打标签，[AI 推测]、[AI 结论]、[结果回填 日期] 不能省，事实、阶段判断和结果回填分开写，不把后见之明倒灌回最初判断。支持初始化、更新当前状态、给重大分叉立决策事件、回填结果、出阶段快照几种模式。",
+   "usage": "在空目录里说要在某个领域做长期跟踪，先回答是否开隐私模式和存放位置；之后直接说近况或要回填的结果，它会更新 我的当前状态.md 并把新信息分到四层里。",
+   "notes": "默认落在 ~/.dbs/decisions/{项目名}/，加 --here 才放进当前项目；涉及人名、商业机密、财务时开隐私模式（强制代号加提交黑名单提示），但它不替你拍决定，也不改写已有事实和旧快照。",
+   "tier": "auto"
+  },
+  "expo/skills/eas-app-stores": {
+   "name_zh": "EAS 上架发布",
+   "intro": "用 EAS 构建并提交 iOS、Android 应用到 TestFlight、App Store 或 Google Play：eas.json 配置、发布流水线、签名、版本号和 build number、商店提交与商店页元数据。Expo 和其他 React Native 项目都行，已有原生应用也能只把它当发布通道，不必引入 RN 运行时；纯 SwiftUI/UIKit 项目要先看原生 iOS 的说明，保留 Xcode 工程作为源头。正文反复提醒：构建成功或提交排队不等于苹果已接受，处理和可用性要另外查。",
+   "usage": "说「发布到 TestFlight」并给出 bundle id 和当前版本号，它会按对应参考文件给构建和提交步骤；CI 里的自动发布看 workflows 那份参考。",
+   "notes": "EAS 云构建会消耗套餐额度，Apple 开发者账号和 Google Play 会员另算；原生 Android 目前只有提交到 Play 的说明，没有独立的原生 Android 配置走查。",
+   "tier": "auto"
+  },
+  "flutter/agent-plugins/dart-use-primary-constructors": {
+   "name_zh": "Dart 主构造器",
+   "intro": "Dart 主构造器（primary constructors）的写法与迁移：在类头部的参数表里同时声明字段和生成式构造函数，区分 var/final 的声明参数、this./super. 的初始化参数和只在初始化期可用的普通参数，空声明体用分号收尾，类体内的初始化列表和简写构造语法也都讲。正文标了版本门槛：Dart 3.13 起默认开启，3.12 要显式开 primary-constructors 实验（--enable-experiment 或 analysis_options.yaml），3.11 及更早不支持，并给了迁移与排错的步骤。",
+   "usage": "让它把某个类改成主构造器写法时先说清 Dart 版本；3.12 需要先在 analysis_options.yaml 里开 primary-constructors 实验。",
+   "notes": "低于 3.12 无法使用该语法；开实验后分析器和构建工具都要带同一个 flag，否则报错会看起来像语法错误。",
+   "tier": "auto"
+  },
+  "github/awesome-copilot/refactor": {
+   "name_zh": "渐进式重构",
+   "intro": "在不改外部行为的前提下改善结构：拆长函数、拆解巨型函数、提取重复逻辑、改名、加强类型、消掉代码坏味道。规则是先有测试再动手（没有测试只是编辑不是重构）、每次小步改完就跑测试、重构和加功能不混在一起、每个安全状态前后都提交。正文给了长函数、重复代码等坏味道的对照改法，也列了不该重构的情况：不会变的代码、没有测试的生产代码、赶工期的时候。",
+   "usage": "说「重构这段」「把这个函数拆开」，让它按小步走的顺序给 diff 和每一步的理由；先确认目标代码有测试，没有就先补测试。",
+   "notes": "只做渐进改进，不做整仓重写；生产关键代码没测试时它应当先停下来让你补测试。",
+   "tier": "auto"
+  },
+  "giuseppe-trisciuoglio/developer-kit/shadcn-ui": {
+   "name_zh": "shadcn 组件",
+   "intro": "shadcn/ui 的组件做法：组件是复制进项目的，代码归你改；底层是 Radix 原语，样式走 Tailwind 和 CSS 变量。正文有初始化和按组件安装的命令表（button、input、form、card、dialog、sheet、select、toast、table、menubar、chart、textarea、checkbox、label 等），表单部分接 React Hook Form 加 Zod 校验，图表用 Recharts 包一层，还讲了暗色模式和主题变量怎么改，以及 dialog、表格这类组件的实际写法。",
+   "usage": "新项目先 `npx shadcn@latest init`，再按需装组件比如 `npx shadcn@latest add form`；然后把要的界面和校验规则贴给它改。",
+   "notes": "要求项目已有 Tailwind，老项目初始化前还要补 tailwindcss-animate、clsx、tailwind-merge、lucide-react 等依赖；组件是复制进仓库的，后续升级要自己处理。",
+   "tier": "auto"
+  },
+  "kunchenguid/lavish-axi/lavish": {
+   "name_zh": "HTML 评审稿",
+   "intro": "把计划、方案对比、图表、表格、代码 diff、报告、原型这类用文字讲不清的东西做成浏览器里打开的 HTML 页面，人在页面上圈注写意见，反馈再回到 agent 形成评审循环。工作流刻意不写在 SKILL.md 里（安装副本会过时），每步都从 CLI 现取：--help 看命令和评审循环，design 看当前设计取向，playbook 拿具体产物的写法。不必全局安装，把 HTML 文件作为参数调用就会在浏览器打开。",
+   "usage": "把结论写成 HTML 后跑 `npx -y lavish-axi <html-file>` 在浏览器打开等用户标注；要给 agent 回话用 `npx -y lavish-axi reply --help` 看参数再发。",
+   "notes": "依赖 npx 现取最新版 CLI；文件里的工作流说明是旧的，命令和设计规范以 CLI 输出为准，输出里以 lavish-axi 开头的后续命令也要换成 npx -y lavish-axi 形式。",
+   "tier": "auto"
+  },
+  "limrun-inc/skills/limrun-bazel": {
+   "name_zh": "Bazel 远程构建",
+   "intro": "把 Bazel 工作区的 iOS、Android 目标放到 Limrun 的共享构建机上跑：lim bazel setup 在 MODULE.bazel 所在目录生成被 gitignore 的 .limrun/，往 .bazelrc 加一条 try-import，之后 bazel build --config=limrun 就走远程，Apple 动作落在 Mac、Android 动作落在 Linux worker，全组织共用一个远端缓存，本机不需要装 Xcode 或 Android SDK。要求 Bazel 8 以上和 rules_apple 或 rules_android；Android 还要 rules_cc、rules_java、protobuf、hermetic_android_toolchains，缺的行会打印出来，非交互环境要加 --yes。",
+   "usage": "在工作区装好 lim 后跑 `lim bazel setup`，再 `bazel build --config=limrun` 构建；CI 里补 --yes 免去确认，换 CLI 版本或开始用 Apple/Android 规则后重跑 setup。",
+   "notes": "只适用于有 MODULE.bazel 且根模块声明了 rules_apple 或 rules_android 的工作区；旧的 lim xcode rbe 走 limrun-xcode-bazel，非 Bazel 的 Android 构建走 limrun-gradle。凭证只认 lim login 或 LIM_API_KEY，用 npm 全局安装才会带上 lim-bazel-credentials。",
+   "tier": "auto"
+  },
+  "mbfinotti/sales-skills/sales-account-tiering": {
+   "name_zh": "客户分层设计",
+   "intro": "在已有的账户匹配分之上设计分层：切分线画在哪、层级怎么命名、每个销售各层能带多少账户、每层给什么覆盖（触达节奏、渠道组合、QBR 频率、高管参与度）、用什么比值看覆盖健康度、多久重新校准一次。产物是一份分层章程，不重造匹配分；没有 ICP 或匹配分时先送回上游技能，否则等于把两层压成一层，切分线怎么画都救不回来。也能诊断「所有账户都掉进 Tier 1」：查容量上限和默认归属，再从容量那步重做。",
+   "usage": "说「把账户分层」或「每个销售该带多少账户」，它会先确认有没有可用的匹配分，再给切分线、容量上限和各层覆盖模型。",
+   "notes": "只吃现成的匹配分；B2C 直接面向消费者时不适用，走零售/分销关键账户才适用。",
+   "tier": "auto"
+  },
+  "mbfinotti/sales-skills/sales-career": {
+   "name_zh": "销售职业辅导",
+   "intro": "站在候选人一侧：从进第一份 SDR/BDR，到转 AE，再到之后的路径（管理、CSM、RevOps、能力建设），B2B SaaS 和佣金制高客单 B2C（房产、保险、光伏、汽车）都覆盖。内容包括冷呼模拟、卖笔题、自己写的 30-60-90 计划、把业绩量化成证据、技能差路线图、对雇主的尽调，以及从候选人角度评估 offer；建议都挂到有日期的基准上（RepVue、Bridge Group、NAR）或用户给的事实。只做策略，不代找工作也不生成简历。",
+   "usage": "说「想进科技销售」「SDR 面试怎么准备」或「这个 offer 值不值」，它会先问你现在的位置和目标市场，再逐步给方案，不直接甩一份成品计划。",
+   "notes": "每套排序都是默认值不是定律，会随本地人脉、技术背景、执照属地、存款跑道重新排；不覆盖用人方视角、自动投递和成交战术。",
+   "tier": "auto"
+  },
+  "mbfinotti/sales-skills/sales-discovery-questions": {
+   "name_zh": "需求挖掘问题稿",
+   "intro": "按通话时长排一套销售需求挖掘问题：把 SPIN、Sandler 痛苦漏斗、MEDDPICC 三问、GAP 销售四个公开框架收敛成一条主线——隔离真实问题、挖根因、量化影响、确认为什么是现在，分段依次是开场约定、现状、痛点、根因、影响、紧迫、决策上下文、收尾，每段都有退出条件，只往前走不回退。每个主问题配 2–3 级追问和一句「听什么」，另加分支触发条件和一份别问清单，最后拼成通话用的提问表。可覆盖 SDR 资格确认（15–30 分钟）、AE 深挖（30–45 分钟）、跑着的单子按角色补问、单次高客单 B2C 咨询；先访谈再动笔，按每 3–4 分钟一道实质问题控制篇幅，面向高管更少更深。",
+   "usage": "说「帮我准备这次需求挖掘」，并交代 B2B 还是 B2C、对方职位、通话类型和时长；它会先问几个问题，再照着 `references/question-bank.md` 的题库和通话表模板出稿。",
+   "notes": "提问表是地图不是剧本，要顺着客户回答走分支；不负责异议应对话术、冷呼开场白，也不给已完成的通话打分。",
+   "tier": "auto"
+  },
+  "mbfinotti/sales-skills/sales-hiring": {
+   "name_zh": "销售招聘流程",
+   "intro": "招 SDR/BDR 和 AE 的用人方流程，产出四样东西：基于结果的岗位记分卡、结构化面试环节加题库、打过分的模拟电话工作样本、带认证关口的 30-60-90 上手计划。角色选型从 ACV、成交周期和入站量推，ACV 小周期短入站多就偏 SDR 加 AE 分工。每条基准数字都要标来源等级（同行评议、调研、众包、厂商数据），不能把厂商说法当事实；整个技能建立在结构化面试、独立打分、不出脑筋急转弯这些选人有效性证据上。",
+   "usage": "说「招一个 SDR」或「设计销售面试题」，它会先问团队阶段、角色、ACV 和周期，再给记分卡、面试环路和 ramp 计划。",
+   "notes": "只做用人方，候选人视角的面试准备归 sales-career；不 sourcing、不写招聘广告、不管 ATS，也不设计提成方案。",
+   "tier": "auto"
+  },
+  "mbfinotti/sales-skills/sales-icp-definition": {
+   "name_zh": "ICP 定义",
+   "intro": "在销售负责人层面定理想客户画像：企业规模、技术栈、行为、意向四类标准，配一张带权重的打分表、明确的排除条件和刷新周期。有成交/丢单数据时从数据走，成交笔数少于约 20 就先用创始人访谈做假设版；B2B 账户和 B2C 的人群/心理画像都覆盖。做法是先访谈（每轮只问一个问题，能读官网、产品文档或 CRM 导出就先起草 v1 让人改），按成交笔数选分支，再产出标准与评分表；分群、分层、市场测算不在这里做。",
+   "usage": "说「定义我们的 ICP」或「销售什么客户都追」，它会先问成交笔数等一两个问题，再给标准、权重和排除条件；有官网或 CRM 导出可以先让它起草再改。",
+   "notes": "15 笔成交上跑出来的评分表只是猜想的表格化，数据薄的阶段会先给假设版并说明依据；进入新市场要单独建一份 ICP，不能把现有 ICP 放宽了凑。",
+   "tier": "auto"
+  },
+  "mbfinotti/sales-skills/sales-kickoff": {
+   "name_zh": "销售技能路由",
+   "intro": "27 个销售技能的分诊入口：先判断当前任务在哪个高度——CRO 层的动作设计、ICP、市场测算、分群、分层、组织、配额、覆盖、薪酬，还是执行层的陌拜、冷呼、需求挖掘、异议、MEDDPICC、复盘、招聘、职业——然后只路由到一个技能，或者直说没有合适的。同时维护项目里的 sales-context.md：文件存在就是接续，不存在就是冷启动；先做环境探测（git 历史、README、已有的 ICP 或人物画像文档），再问人，避免重复访谈。",
+   "usage": "开新销售项目、或者一个问题跨了多个销售主题时先跑它，说清目标和手上已有的材料，它会给出一个技能加一条有序技能链，并写好或更新 sales-context.md。",
+   "notes": "事实能从环境推出来就不该问用户；同一项目的后续会话重新跑是为了汇总和重新路由，不是重新访谈。",
+   "tier": "auto"
+  },
+  "mbfinotti/sales-skills/sales-market-sizing": {
+   "name_zh": "市场规模测算",
+   "intro": "算 TAM/SAM/SOM 来支撑销售容量、区域和配额：TAM 自下而上按具名账户或人群数量乘单价建，SAM 用 GTM 实际能用的过滤条件收窄，SOM 再用团队真实产能封顶，然后和自上而下的数字三角验证，每层定各自的刷新周期。ICP 一变就强制重算 SOM，TAM 和 SAM 除非定价、产品或打包也动了才跟着动。用来做规划，不是拿去融资讲故事。",
+   "usage": "给出产品、定价和目标细分，让它做一次自下而上的 TAM/SAM/SOM；如果只是董事会要个数，会先给一个标注为背景的量级，再排完整的三角验证。",
+   "notes": "不负责定义 ICP，也不把 SOM 换算成编制和配额；临时给董事会的量级不能直接进入配额和区域规划。",
+   "tier": "auto"
+  },
+  "mbfinotti/sales-skills/sales-pipeline-coverage-modeling": {
+   "name_zh": "管线覆盖建模",
+   "intro": "算要完成配额需要多少管线、现在还差多少：用历史赢率推覆盖倍数，给了原始倍数、按阶段加权、按转化率反推三种算法，再按细分市场设不同目标，看季度内时间点和不可回头点，做季节性折算，最后把缺口换算成每周每个销售要新建多少管线。也用来诊断「背着 4 倍覆盖还是没完成」——分三步查：目标背后的赢率口径、三种倍数之间的差距、节奏，三者里必有一个在骗人。",
+   "usage": "给出配额、细分市场、成交周期和赢率历史，让它算目标覆盖倍数和缺口；问「这季度 3.8 倍够不够安全」会先清掉不可信的管线再算。",
+   "notes": "配额本身怎么定不在范围里，覆盖是个比值，没有分母时会先让你去定配额；纯自助 PLG 没有管线概念，会被直接劝退。",
+   "tier": "auto"
+  },
+  "mbfinotti/sales-skills/sales-radar": {
+   "name_zh": "销售信息源清单",
+   "intro": "按角色、市场和每周能花的时间，给一份带链接的销售信息源清单：该跟的人、播客、newsletter、社群、基准报告，交付时带快照日期和每个源的状态。B2B SaaS 和 B2C 高客单被当成两个生态分开做——前者在 LinkedIn、Slack 社群、Substack，后者在 YouTube、Facebook 群和付费教练漏斗——不把一个生态的清单换个标签给另一个。还带新鲜度检查，能发现改名或已经停掉的源，正文给了一批已核验的 B2B 源作起点。",
+   "usage": "说「给我几个销售播客」或「怎么跟上销售行业」，它会先问角色、市场和每周时间预算，再出一份带日期的核验清单。",
+   "notes": "清单里的链接有时效，交付时看快照日期；只做信息源，不做职业规划或面试准备。",
+   "tier": "auto"
+  },
+  "mitsuhiko/gh-issue-sync/gh-issue-sync": {
+   "name_zh": "issue 本地同步",
+   "intro": "把 GitHub issue 同步成本地 Markdown：开放的统一放 .issues/open/，关闭的放 .issues/closed/，每条文件带 frontmatter 写标题、标签、经办人、里程碑和状态，编号由文件名决定而不是写在 frontmatter 里。改完 Markdown 用 push 推回，pull 拉取时跳过冲突、加 --force 覆盖本地，diff 看本地改了什么、--remote 会先重新拉。新建 issue 先拿 T 开头的临时编号，push 时自动换成正式编号并同步改写其他 issue 里的引用；旁边放一个 .comment.md 就能在推送时发评论，发完即删。",
+   "usage": "在仓库里跑 `gh-issue-sync init` 初始化，`gh-issue-sync pull` 拉取，编辑完 Markdown 用 `gh-issue-sync push` 推回，推之前先 `gh-issue-sync status` 看改动。",
+   "notes": "文件头里的 parent、blocked_by、blocks 只做记录，不同步成 GitHub 端的关系；pull 默认不覆盖本地冲突，需要强推才用 --force。",
+   "tier": "auto"
+  },
+  "openclaw/openclaw/summarize": {
+   "name_zh": "链接视频摘要",
+   "intro": "steipete 写的命令行工具 summarize：给一个 URL、本地文件、PDF 或 YouTube 链接就出摘要，也能只转录——加 --extract 直接打原文不调模型，YouTube 用 --youtube auto 做尽量完整的字幕提取，不需要 yt-dlp。摘要长度用 --length 控制（short/medium/long/xl/xxl 或直接给字数），--json 出机器可读结果，被挡的站点可以挂 Firecrawl 兜底。默认模型是 auto，密钥按厂商从环境变量读，配置写在 ~/.summarize/config.json。",
+   "usage": "跑 `summarize \"https://example.com\"` 出摘要，要原文加 `--extract`；转录视频用 `summarize \"https://youtu.be/dQw4w9WgXcQ\" --youtube auto`，太长就先出摘要再问要看哪段。",
+   "notes": "需要装 summarize 本体并提供所选厂商的 API key（OPENAI_API_KEY、ANTHROPIC_API_KEY、XAI_API_KEY 或 GEMINI_API_KEY）；YouTube 字幕是尽力而为，兜底需要 APIFY_API_TOKEN。",
+   "tier": "auto"
+  },
+  "sanity-io/agent-toolkit/sanity-migration": {
+   "name_zh": "迁到 Sanity",
+   "intro": "从别的 CMS 或内容系统迁到 Sanity 的做法：先读通用说明，再按源平台读对应指南（AEM、Contentful、Strapi、Webflow、WordPress/WXR、Payload、Drupal、Markdown/MDX），动代码前先出一份迁移计划——源访问、内容范围、schema 决策、抽取、转换、导入、校验、重定向、切换。内容先快照到磁盘再转换，文档 ID 由源 ID、slug 或路径派生保证幂等和可重跑，富文本转 Portable Text，资源上传到 Sanity，最后按文档统计质量问题再切流。",
+   "usage": "说「从 WordPress 迁到 Sanity」并给出导出文件或 API 访问方式，它会先出计划，再写可重复运行的迁移脚本和校验清单。",
+   "notes": "大内容量不靠一次性手工操作，要写确定性脚本；生产内容不能继续依赖旧 CDN 上的资源地址。",
+   "tier": "auto"
+  },
+  "wshobson/agents/architecture-decision-records": {
+   "name_zh": "架构决策记录",
+   "intro": "写和维护 ADR：一条记录只讲背景、决定和后果，状态走 Proposed → Accepted → Deprecated → Superseded（另有 Rejected），放在 docs/adr/ 下按 0001-短横线标题.md 编号，README 做索引表，被取代的旧记录保留并标 [DEPRECATED]。正文有该写和不该写的对照（换框架、选数据库、API 设计、安全架构、集成方式要写；小版本升级、修 bug、实现细节、配置调整不写），以及标准版、轻量版、Y-statement、废弃与 RFC 几套模板的取用说明。",
+   "usage": "说「给这个决定写一份 ADR」，它会先判断该不该写，再挑模板填背景、决定、后果，并更新 docs/adr/README.md 的索引和状态。",
+   "notes": "ADR 只记录决策和理由，不承载设计文档细节；被推翻时新增一条取代记录，不直接改写原记录。",
+   "tier": "auto"
+  },
+  "wshobson/agents/error-handling-patterns": {
+   "name_zh": "错误处理模式",
+   "intro": "覆盖异常、Result 类型、错误码、Option 四种风格的取舍，并按可恢复和不可恢复给错误分类。正文给的原则是：入口先校验快速失败、保留堆栈和元数据、消息写清发生了什么和怎么修、在能真正处理的那层捕获、用 try-finally 或 defer 清资源、不吞错、尽量用类型化错误。还讲了异步与并发下的错误处理、重试和断路器、降级路径，以及给用户和给开发者两套消息的写法，附带分语言的完整例子。",
+   "usage": "写新的错误处理或评审一个 API 的错误契约时，把失败路径贴进来，让它按上面的原则挑模式并指出被吞掉或被过度包装的错误。",
+   "notes": "",
+   "tier": "auto"
+  },
+  "wshobson/agents/python-design-patterns": {
+   "name_zh": "Python 分层",
+   "intro": "在写新服务、拆巨型类、决定要不要抽抽象时给判断标准：KISS、单一职责、关注点分离、组合优先于继承、三次法则（出现第三处再抽象，重复往往好过过早抽象）。落到可执行的规则上——函数 20–50 行、构造注入依赖、先删死代码再考虑模式、每层单独可测、显式优于聪明。正文还带一组排障问答，比如一个类看着有多重职责但拆起来别扭时，用「变更原因」清单判断该不该拆。",
+   "usage": "评审新模块或 PR 时把类和依赖关系贴进来，要它按变更原因划职责、判断该不该抽抽象，并给出组合替代继承的改法。",
+   "notes": "正文把细节例子放在 references/details.md，导航层不够用时才需要读那份文件。",
+   "tier": "auto"
+  },
+  "jimliu/baoyu-skills/baoyu-post-to-weibo": {
+   "name_zh": "微博发布",
+   "intro": "通过真实的 Chrome 浏览器把内容发到微博：普通帖支持文字配图片和视频，头条文章吃 Markdown 文件并自动带封面和标题，走浏览器而不是接口，能过反爬检测。脚本只负责把内容填进页面，发布前留给人看一眼再点；Chrome 配置可以在项目、XDG 或用户主目录下的 EXTEND.md 里指定。",
+   "usage": "准备好文案和图片，运行脚本让浏览器把内容填好，人工确认后点发布。",
+   "notes": "需要本地装 Chrome 和 bun（或用 npx 兜底），首次要手动登录微博以保存会话；普通帖的图片加视频总数不超过 18 个。脚本不会替你按下发布。",
+   "tier": "auto"
+  },
+  "juliusbrussee/caveman/ultracave": {
+   "name_zh": "极限压缩回复",
+   "intro": "比 caveman 更狠的一档压缩回复模式：去掉冠词、系动词和连接词，一句能用一个词就不用两个，同一个事实只讲一次，工具调用一行进一行出。代码、命令、路径、API 名、报错原文、否定词、数字和单位一律原样保留，用户用什么语言就用什么语言。整个会话持续生效，直到明说停下或回到正常模式；不确定时仍按开启算。",
+   "usage": "赶进度或上下文吃紧时开启，让它用碎片式短句回答，代码和命令保持原样不动。",
+   "notes": "默认不允许模型自己触发，只能手动输入命令开启；遇到安全警告、不可逆操作、有歧义的句子或需要向用户提问时，它会切回完整表述。写进文件、提交信息、文档的内容不受这套压缩约束。",
+   "tier": "auto"
+  },
+  "mbfinotti/sales-skills/cold-email-deliverability": {
+   "name_zh": "冷邮件送达检查",
+   "intro": "审一封冷邮件草稿和它背后的发信配置：SPF、DKIM、DMARC 是否对齐，PTR 与 TLS 有没有配，发信域名架构，发信声誉与投诉率风险，正文长短、链接和图片数量、追踪像素、纯文本还是 HTML、退订入口，以及各地区的合规要求。按「认证 > 声誉 > 内容结构 > 用词」的优先级给风险排序，并给每条结论标出处等级：服务商文档、厂商营销、有争议、从业者共识。",
+   "usage": "贴草稿和域名发信配置，让它按认证、声誉、内容结构、用词的顺序列出收件箱风险。",
+   "notes": "只做卫生与合规审查，不帮绕垃圾邮件过滤；认证不过会被服务商直接拒收，改文案救不回来。它不写主题行、不排发信节奏。",
+   "tier": "auto"
+  },
+  "mbfinotti/sales-skills/deal-champion-mapping": {
+   "name_zh": "决策链地图",
+   "intro": "从一个商机已有的材料画出决策链：职位名单、通话笔记、邮件与会议往来、CRM 联系人角色，据此判断谁像真拥护者、谁是掏钱的人、谁在挡，每个人的判断都按证据强度分级而不是按头衔。会写明哪些角色还没被验证，并给每个待证角色配一个能证实或证伪的下一步动作；产品碰到客户数据时，默认存在一个可能事后否决的安全审查人。",
+   "usage": "给联系人和往来记录，让它标出拥护者、决策人和阻力方，并说明每个判断的证据强度。",
+   "notes": "只认人不评商机分数，也不扫笔记找一般性风险；头衔不等于影响力，证据不足的角色会标成待验证。角色定义取自 MEDDICC 和 Challenger 的说法，但它不按缩写给商机打分。",
+   "tier": "auto"
+  },
+  "mbfinotti/sales-skills/deal-red-flags": {
+   "name_zh": "商机风险扫描",
+   "intro": "只读一个商机的自由文本记录——通话笔记、机会字段、CRM 活动日志、邮件往来——把单线程推进、没有拥护者、缺紧迫事件、预算没核实、没有约定的下一步、互动在变冷这些风险挑出来。每条风险在严重度和证据置信度两条独立的轴上分别标，且必须引原文片段支撑；证据不足一律判为「未知」，并直接转成下一通电话该问的那句问题。",
+   "usage": "粘一个商机的笔记和活动记录，让它列风险、附证据片段，并给出该补问的那一个问题。",
+   "notes": "一次只审一个商机，不做结构化资质打分，也不画决策链；笔记没写不等于有问题，它会标成未知而不是风险，同时检查能洗清这条风险的证据。",
+   "tier": "auto"
+  },
+  "mbfinotti/sales-skills/sales-account-segmentation": {
+   "name_zh": "客户分层建模",
+   "intro": "在 ICP 和分层之间补上那层模型：选哪些信号定义客户契合度（行业与规模、技术栈、意向行为、待完成任务），用近 12 个月赢单数据校准各项权重，把「像不像」和「准备好没有」拆成两条独立的轴，再画出现有客户里还有哪些空白可卖，并说明这套分怎么落到 CRM 字段、怎么路由给销售、多久重打一次分。B2B 客户分群和 B2C 按价值分客群都覆盖。",
+   "usage": "拿出赢单数据让它校准权重，输出契合度打分模型、空白市场清单和 CRM 落地方式。",
+   "notes": "没有共识的 ICP 时先定 ICP，否则等于偷偷重造一遍而且造得更差；分层切点、每销售容量上限属于分层之后的技能，不在它这里。",
+   "tier": "auto"
+  },
+  "mbfinotti/sales-skills/sales-call-review": {
+   "name_zh": "通话复盘打分",
+   "intro": "拿一通销售电话的转录，按开场、需求挖掘、异议处理、收尾四段打分，每条判断都引转录原文支撑，反馈项收在有限几条内，最前面只放一个下次要改的行为。能处理语音识别出来的错字、缺说话人标签和只录到一半的电话；B2C 和高频外呼场景可加合规与话术遵循维度。全程区分独立测量和厂商自述的平台相关性数据，不把相关性说成因果。",
+   "usage": "粘上转录并说明是本人自评还是主管评、属于哪类电话，让它逐段引原文打分并给一个聚焦改进项。",
+   "notes": "不写跟进邮件、不评商机质量、不排季度计划，通话结果只当背景不参与打分；上次定过的改进项会先被检查有没有变化。",
+   "tier": "auto"
+  },
+  "mbfinotti/sales-skills/sales-comp-design": {
+   "name_zh": "提成方案设计",
+   "intro": "设计销售薪酬结构：底薪与浮动怎么分（按岗位对成交的影响定），考核指标按三法则控制在三条以内，加速器和减速器的曲线形状，临时激励 overlay，保底 draw，以及 SDR、AE、主管、专家岗、客户成功各自的方案和业绩归属规则。写完要先回测成本，再过法务，最后发签署版；正文提醒方案本身就是天天盯着销售的隐形主管，机制奖励什么就会得到什么。",
+   "usage": "给出岗位、OTE、现有配额和成本上限，让它算底薪浮动比、画出加速曲线并回测超配额时的成本。",
+   "notes": "它给配额定价，不负责定配额；配额制定和组织结构在同系列别的技能里。方案必须过法务，奖金归属规则要在下一单成交前写好。",
+   "tier": "auto"
+  },
+  "mbfinotti/sales-skills/sales-meeting-recap": {
+   "name_zh": "会后纪要邮件",
+   "intro": "把通话笔记变成买家会回信确认的纪要邮件：先把买家的痛用他自己的话复述一遍，再列商定的下一步，每个动作都带负责人、日期和交付物；单子复杂时顺手起一份双方共同推进计划，让这封邮件在销售不在场的房间里继续替他卖。硬规则是不编笔记里没有的承诺，只从用户给的笔记、转录或描述里取材。",
+   "usage": "贴原始笔记，说明参会人、商定的下一步和发送时限，让它产出可直接发出的纪要和动作清单。",
+   "notes": "不评判这通电话打得怎样，也不管成交后交接给客户成功；笔记里没写的时间和负责人留空待确认，它不替你猜。",
+   "tier": "auto"
+  },
+  "mbfinotti/sales-skills/sales-motion": {
+   "name_zh": "销售模式选择",
+   "intro": "在公司层面选销售模式：产品自助增长、销售驱动、两者混合的产品驱动销售、开发者与开源带动、渠道伙伴带动，以及这些模式之间的切换——创始人不再亲自卖、给自助产品加销售团队、往上打大客户、加渠道。判断依据是客单价、免协助上手时间、买的人和用的人是否同一批人、市场规模形状和采购摩擦有多大。会给出 2–3 个候选模式或混合方案，验证经济性，再带明确关卡地规划过渡。",
+   "usage": "报出客单价、客户自己上手要多久、买与用是否同一人，让它判断该走自助、销售驱动还是混合，并说清切换的第一个关卡。",
+   "notes": "只定公司跑哪种模式，不管单个单子怎么打；组织编队、配额、提成和 pipeline 测算各有对应技能。",
+   "tier": "auto"
+  },
+  "mbfinotti/sales-skills/sales-objection-handling": {
+   "name_zh": "异议处理话术",
+   "intro": "把客户那句「太贵了」「暂时不需要」「我们已经在用别家」拆开，判断它是真约束还是习惯性挡话，再给出销售能直接念出口的应答，或者干脆说这单该放弃。价格、时机、竞品在位、决策权、维持现状、信任六类异议分别处理；价格异议还会区分价值差距和预算真的到顶，并给出用交换代替打折的思路。开头先做一次预防检查：如果销售在需求没摸清前就讲功能，正文会点明异议是自己造的，让先补需求挖掘。",
+   "usage": "贴出客户原话、异议出现的环节（冷呼、需求、演示、报价）和已经尝试过的回应，让它先判断真假再给应答话术。",
+   "notes": "不管折扣与让步的交换方案，也不算 ROI；这两块分别指向同系列的 negotiation-concession-planner 和 deal-value-calc。案例、标杆、担保这类证据只能用它给的，缺了就说缺了。",
+   "tier": "auto"
+  },
+  "mbfinotti/sales-skills/sales-org-structure": {
+   "name_zh": "销售组织设计",
+   "intro": "决定销售团队怎么搭：SDR、AE、客户成功各要几个，用孤岛式、流水线、pod 还是混合编队，SDR 与 AE 的比例、打新与养客怎么分、一个主管带几个人、是否按客群做专业化。编制比例不套模板，而是用自家漏斗数据倒推；还会给出一步一步的过渡动作，而不是一次推翻重来。适合创始人带过初期销售、准备扩编或重组时用。",
+   "usage": "说清当前各岗位人数、单笔金额、销售周期和漏斗转化，让它给出编队选择、编制比例和第一步调整。",
+   "notes": "不写招聘 JD、不设计面试流程、不指定具体谁去哪个岗位；招人填坑和选择公司销售模式是另外的技能。",
+   "tier": "auto"
+  },
+  "mbfinotti/sales-skills/sales-outbound-sequence": {
+   "name_zh": "外呼节奏编排",
+   "intro": "定一套逐日触达日程：第几天发邮件、哪天打电话、两次之间隔多久、总共几次停手、多渠道怎么混、要不要找第二第三个人多线程推进，退出条件和放弃后重新进入的规则都写进去。还会按名单量和销售实际可用的时间算容量，避免排出没人跑得动的节奏；上线之前先把各项指标门槛定死，事后照门槛判成败，而不是跑完再找理由。",
+   "usage": "给出名单规模、可投入的销售人数、必须出结果的日期和渠道权限，让它排出逐日触达表并标出停手条件。",
+   "notes": "正文自己说节奏长度业内没有共识：一派 10–15 次触达铺 14–30 天，一派压到 3–5 封邮件，它用决策规则处理而不是站队。引用数字多来自卖外呼工具的厂商，方向可参考、量级别照搬。只排节奏，不写文案。",
+   "tier": "auto"
+  },
+  "mbfinotti/sales-skills/sales-outreach-personalization": {
+   "name_zh": "触达切入点",
+   "intro": "把线索身上的信号变成 2–3 个排好序的搭话理由，每个理由都配日期、来源、它暗示的问题、一句钩子、能顺势提出的请求，以及可信度和新鲜度标注。可用的信号包括融资与财务、换岗与空降、招聘、产品发布、工具更换、对方写的内容或演讲、社区与评价里的抱怨、共同联系人；消费者侧则是购买、浏览、生命周期和忠诚事件。分 1:1 战略客户、1:few 细分、1:many 批量三档投入。",
+   "usage": "列出线索信号及其来源和日期，让它排出可用的切入角度，并标出哪条证据最弱、该补什么。",
+   "notes": "只给理由和一句钩子，不写正文、标题、电话开场和节奏，那些在同系列别的技能里；硬规则是不许编信号，编出来的比没有角度更糟。",
+   "tier": "auto"
+  },
+  "mbfinotti/sales-skills/sales-quota-setting": {
+   "name_zh": "销售配额制定",
+   "intro": "给销售团队算配额的方法：先把现有销售折成等效满编人数，再用它核对上头给的收入目标，决定超额分配留多少 cushion、按区域和产能加权怎么切、新人爬坡期给多少减免，最后拿历史达成率回头验一遍这套数是否离谱。四种入口分别对应全公司年度规划、单团队、单个新人例外、以及诊断一套已经发下去却跑不动的配额。适合销售负责人和销售运营做年度规划。",
+   "usage": "报出团队人数、去年人均产出、新人入职时间、目标收入和覆盖区域，让它先建人效模型再切配额。",
+   "notes": "只停在规划层，不落到单子打法或陪访建议；覆盖配额所需 pipeline 的测算、以及按配额付钱的提成方案，都在同系列别的技能里。",
+   "tier": "auto"
+  },
+  "software-mansion/argent/argent-lens": {
+   "name_zh": "设计稿多选",
+   "intro": "同一屏要几个视觉方案时，逐个方案真做出来、逐个截图，再一次性推进 Argent Lens 窗口：每个方案是一张浮卡，用细线连到界面上对应的真实元素，人按元素逐个挑，还能给元素留自由批注，按完成后结果一次返回给代理。硬规则是一个方案对应一张真机渲染出来、彼此不同的截图，没做出来的、或者两张图一模一样的方案不算数。",
+   "usage": "需要人来做视觉取舍时，先把每个变体做出来并截图，再让真人在 Argent Lens 里逐个元素点选。",
+   "notes": "要先运行 `argent enable argent-lens` 打开开关，默认是关的；每次都建议带上模拟器 id，预览窗会直接串那台设备，人不用自己再选。",
+   "tier": "auto"
+  },
+  "tavily-ai/skills/tavily-research": {
+   "name_zh": "联网引用调研",
+   "intro": "用 Tavily 的命令行跑一次带引用的联网调研，返回有来源支撑的结构化报告，单次 30–120 秒。可选 mini、pro 或自动选模型，支持实时流式返回、只拿请求号异步执行、用 JSON schema 约束输出结构，引用格式有编号、MLA、APA、芝加哥四种，报告能直接存成 JSON 文件。适合竞品对比、市场分析、文献综述这类需要多源合成并标注出处的问题。",
+   "usage": "让它用 pro 模型跑一次多角度调研并存成报告文件，话题大需要边跑边看时加上流式输出。",
+   "notes": "要先装好并登录命令行工具，或在环境里提供 API Key；无人值守环境把登录交给用户。只想快速查事实别用它，同系列有更轻的搜索技能。",
+   "tier": "auto"
+  },
+  "upstash/skills/upstash-redis-js": {
+   "name_zh": "Redis 用法手册",
+   "intro": "围绕 @upstash/redis 这个走 HTTP 的 Redis 客户端写的用法手册：缓存（旁路、写穿、过期策略）、会话存储、有序集合作排行榜、计数器、分布式锁、列表队列、Stream 与消费组、稀疏下标数组和环形缓冲、把向量存进 Redis 做最近邻检索、JSON 文档、管道与事务、Lua 脚本、只读副本、全文与拼写容错搜索。按数据类型分章，配自动序列化的代码片段，也有从 ioredis、node-redis 迁过来的对照。",
+   "usage": "按数据类型章节找对应写法：初始化后缓存、会话、排行榜各有现成示例，向量检索单独一章。",
+   "notes": "需要 REST URL 和 TOKEN 两个环境变量；正文提到没有实例时可临时开一个免注册的库，3 天有效。它讲 SDK 用法，限流集成等事项看同系列别的技能。",
+   "tier": "auto"
+  },
+  "warpdotdev/common-skills/cross-critique": {
+   "name_zh": "方案互评",
+   "intro": "手上已经有几份独立提案时，不自己汇总，而是把每份分发给其他作者互相挑毛病，收回结构化的优点、缺点、隐藏假设和失败模式，再合成结论。适合架构取舍、代码评审分歧、根因假设打架这类没有唯一正确答案的争议。正文明确说这是第二轮：前提是先有独立提案，没有就先用 council 或 research 生成；如果几份提案本来就高度一致，或者答案能直接验证，就别走这一轮。",
+   "usage": "把几份互不相同的方案摆出来，让每个作者点评其余方案，再按真正的分歧点合成一版。",
+   "notes": "只在提案确实分歧时用，否则只是多花一轮延迟和 token；它不生成提案，只做互评和汇总。",
+   "tier": "auto"
+  },
+  "warpdotdev/common-skills/research": {
+   "name_zh": "子代理调研外包",
+   "intro": "把「为了回答一个问题要翻一堆文件」的活儿派给子代理，自己只收回结论和支撑证据，让读进来的噪声留在子代理那边。适合查某段代码怎么工作、某个符号在哪些地方被调用、某个测试为什么挂、几千行的 PR 改了什么。正文给了判断标准：产出答案的成本远高于答案本身才值得派；并说明要用带搜索能力的模型起子代理，以及派几个、怎么派。",
+   "usage": "遇到要读几十个文件或长日志才能回答的问题，先派子代理去查，只让它带回答案和引用来源。",
+   "notes": "已知只需读两三个文件、只有一次搜索、或下一步就要动手改这些文件时别派，省不下上下文还多一轮延迟。",
    "tier": "auto"
   },
   "google/agents-cli/google-agents-cli-workflow": {
