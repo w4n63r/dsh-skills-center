@@ -31,6 +31,10 @@ const ctx = {
       captured.providerFactory = factory;
       return () => {};
     },
+    register(skill) {
+      captured.runtimeSkill = skill;
+      return () => {};
+    },
   },
   tools: {
     register(tool) {
@@ -69,6 +73,17 @@ assert.equal(typeof captured.sections[0].text, 'string', '召回提示必须是�
 assert.equal(Number.isFinite(captured.sections[0].order), true, 'order 必须是有限数');
 assert.match(captured.sections[0].text, /skill_search/, '提示里必须点名工具，否则等于没说');
 assert.match(captured.sections[0].text, /Do not claim a skill exists/, '要明确禁止凭空声称技能存在');
+
+// 运行时技能：宿主会把名字 + 描述拼进每步的可用技能列表，这是「会话一开始就命中」的正路
+assert.ok(captured.runtimeSkill, 'should register the skills-center runtime skill');
+assert.equal(captured.runtimeSkill.name, 'skills-center');
+assert.equal(captured.runtimeSkill.source, 'runtime');
+assert.match(captured.runtimeSkill.description, /skills\.sh/, '描述要让人知道这是干什么的');
+assert.match(captured.runtimeSkill.whenToUse, /现成/, 'whenToUse 要写清什么时候用它');
+assert.match(captured.runtimeSkill.content, /skill_search/, '正文要点名工具');
+assert.match(captured.runtimeSkill.content, /pass 不等于安全/, '正文要自带口径，不能只说好用');
+assert.equal(captured.runtimeSkill.invocation.modelInvocable, true);
+assert.equal(captured.runtimeSkill.invocation.userInvocable, true);
 
 // ---- 库存 fixture：挑一条目录里的技能，造出它的 SKILL.md ----
 const { loadCatalog, searchSkills, getSkill, renderCard } = await import('../lib/catalog.js');
