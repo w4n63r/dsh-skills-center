@@ -273,7 +273,7 @@ f6e6c8c test: cover web api + honest activate when body missing
 
 1. **重启 GUI 才会生效**（`dsh.client` 是启动期从 package.json 读的）。重启后先看左侧栏有没有「技能中心」图标；没有就查该插件在浏览器里的加载错误。
 2. 面板目前只读。要做「点一下就装」，必须先有「把技能正文下载到 `~/.dsh/skills-center/library/<来源>/<slug>/SKILL.md`」的路径（`npx skills` 或自己抓 SKILL.md），否则激活了 provider 也暴露不出来（见 §4 / `DESIGN.md §6`）。
-3. M3 召回钩子仍未做。
+3. M3 召回：最小版已做（`ctx.skills.register()` 注册运行时技能 + 静态 `systemPrompt.section`）；「首条用户消息命中后经 `agent/pre-step` 注入一行」的强版本仍未做。
 
 #### 9.3.1 版式改成卡片墙（2026-10-20 当天，用户拿插件市场截图提的）
 
@@ -422,9 +422,9 @@ Cron **每项目 100 个、最小间隔一天**（精度 ±59 分钟）；Blob *
 
 **本地装卸**：`lib/installer.js` + `/install` `/uninstall` `/local`（对应用 `tests/install-routes.test.mjs`）。命令是官方 CLI：`npx skills@1.7.4 add <owner/repo> --skill <slug> -a codex --copy [-g] -y`；落点 `<项目>/.agents/skills/<slug>`（rank 200）/ `~/.agents/skills/<slug>`（rank 500）——正是 DSH 的扫描根，装完立刻可用、卸载就是删目录。项目根 = 从当前目录向上找最近的 `.git`。**面板还没接这三个路由**（`client/client.js` 里有「本地」视图字符串与组件，但 Panel 只渲染目录视图），别在文档里说 GUI 能一键装。
 
-**中文层**：hand 300 + auto 首批 25 = **325/3879**，均已合并进 `data/zh.json`（`tier` 计数 hand 300 / auto 25，分片 `data/zh/part-1..7.json`，`generated_at 2026-10-21T08:29:46Z`）。流水线 `tools/zh_fetch_bodies.mjs` → `zh_generate.mjs plan/check/apply` → `zh_merge.mjs`；`check` 的「能力词必须在正文里出现」与 tier/正文溯源校验已生效。**没做到全量覆盖 2000 条**。
+**中文层**：hand 300 + auto 325 = **625/3960**，均已合并进 `data/zh.json`（`tier` 计数 hand 300 / auto 325，分片 `data/zh/part-1..19.json`）。流水线 `tools/zh_fetch_bodies.mjs` → `zh_generate.mjs plan/check/apply` → `zh_merge.mjs`；`check` 的「能力词必须在正文里出现」与 tier/正文溯源校验已生效。**没做到全量覆盖**（剩 ~3335 条，一批 25 条）。
 
 **测试**：`npm test` 14 套全绿（清单见 §6）。
 
-**仍未做**：M3 召回钩子（只有设计）；同 slug 跨仓库重复卡（正文 hash 缺失时聚类键退化，例：`ai-video-generation` 的 101-skills / magentosh 两条）；`stars`（8 个仓库 93 条）与 `first_seen` 覆盖很低（页面抓取只对历史上抓过的那批生效，升 `ENRICH_VERSION` 只解决一部分）；水位外条目没有正文，因此不在目录里。
+**仍未做**：M3 召回的强版本（`agent/pre-step` 注入；当前是注册运行时技能 + 静态系统提示的最小版）；同 slug 跨仓库重复卡（正文 hash 缺失时聚类键退化，例：`ai-video-generation` 的 101-skills / magentosh 两条）；`stars`（8 个仓库 93 条）与 `first_seen` 覆盖很低（页面抓取只对历史上抓过的那批生效，升 `ENRICH_VERSION` 只解决一部分）；水位外条目没有正文，因此不在目录里。
 

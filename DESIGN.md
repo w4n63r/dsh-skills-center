@@ -22,7 +22,7 @@
 | 用户原话（m00142） | 机制 |
 |---|---|
 | "不知道它们存在" | 离线全量 `catalog.json` + 分类/榜单视图，无需联网即可翻 |
-| "不一定想得起来用" | 每张卡生成 15 字以内的**召回钩子**，只把已激活技能的钩子注入系统提示 |
+| "不一定想得起来用" | 最小版：把「技能中心」注册成运行时技能（宿主每步注入名字 + 描述）+ 一行静态系统提示；设想中的「每卡 15 字召回钩子」仍未做 |
 | "提前下载备用" | 按需安装到 `.agents/skills/`（真装，DSH 立刻可用）；正文按 sha256 按需取用，不常驻上下文 |
 
 ## 3. 数据链路
@@ -251,7 +251,7 @@ S = 0.45·H + 0.20·T + 0.20·C + 0.15·A      # 内部字段叫 score.S（0–1
 | 安装（真正的） | `<项目>/.agents/skills/<slug>` / `~/.agents/skills/<slug>` | 磁盘 + 每次会话的 name/description | DSH 技能目录（宿主自带扫描根，rank 200 / 500） |
 | 正文备份 | `~/.dsh/skills-center/library/<id>/SKILL.md` | 仅磁盘 | 只有本插件面板预览 |
 | 激活（历史机制，降级保留） | `activation.json` + `ctx.skills.registerProvider`（rank 700） | — | DSH 技能目录（仅当同一条同时有正文备份） |
-| 召回 | 卡片里的 `hook` 一行（**仅设计，M3 未实现**） | 每条约 15 字 | 系统提示（仅激活项） |
+| 召回 | 注册运行时技能 `skills-center`（宿主每步把 name + description 拼进可用技能列表）+ 一段静态 `systemPrompt.section`（**最小版已实现**）；卡片 `hook` 一行的按需注入仍未做 | 一条技能名 + 一句描述 | DSH 技能目录 + 系统提示 |
 
 - `library/` + `activation.json` + rank 700 provider 早于官方 skills CLI 存在，现在**只作为「面板预览用的正文备份」**，不再叫「安装」；对外安装一律走 §8.4 的 CLI 路径。
 - 不往 `~/.agents/skills` 软链的理由仍然成立（不污染用户手工维护的根、provider 可按会话切换、50 上限可强制截断），但**这不是安装路径**——安装就是真的把目录放到技能根下。
@@ -419,9 +419,9 @@ strict      = coverage >= 0.95          →  buildCatalog({ requireBody: strict 
 ## 10. 里程碑
 
 - **M0 目录**：Vercel 采集函数 + `catalog.json`，能按装量水位收录全量目录（2026-10-21 本轮 count 3879）——**已完成**；目录与正文分发走 GitHub `catalog` / `bodies` 分支（§5.4、§8.1）
-- **M1 中文层**：**两层**——hand 300 条（用户 2026-10-19 定 installs top 300）+ auto 机器生成层向全目录推进；当前 325/3879，扩容是数据活（§8.2）——**hand 已完成，auto 进行中**
+- **M1 中文层**：**两层**——hand 300 条（用户 2026-10-19 定 installs top 300）+ auto 机器生成层向全目录推进；当前 625/3960（auto 325），扩容是数据活（§8.2）——**hand 已完成，auto 进行中**
 - **M2 插件**：4 个工具（含远端同步）+ provider 激活 + GUI 榜单页 + GUI 面板（左侧栏入口，见 §8.3）——**已完成**
-- **M3 召回**：钩子注入与 50 上限策略，实测"任务开始自动命中"——**设计在 PLAN.md，代码未实现**
+- **M3 召回**：最小版已实现——`lib/index.js` 用 `ctx.skills.register()` 注册运行时技能 `skills-center`（宿主每步把 name + description 拼进可用技能列表，模型第一步就能看到），外加静态 `ctx.systemPrompt.section`；`agent/pre-step` 强版本（按首条消息命中后注入一行）与「每卡 15 字钩子 / 只注入已激活项」仍是设计——**最小版已完成**
 
 M1 依赖 M0 的 hash，M2 可先在本地样例数据上开发（`samples/digest2.json` 已有 12 条真实数据）。
 

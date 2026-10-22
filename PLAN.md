@@ -2,7 +2,7 @@
 
 日期：2026-10-21（同日补状态标记）。收录标准、正文存储、本地管理与安装卸载、默认排序，以及此前那轮分析（星标/发布时间缺失、official 与 curated 重合等）合并成一份计划。
 
-**状态总览**：阶段 1（收录标准 + 正文存储）、阶段 2（正文分发 + 中文层流水线）、阶段 3（本地管理与装卸）已落地，见各节的「已落地」标记；阶段 4 未开工，M3 召回钩子目前只有设计（§6 P3、§7）。
+**状态总览**：阶段 1（收录标准 + 正文存储）、阶段 2（正文分发 + 中文层流水线）、阶段 3（本地管理与装卸）已落地，见各节的「已落地」标记；阶段 4 部分落地——M3 召回的最小版已实现（`ctx.skills.register()` 注册运行时技能 + 静态系统提示），强版本（`agent/pre-step` 注入）、空结果兜底与两套渲染合并仍未做。
 
 **数字口径**：改造前基线 = `tmp/catalog-branch/catalog.json`（version `full-2026-10-20T09-35-40-238Z`，count 7821）；改造后 = 2026-10-21T08:05Z 那轮线上采集（`tmp/run-2026-10-21T08-05-38-896Z.json`，version `full-2026-10-21T08-05-00-484Z`，count 3879）。已提交的采集端改动：`e82a30f`（正文水位门禁与头部优先富集）、`ecc27d9`（正文改存 GitHub bodies 分支）、`12f6ba7`（Blob 被停后的容错）、`93c6858`（GitHub 写入限速）；`lib/installer.js`、`/body` `/local` `/install` `/uninstall` 路由与中文层生成脚本当前在工作区（未提交），已通过 `npm test`（14 套）与线上采集验证。
 
@@ -264,7 +264,7 @@ spawn(spec: {
 | P0-5 | 排序项没有覆盖条数提示，点了像坏了 | 阶段 1（排序项标可用条数，覆盖为 0 就置灰）|
 | P1 | 星标按仓库级抓（7395 条 github 技能出自少数仓库） | 阶段 1（批量档）|
 | P2 | 面板只读、`library/` 只有 1 个正文 | 阶段 2 + 3 |
-| P3 | M3 召回钩子 | 阶段 4（宿主 `agent/pre-step` + `ctx.systemPrompt.section()` 已实测可用；只在 turn 1 命中时注入一行）|
+| P3 | M3 召回钩子 | 阶段 4。**最小版已落地**：`ctx.skills.register()` 注册运行时技能 `skills-center`（宿主每步把 name + description 拼进可用技能列表）+ 静态 `ctx.systemPrompt.section()`；「按首条用户消息命中后经 `agent/pre-step` 注入一行」的强版本仍未做（要替宿主构造 UserMessage，风险大于收益）|
 | P4 | 空结果没有出口（本地 7821 条 vs 上游 93043 条） | 阶段 4。接口已定：`GET https://skills.sh/api/search?q=<≥2字符>&limit=<n>[&owner=<owner>]`（公开无鉴权、CLI `find` 用的就是它、限流 30/分钟/IP、`limit` ≤100、返回 algolia fuzzy 结果含 `id/source/name/installs`；缺 `q` 或 1 字 → 400）；认证版 `/api/v1/skills/search`（limit ≤200，多词走 semantic）另计额度 |
 | P5 | 文档漂移（README 说"三件事"列了四条；条数有 8420/7639/7821 三种说法；榜单页与面板各维护一套卡片渲染） | 阶段 4（文档漂移部分已于 2026-10-21 本轮清掉：README/PLAN/DESIGN/HANDOFF 已对齐目录与接口；榜单页与面板两套渲染合并仍未做） |
 
