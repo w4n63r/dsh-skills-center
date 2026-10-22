@@ -1,0 +1,177 @@
+{
+  "code.deepline.com/deepline-analytics": {
+    "name_zh": "语义层查询分析",
+    "intro": "用 Deepline 回答业务分析问题：营收、管道、漏斗、留存、账号数、通话数这一类。它的立场不是随便跑段 SQL，而是先读语义层、把用户说的词映射到语义表里的 metric 和 dimension、用一个最小查询验通再放大，最后报告这次用了哪些指标定义和过滤条件。Snowflake 凭证或语义层缺一个就直接停下报阻塞，不许猜表名，也不许直接退回裸 SQL。",
+    "usage": "先 `deepline auth status` 确认工作区，再 `deepline tools execute snowflake_get_semantic_layer` 看语义层，最后用 `deepline tools execute snowflake_run_semantic_query` 跑查询。",
+    "notes": "安装是 `npm install -g deepline`，命令找不到时退回工作区里的 `.deepline/runtime/bin/deepline`；寻源、补全、外呼那类工作流要用 deepline-gtm。",
+    "tier": "auto"
+  },
+  "dammyjay93/interface-design/interface-design": {
+    "name_zh": "产品界面设计",
+    "intro": "面向产品内部界面的设计方法——后台、管理面板、SaaS 工具、设置页、数据界面——明确不管落地页和营销站。判断标准很硬：如果另一个模型拿到相似提示会做出差不多的东西，就算失败。正文从「默认值藏在哪」讲起（字体、间距、颜色都被当成不用设计的基建），再讲意图、领域探索、视觉层级与构图、靠比例和留白撑出的贵感，最后落到设计系统与打磨、动效。",
+    "usage": "出稿后跑 `/interface-design:design-review` 做严格的工艺与层级评审，或者在分支上跑 `/interface-design:design-deslop` 清掉视觉垃圾。",
+    "notes": "系统约定文件是 `.interface-design/system.md`，要审设计一致性就读它再对照 UI 代码找漂移。",
+    "tier": "auto"
+  },
+  "docs.stripe.com/stripe-directory": {
+    "name_zh": "外部服务目录",
+    "intro": "Stripe 做的服务商目录，用来给「要付钱、要订阅、要捐赠、要预订、要开通资源、要接一个 API」这类任务找到具体的外部机构，并拿到官方认可的接触方式。正文反复强调：哪怕请求已经点明了要用哪家，也必须先过一遍目录，不能凭记忆或搜索直接动手；结果按 agent 完成交互的可靠度、相关度和热度排序。它还划了安全线——用户没明确说要开通，就不许擅自执行 provisioning。",
+    "usage": "装好 CLI 与插件后跑 `stripe directory search \"<query>\"` 加 `--format json`，按返回的 next action 决定付款、订阅还是 provisioning。",
+    "notes": "安装是 `brew install stripe/stripe-cli/stripe && stripe plugin install directory`；CLI 是权威，参数和字段以 `stripe directory --help` 为准，别自己编语法。",
+    "tier": "auto"
+  },
+  "expo/skills/expo-native-ui": {
+    "name_zh": "Expo 原生界面",
+    "intro": "做看起来就是原生的 Expo 界面：Apple HIG 的配色与控件、SF Symbols 图标、相机与音视频、模糊和液态玻璃一类的视觉效果、CSS 渐变、SQLite 与 AsyncStorage 与 SecureStore 三种存储、WebGPU 加 Three.js 的 3D，以及响应式布局。导航与动效不在这条里，分别交给 expo-router 和 expo-animation。开头还有一条硬建议：挑控件前先看 expo-ui 有没有 SwiftUI / Compose 原生实现。",
+    "usage": "先用 `npx expo start` 配 Expo Go 试；确实需要原生模块时才 `npx expo run:ios` 或 `npx expo run:android` 起自定义构建。",
+    "notes": "参考文件分七份放在 references 下（controls、gradients、icons、media、storage、visual-effects、webgpu-three），按主题查。",
+    "tier": "auto"
+  },
+  "expo/skills/use-dom": {
+    "name_zh": "Web 代码进原生",
+    "intro": "讲 Expo 的 DOM 组件：文件顶部加一行指令，同一份 Web 代码在原生端跑进 webview、在 Web 端原样渲染，于是 recharts、react-syntax-highlighter 这类只认 DOM 的库不改就能用。适用场景列了图表、迁移已有 Web 组件、复杂 HTML/CSS、iframe、Canvas 与 WebGL；不该用的场景是性能敏感、简单 UI、需要深度原生集成，以及 `_layout` 路由文件。",
+    "usage": "新建一个文件，第一行写 `'use dom';`，只导出一个组件，props 只传可序列化的值，CSS 写在组件文件里。",
+    "notes": "每个 DOM 组件都会收到一个 `dom` prop 用来配 webview，记得在 props 类型里声明它。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-admin-reports": {
+    "name_zh": "管理员审计报表",
+    "intro": "Workspace Admin SDK 的 reports_v1 命令行封装，用来拉管理后台和 Drive 的审计活动，以及客户、实体、用户三种用量报表。正文按资源列出可用方法——activities 的 list 与 watch、channels 的 stop，还有 customerUsageReports、entityUsageReports、userUsageReport 各自的 get——并规定调用前先用 schema 命令查参数类型和默认值，再拼标志，不许凭印象写。",
+    "usage": "先 `gws admin-reports --help` 浏览资源和方法，再用 `gws schema admin-reports.<resource>.<method>` 查参数，最后按结果拼 `--params` 和 `--json`。",
+    "notes": "先读 `../gws-shared/SKILL.md` 拿鉴权与全局参数，缺了就 `gws generate-skills` 生成；看审计日志需要管理员权限。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/persona-content-creator": {
+    "name_zh": "内容创作者角色",
+    "intro": "一套内容创作者的操作习惯，不是单点命令：在 Docs 里起稿、在 Drive 里归置素材、在 Chat 里公告成品、在 Gmail 里发审稿请求，全靠 gws 的快捷子命令串起来。正文列了主线动作和经验——用快捷写入做快速改稿能自动处理 Docs 的格式，调接口时加 `--format yaml` 更便于人读，另外建议把内容日历放在共享 Sheet 里跟踪排期。",
+    "usage": "起稿 `gws docs +write`，素材上传 `gws drive +upload`，浏览文件 `gws drive files list`，公告成品 `gws workflow +file-announce`。",
+    "notes": "需要 `gws` 并装载 `gws-docs`、`gws-drive`、`gws-gmail`、`gws-chat`、`gws-slides` 五个技能；实际能做多少取决于账号权限。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/persona-team-lead": {
+    "name_zh": "团队负责人角色",
+    "intro": "一套团队负责人的日常动作：每天用 standup-report 出站会材料并发到 Chat，用 meeting-prep 准备一对一面谈，用 weekly-digest 拿周报，用 email-to-task 把邮件里的事转成待办，团队 OKR 记在共享 Sheet 里。正文另给两条经验——用 agenda 带上按周和表格两个标志看团队周视图，以及涉及敏感团队数据的操作一律加 `--sanitize`。",
+    "usage": "站会 `gws workflow +standup-report`，面谈准备 `gws workflow +meeting-prep`，周报 `gws workflow +weekly-digest`，邮件转任务 `gws workflow +email-to-task`。",
+    "notes": "需要 `gws` 并装载 `gws-calendar`、`gws-gmail`、`gws-chat`、`gws-drive`、`gws-sheets` 五个技能；敏感数据记得加 `--sanitize`。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/recipe-block-focus-time": {
+    "name_zh": "日历专注时段",
+    "intro": "在 Calendar 上建重复的专注时间块，保护整块深度工作。一条插入命令就把事办完：summary 和 description 写明用途，start 与 end 定时间段，recurrence 用 RRULE 按周一到周五重复，transparency 设成 opaque 让它在同事眼里显示为忙碌。第二步只是用 agenda 确认它真的进了日程。",
+    "usage": "建块用 `gws calendar events insert`，`--json` 里带 `RRULE:FREQ=WEEKLY`；建完跑 `gws calendar +agenda` 看是否显示为忙碌。",
+    "notes": "需要 `gws` 并装载 `gws-calendar`；时间和时区是写死的占位值，不改就是别人的时间表。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/recipe-bulk-download-folder": {
+    "name_zh": "批量下载网盘文件夹",
+    "intro": "一个配方型技能：把 Drive 文件夹里的文件全部列出来，再逐个取下来。三步走——先按父目录 ID 过滤列出清单，再对每个文件调用取内容的接口（`alt` 传 `media`）写成本地文件，Google 原生文档则换成导出接口转成 PDF。正文开头就写明要先把 `gws-drive` 装载好才能跑，所有参数都是 `--params` 传一段 JSON。",
+    "usage": "先 `gws drive files list` 带上 `FOLDER_ID` in parents 的查询把清单拉下来，再逐个跑 `gws drive files get`，原生文档用 `gws drive files export` 转 PDF。",
+    "notes": "需要本机装好 `gws` CLI 并已登录，同时装载 `gws-drive` 技能；这条只给三步命令，鉴权与全局参数不在这里。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/recipe-create-doc-from-template": {
+    "name_zh": "模板生成文档",
+    "intro": "从一份 Google Docs 模板复制出新文档，把内容写进去，再把编辑权限开给协作方。做法是先复制模板并改名，从响应里拿新文档 ID，用 Docs 的批量写入接口塞正文（支持 Markdown 风格的小标题），最后用权限接口按角色、类型、邮箱授权。正文给的是可以照抄的三条命令，没有多余解释。",
+    "usage": "复制模板用 `gws drive files copy` 加 `--json` 传新名字；写正文用 `gws docs +write` 带 `--document-id`；分享用 `gws drive permissions create`。",
+    "notes": "需要 `gws` 并装载 `gws-drive`、`gws-docs`；`NEW_DOC_ID` 要从复制响应里取，不能手填。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/recipe-create-shared-drive": {
+    "name_zh": "创建共享云盘",
+    "intro": "建一个 Google 共享云盘再把成员加进去：创建时带一个唯一的请求 ID 防重复提交，随后用权限接口按角色和邮箱加成员，注意要带上支持共享盘的标志才能对它操作，最后列出成员核对。三个命令都是 Drive API 的直连封装，中间没有额外封装层。",
+    "usage": "建盘 `gws drive drives create`，加成员 `gws drive permissions create` 把 `supportsAllDrives` 设为 true，核对 `gws drive permissions list`。",
+    "notes": "需要 `gws` 并装载 `gws-drive`；共享盘相关调用漏了 `supportsAllDrives` 会直接报错。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/recipe-create-task-list": {
+    "name_zh": "新建任务清单",
+    "intro": "用 Google Tasks 起一个新清单并塞进初始任务：先建列表，再往里面插任务（可以带备注和到期时间），插完用列表命令打印成表格核对。清单 ID 要写成占位符 TASKLIST_ID，创建后从响应里取真实值替换。",
+    "usage": "建清单 `gws tasks tasklists insert`，加任务 `gws tasks tasks insert`，核对 `gws tasks tasks list` 带 `--format table`。",
+    "notes": "需要 `gws` 并装载 `gws-tasks`；任务的到期时间要写 RFC3339，正文用的是 `2024-04-01T00:00:00Z` 这种形式。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/recipe-find-large-files": {
+    "name_zh": "找大文件清理",
+    "intro": "查 Drive 里占空间的文件：一条列举命令带上按已用配额倒序的排序、页大小取前 20，字段只要 id、name、size、mimeType、owners，输出成表格看排行。正文第二步没有命令，只是让你看结果决定哪些归档或挪走。",
+    "usage": "跑 `gws drive files list`，`orderBy` 用 `quotaBytesUsed desc`，配 `--format table` 看排行。",
+    "notes": "需要 `gws` 并装载 `gws-drive`；它只负责列出来，删除和归档要另外走命令。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/recipe-generate-report-from-sheet": {
+    "name_zh": "表格转文档报告",
+    "intro": "把 Sheet 里的数据变成一份排版好的 Docs 报告：先从指定区间读出数据，再新建文档，用批量写入接口把 Markdown 风格的标题、摘要和榜单塞进去，最后按只读权限分享给相关人。三条命令都给了具体参数，包括区间写成 `Sales!A1:D` 这种形式，分享时角色用 reader。",
+    "usage": "读数据 `gws sheets +read` 带 `--range \"Sales!A1:D\"`，建文档 `gws docs documents create`，写内容 `gws docs +write`。",
+    "notes": "需要 `gws` 并装载 `gws-sheets`、`gws-docs`、`gws-drive`；报告结论要自己从数据里归纳，命令只负责搬运。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/recipe-label-and-archive-emails": {
+    "name_zh": "邮件打标归档",
+    "intro": "清理收件箱的两步操作：先按查询条件搜出匹配的邮件（正文用的是 from 加发件地址），再对每条打上标签，然后移除 INBOX 标签完成归档。两次修改走同一个消息修改接口，区别只在这次是加标签还是移标签。",
+    "usage": "搜索用 `gws gmail users messages list` 带 `--format table`，打标用 `gws gmail users messages modify` 传 `addLabelIds`，归档传 `removeLabelIds`。",
+    "notes": "需要 `gws` 并装载 `gws-gmail`；`LABEL_ID` 得先自己建标签拿到，正文没给建标签的命令。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/recipe-reschedule-meeting": {
+    "name_zh": "会议改期通知",
+    "intro": "把 Calendar 上的会议挪到新时间，并自动通知所有参与者。三步：先用 agenda 找到那场会，再按 calendarId 和 eventId 取出详情确认没找错，最后用 patch 只改 start 和 end（带时区），并把通知开关设成全员，让系统把改期通知发出去。命令里的时间是占位日期，实际改期只需替换这两段。",
+    "usage": "找会 `gws calendar +agenda`，取详情 `gws calendar events get`，改时间 `gws calendar events patch` 并把 `sendUpdates` 设为 `all`。",
+    "notes": "需要 `gws` 并装载 `gws-calendar`；正文用的是 `primary` 日历和 `America/New_York` 时区，换账套要一起改。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/recipe-save-email-to-doc": {
+    "name_zh": "邮件存进文档",
+    "intro": "把一封 Gmail 的内容存成 Google Doc：先按主题和发件人搜出邮件，取出内容，新建文档，再把发件人、主题、正文按这个顺序写进去，方便日后检索或引用。四步都是现成命令，快捷写入那一步负责处理 Docs 的格式，正文里只留了一个占位符让你换成真实邮件内容。",
+    "usage": "找信 `gws gmail users messages list`，取内容 `gws gmail users messages get`，建文档 `gws docs documents create`，写正文 `gws docs +write`。",
+    "notes": "需要 `gws` 并装载 `gws-gmail`、`gws-docs`；正文位置写的是 `[EMAIL BODY]` 占位，实际要换成取回的邮件正文。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/recipe-share-doc-and-notify": {
+    "name_zh": "文档共享通知",
+    "intro": "把一份 Google Docs 以编辑权限共享给对方，再发一封邮件把链接送过去。找文档时用名字包含加 MIME 类型双重限定，权限接口按角色 writer、类型 user、邮箱授权，最后用邮件快捷发送带主题和正文，正文里直接拼上文档链接。三步都是 Drive 与 Gmail 的直连命令。",
+    "usage": "找文档 `gws drive files list`，开权限 `gws drive permissions create`，发信 `gws gmail +send` 带 `--to`、`--subject`、`--body`。",
+    "notes": "需要 `gws` 并装载 `gws-drive`、`gws-docs`、`gws-gmail`；链接是 `https://docs.google.com/document/d/DOC_ID` 的形式，DOC_ID 要换成真实值。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/recipe-sync-contacts-to-sheet": {
+    "name_zh": "通讯录导出表格",
+    "intro": "把 Google 通讯录的域内目录导出成 Sheets：先调 People 的目录列举接口，`readMask` 只要姓名、邮箱、电话三个字段，来源限定为域内目录，一次拉 100 条；然后写表头，再一行一行追加。正文只有这三步命令，分页和去重没讲，也没有多余说明。",
+    "usage": "拉通讯录用 `gws people people listDirectoryPeople` 带 `--format json`；写表用 `gws sheets +append` 带 `--range 'Contacts'` 和 `--values`。",
+    "notes": "需要 `gws` 并装载 `gws-people`、`gws-sheets`；正文没写分页，目录人数超过 `pageSize` 时要自己翻页。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/recipe-watch-drive-changes": {
+    "name_zh": "云盘变更订阅",
+    "intro": "给某个 Drive 文件或共享盘挂变更订阅：一条创建命令就把目标资源、事件类型、通知终点（Pub/Sub topic）和是否附带资源体都定下来；随后能列出当前活着的订阅，并在过期前续期。事件类型用的是 Workspace Events 的资源名写法，所以目标要写成完整的 `//drive.googleapis.com/...` 形式。",
+    "usage": "建订阅 `gws events subscriptions create`，列订阅 `gws events subscriptions list`，续期 `gws events +renew` 带 `--subscription`。",
+    "notes": "需要 `gws` 并装载 `gws-events`；还要事先有可用的 Pub/Sub topic 和对应权限，正文用 `PROJECT`、`TOPIC`、`DRIVE_ID` 占位。",
+    "tier": "auto"
+  },
+  "jimliu/baoyu-skills/baoyu-url-to-markdown": {
+    "name_zh": "网页转 Markdown",
+    "intro": "用 baoyu-fetch 这个 CLI 把任意网址抓成干净的 Markdown：底层走 Chrome CDP，带站点专用适配器——X/Twitter、YouTube 字幕、Hacker News 帖子各有专门解析，通用页面走 Defuddle。登录和验证码靠等待模式处理，能在页面上停下来等人手动过一遍。正文还留了一条质量闸：默认的 headless 抓取只当草稿，跑完必须看一眼产出的 Markdown，有些站会静默返回低质量内容。",
+    "usage": "`${READER} <url> --output article.md` 存成文件，要连图片视频一起下就加 `--download-media`；被登录挡住时用 `--wait-for interaction`。",
+    "notes": "需要 `bun`；CLI 源码内联在 `{baseDir}/scripts/lib`，先 `bun install --cwd {baseDir}/scripts` 装依赖，再解析出 `${READER}` 的绝对路径。",
+    "tier": "auto"
+  },
+  "kadajett/agent-nestjs-skills/nestjs-best-practices": {
+    "name_zh": "NestJS 最佳实践",
+    "intro": "40 条规则分成 10 类，按影响排优先级：架构与依赖注入是 CRITICAL，错误处理、安全、性能是 HIGH，测试与数据库 MEDIUM-HIGH，接口设计、微服务 MEDIUM，DevOps 低。每条规则有独立文件，按前缀组织（arch、di、error、security、perf、test、db、api、micro、devops），文件内容是反例、正例和为什么重要。",
+    "usage": "写新模块、加鉴权、审架构时按分类查对应规则文件，比如 `rules/arch-avoid-circular-deps.md`；也可以看仓库里合订成一份的 AGENTS.md。",
+    "notes": "需要 NestJS 项目上下文才有意义；正文给的合订本在 GitHub 的 Kadajett/agent-nestjs-skills 仓库里。",
+    "tier": "auto"
+  },
+  "wshobson/agents/api-design-principles": {
+    "name_zh": "API 设计原则",
+    "intro": "REST 与 GraphQL 的设计原则合集，用于设计新接口、评审规格、定团队标准，以及在两套范式之间迁移。REST 侧强调资源用名词、动作用 HTTP 方法、URL 表达层级，并逐个讲 GET、POST、PUT、PATCH、DELETE 的语义；GraphQL 侧讲 schema 先行、用 DataLoader 治 N+1、按 Relay 规范做游标分页、用弃用指令渐进迁移。版本策略给了 URL、请求头、查询参数三种做法。",
+    "usage": "设计新接口或评 PR 时把草案贴进来，要它按资源建模、状态码、分页、限流逐项挑问题；更细的模式在 `references/details.md` 里。",
+    "notes": "正文自带一份常见坑清单：过度与不足获取、破坏性变更、错误格式不统一、缺限流、文档缺失，评审时可以直接当检查表。",
+    "tier": "auto"
+  },
+  "wshobson/agents/code-review-excellence": {
+    "name_zh": "代码评审方法",
+    "intro": "讲怎么把评审从把关变成知识共享：先立心态——目标是抓 bug、保可维护性、传播知识，不是炫技、挑格式和卡进度；再讲反馈怎么写（具体可执行、对事不对人、分级、该夸就夸）；然后给四阶段流程，读背景两三分钟、看整体五到十分钟、逐行看十到二十分钟、给结论两三分钟。最后专门写了对方不同意时怎么谈、什么时候该放手。",
+    "usage": "评 PR 时按四阶段走；边界情况查 `references/review-techniques.md`，语言与安全专项查 `references/review-patterns.md`。",
+    "notes": "正文给了评论模板（Summary、Strengths、Required Changes、Suggestions、Questions、Verdict）和一份常见坑清单，可以直接抄来用。",
+    "tier": "auto"
+  }
+}

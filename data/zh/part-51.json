@@ -1,0 +1,177 @@
+{
+  "addyosmani/web-quality-skills/core-web-vitals": {
+    "name_zh": "核心网页指标优化",
+    "intro": "盯 LCP、INP、CLS 三个核心指标的优化手册：先看 CrUX 的 p75 实测，再录一次浏览器性能 trace 定位原因，只分析跟失败指标相关的那几条 insight，改完重跑等价测量。阈值表写得很清楚——LCP 不超过 2.5 秒、INP 不超过 200 毫秒、CLS 不超过 0.1，按 75 分位算；还给了 Next.js、React、Vue/Nuxt 的常见改法。",
+    "usage": "有可跑页面就先读性能测量流程，用 `performance_start_trace` 抓 trace、`lighthouse_audit` 做实验室复核；LCP 图在首屏就用 `fetchpriority=\"high\"` 提优先级，预渲染场景注意 `prerenderingchange` 事件。",
+    "notes": "只有源码时只能说「可能的原因」，正文禁止在没有运行时证据时断言指标不达标；改完不能声称 field 数据立刻变好，CrUX 要等新一批真实访问。",
+    "tier": "auto"
+  },
+  "addyosmani/web-quality-skills/web-quality-audit": {
+    "name_zh": "网页质量审计",
+    "intro": "带证据的网页质量审计：性能、可访问性、SEO、最佳实践、agent 能不能顺利浏览，五类一起过。有可跑的页面就先抓一次实测基线，再用运行时失败去定位源码，把实测结论和「只在代码里看着可疑」的假设分开记；按用户影响和置信度分级给具体修法，最后重跑等价自动检查并说明哪些已验证、哪些还等真实用户数据。",
+    "usage": "先定审计目标，有可跑页面就读性能测量流程，用 `performance_start_trace`、`lighthouse_audit` 抓基线；源码侧用 `scripts/analyze.sh <path>` 跑静态分析；报告末尾的验证部分按 `Audit results` 的结构写。",
+    "notes": "正文按 Lighthouse 13+ 的 Performance Insights 口径写，别照搬已下线的 audit ID；没有可跑页面时只能说「仅在代码中可疑」，不许断言指标不达标。",
+    "tier": "auto"
+  },
+  "dart-lang/skills/dart-collect-coverage": {
+    "name_zh": "Dart 测试覆盖率",
+    "intro": "用 coverage 包给 Dart 和 Flutter 项目跑测试并产出 LCOV 报告：先加 dev 依赖，再走自动脚本一步到位，或者手动开 VM service 收原始数据、再 format 成 lcov。正文还讲了 `// coverage:ignore-line` 这类行内忽略指令，以及格式化时加 --check-ignore 让忽略声明真的生效。适合接 CI 或给 review 看覆盖情况。",
+    "usage": "Dart 项目用 `dart pub add dev:coverage`，Flutter 用 `flutter pub add dev:coverage`；然后 `dart run coverage:test_with_coverage`，只跑部分包时把路径跟在 `--` 后面，产物默认落在 `coverage/lcov.info`。",
+    "notes": "coverage 要加在 dev_dependency 里，别塞进正式依赖；手动 VM service 那条路要求端口和 `.dart_tool/package_config.json` 路径对上，不然 format 会失败。",
+    "tier": "auto"
+  },
+  "dart-lang/skills/dart-generate-test-mocks": {
+    "name_zh": "Dart 测试替身生成",
+    "intro": "给依赖外部服务（HTTP API、数据库）的 Dart 类生成 mock 再写单测：先靠构造函数把外部依赖注入进来，用 @GenerateNiceMocks 标注要替身的类，跑 build_runner 生成 .mocks.dart，最后用 when 和 thenReturn 摆桩、用 verify 查调用次数。正文明确说优先用 nice mocks，别用会抛未摆桩异常的那种。",
+    "usage": "装依赖 `dart pub add dev:test dev:mockito dev:build_runner`，加完注解跑 `dart run build_runner build`；测试里同步桩用 `when(mock.method()).thenReturn(value)`，异步改 `thenAnswer((_) async => value)`，最后 `dart test` 跑全套。",
+    "notes": "生成的 `.mocks.dart` 是产物别手改；注解要写在测试文件里而不是源文件；URL 一律用 Uri 对象而不是字符串拼，否则 mock 匹配不上。",
+    "tier": "auto"
+  },
+  "firecrawl/firecrawl-workflows/firecrawl-dashboard-reporting": {
+    "name_zh": "看板读数成报告",
+    "intro": "把用户已登录的分析后台、公开数据页里的指标读出来，整理成一份带日期区间和出处的报告：KPI 卡、表格、图表都要取实际数字，而不是只抄图表上的标签，读不准的地方要写明。正文给了报告的固定骨架和一份结构化输出，还会在合适时按平台或指标类拆给并行任务跑。",
+    "usage": "说清楚要看哪个看板、哪段时间、要什么格式就能开跑；只在缺 URL、鉴权条件或时间区间时问最多三个问题。产物按正文骨架落地，`dateRange`、`metrics[]`、`tables[]` 这些字段都要填实。",
+    "notes": "需要 Firecrawl 的浏览器能力和 FIRECRAWL_API_KEY；登录过期要请用户重新登录，正文禁止绕过访问控制；图表读不精确必须标注，不能凑数字。",
+    "tier": "auto"
+  },
+  "firecrawl/firecrawl-workflows/firecrawl-lead-gen": {
+    "name_zh": "潜在客户名单",
+    "intro": "用 Firecrawl 的 Alexandria 人与公司数据搜符合条件的潜客，出一张排过序、每条带出处的表或 CSV：按职位、资历、公司规模、行业、地域、技术栈筛，也能先锁定目标公司再找里面的人。正文强调档案和联系方式只能来自 provider，网络只用来补线索；用户点名某个目录或数据库时先从那儿抽，再补齐缺的字段。",
+    "usage": "先 `firecrawl list <provider> --json` 找 provider，再 `firecrawl list <provider> <capability> --pretty` 看它的过滤器契约，按契约只传支持的字段检索，要公司维度就换成公司类目；每条结果读 `data.alexandria[]`，字段含 `fit_reason`。",
+    "notes": "需要 FIRECRAWL_API_KEY 并接受第三方数据条款；正文禁止用网络结果填 provider 没给的字段，数量没到就顺着分页继续翻。",
+    "tier": "auto"
+  },
+  "firecrawl/firecrawl-workflows/firecrawl-lead-research": {
+    "name_zh": "客户背景调研",
+    "intro": "给已经点名的人或公司补背景：某人还在不在那个岗位、公司的主营与规模（行业、人数、融资、总部）、表格或 CSV 里缺的列，以及开会前的背景简报。字段同样只取 Alexandria 的 provider，网络只补最近的新闻和公开动态。正文按单个人、单家公司、批量列表和会议简报四种场景分开给了输出格式。",
+    "usage": "先 `firecrawl list <provider> --json` 挑能力对得上用户所给标识（人名加公司、主页链接、邮箱、域名）的 provider，读契约后用 `firecrawl scrape <provider>/<capability> --options '<JSON matching the contract>' --json` 跑，逐条看 `match_status`。",
+    "notes": "需要 FIRECRAWL_API_KEY 和第三方数据条款确认；正文说批量请求成功不代表每条都成功，要逐项核对；电话之类只在用户明确提出时才取。",
+    "tier": "auto"
+  },
+  "firecrawl/firecrawl-workflows/firecrawl-qa": {
+    "name_zh": "上线前站点自测",
+    "intro": "拿 Firecrawl 的浏览器把线上站点真点一遍，出一份统一的 QA 报告：链接和导航、表单与交互、内容与视觉、移动端布局、性能和控制台报错都算在内。默认按全量、表单、导航、响应式、性能几条线拆给并行任务，每条发现要带严重级别、URL、描述、证据和复现步骤。",
+    "usage": "给个 URL 就能开跑，缺焦点或受保护流程需要凭据时，正文最多问三个问题。报告骨架是固定的，按 Summary、Critical Issues、Major Issues、Minor Issues、Positive Observations、Pages Tested 这几节填就好。",
+    "notes": "需要 Firecrawl 浏览器与 FIRECRAWL_API_KEY；正文禁止没有证据就报疑似 bug，要求和复现步骤一起给，并跨测试者去重。",
+    "tier": "auto"
+  },
+  "firecrawl/firecrawl-workflows/firecrawl-seo-audit": {
+    "name_zh": "Firecrawl SEO 审计",
+    "intro": "用 Firecrawl CLI 抓页面源码，查标题、meta 描述、标题层级、图片 alt、内链、canonical、robots 指令和结构化数据，输出带出处的 on-page 与技术上 SEO 问题清单并排优先级。正文把「先拿到 rawHtml 再断言 metadata 缺失」定成硬规矩：抓不到源码就把相关检查标成未验证，而不是拿清洗后的 markdown 当完整源码。",
+    "usage": "先 `firecrawl map \"<url>\" --json` 摸站点结构，逐页用 `firecrawl scrape \"<url>\" --format markdown,rawHtml,links --max-age 0 --json` 取源码（只要正文可加 `--only-main-content`），关键词对比用 `firecrawl search \"<query>\" --sources web --json`。",
+    "notes": "需要 FIRECRAWL_API_KEY，接受第三方数据条款才能走 provider。抓取报错不等于死链，正文要求二次确认；没有源码支撑的检查一律标未验证。",
+    "tier": "auto"
+  },
+  "github/awesome-copilot/excalidraw-diagram-generator": {
+    "name_zh": "Excalidraw 画图",
+    "intro": "按自然语言描述生成 .excalidraw 文件，直接能在 Excalidraw 里打开继续编辑。支持流程图、关系图、思维导图、系统架构、数据流、泳道业务流、类图、时序图和 ER 图；正文给了元素数量上限、网格与放射布局的算法、各图型模板，以及产物自检清单。还能接图标库，把云厂商图标嵌进架构图。",
+    "usage": "描述清楚画什么、有哪些实体和关系即可；要用图标库得先用 `scripts/split-excalidraw-library.py` 把 .excalidrawlib 转成查找表，再用 `python scripts/add-icon-to-diagram.py diagram.excalidraw EC2 400 300 --label \"Web Server\"` 逐个加。",
+    "notes": "生成的 id 和坐标是算出来的，元素一多容易重叠，正文建议超量时拆成多张图；图标库要用户自己从 libraries.excalidraw.com 下载后再切。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-chat-send": {
+    "name_zh": "发送 Chat 消息",
+    "intro": "Google Chat 发消息的一条命令封装：往指定 space 发纯文本。正文只给 usage、两个必填 flag（--space 和 --text）、一条命令写法和几条提示，并明确标成写操作，执行前要先跟用户确认。空间名不知道可以先列出 space 再挑，卡片和线程回复不在它范围内，得走原始 API。",
+    "usage": "最小调用是 `gws chat +send --space spaces/AAAAxxxx --text 'Hello team!'`；空间名不确定时先 `gws chat spaces list`；完整参数用 `gws chat +send --help` 看。",
+    "notes": "需先装 gws CLI 并完成授权，公共参数和鉴权在同源的 gws-shared；正文把这条明确定性为 write 命令，先确认再执行。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-workflow-meeting-prep": {
+    "name_zh": "会前材料速览",
+    "intro": "开下一个会之前先把材料拉齐：取日历里最近一场会议，带出参与者、描述里挂的文档链接和时间，方便提前扫一遍。正文声明这是只读命令，不会改任何数据；日历 ID 默认走 primary，也能指定别的日历。输出默认 json，可以切 table、yaml 或 csv，适合塞进早上的例行检查。",
+    "usage": "直接跑 `gws workflow +meeting-prep`；换别的日历加 `gws workflow +meeting-prep --calendar Work`；输出格式用 `--format` 切成 json、table、yaml 或 csv。",
+    "notes": "需装 gws CLI 并授权 Calendar；正文只有 usage、flags 和几条提示，不覆盖授权细节，鉴权和全局参数看 gws-shared。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-workflow-standup-report": {
+    "name_zh": "站会材料生成",
+    "intro": "站会前一次性拿齐今天的会议和未完成任务：把日历里今天的议程和待办清单合在一起，输出一份可以直接照着说的 standup 摘要。正文声明只读、不改任何数据；输出默认 json，也能切 table、yaml 或 csv。适合每天开工前先看一眼今天要报什么。",
+    "usage": "直接跑 `gws workflow +standup-report`；要表格加 `gws workflow +standup-report --format table`。",
+    "notes": "需装 gws CLI 并授权 Calendar 和 Tasks；正文只有 usage、flags 和两条提示，没有更多场景说明。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-workflow-weekly-digest": {
+    "name_zh": "每周概览摘要",
+    "intro": "一条命令出本周概览：这一周日历上的会议安排，加上 Gmail 未读邮件的数量，合成一份周报式摘要。正文声明只读、不改任何数据；输出默认 json，可切 table、yaml 或 csv。适合周一早上花十秒看一眼这周的会和工作量，再接别的分析。",
+    "usage": "跑 `gws workflow +weekly-digest`；要人类可读的表格加 `gws workflow +weekly-digest --format table`。",
+    "notes": "需装 gws CLI 并授权 Calendar 和 Gmail；它只汇总不分析，正文只有 usage、flags 和提示，跨服务鉴权看 gws-shared。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/persona-project-manager": {
+    "name_zh": "项目经理助手",
+    "intro": "把 gws 的 Drive、Sheets、Calendar、Gmail、Chat 五个能力捏成一个「项目经理」角色：周初拉 standup 报告和周概览，项目进度记进表格，交付物传到 Drive 再发公告，定期会议排进日历，状态更新发给干系人。正文给的是几组固定套路串起这些命令，不是新实现的命令。",
+    "usage": "周初先跑 `gws workflow +standup-report` 和 `gws workflow +weekly-digest`；分享交付物用 `gws workflow +file-announce`，记进度用 `gws sheets +append`；任何写操作前先加 `--dry-run` 预演。",
+    "notes": "需先装好 gws-drive、gws-sheets、gws-calendar、gws-gmail、gws-chat 这几个子 skill；正文只有套路清单，具体参数各自看对应 skill。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/recipe-draft-email-from-doc": {
+    "name_zh": "文档转邮件草稿",
+    "intro": "一个两段式小配方：先把 Google Doc 的内容取出来，再把它当成正文发一封 Gmail。正文只有三步——取文档内容、复制正文、发送，命令里把文档 ID、收件人和主题当占位符替换成实际值。适合把已经写好的公告、周报直接搬到邮件里，不用来回复制粘贴。",
+    "usage": "先 `gws docs documents get --params '{\"documentId\": \"DOC_ID\"}'` 拿内容，再 `gws gmail +send --to recipient@example.com --subject 'Newsletter Update' --body 'CONTENT_FROM_DOC'` 发信。",
+    "notes": "需要 gws CLI，且要先加载 gws-docs 和 gws-gmail 两个 skill 才能执行；正文没写鉴权细节，跟着 gws-shared 走。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/recipe-email-drive-link": {
+    "name_zh": "分享文件并发信",
+    "intro": "又一个两段式配方：找到 Drive 里的文件、开共享、把链接连同一句话用 Gmail 发出去。正文只有三步和完整命令，文件用查询条件定位，收件人、权限角色和说明自己替换。适合把周报、季度报告这类大附件换成链接发出去，省得邮箱塞爆。",
+    "usage": "需要先加载 `gws-drive` 和 `gws-gmail` 两个 skill，然后照正文三步走：用文件查询找到目标文件、调共享接口加上收件人，最后 `gws gmail +send --to client@example.com` 把链接和说明一起发出。",
+    "notes": "需要 gws CLI 且两个子 skill 已就位；正文没写鉴权和错误处理，失败时按 gws-shared 的说明查授权和参数。",
+    "tier": "auto"
+  },
+  "humanlayer/skills/show-me": {
+    "name_zh": "可视化讲解",
+    "intro": "把当前话题讲明白：按内容的形状挑最小的一种图——算法用伪代码、运行时用调用树、UI 用组件树（带上要紧的 state 和模块边界）、目录职责用浅层文件树、交互和数据流用 Mermaid、只关心改动就用 diff。Mermaid 撑不住的布局、状态对比或信息密度，就写一个单独的 HTML 文件再打开给用户看。",
+    "usage": "直接说「给我画出来」，或点名叫 show-me；HTML 产物按 `path/to/show-me-{description}.html` 命名后打开，配色字体跟随产品现有样式，桌面和手机都要能看。",
+    "notes": "正文标了 disable-model-invocation，需要用户显式触发，agent 不会自己跳出来画图；图只承载当前问题或候选方案的关键形状，别塞全量信息。",
+    "tier": "auto"
+  },
+  "jakubkrehel/skills/better-colors": {
+    "name_zh": "配色系统搭建",
+    "intro": "搭一套能长期用的颜色系统：一档中性色阶加一档主色阶，每个 step 对应一个明确角色，primitive 按色相命名、语义 token 按角色命名，跨阶保持色相不变，一个颜色只表达一个含义。还会量对比度、报超出色域的 step、给渐变挑插值空间。正文口径很硬：没量过的对比度不许报，能算出来的颜色不许估。",
+    "usage": "先对齐项目现有 token 和写法，新系统默认用 `oklch()` 起阶；半透明覆盖用 `color-mix(` 而不是叠 rgba；暗色和增强对比分别看 `prefers-color-scheme` 与 `prefers-contrast: more`，广色域用 `@media (color-gamut: p3)`。",
+    "notes": "正文把边界写死了：某对颜色是否必须达标归 better-accessibility 判，表面、阴影和图标色归 better-ui；报告要给出位置、原因和是否放行。",
+    "tier": "auto"
+  },
+  "jimliu/baoyu-skills/baoyu-article-illustrator": {
+    "name_zh": "文章配图生成",
+    "intro": "给长文自动配图：先读文章结构判断哪些段落需要视觉辅助，再按「类型、风格、色板」三个维度统一出一批图，避免每张风格打架。内置六种图型——infographic、scene、flowchart、comparison、framework、timeline，生成前会先出提纲让用户确认每张的位置、用途和密度。适合长文、技术文档和教程加插图。",
+    "usage": "常规用法 `--type infographic --style vector-illustration --palette macaron`；成套视觉直接上 `--preset edu-visual`；图多时用 `--batch-size 4` 控制并发，要挂参考图用 `--ref <files...>`。",
+    "notes": "和封面图同族，首次运行要先有 EXTEND.md 偏好文件才能跳过首次配置；生成后按 `NN-{type}-{slug}.png` 命名并写回文章，输出目录有三种模式可选。",
+    "tier": "auto"
+  },
+  "jimliu/baoyu-skills/baoyu-cover-image": {
+    "name_zh": "文章封面图生成",
+    "intro": "按五个维度给文章出封面图：类型、配色、渲染风格、文字、情绪，配 11 套色板和 7 种渲染风格，支持电影宽幅 2.35:1、常宽 16:9 和方图 1:1。流程是先分析内容、跟用户确认选项、写提示词再出图，出图后端按「本次会话指定、已存偏好、自动挑」的顺序解析，不会静默换后端。",
+    "usage": "常用参数：`--type <name>`、`--palette <name>`、`--rendering <name>`、`--aspect <ratio>`；不想逐项确认就加 `--quick`，不要标题加 `--no-title`，要挂参考图用 `--ref <files...>`。",
+    "notes": "首次运行会被偏好检查拦住，要求先写 EXTEND.md 并定好 provider 和默认输出目录；产物按时间戳建目录，方便回溯每一次生成的提示词。",
+    "tier": "auto"
+  },
+  "mcp-use/mcp-use/mcp-apps-builder": {
+    "name_zh": "mcp-use 服务端开发",
+    "intro": "用 mcp-use 这套 TypeScript 框架建、改、调、迁移、审查 MCP server 和 MCP Apps：先摸 package.json、服务端入口、mcp-env.d.ts 和已装的 mcp-use 版本，再按任务只读 references 下对应的那一册（server、views、auth、skills-over-mcp、advanced-features、migration、verification）。正文把「以已装的包、导出类型和生成声明为准」定成硬规矩，禁止照抄网上的老例子。",
+    "usage": "新项目用 `create-mcp-use-app@latest` 起脚手架并挑模板；改代码前先确认 `mcp-use` 的版本；本地起来用 `mcp-use dev`，交付前跑 `build` 和 `start` 自验。",
+    "notes": "正文要求实现完先读 verification 分册再报完工；beta 或 canary 版本要按 dist-tag 对齐，别混用稳定版文档；migration 分册只在遇到已废弃导入或旧注册形状时才读。",
+    "tier": "auto"
+  },
+  "minimax-ai/cli/mmx-cli": {
+    "name_zh": "MiniMax 视频生成",
+    "intro": "用 mmx 命令行生成 MiniMax-H3 视频：文生视频、首尾帧、以及拿参考图或参考视频做多模态参考生成，外加提示词改写、素材预检、异步任务等待和下载。正文把「必须显式传模型」定成硬规矩，并要求用按量付费的 API Key——H3 不吃 OAuth 和订阅 key，全程不许把 key 打进命令回显。",
+    "usage": "先 `mmx auth login` 或 `mmx config set --key api_key --value \"$MINIMAX_API_KEY\" --quiet` 存 key；生成用 `mmx video generate` 并始终带 `--model MiniMax-H3`；只拿任务号不等待加 `--async`，区域不对有一次机会用 `--region global` 重试。",
+    "notes": "需要 mmx CLI 和 H3 权限；正文禁止用 Bash 包一层或自己写轮询循环，也不许因等待中断就重复提交付费任务。目录里的 `Detecting region...` 属正常进度输出，不是提交失败。",
+    "tier": "auto"
+  },
+  "nextlevelbuilder/ui-ux-pro-max-skill/ckm:brand": {
+    "name_zh": "品牌规范管理",
+    "intro": "品牌口径的常驻参考：语音语调、视觉识别、信息框架、资产命名与审批、色板和字体规格都拆成小分册，改一处规范源文件再同步成 design tokens。定位很明确——docs/brand-guidelines.md 是唯一真相，tokens 的 json 和 css 由脚本生成，别手改。子命令走 update，也可以按 arguments 路由到对应分册。",
+    "usage": "改完规范跑 `node scripts/sync-brand-to-tokens.cjs` 同步 token；要往提示词里注入品牌上下文用 `node scripts/inject-brand-context.cjs`；校验资产命名和规格用 `node scripts/validate-asset.cjs <asset-path>`。",
+    "notes": "脚本依赖 Node；不带子命令时按正文默认路由走，带了就从 $ARGUMENTS 取第一个词再找 references/{subcommand}.md。审批清单和 logo 用法另有分册。",
+    "tier": "auto"
+  },
+  "nextlevelbuilder/ui-ux-pro-max-skill/ckm:slides": {
+    "name_zh": "HTML 演示文稿",
+    "intro": "用 HTML 做有主张的演示稿：Chart.js 出数据图、design tokens 控配色、响应式布局、按文案公式写页内文字，再按场景挑版式策略。子命令只有一个 create，其余都是 references 下的四册参考资料——版式、HTML 模板、文案公式、幻灯片策略。适合营销提案、路演 deck 和带图表的数据汇报。",
+    "usage": "直接说「做一份 N 页的 XX 演示」，正文从 `$ARGUMENTS` 取第一个词当子命令，再按 `references/{subcommand}.md` 加载分册；要控版式先读 `references/layout-patterns.md`，要套模板读 `references/html-template.md`。",
+    "notes": "正文只有一张路由表和分册目录，真正的做法全在 references 下，落地前得逐册打开；不带子命令时按正文默认走 create。",
+    "tier": "auto"
+  }
+}

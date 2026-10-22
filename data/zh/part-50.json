@@ -1,0 +1,177 @@
+{
+  "clerk/skills/clerk-cli": {
+    "name_zh": "Clerk CLI 操作",
+    "intro": "把 `clerk` 二进制当成 Clerk 的预认证网关：除 Backend API 与 Platform API 外，还涵盖账号链接、`clerk env pull` 拉环境变量、实例配置等工程侧动作。正文强调优先走 CLI 而不是裸发 HTTP，因为认证、密钥解析、app/instance 定位与格式化都由它处理；`clerk api` 是万金油入口，改数据的请求要先预览。技能对准 clerk latest。",
+    "usage": "开场用 `clerk whoami` 与 `clerk doctor` 确认登录态和环境；查后端数据走 `clerk api`，写操作先预览；密钥与实例配置用 `clerk env pull` 与 `clerk apps` 系列。",
+    "notes": "首次要 `clerk auth login`，需要浏览器和 localhost 回调，令牌落在系统钥匙串；在沙箱里跑常见报错是 Not logged in、auth_required 或钥匙串权限不足。版本落后就用 `clerk update` 刷新。",
+    "tier": "auto"
+  },
+  "cloudflare/skills/sandbox-sdk": {
+    "name_zh": "沙箱执行 SDK",
+    "intro": "Cloudflare 的 Sandbox SDK，给不可信代码一个隔离环境：生命周期管理、执行命令、读写文件、代码解释器和预览 URL。适合搭 AI 代码执行、代码解释器、CI/CD、交互式开发环境。跑命令用 `sandbox.exec('python --version')`，跑 LLM 生成的代码用 runCode 并拿富输出，支持 python、javascript、typescript。基础镜像 docker.io/cloudflare/sandbox:0.7.0 自带 Python 3.11 与 Node.js 20。",
+    "usage": "先按文档核对安装与必需配置，再照 Core Patterns 走：`sandbox.exec` 起命令、`runCode()` 执行生成代码、预览 URL 暴露端口；要加依赖就改 Dockerfile 重打镜像。",
+    "notes": "预览 URL 需要自有域名加通配 DNS，`.workers.dev` 的子域不支持；OpenAI Agents 的适配在 `@cloudflare/sandbox/openai`，完整例子看 examples/openai-agents。",
+    "tier": "auto"
+  },
+  "dart-lang/skills/dart-add-unit-test": {
+    "name_zh": "Dart 单元测试",
+    "intro": "用 package:test 给函数、方法、类补单元测试。测试目录镜像 lib 结构，文件名加 `_test.dart` 后缀，集成测试放 integration_test 目录；用 group 分上下文、test 写用例、expect 配 equals、isTrue、throwsA 等 matcher，setUp 与 tearDown 管生命周期，异步测试交给 runner 等 Future。依赖注入的代码用 mockito 造 mock。",
+    "usage": "纯 Dart 跑 `dart test`，Flutter 跑 `flutter test`；集成测试要显式指目录，`dart test integration_test` 或 `flutter test integration_test`，默认 runner 会忽略它。",
+    "notes": "测试文件放包根的 test 下、路径与 lib 对齐才好找；写新逻辑或修 bug 时顺手补，回归才有意义。",
+    "tier": "auto"
+  },
+  "dart-lang/skills/dart-fix-runtime-errors": {
+    "name_zh": "Dart 报错修复",
+    "intro": "修 Dart 的报错：定位失败行、改代码、再验证。正文重心落在静态分析的根因上——保持方法覆盖的参数逆变与返回值协变，泛型集合加显式类型标注，别把 List<dynamic> 赋给具体类型，避免 dynamic 隐式向下转换；空安全用 ?、感叹号与 required，确定先初始化才用 late；可恢复失败抓 Exception，编程 bug 类的 Error 不许抓。",
+    "usage": "先用 `dart analyze . --fatal-infos` 把问题全捞出来再动手改；机械性问题交给 `dart fix --dry-run` 预览、`dart fix --apply` 落地。",
+    "notes": "描述与正文有偏差：描述说走 get_runtime_errors 与 lsp 取调用栈、用 hot_reload 验证，正文实际只讲静态分析与 dart fix，没有这些工具的步骤。",
+    "tier": "auto"
+  },
+  "dart-lang/skills/dart-resolve-package-conflicts": {
+    "name_zh": "Dart 依赖冲突",
+    "intro": "pub get 因为版本不兼容失败时的处理流程。Dart 靠 pubspec.yaml 里的版本约束而不是钉死版本，pubspec.lock 记实际解析结果保证可复现。先跑 dart pub outdated，看 Current、Upgradable、Resolvable 三列分辨能直接升的和要改约束才能升的，再用 dart pub upgrade 与 tighten 收敛下界；依赖一律用 caret 语法。",
+    "usage": "排查顺序：`dart pub outdated` 看三列，`dart pub upgrade` 升可升的，`dart pub upgrade --tighten` 把下界收紧到实际版本；CI 里用 `dart pub get --enforce-lockfile` 锁定测试过的组合。",
+    "notes": "改完约束要跑 `dart analyze` 复核破坏性 API 变更；实在解不开再考虑动 pubspec.lock，别一上来就删锁文件。",
+    "tier": "auto"
+  },
+  "dart-lang/skills/dart-run-static-analysis": {
+    "name_zh": "Dart 静态分析",
+    "intro": "跑 `dart analyze` 找出 warning 与 error，再用 `dart fix --apply` 自动修机械性的 lint。配置集中在包根的 analysis_options.yaml：用 include 引 package:lints/recommended.yaml 或 flutter_lints/flutter.yaml，在 analyzer 里开 strict-casts、strict-inference、strict-raw-types，linter 段按需开关规则，exclude 用通配符排除生成文件。",
+    "usage": "先 `dart analyze <target_directory>` 出报告，要 info 也算失败就加 `--fatal-infos`；改之前先 `dart fix --dry-run` 预览，再 `dart fix --apply` 落地。",
+    "notes": "抑制要精确到层：文件头 ignore_for_file、行级 ignore、pubspec 里用井号 ignore；不要拿抑制当修复。提交前跑一遍最省事。",
+    "tier": "auto"
+  },
+  "dart-lang/skills/dart-use-pattern-matching": {
+    "name_zh": "Dart 模式匹配",
+    "intro": "Dart 3 的模式匹配与解构：用 switch 表达式替代长 if-else 链，按 map 的判别键反序列化进 sealed 类层级，用 List 模式带 rest 元素拆路径段与 split 结果，用 Object 模式一次解出多个字段，用关系模式与逻辑模式表达区间和组合，并对 sealed 家族强制穷尽。反例也写了：单变量类型提升用 is，单纯布尔判断和普通集合过滤不必上模式。",
+    "usage": "先按场景选模式再写；表达式式写成 `switch (value) { pattern => expression, }`，语句式写成 `switch (value) { case pattern: statements; }`，两者空 case 都往下穿透、非空自动 break。",
+    "notes": "逻辑或两侧必须定义完全相同的变量集合，逻辑与两侧不许有重叠变量；as 模式类型不符会抛异常，别拿它做宽松匹配。",
+    "tier": "auto"
+  },
+  "firecrawl/cli/firecrawl-monitor": {
+    "name_zh": "网页变更监控",
+    "intro": "盯网页变化，变了就用 webhook 或邮件通知，抓取、比对、判断和投递都在 Firecrawl 服务端完成。两类目标：已有 URL 的周期性检查，以及按查询词全网搜新结果（web 监控必须给 `--goal`，另有 `--search-window` 与 `--max-results`）。每次检查把页面标成 same、new、removed、error 四种状态之一。",
+    "usage": "用 `firecrawl monitor create` 建监控，`--schedule` 支持 every 30 minutes、daily at 9:00 这类自然语言；建完用 `firecrawl monitor run` 试跑，再用 `firecrawl monitor check` 核对目标页状态，`--page-status changed` 过滤掉没变的页面。",
+    "notes": "临时静音用 `firecrawl monitor update <monitorId> --state paused`，别急着删；`--state` 是 update 的参数，`--status` 是全局 CLI 状态参数，两者别混。需要 Firecrawl 账号与 API key。",
+    "tier": "auto"
+  },
+  "firecrawl/firecrawl-workflows/firecrawl-knowledge-base": {
+    "name_zh": "网页知识库构建",
+    "intro": "把网页内容整理成本地知识库，三种产出模式：reference 出 markdown、index.md 与 sources.json；RAG 额外给分块文件和 manifest.json；training 再给 training-data.jsonl 与 training-metadata.json。适合做参考资料、检索语料、微调数据、文档镜像或主题语料库。开工前先做一轮访谈确认来源与用途，再规划抓取范围与并行单元。",
+    "usage": "先定模式（reference、RAG 或 training），再按 Collection Plan 抓取并落盘；最终交付照模板写摘要、输出结构、覆盖率、使用说明、来源与复跑输入。",
+    "notes": "模式选错返工最贵：只给人看选 reference，进向量库选 RAG，进微调才需要 training；需要 FIRECRAWL_API_KEY。",
+    "tier": "auto"
+  },
+  "firecrawl/firecrawl-workflows/firecrawl-market-research": {
+    "name_zh": "市场与公司研究",
+    "intro": "用当次抓到的可引用数字做市场与公司研究：市场规模、增速、趋势、财务与财报，适合行业概览或按数字横比几家公司——这类数字比训练数据过得快。产出有固定骨架：市场概览、公司画像、对比表、趋势与展望、来源、复跑输入与质量线。开工前先访谈确认市场范围、口径与交付格式，再规划抓取与并行单元。",
+    "usage": "先定市场与口径，再按 Collection Plan 抓取；交付照模板把每个数字挂到来源上，结尾留复跑输入，方便下次更新。",
+    "notes": "研究结论依赖抓到的公开材料，口径不明要先问清；需要 FIRECRAWL_API_KEY。",
+    "tier": "auto"
+  },
+  "firecrawl/firecrawl-workflows/firecrawl-website-design-clone": {
+    "name_zh": "站点视觉系统提取",
+    "intro": "把一个现成网站的视觉系统抽成 DESIGN.md，或者只取它的 logo、配色、字体和首页文案给文档用。做法是用 Firecrawl 抓代表性页面：`--format branding,markdown,images` 拿品牌字段与正文，`--full-page-screenshot` 留整页截图，再读 branding 字段并看真实截图像素，最后产出带来源、设计令牌、布局与组件的 DESIGN.md。明确不负责凭空造新品牌或定位。",
+    "usage": "核心一步：`firecrawl scrape` 带 `--format branding,markdown,images` 与 `--full-page-screenshot --json`，结果用 `-o .firecrawl/design-reference.json` 落盘，再据令牌和截图写 DESIGN.md。",
+    "notes": "不能暗示用户对第三方 logo、图片、商标和文案有使用权；要最新快照就加 `--max-age 0`，抓完把 JSON 和来源一起留在 DESIGN.md 旁边便于复跑。",
+    "tier": "auto"
+  },
+  "firecrawl/firecrawl-workflows/firecrawl-workflows": {
+    "name_zh": "Firecrawl 工作流路由",
+    "intro": "把「要一份带来源的成品」和「只抓原始网页」分开：这个技能按意图把活路由到 19 个专项工作流，覆盖线索生成与增强、企业公开联系人、在招职位、SEO 与 SERP 审计、线上站点 QA、竞品价格与变更监控、目录抽取、仪表盘指标、知识库与文档镜像、市场研究、产品演示走查、比价选品等；都不合适才走通用流程，并把流程沉淀成可复用模式。",
+    "usage": "先挑工作流再开工：由请求推断输入、受众与产出格式，输入齐就直接做；确实缺关键信息才问 1 到 3 个问题。证据要落盘或引用，独立单元可以并行。",
+    "notes": "每个工作流有自己的交付物与停止条件，联系人卡片不必写成研究报告；需要 FIRECRAWL_API_KEY，配在环境里即可。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-chat": {
+    "name_zh": "Google Chat 管理",
+    "intro": "管 Google Chat 的空间与消息，正文按 API 资源分成 customEmojis、media、spaces、users 四组：spaces 支持 create、delete、list、patch、findDirectMessage，media 支持 download 与 upload，还有 completeImport 完成导入流程。自定义表情只在 Workspace 账号且管理员为组织打开后才可用；删空间是级联删除，消息和成员关系一起没了。",
+    "usage": "方法都从 `gws chat --help` 进，定位到资源与方法后用 `gws schema chat.<resource>.<method>` 查参数，再按 schema 输出拼 `--params` 与 `--json`。",
+    "notes": "自定义表情需要 Workspace 账号并让管理员开启；查空间列表时群聊和私聊要等第一条消息发出才会出现。需要 gws 与 Google 认证。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-gmail-reply-all": {
+    "name_zh": "Gmail 全部回复",
+    "intro": "对一封 Gmail 消息发全部回复，线程由命令自己处理。必填只有 message-id 与 body；to 追加收件人、cc 与 bcc 补抄送、remove 排除某些收件人（包括原发件人或 Reply-To）、-a 加附件、html 让正文按 HTML 解析、draft 存草稿而不直接发。排除和追加之后若一个 To 收件人都不剩，命令会直接失败。",
+    "usage": "最小用法 `gws gmail +reply-all --message-id <ID> --body <TEXT>`；要改收件人配 `--remove bob@example.com` 或 `--cc eve@example.com`，要附件配 `-a notes.pdf`。",
+    "notes": "回复是外发动作，群发前确认收件人列表；误删收件人导致 To 为空会报错，不是静默跳过。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-people": {
+    "name_zh": "Google 通讯录",
+    "intro": "管联系人与个人资料，资源分 contactGroups、otherContacts、people 三组。分组支持 batchGet、create、delete、get、list、update 以及 members 子资源；otherContacts 是自动生成的外部联系人，可 list、search，也能用 copyOtherContactToMyContactsGroup 复制进 myContacts；people 侧有 batchCreateContacts 与 batchUpdateContacts。同步令牌在完整同步后 7 天过期。",
+    "usage": "先 `gws people --help` 看资源清单，定位到方法后用 `gws schema people.<resource>.<method>` 取参数；同一用户的写请求要顺序发，并发会放大延迟与失败率。",
+    "notes": "分组名必须唯一，重名创建会失败；list 分组不返回成员，要成员得走 members 子资源。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-workflow": {
+    "name_zh": "Google 工作流入口",
+    "intro": "gws 命令行里的跨服务工作流入口，命令形如 `gws workflow <resource> <method> [flags]`。正文列出 5 个以 + 开头的快捷命令：+standup-report 汇总今日会议与未完成任务，+meeting-prep 备好下次会议的议程、参会人与关联文档，+email-to-task 把 Gmail 邮件变成 Google Tasks 条目，+weekly-digest 出本周会议摘要，+file-announce 在 Chat 空间宣布 Drive 文件。调任何 API 方法之前都先查 schema。",
+    "usage": "先读同级的 gws-shared 说明拿认证与全局参数，再用 `gws workflow --help` 浏览资源和方法，用 `gws schema workflow.<resource>.<method>` 查必填参数、类型与默认值，最后按 schema 输出拼 `--params` 和 `--json`。",
+    "notes": "需要装好 gws 并完成 Google 认证；前置说明文件缺失时先跑 `gws generate-skills` 生成。技能本身只做路由与命令发现，具体能力在 5 个子技能里。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-workflow-email-to-task": {
+    "name_zh": "邮件转待办",
+    "intro": "把一封 Gmail 消息变成 Google Tasks 条目：邮件标题当任务标题，正文摘要当备注，落到指定任务列表（默认 @default）。必填只有 message-id，tasklist 可选。正文特别提醒这是新建动作，执行前要先跟用户确认，避免顺手把收件箱刷成待办清单。",
+    "usage": "`gws workflow +email-to-task --message-id MSG_ID` 用默认列表；要指定列表就加 `--tasklist LIST_ID`。",
+    "notes": "会真的新建任务，跑之前确认；其它跨服务工作流入口见 gws-workflow。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/recipe-create-presentation": {
+    "name_zh": "新建 Slides 演示",
+    "intro": "一份三步的操作配方：先建一份 Google Slides 演示，从响应里取演示 ID，再给团队开编辑权限。建的时候用 json 参数带标题，授权用 Drive 的 permissions create，按 fileId 指定文件、role 给 writer、type 给 user、emailAddress 写对方邮箱。执行前要先加载 gws-slides 技能。",
+    "usage": "先 `gws slides presentations create` 用 `--json` 带标题建演示并取回 ID，再 `gws drive permissions create` 用 `--params` 指 fileId、用 `--json` 给 role 与 emailAddress。",
+    "notes": "配方不替你做决策：标题和共享名单要问用户；缺 gws-slides 技能先加载，否则 API 形态拼不对。",
+    "tier": "auto"
+  },
+  "jakubkrehel/skills/better-typography": {
+    "name_zh": "排版规范审查",
+    "intro": "管产品里文字怎么渲染：字号阶梯、行高、字重、字体特性、换行、截断与标点。正文给的是可直接判定的硬数值——无单位行高，展示文字 1.1、标题 1.2 到 1.3、正文 1.5 到 1.6；18px 以下字重不低于 400，100 到 300 只配 28px 以上；行宽 60 到 75 字符；iOS 输入框 16px；会变动的数值用 tabular-nums。落标就算问题。",
+    "usage": "审稿时按条对：标题 `text-wrap: balance`、长段 `text-wrap: pretty`、超长词 `overflow-wrap: break-word`；大号标题字距 `-0.01em` 到 `-0.02em`，正文保持 0；数字列开 `tabular-nums`。",
+    "notes": "边界划得清：措辞归 better-writing，语义标题结构归 better-accessibility，RTL 空间布局归 better-layout，对比度测量归 better-colors。别拿 font-kerning 关掉来修字距问题。",
+    "tier": "auto"
+  },
+  "jimliu/baoyu-skills/baoyu-infographic": {
+    "name_zh": "信息图生成",
+    "intro": "按 21 种版式乘 22 种风格生成信息图：先读内容、抽出结构化条目写进 structured-content.md，再推荐版式与风格组合，最后出图。图片后端按运行时排优先级——Codex 的 imagegen、codex exec、Cursor 的 GenerateImage、其他原生工具，再退到已装的非原生后端，也可在 EXTEND.md 里用 preferred_image_backend 固定。明确禁止用 SVG、HTML、canvas 顶替位图生成。",
+    "usage": "每张图先把完整提示词写成 prompts/ 下的独立文件再调后端；有参考图就放到 refs/ 里并在提示词头部记录，别临场编提示词。",
+    "notes": "必须先确定图片后端再动手，缺后端就装一个；版式与风格从 Gallery 里选，别自由发挥。",
+    "tier": "auto"
+  },
+  "jimliu/baoyu-skills/baoyu-markdown-to-html": {
+    "name_zh": "Markdown 转微信排版",
+    "intro": "把 Markdown 转成带主题样式的 HTML，主题按微信公众号排版习惯做。支持代码高亮、数学公式、Mermaid（无头 Chrome 渲成 PNG）、PlantUML、脚注、提示块，还能把正文外链收成文末的引用链接段落。默认主题会去掉第一个标题，主题可选也可在 EXTEND.md 里设 default_theme，运行时优先用 bun，没有则退到 npx。",
+    "usage": "基础转换直接给文件路径，要指定主题加 `--theme`，要把外链收成底部引用加 `--cite`；主题、代码块样式与 Mermaid 参数都能写进 EXTEND.md。",
+    "notes": "中文内容若装了 baoyu-format-markdown 会先问要不要格式化，能修星号被标点截断之类的解析问题；外链引用只在用户明确要求时才开。",
+    "tier": "auto"
+  },
+  "nextlevelbuilder/ui-ux-pro-max-skill/ckm:design": {
+    "name_zh": "品牌视觉设计",
+    "intro": "一个入口串起品牌视觉的活：logo 设计内置 55 种风格（Gemini 或 Atlas Cloud AI 出图），企业视觉识别项目最多 50 项交付物并出样机，HTML 演示页配 Chart.js 图表，横幅 22 种风格覆盖社交、广告、网页与印刷，图标 15 种风格出 SVG，社交图走 HTML 转截图适配多平台。正文按意图分流到子技能，脚本支持按行业、风格、色板检索与生成。",
+    "usage": "logo 先检索再生成：`python3 scripts/logo/search.py \"tech startup modern\" --design-brief -p \"BrandName\"` 出设计简述，再按风格与行业出图。",
+    "notes": "生成完要主动问用户要不要 HTML 预览，要就转 /ui-ux-pro-max 看画廊；CIP 与 logo 是两条流程，别混着一次跑完。",
+    "tier": "auto"
+  },
+  "nextlevelbuilder/ui-ux-pro-max-skill/ckm:design-system": {
+    "name_zh": "设计令牌体系",
+    "intro": "管设计令牌与组件规格：三层令牌从 primitive 到 semantic 再到 component，落在 CSS 变量上（如 var(--color-primary)），配上间距与字号阶梯、组件规格模板，顺带做品牌一致的演示文稿。配套脚本能生成与校验令牌：generate-tokens.cjs 吃 tokens.json 出 tokens.css，validate-tokens.cjs 扫目录查违规，演示页用 BM25 检索素材。",
+    "usage": "令牌先定再生成：`node scripts/generate-tokens.cjs --config tokens.json -o tokens.css`；改完用 `node scripts/validate-tokens.cjs --dir src/` 查有没有绕开变量硬写。",
+    "notes": "细节在 references/token-architecture.md；导入 assets/design-tokens.css 当唯一来源，别在组件里另起一套颜色常量。",
+    "tier": "auto"
+  },
+  "nextlevelbuilder/ui-ux-pro-max-skill/ckm:ui-styling": {
+    "name_zh": "shadcn 界面样式",
+    "intro": "用 shadcn/ui（底层 Radix UI 加 Tailwind CSS）搭界面：组件层给对话框、下拉、表单、表格等可访问组件，样式层用 Tailwind 的原子类做响应式布局与暗色模式，视觉层用 canvas 出设计稿与海报。主题与配色靠 CSS 变量改，可访问性按参考文档逐项对，另有脚本按品牌色与字体生成 Tailwind 配置。",
+    "usage": "先装组件再改样式：`python scripts/tailwind_config_gen.py --colors brand:blue --fonts display:Inter` 生成配置，组件主题与可访问性分别照 references 里的文档调。",
+    "notes": "参考文档分组件、主题、可访问性、工具类、响应式与自定义几份，别只看一份就动手。",
+    "tier": "auto"
+  },
+  "wshobson/agents/nextjs-app-router-patterns": {
+    "name_zh": "Next.js 路由模式",
+    "intro": "Next.js 14+ 的 App Router 用法：五种渲染模式的取舍（Server Components、Client Components、Static、Dynamic、Streaming），app 目录下 layout、page、loading、error、not-found、route、template、default 各管什么，以及数据抓取与缓存、并行路由与拦截路由、Server Actions 做变更。默认从 Server Component 起步，需要交互才加 use client。",
+    "usage": "先定渲染模式再写文件；抓数据就地取，慢数据配 Suspense 与 loading 文件；变更走 Server Action。更细的写法在 references/details.md。",
+    "notes": "序列化边界要守：别把不可序列化的数据从 Server 传到 Client；Server Component 里不能用 hooks，也别在 Client Component 里直接抓数据。",
+    "tier": "auto"
+  }
+}

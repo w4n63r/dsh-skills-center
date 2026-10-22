@@ -1,0 +1,177 @@
+{
+  "addyosmani/agent-skills/constraint-driven-development": {
+    "name_zh": "约束驱动开发",
+    "intro": "在动手写代码前先把「什么算可以交付」写成带数字的约束文件，让检查贴着改动跑，而不是留到 PR 里争。流程是先读项目现状（依赖清单、测试脚本、linter 配置、当前覆盖率），再问四个带默认答案的问题：除底线外还卡哪些维度、检查失败时阻断还是告警、用现有基线还是自定目标、最慢容忍多久，最后落成一份可机械校验的约束文档。",
+    "usage": "触发说法比如 set up constraints 或 add quality gates；先读 `package.json`、`pyproject.toml`、`go.mod` 之类再提问，答案写进带 Floor 段（不许新增 `@ts-ignore`、空 `catch {}`、无理由跳过的测试）和数字表格的约束文件。",
+    "notes": "正文要求别在 CI 或无人值守的循环里跑这套访谈，它需要一个能回答的用户；缺约束时先按 Floor 执行并写明，其余留给人工补。",
+    "tier": "auto"
+  },
+  "dart-lang/skills/dart-build-cli-app": {
+    "name_zh": "Dart 命令行应用开发",
+    "intro": "写 Dart 命令行工具的工程规范：用 `CommandRunner` 做命令路由，`bin/` 只留很薄的入口，用 `exitCode` 而不是 `exit(N)` 以免打断异步收尾。另覆盖输出与诊断格式、`pubspec.yaml` 的 `executables:` 映射、单源版本号、缓存约定、信号与终端清理、子进程与 AOT 下的可执行路径陷阱，以及三种分发方式。",
+    "usage": "新建项目用 `dart create -t console <package_name>`，再在 `pubspec.yaml` 的 `executables:` 里把命令名映射到 `bin/` 脚本。本地跑 `dart run <command>`，出独立二进制用 `dart compile exe bin/cli.dart -o <output_path>`。",
+    "notes": "正文提醒：AOT 编译后 `Platform.resolvedExecutable` 指向应用自身二进制，拿它去调 `dart` 会自递归；`dart test`、`build_runner` 这类也一样。",
+    "tier": "auto"
+  },
+  "dart-lang/skills/dart-migrate-to-checks-package": {
+    "name_zh": "Dart 测试迁 checks",
+    "intro": "把 Dart 测试从 `package:matcher` 的 `expect`/`expectLater` 迁到 `package:checks` 的 `check` 语法。逐条讲清迁移期的坑：集合相等要 `deepEquals`、`reason` 改名 `because`、正则改用 `matchesPattern`、`TypeMatcher.having` 换 `.has`、同步与异步 `throws` 区分、可空布尔、Map 键包含，并附 matcher 到 checks 的对照表和没有对应项的说明。",
+    "usage": "先 `dart pub add dev:checks`，再用 `grep -rn \"expect(\" test/` 扫出待迁移文件。改文件时把 `import 'package:test/test.dart';` 换成 `package:test/scaffolding.dart` 加 `package:checks/checks.dart`；分批迁移可暂留 `package:test/expect.dart`。",
+    "notes": "子集迁移时保留 `package:test/expect.dart` 只是过渡手段，别让它长期留在文件里；`package:matcher` 若被显式声明要移除。",
+    "tier": "auto"
+  },
+  "expo/skills/expo-ui": {
+    "name_zh": "Expo 原生 UI 组件",
+    "intro": "从 React 直接渲染真原生界面：iOS 走 SwiftUI、Android 走 Jetpack Compose，并附带一批可平替 React Native 社区库的兼容组件。默认推荐用 `@expo/ui` 做抽屉、分组表单、选择器、滑块、开关和菜单，而不是先上 Reanimated 或第三方底部抽屉库。",
+    "usage": "装 `npx expo install @expo/ui`，任何组件树都要包在 `Host` 里。抽屉用 `BottomSheet` 的 `isPresented` 与 `onDismiss`（不是 `isOpened`、`onChange`），`snapPoints` 可给 `'half'`、`'full'` 或 `{ fraction: 0.5 }`。",
+    "notes": "正文强调 `List` 不是虚拟列表，长列表要换 `FlatList` 或 `FlashList`；`@expo/ui/swift-ui` 与 `@expo/ui/jetpack-compose` 只能在平台文件里导入，混用会运行时报错。",
+    "tier": "auto"
+  },
+  "firecrawl/firecrawl-workflows/firecrawl-company-directories": {
+    "name_zh": "公司名录抽取",
+    "intro": "把加速器批次、VC 投资组合、会员或赞助商名单、市场与应用目录抽成结构化公司清单，字段包括名称、简介、行业、阶段、成立年份、地点、团队规模、融资、标签、目录页与官网 URL，可直接落成 CSV、JSON 或研究表格。",
+    "usage": "给出目录地址、筛选条件和目标条数即可开跑：需要筛选、翻页、无限滚动的目录走 Firecrawl browser，公开静态列表用 scrape 或 map。交付按 `# Company Directory Export: [Source]` 汇总，字段不可见就留空。",
+    "notes": "正文要求去重、记录翻页进度，并标注限流、登录墙或验证码造成的缺口；看不见的字段一律不许推断。",
+    "tier": "auto"
+  },
+  "firecrawl/firecrawl-workflows/firecrawl-competitive-intel": {
+    "name_zh": "竞品情报监控",
+    "intro": "持续盯竞品的定价页、功能页、更新日志、博客与发布说明，把套餐档位、额度、功能清单和近期改动抽成结构化结果，输出告警、逐家明细、横向量化对比以及后续该盯什么。适合按周或按月重复跑的竞争情报，而不是一次性的泛竞品分析。需要 FIRECRAWL_API_KEY。",
+    "usage": "给出竞品名单、关注面 `all/pricing/features/changelog` 和节奏即可；交付按 `# Competitive Intel: [Competitors]` 固定段落，结构化输出含 `generatedAt`、`pricing`、`recentChanges`、`features`。人多时可按每竞品一个研究者并行。",
+    "notes": "只能在联系销售才可见的细节要标注，不许猜；登录态仪表盘仅在用户有正当权限时抓取。",
+    "tier": "auto"
+  },
+  "firecrawl/firecrawl-workflows/firecrawl-demo-walkthrough": {
+    "name_zh": "产品流程走查",
+    "intro": "用 Firecrawl 浏览器把产品关键流程一步步走一遍并记录：首页与营销页、注册与引导、定价与套餐、文档与开发者体验、仪表盘与核心功能、帮助与支持。产出按流程分节的走查报告，写清每屏出现什么、能做什么，再单列第一印象、亮点、摩擦点和改进建议。",
+    "usage": "给出产品 URL 和关注面 `full/signup/pricing/docs/dashboard` 即可开跑；正文建议按流程拆给多个并行研究者，每人回报访问过的页面、执行的动作、观察、摩擦与来源 URL。",
+    "notes": "没有明确授权时不许提交真实凭证、下单或做不可逆操作；正文要求把观察和主观评价分开写。",
+    "tier": "auto"
+  },
+  "firecrawl/firecrawl-workflows/firecrawl-knowledge-ingest": {
+    "name_zh": "文档站整站导出",
+    "intro": "用 Firecrawl 浏览器把文档门户、帮助中心、API 参考站抓成本地 markdown 或 JSON，连靠 JS 渲染、折叠导航和翻页才露出来的内容也能拿到。产出带章节统计、页数、失败页清单和来源 URL 的导出报告，适合把知识库落成可检索的本地文件。",
+    "usage": "给出站点 URL、输出格式和页数上限即可开跑；正文要求先看导航，再沿侧边栏、下一页、加载更多往下抓，并抽标题、章节、更新时间、作者和标签。公开站点可以用 Firecrawl map 补 URL 清单。",
+    "notes": "遇到登录墙、限流或验证码要在报告里写清；正文强调保留代码块和表格、去掉页头页脚，并守住鉴权边界。",
+    "tier": "auto"
+  },
+  "firecrawl/firecrawl-workflows/firecrawl-shop": {
+    "name_zh": "网购比价调研",
+    "intro": "用 Firecrawl 检索电商站点、评测媒体和论坛，把候选商品的型号、价格、卖家、参数与评论信号摊开对比，最后给出在预算和偏好内最值得买的一款，并附上来源链接。只有用户明确要求、且手头有已登录的浏览器配置时才会动购物车，且停在结算之前。需要 FIRECRAWL_API_KEY。",
+    "usage": "说清要买什么、预算和偏好即可开跑，产出 `# Shopping Research: [Product]` 结构的报告。要求加购时它会用 Firecrawl browser 打开站点加车，然后停下等你确认，不会自动结账。",
+    "notes": "正文要求把联盟、赞助或不可靠来源标出来；API key 缺失时不要声称抓到实时价格。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-events": {
+    "name_zh": "Workspace 事件订阅",
+    "intro": "命令行直连 Google Workspace Events API（v1），可管理 subscriptions 的创建、删除、查询、更新与重新激活，也能读 operations 与 tasks。两个辅助命令把订阅包成固定流程：一个订阅事件并逐条输出 NDJSON，另一个续期或重新激活快过期的订阅。",
+    "usage": "先 `gws events --help` 浏览资源与方法，再用 `gws schema events.<resource>.<method>` 查必填参数和默认值，然后拼 `--params` 与 `--json`；日常调用看 `+subscribe` 与 `+renew`。",
+    "notes": "正文要求先读 `../gws-shared/SKILL.md` 拿鉴权和全局参数，缺了就 `gws generate-skills` 生成；订阅不定期续期会过期。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-events-renew": {
+    "name_zh": "续期事件订阅",
+    "intro": "给 Workspace Events 订阅续命的命令：可以按名字重新激活单条订阅，也可以用 `--all` 把时间窗内即将到期的订阅一起续上。订阅不续期就会过期，所以正文建议配合定时任务跑。",
+    "usage": "续单条：`gws events +renew --name subscriptions/SUB_ID`；批量：`gws events +renew --all --within 2d`，其中 `--within` 默认 `1h`，支持 `30m`、`2d` 这类写法。",
+    "notes": "正文建议用 cron 定时跑 `--all`；执行前要先按 `../gws-shared/SKILL.md` 配好鉴权和全局参数。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-events-subscribe": {
+    "name_zh": "订阅并流式读事件",
+    "intro": "订阅 Google Workspace 事件并以 NDJSON 逐条拉取：可指定目标资源 URI、事件类型和 GCP 项目，也能复用已有的 Pub/Sub 订阅。支持单次拉取、按间隔轮询、把每条事件写成独立 JSON 文件，以及退出时清理自己创建的资源。",
+    "usage": "例：`gws events +subscribe --target '//chat.googleapis.com/spaces/SPACE' --event-types 'google.workspace.chat.message.v1.created' --project my-project`；只拉一次加 `--once`，要落盘加 `--cleanup --output-dir ./events`。",
+    "notes": "正文把这条标成写命令，执行前要跟用户确认；不加 `--cleanup` 时 Pub/Sub 资源会留着以便重连，也会留下计费对象。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-workflow-file-announce": {
+    "name_zh": "在 Chat 空间发布文件",
+    "intro": "一条跨服务命令：把 Drive 里的文件在指定 Google Chat 空间里公布，自动读取文件名拼出公告正文，也可以附一句自定义说明。它是写命令，会真的往空间里发消息。",
+    "usage": "用法为 `gws workflow +file-announce --file-id <ID> --space <SPACE>`，例如 `gws workflow +file-announce --file-id FILE_ID --space spaces/ABC123 --message 'Check this out!'`；输出格式由 `--format` 控制，可选 json、table、yaml、csv。",
+    "notes": "正文提醒先用 `gws drive +upload` 把文件传上去再公告；发送前确认是哪个空间，发错了很难收回。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/persona-exec-assistant": {
+    "name_zh": "行政助理角色",
+    "intro": "把 Workspace 工具按高管助理的一天串起来的角色设定：早会用 standup 报告拿议程与未结事项，会前用 meeting-prep 看参会人、描述和关联文档，收件箱按优先级分诊，再用日历和邮件完成排期与回复，始终保持专业简洁的语气。",
+    "usage": "先加载 `gws-gmail`、`gws-calendar`、`gws-drive`、`gws-chat`；日常按 `gws workflow +standup-report` 到 `+meeting-prep` 再到分诊排期的顺序跑，收件箱精选用 `gws gmail +triage --max 10`，周一用 `gws calendar +agenda --week` 做周计划。",
+    "notes": "正文要求动日历前先跟本人确认；`--format table` 只是方便扫读，不代表有权限控制。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/persona-researcher": {
+    "name_zh": "研究助手角色",
+    "intro": "把 Workspace 工具按研究者的日常串起来的角色设定：在 Drive 里整理文献与笔记，用 Docs 写摘要，用 Sheets 记实验数据，再通过 Chat 或 Gmail 分享结果、约同行评审。它列出可直接照抄的命令，例如 `gws docs +write`、`gws sheets +append`、`gws workflow +file-announce`。",
+    "usage": "先加载 `gws-drive`、`gws-docs`、`gws-sheets`、`gws-gmail` 四个工具技能，再按角色说明操作；找资料用 `gws drive files list` 配搜索词，导数据给分析工具时用 `--format csv`。",
+    "notes": "这里只有角色和命令清单，不含鉴权步骤；写操作前要确认目标文件与共享范围。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/recipe-backup-sheet-as-csv": {
+    "name_zh": "表格导出为 CSV",
+    "intro": "把 Google Sheets 表格导成本地 CSV 做备份或后续处理的三种路径：查表格元信息、用 Drive 导出并指定 `text/csv`、或者直接用 Sheets 读取命令按范围取成 CSV。适合定期快照，或者把表喂给本地脚本分析。",
+    "usage": "整表导出用 `gws drive files export --params '{\"fileId\": \"SHEET_ID\", \"mimeType\": \"text/csv\"}'`；只想要某段数据就用 `gws sheets +read --spreadsheet SHEET_ID --range 'Sheet1' --format csv`。",
+    "notes": "需先加载 `gws-sheets` 与 `gws-drive`；多工作表时按范围读比整表导出更精确，别把公式和格式当成已保留。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/recipe-compare-sheet-tabs": {
+    "name_zh": "对比表格两页签",
+    "intro": "最短的一条配方：从同一个 Google 表格的两个页签各读一段范围，然后比对差异，适合月度数据这类结构相同、内容有变动的表。配方只负责把两份数据取出来。",
+    "usage": "两次读取：`gws sheets +read --spreadsheet SHEET_ID --range \"January!A1:D\"` 与 `gws sheets +read --spreadsheet SHEET_ID --range \"February!A1:D\"`，再比较两份输出。",
+    "notes": "需先加载 `gws-sheets`；差异判定、字段对齐和容差都得自己定，命令本身不会告诉你哪格变了。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/recipe-create-gmail-filter": {
+    "name_zh": "建 Gmail 过滤规则",
+    "intro": "一条可照做的操作配方，四步建成 Gmail 过滤器：先列出已有标签，再新建标签，然后用 criteria 和 action 建过滤器，把来自指定发件人的邮件自动打标并移出收件箱，最后列一遍过滤器确认生效。命令以 `gws gmail users settings filters create` 为主，参数走 `--params` 与 `--json`。",
+    "usage": "第一步 `gws gmail users labels list --params '{\"userId\": \"me\"}' --format table` 看现有标签，再 `gws gmail users labels create` 建标签，建完 filter 用 `filters list` 复核；把 `LABEL_ID` 换成真实返回的 id。",
+    "notes": "正文要求先加载 `gws-gmail` 技能；过滤器一建好就会改动收件箱投递，改条件前先确认覆盖范围。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/recipe-find-free-time": {
+    "name_zh": "找多人共同空闲",
+    "intro": "用 Google Calendar 的 freebusy 查询一次性问多个人的忙闲，拿到重叠的空闲窗口后直接在窗口里建会议。配方只有三步：查忙闲、人工挑重叠段、插入事件。",
+    "usage": "查忙闲用 `gws calendar freebusy query --json '{\"timeMin\": \"2024-03-18T08:00:00Z\", \"timeMax\": \"2024-03-18T18:00:00Z\", \"items\": [{\"id\": \"user1@company.com\"}, {\"id\": \"user2@company.com\"}]}'`，再对挑出的窗口跑 `gws calendar +insert` 建会。",
+    "notes": "需先加载 `gws-calendar`；时区要显式写清，示例里 Z 结尾的 UTC 和本地时间混用最容易排错。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/recipe-organize-drive-folder": {
+    "name_zh": "整理 Drive 文件夹",
+    "intro": "在 Drive 里建目录结构并把文件搬到位的四步配方：建项目文件夹、在父目录下建子文件夹、用 addParents 与 removeParents 移动已有文件、最后按父目录条件列出结构核对。适合季度项目归档这类一次性整理。",
+    "usage": "建文件夹要显式指定 `\"mimeType\": \"application/vnd.google-apps.folder\"`；移动用 `gws drive files update --params '{\"fileId\": \"FILE_ID\", \"addParents\": \"FOLDER_ID\", \"removeParents\": \"OLD_PARENT_ID\"}'`，最后 `gws drive files list` 复核。",
+    "notes": "需先加载 `gws-drive`；移动会改变别人共享链接的可达性，批量搬之前先确认目录归属和所有者。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/recipe-plan-weekly-schedule": {
+    "name_zh": "规划每周日历",
+    "intro": "一条自查一周日程的配方：先看本周议程，再查忙闲找出空档，然后往空档里插入比如深度工作这类时间块，最后再看一遍更新后的安排。",
+    "usage": "按 `gws calendar +agenda` 看本周，再用 `gws calendar freebusy query` 查空档，然后 `gws calendar +insert --summary 'Deep Work Block' --start '2026-01-21T14:00:00' --end '2026-01-21T16:00:00'`，最后再跑一次议程复核。",
+    "notes": "需先加载 `gws-calendar`；插入前确认时区，并检查是否和既有时段冲突。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/recipe-save-email-attachments": {
+    "name_zh": "邮件附件存网盘",
+    "intro": "一条横跨 Gmail 和 Drive 的配方：先按带附件条件搜索邮件，取回消息详情拿到附件 id，下载附件，再用上传命令把文件放进指定 Drive 文件夹。四步都给出可直接替换占位符的命令。",
+    "usage": "搜索用 `gws gmail users messages list --params '{\"userId\": \"me\", \"q\": \"has:attachment from:client@example.com\"}' --format table`，取详情后 `attachments get` 下载，再 `gws drive +upload --file ./attachment.pdf --parent FOLDER_ID`。",
+    "notes": "需先加载 `gws-gmail` 和 `gws-drive`；上传前确认目标文件夹 ID，别把客户附件放进共享目录。",
+    "tier": "auto"
+  },
+  "jimliu/baoyu-skills/baoyu-slide-deck": {
+    "name_zh": "幻灯片图片生成",
+    "intro": "把内容做成成套幻灯片图片，定位是读和分享而不是现场演讲，所以每页自解释、纵向滚动有逻辑。流程是先分析内容、给风格方案等你确认，再出大纲、写每页提示词、逐页出图，最后合并成 PPTX 或 PDF。风格预设 17 套，也可自定义维度。",
+    "usage": "用 `--style`、`--audience`、`--lang` 定风格、受众和输出语言；合并阶段跑 `${BUN_X} {baseDir}/scripts/merge-to-pptx.ts <slide-deck-dir>` 或 `merge-to-pdf.ts`，`${BUN_X}` 优先取 `bun`，否则用 `npx -y bun`。",
+    "notes": "正文要求确认后才开始出图；产物目录里有 `outline.md`、`prompts/`、逐页 PNG 和最终 PPTX 或 PDF。合并脚本需要 bun 或 npx 可用。",
+    "tier": "auto"
+  },
+  "jimliu/baoyu-skills/baoyu-xhs-images": {
+    "name_zh": "小红书图片卡片",
+    "intro": "把长文拆成 1 到 10 张卡通风格图片卡片，面向小红书、微信图文这类平台。三个维度自由组合：12 种视觉风格、8 种信息版式、可选马卡龙或暖色或霓虹配色，另有预设一次定好风格加版式。出图前先给内容分析和推荐方案等你确认，默认不跳过。",
+    "usage": "用 `--style`、`--layout`、`--palette`、`--preset` 定外观，`--ref` 传参考图当系列锚点，`--batch-size` 控并发出图（1 到 8），`--yes` 跳过确认。产物落在 `image-cards/{topic-slug}/`，每张图的提示词先单独存成 `prompts/NN-{type}-{slug}.md`。",
+    "notes": "必须用真实栅格后端出图，正文禁止拿 SVG 或 HTML 画布顶替，也禁止在已生成的位图上刷字改文字；没有可用后端时要停下来问你。",
+    "tier": "auto"
+  },
+  "sanity-io/agent-toolkit/sanity-best-practices": {
+    "name_zh": "Sanity 开发规范",
+    "intro": "由 Sanity 官方维护的开发规范合集，按主题分文件：schema 设计与校验、GROQ 查询与性能、TypeGen、Visual Editing、图片与 Portable Text、Studio 结构、多语言、内容迁移、Sanity Functions 与 webhooks、Blueprints，以及 Next.js、Nuxt、Astro、Remix、SvelteKit、Hydrogen 等框架的接入写法。每条都配对照代码，正面写法和踩坑写法并列。",
+    "usage": "先挑最贴近任务的一份框架或主题指南读，跨了关心点再补第二份。例如前端接入看 `references/nextjs.md`，查询与类型安全看 `references/groq.md`，内容建模看 `references/schema.md`。",
+    "notes": "正文明确：普通文档的 `_id` 交给 Sanity 生成，别自造 UUID；面向用户的视频不要塞进 `file` 资产，走 Media Library 或专门视频服务。",
+    "tier": "auto"
+  }
+}
