@@ -35,8 +35,8 @@ const USAGE = `usage:
   node tools/zh_generate.mjs apply --input <in.json> --written <out.json> --part <part-N.json> [--catalog <catalog.json>] [--bodies <dir>] [--require-all]`;
 
 const PLAN_FLAGS = { catalog: null, bodies: null, from: '0', count: null, batch: null, out: 'tmp/zh-batches', parts: 'data/zh' };
-const CHECK_FLAGS = { input: null, written: null, catalog: null, bodies: null, 'require-all': false };
-const APPLY_FLAGS = { input: null, written: null, part: null, catalog: null, bodies: null, 'require-all': false };
+const CHECK_FLAGS = { input: null, written: null, catalog: null, bodies: null, from: '0', count: null, 'require-all': false };
+const APPLY_FLAGS = { input: null, written: null, part: null, catalog: null, bodies: null, from: '0', count: null, 'require-all': false };
 
 function parseFlags(argv, spec) {
   const out = { ...spec };
@@ -178,8 +178,11 @@ export async function plan(argv) {
 }
 
 // 回填文件 → 校验结果（check 与 apply 共用）
-export async function checkWritten({ input, written, context = {}, requireAll = false }) {
-  const wanted = new Set((input.skills || []).map((s) => s.id));
+export async function checkWritten({ input, written, context = {}, requireAll = false, from = 0, count = null }) {
+  const allIds = (input.skills || []).map((s) => s.id);
+  const start = Math.max(0, Number(from) || 0);
+  const sliced = count == null || count === '' ? allIds.slice(start) : allIds.slice(start, start + Math.max(0, Number(count) || 0));
+  const wanted = new Set(sliced);
   const errors = [];
   const normalized = {};
   const tierCounts = { hand: 0, auto: 0 };
@@ -253,7 +256,14 @@ export async function check(argv) {
   const context = await bodyContext(opts, input);
   reportContext(context.bodiesDir);
 
-  const result = await checkWritten({ input, written, context, requireAll: Boolean(opts['require-all']) });
+  const result = await checkWritten({
+    input,
+    written,
+    context,
+    requireAll: Boolean(opts['require-all']),
+    from: opts.from,
+    count: opts.count,
+  });
   if (!result.ok) {
     console.error(`${result.errors.length} 个问题：`);
     for (const line of result.errors) console.error('  ' + line);
@@ -285,7 +295,14 @@ export async function apply(argv) {
   const context = await bodyContext(opts, input);
   reportContext(context.bodiesDir);
 
-  const result = await checkWritten({ input, written, context, requireAll: Boolean(opts['require-all']) });
+  const result = await checkWritten({
+    input,
+    written,
+    context,
+    requireAll: Boolean(opts['require-all']),
+    from: opts.from,
+    count: opts.count,
+  });
   if (!result.ok) {
     console.error(`${result.errors.length} 个问题，未写 ${opts.part}：`);
     for (const line of result.errors) console.error('  ' + line);
