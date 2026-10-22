@@ -11,6 +11,7 @@
 
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -69,6 +70,26 @@ async function translatedIds({ zhPath, partsDir }) {
 }
 
 const totalInstalls = (skill) => (Number.isFinite(skill?.installs_merged) ? skill.installs_merged : skill?.installs ?? 0);
+const sha256Hex = (text) => createHash('sha256').update(text).digest('hex');
+
+// 兜底来源：skills.sh 的公开下载接口（60 次/小时/IP）。它给的是同一份 SKILL.md，
+// 但必须用目录里的 sha256 验过才收 —— 缓存是内容寻址的，塞错字节比没有更糟。
+async function fetchFromSkillsSh(skill) {
+  const source = String(skill?.source || '');
+  if (!/^[^/]+\/[^/]+$/.test(source)) return null;
+  try {
+    const res = await fetch(`https://skills.sh/api/download/${source}/${skill.slug}`);
+    if (!res.ok) return null;
+    const payload = await res.json().catch(() => null);
+    const files = Array.isArray(payload?.files) ? payload.files : [];
+    const md = files.find((f) => /(^|\/)SKILL\.md$/i.test(String(f?.path || ''))) || files[0];
+    const contents = typeof md?.contents === 'string' ? md.contents : '';
+    if (!contents) return null;
+    return sha256Hex(contents) === skill.body.sha256 ? contents : null;
+  } catch {
+    return null;
+  }
+}
 
 export async function run(argv = process.argv.slice(2)) {
   const args = parseFlags(argv);
@@ -83,7 +104,7 @@ export async function run(argv = process.argv.slice(2)) {
     .sort((a, b) => totalInstalls(b) - totalInstalls(a))
     .slice(args.from, args.from + args.count);
 
-  const result = { total: queue.length, cached: 0, skipped: 0, failed: [], bytes: 0 };
+  const result = { total: queue.length, cached: 0, skipped: 0, viaSkills: 0, failed: [], bytes: 0 };
   let cursor = 0;
   const worker = async () => {
     while (cursor < queue.length) {
@@ -95,12 +116,19 @@ export async function run(argv = process.argv.slice(2)) {
         continue;
       }
       try {
+        let text = null;
         const res = await fetch(`${base}/${sha}.md`);
-        if (!res.ok) {
-          result.failed.push({ id: skill.id, sha, status: res.status });
-          continue;
+        if (res.ok) {
+          text = await res.text();
+        } else {
+          // 主存储每轮只补 120 份，缺的那些用 skills.sh 下载接口补；字节对不上 sha256 就不收。
+          text = await fetchFromSkillsSh(skill);
+          if (text == null) {
+            result.failed.push({ id: skill.id, sha, status: res.status });
+            continue;
+          }
+          result.viaSkills += 1;
         }
-        const text = await res.text();
         await writeFile(path, text, 'utf8');
         result.cached += 1;
         result.bytes += Buffer.byteLength(text);
@@ -112,8 +140,8 @@ export async function run(argv = process.argv.slice(2)) {
   await Promise.all(Array.from({ length: Math.min(args.concurrency, Math.max(queue.length, 1)) }, worker));
 
   console.log(
-    `bodies: ${result.cached} fetched, ${result.skipped} already cached, ${result.failed.length} failed ` +
-      `(${result.total} in range, ${(result.bytes / 1024).toFixed(1)}KB) → ${args.out}`,
+    `bodies: ${result.cached} fetched (${result.viaSkills} via skills.sh), ${result.skipped} already cached, ` +
+      `${result.failed.length} failed (${result.total} in range, ${(result.bytes / 1024).toFixed(1)}KB) → ${args.out}`,
   );
   for (const item of result.failed.slice(0, 10)) console.log(`  failed ${item.id} ${item.sha.slice(0, 12)} ${item.status ?? item.error}`);
   if (!queue.length) console.log('  范围内没有需要抓的条目（都已有中文卡，或 count 为 0）');
