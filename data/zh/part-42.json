@@ -1,0 +1,177 @@
+{
+  "affaan-m/ecc/agentic-engineering": {
+    "name_zh": "智能体工程",
+    "intro": "把工程任务交给 agent 端到端执行时的做法：先定评测标准再动手，把任务拆成可验收的小步，按成本和难度给每步选模型，避免整条链路都用最贵的档位跑到底。",
+    "usage": "计划一件要交给 agent 从头做完的任务时用它：先写验收标准，再拆步骤，标出哪步需要强模型、哪步普通模型就够；中途按评测结果决定继续还是回退，而不是凭感觉说做完了。",
+    "notes": "本地没抓到正文，具体命令以正文为准。",
+    "tier": "auto"
+  },
+  "affaan-m/ecc/clickhouse-io": {
+    "name_zh": "ClickHouse",
+    "intro": "面向 ClickHouse 的建表与查询写法：MergeTree 系列引擎怎么选、分区与排序键怎么排、聚合与窗口函数怎么写、物化视图与批量写入怎么用，以及慢查询怎么从 system.query_log 里查。",
+    "usage": "写建表语句时先定引擎与分区：明细表用 `ENGINE = MergeTree()`，按 `PARTITION BY toYYYYMM(date)` 切月；写入走 `@clickhouse/client` 的批量 insert，查慢查询看 `system.query_log`。",
+    "notes": "正文还讲了 ReplacingMergeTree、AggregatingMergeTree、投影与物化视图，并列出要避开的写法：SELECT *、FINAL、过多 JOIN、小批频繁写入。",
+    "tier": "auto"
+  },
+  "affaan-m/ecc/configure-ecc": {
+    "name_zh": "ECC 配置向导",
+    "intro": "在当前 harness 里跑 ECC 的对话式安装与重配：先盘点现状，再收两个选择（Claude Code 的安装范围与 hook 档位），预览后一次确认再应用，最后校验并显示欢迎信息。按 harness 分流：Claude Code 走完整向导，Codex 用原生插件流程，Kimi 装到 ./.kimi-code。",
+    "usage": "重配已有安装时先跑 `claude plugin list --json` 看当前范围与启用状态，再按所选范围与 hook 档位预览；同一命令去掉 `--dry-run` 即应用，最后再列一次，确认只有一个启用条目。",
+    "notes": "这是安装后的重配路径，拦不住也替代不了 provider 自带的首装界面；范围不清时先说明证据再问，别猜着删状态。",
+    "tier": "auto"
+  },
+  "affaan-m/ecc/kotlin-coroutines-flows": {
+    "name_zh": "协程与 Flow",
+    "intro": "Android 与 KMP 项目里写协程和 Flow 的常见做法：结构化并发的作用域怎么排、并行的 async 怎么发、异常怎么用 supervisorScope 隔开、UI 状态怎么用 StateFlow 收敛、测试怎么写。",
+    "usage": "写异步取数时用 `coroutineScope` 配 `async` 并行，别把任务丢进 `GlobalScope`；把仓库 Flow 收成 UI 状态用 `stateIn` 加 `WhileSubscribed(5_000)`；部分任务失败不该拖垮其他时换 `supervisorScope`。",
+    "notes": "正文还写了 debounce、retry、取消与测试；给出的作用域层级是从 ViewModel 往下排的，子任务不越级。",
+    "tier": "auto"
+  },
+  "affaan-m/ecc/laravel-tdd": {
+    "name_zh": "Laravel 测试",
+    "intro": "Laravel 里写测试的做法：PHPUnit 与 Pest 怎么选、模型工厂造数据、HTTP 测试怎么发请求并断言、Sanctum 认证怎么测、外部依赖怎么 mock、覆盖率怎么看。",
+    "usage": "给 Laravel 功能写测试、或按测试先行改业务代码时用它；先造工厂数据再打 HTTP 请求断言响应与库内状态；认证分支单独覆盖，外部服务用 mock 隔开。",
+    "notes": "本地没抓到正文，具体命令以正文为准。",
+    "tier": "auto"
+  },
+  "affaan-m/ecc/rust-patterns": {
+    "name_zh": "Rust 写法",
+    "intro": "写或审 Rust 代码时的常用做法：所有权与借用怎么排、错误类型怎么定义与传播、trait 怎么抽象、并发原语怎么选，以及怎么避开常见的生命周期坑。",
+    "usage": "拿到一段要改的 Rust 代码，先看所有权和错误处理是否符合习惯用法；不确定该用 trait 对象还是泛型、该用哪种锁时翻它；审查时把借用与生命周期问题单独过一遍。",
+    "notes": "本地没抓到正文，具体命令以正文为准。",
+    "tier": "auto"
+  },
+  "bmad-code-org/bmad-method/bmad-deep-recon": {
+    "name_zh": "深度调研",
+    "intro": "针对某个主题或当前仓库做可据以决策的调研：拆问题、找来源、处理已有报告，产出能支撑选择的结论；不适合一句代码问题就能答的场合。",
+    "usage": "用户说要做深度调研、市场或竞品调研、文献综述、在几个方案里选一个、或想弄清仓库里某块为什么这么写时用它；先定要回答的问题和判据，再收材料。",
+    "notes": "本地没抓到正文，具体命令以正文为准。",
+    "tier": "auto"
+  },
+  "bmad-code-org/bmad-method/bmad-forge-idea": {
+    "name_zh": "打磨想法",
+    "intro": "自己还拿不准的点子，用一问一答把半成形的想法问清楚：换不同角色挑薄弱处，直到能决定动手还是放弃；可选写一份短简报，交给后续规划技能接着用。",
+    "usage": "用户说想打磨想法、压力测试思路、或要把一个模糊点子想硬时用它；先讲清想法和约束，再逐个角色挨问；答不上的问题就是还没想清的地方，别急着往下做。",
+    "notes": "本地没抓到正文，具体命令以正文为准。",
+    "tier": "auto"
+  },
+  "bmad-code-org/bmad-method/bmad-prfaq": {
+    "name_zh": "PRFAQ 推演",
+    "intro": "用亚马逊的 Working Backwards 方法检验产品想法：先为成品写一篇新闻稿，再回答客户与利益相关方的尖锐问题，最后收成一份完整的 PRFAQ 文档。",
+    "usage": "用户说要做 PRFAQ、从结果倒推、或跑一遍 PRFAQ 挑战时用它；先写新闻稿把用户和收益讲清楚，再逐条回硬问题，答不上来的地方就是概念还没立住。",
+    "notes": "本地没抓到正文，具体命令以正文为准。",
+    "tier": "auto"
+  },
+  "caffeinelabs/skills/connector-twilio": {
+    "name_zh": "Twilio 短信",
+    "intro": "Caffeine canister 里发短信或彩信的唯一支持路径：用 twilio-client 这个 mops 包走 Twilio REST API，凭证放 canister 的 HTTP Basic；自己拼 ic.http_request 去打 api.twilio.com 属于禁止做法。",
+    "usage": "只要提到短信、彩信、电话号码、Messaging Service 或 A2P 10DLC，先读它再写代码；动手前要跟用户说清两件事：每条消息都计费，美国生产号码还要 A2P 10DLC 注册且要等数周。",
+    "notes": "正文标注为实验状态、未对真实 Twilio 验证；本地没抓到正文，具体命令以正文为准。",
+    "tier": "auto"
+  },
+  "diffusionstudio/lottie/text-to-lottie": {
+    "name_zh": "Lottie 动画",
+    "intro": "给本地 Skia Skottie 播放器写、改、修 Lottie 与 Bodymovin JSON 动画：文字与 logo 动效、加载与图标、状态反馈、UI 微交互、图表与数字动画、转场与特效。",
+    "usage": "要做一段能在 Skottie 里播的 JSON 动画时用它；先定动画类型和时长，再改关键帧与缓动；播放不对时按 Skottie 的调试路径查，而不是猜 JSON 字段。",
+    "notes": "本地没抓到正文，具体命令以正文为准。",
+    "tier": "auto"
+  },
+  "gargantuax/openskills/nanobanana": {
+    "name_zh": "Nano 香蕉生图",
+    "intro": "用 Gemini 原生接口做图片生成与编辑，覆盖 Nano Banana、Nano Banana 2 与 Nano Banana Pro 三档；支持文生图、图生图、反复使用本地参考图、批量出图，也能把请求指向自建的 Gemini 兼容网关。",
+    "usage": "要出一张新图、改一张已有图、批量出一批图，或要把请求发到自建 Gemini 兼容网关时用它；动手前先说明要哪一档模型、要几张、参考图在哪，再决定是否先看请求预览。",
+    "notes": "本地没抓到正文，具体命令以正文为准。描述里写明支持 dry-run 请求预览与自定义 base URL，实际参数与调用方式要查正文。",
+    "tier": "auto"
+  },
+  "google-labs-code/stitch-skills/stitch::generate-design": {
+    "name_zh": "Stitch 出界面",
+    "intro": "用 Stitch MCP 从文字或图片生成新界面，也能按提示词和设计系统 token 改已有界面、生成多个变体；附带提示词增强、设计映射、专业 UI/UX 术语与主题系统。",
+    "usage": "要出一版界面稿、或按现有设计系统改页面时用它：给清文字需求或参考图，指明沿用哪套设计 token；一次要多个方向就让它出变体再挑；改稿时把要保留和要改的部分分开说。",
+    "notes": "本地没抓到正文，具体命令以正文为准；前提是接好 Stitch MCP。",
+    "tier": "auto"
+  },
+  "othmanadi/planning-with-files/pi-planning-with-files": {
+    "name_zh": "文件式计划",
+    "intro": "给多步 agent 任务做磁盘上的计划：task_plan.md 记步骤、findings.md 记发现、progress.md 记进度，靠生命周期钩子把相关上下文注入；中断后能从项目里的计划文件恢复。",
+    "usage": "任务预计要 5 次以上工具调用、或中途可能断掉时用它；先落计划文件再开工，每步把结论写回 findings 和 progress；恢复时只读项目内的计划文件，别去翻别处会话记录。",
+    "notes": "本地没抓到正文，具体命令以正文为准；描述里写明它不上传网络，session-catchup.py 默认只输出汇总计数。",
+    "tier": "auto"
+  },
+  "pexoai/pexo-skills/videoagent-video-studio": {
+    "name_zh": "AI 短视频",
+    "intro": "从文字或图片生成短视频：文生视频、图生视频、按参考图生成；不用自己配 API key。适合做一段短片、把一张图动起来、或按描述出一段视频素材。",
+    "usage": "用户要生成视频片段、让静态图动起来、或按描述出视频时用它；先定画面内容、时长和画幅，再决定用文生还是图生；结果不满意就改描述重出，不要拿它当剪辑工具。",
+    "notes": "本地没抓到正文，具体命令以正文为准。",
+    "tier": "auto"
+  },
+  "price-win/pricewin-skills-hub/pricewin-booking-assistant": {
+    "name_zh": "订房助手",
+    "intro": "从推荐房型到真正下单走完：在 OpenTravel 直连房源上用支付链接（银行二维码、卡或 PayPal）预订，查支付状态、重发过期链接、取消订单；只有 OTA 的酒店则回落到 Booking.com、Agoda、Traveloka 链接。",
+    "usage": "用户要订房、要房型推荐、要付款、查确认码或取消时用它；下单前把日期、人数、房型与取消条款念一遍确认；支付链接过期就重发，别自己拼链接。",
+    "notes": "本地没抓到正文，具体命令以正文为准；同系列还有酒店搜索与比价。",
+    "tier": "auto"
+  },
+  "price-win/pricewin-skills-hub/pricewin-flight-search": {
+    "name_zh": "机票比价",
+    "intro": "查某条航线某天的实时机票价，来源是 Agoda、Trip.com、Traveloka 三家；单程或往返都能查，结果含航司、起降时间、经停数、时长和订票直达链接。",
+    "usage": "前提是本机已注册 `pricewin` MCP 服务，没装先跑 `bash install.sh` 再重启 agent；机场只认三字 IATA 码，没给就一问一答确认；`search_flights_live` 立刻返回 sessionId，再用 `poll_flight_results` 取合并后的最低价。",
+    "notes": "只做比价，不能下单付款；价格是成人数总价、币种看 currency 字段；往返是两段独立单程拼的，不是联程报价。",
+    "tier": "auto"
+  },
+  "price-win/pricewin-skills-hub/pricewin-hotel-search": {
+    "name_zh": "酒店搜索",
+    "intro": "按日期在 Agoda、Booking.com、Traveloka、OpenTravel 上实时搜酒店，给房型与价格；适合出行前按日期找住处、比较几个平台的可订房源。",
+    "usage": "用户给出城市和入住日期、想看有哪些酒店可订时用它；先确认日期、人数和区域偏好，再按价格或位置筛；只搜不订，下单走订房助手。",
+    "notes": "本地没抓到正文，具体命令以正文为准；同系列另有比价与订房助手。",
+    "tier": "auto"
+  },
+  "price-win/pricewin-skills-hub/pricewin-price-comparison": {
+    "name_zh": "酒店比价",
+    "intro": "按具体入住和退房日期，比较 Booking.com、Agoda、Traveloka、OpenTravel 上同一家酒店的房价：哪家更便宜、每种房型多少钱、能不能免费取消。",
+    "usage": "用户点名某家酒店、问哪家订更便宜、或给出日期要最低价时用它；先把酒店名和日期对齐，再按房型逐条比价，免费取消条款要跟价格一起说。",
+    "notes": "本地没抓到正文，具体命令以正文为准；同系列还有酒店搜索与订房助手，分工不同。",
+    "tier": "auto"
+  },
+  "rohitg00/agentmemory/write-agentmemory-skill": {
+    "name_zh": "技能写法规范",
+    "intro": "agentmemory 仓库里写技能的统一格式：目录里放 SKILL.md，可选的 REFERENCE.md 与 EXAMPLES.md；正文顺序固定，依次是快速上手、原则、流程、反模式、检查清单、相关链接；正文控制在 100 行内。",
+    "usage": "新增或改技能时照格式来：description 写两句话，第二句以 Use when 起头列触发场景；正文压到 100 行内；生成类事实别手写，改完源文件跑 `npm run skills:gen`，CI 用 `npm run skills:check` 查漂移。",
+    "notes": "这是写技能本身的规范，不是某个具体技能；风格要求写明不写竞品名、不用 emoji、不用长破折号。",
+    "tier": "auto"
+  },
+  "wshobson/agents/employment-contract-templates": {
+    "name_zh": "雇佣合同模板",
+    "intro": "起草劳动合同、录用通知与人事政策文档，按常见法律实践组织条款：职位与职责、薪酬与支付、工时与休假、保密与知识产权、终止与争议解决。",
+    "usage": "要出新员工的合同或录用通知、或把散落的人事文件统一成模板时用它；先定用工形式与适用法域，再套条款并逐条核对；模板只是起点，正式签署前要过当地法律顾问。",
+    "notes": "本地没抓到正文，具体命令以正文为准；条款按通用实践写，不构成法律意见。",
+    "tier": "auto"
+  },
+  "wshobson/agents/hybrid-cloud-networking": {
+    "name_zh": "混合云组网",
+    "intro": "把自建机房和公有云打通的做法：VPN 与专线怎么选，AWS、Azure、GCP、OCI 各自的连接形式与带宽上限，Hub-and-Spoke 与多地域、多云拓扑怎么排，BGP 与双隧道高可用怎么配。",
+    "usage": "要连机房到云时先按带宽与延迟选型：临时或低带宽上 Site-to-Site VPN，要稳定低延迟上 Direct Connect 或 ExpressRoute；排障用 `aws ec2 describe-vpn-connections`，Azure 侧看 `az network vpn-connection show`，OCI 侧看 `oci network ip-sec-connection list`。",
+    "notes": "正文给了 Terraform 片段和 BGP AS 号样例，专线细节引到 references/direct-connect.md。",
+    "tier": "auto"
+  },
+  "wshobson/agents/pci-compliance": {
+    "name_zh": "PCI 合规",
+    "intro": "处理支付卡数据时落实 PCI DSS 要求：卡号怎么存与不存、传输加密、访问控制、日志与网络分段，以及自评问卷该覆盖哪些控制项。",
+    "usage": "项目要接支付、存卡信息、或要过 PCI 合规评审时用它；先划清卡数据的边界与分段范围，再逐条对控制项；拿不准是否算存储卡数据时按更严的口径处理。",
+    "notes": "本地没抓到正文，具体命令以正文为准。",
+    "tier": "auto"
+  },
+  "wshobson/agents/projection-patterns": {
+    "name_zh": "读模型投影",
+    "intro": "从事件流构建读模型与投影：CQRS 读侧怎么切、物化视图怎么建与重建、事件重放怎么保证幂等、读侧查询性能怎么调。适合事件溯源系统里读侧跟不上或查询太慢的情况。",
+    "usage": "要给事件溯源系统加读侧、或现有投影重建慢、查询慢时用它；先定投影的粒度与幂等键，再考虑增量更新还是全量重建；改投影后按事件重放验证结果一致。",
+    "notes": "本地没抓到正文，具体命令以正文为准。",
+    "tier": "auto"
+  },
+  "wshobson/agents/turborepo-caching": {
+    "name_zh": "Turbo 缓存",
+    "intro": "给 monorepo 配 Turborepo 的本地与远程缓存：任务管道怎么排、命中缓存要满足哪些输入、远程缓存怎么接、CI 里怎么少跑重复构建。",
+    "usage": "接 monorepo 构建时先划清任务依赖再开缓存；查某个包为什么没命中，就看它的 inputs 和依赖任务的输出；要跨机器复用就配远程缓存，别只靠本地目录。",
+    "notes": "本地没抓到正文，具体命令以正文为准。",
+    "tier": "auto"
+  }
+}

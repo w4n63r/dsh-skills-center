@@ -1,0 +1,177 @@
+{
+  "199-biotechnologies/claude-deep-research-skill/deep-research": {
+    "name_zh": "深度调研",
+    "intro": "多来源调研流程：先定范围，再检索、交叉验证、综合成报告，每条事实结论都带引用，证据落在 evidence.jsonl 里以便复查。按 quick、standard、deep、ultradeep 四档强度跑，档位越高阶段越多、越慢。",
+    "usage": "要写带引用的调研报告、做多方案对比或梳理某个领域现状时用；一两次检索就能答的问题、调试类问题不该用它。",
+    "notes": "证据存进 evidence.jsonl，报告里的编号引用可回溯到原句和位置。阶段按档位裁剪，quick 三阶段、standard 六阶段、deep 八阶段。与 affaan-m/ecc、imbad0202/academic-research-skills 的同名版本并存，内容不同。",
+    "tier": "auto"
+  },
+  "affaan-m/ecc/ai-first-engineering": {
+    "name_zh": "AI 优先工程",
+    "intro": "给大部分实现由 AI 生成的团队定工程规则：谁负责哪块、评审卡在哪几道、流程怎么排。面向的是代码库主要由 agent 写出来的情况，不是偶尔用一下补全。",
+    "usage": "团队里 AI 写的代码占比已经很高，要定评审关卡、归属和流程时用；想查出流程里哪些地方还按人写代码的假设设计时也用。",
+    "notes": "本地没抓到正文，具体命令以正文为准。",
+    "tier": "auto"
+  },
+  "affaan-m/ecc/architecture-decision-records": {
+    "name_zh": "决策记录",
+    "intro": "把架构决策写成编号的 ADR 文件放进 docs/adr/：背景、备选方案、后果，外加一份索引 README。决策随写随记，不用等事后补文档，也不会只留在聊天记录里。",
+    "usage": "在框架、数据库或接口设计上做了取舍，或有人问当初为什么这么选时用；记录按编号写进 `docs/adr/`，索引在 `docs/adr/README.md`，回头对照历史决策也读它。",
+    "notes": "走 Michael Nygard 的轻量格式，状态分 proposed、accepted、deprecated、superseded。首次建目录和模板前会先要确认，不擅自建文件。与 wshobson/agents 的同名版本并存，内容不同：那条按通用最佳实践写，这条落到 docs/adr/ 下的编号文件与索引。",
+    "tier": "auto"
+  },
+  "affaan-m/ecc/bun-runtime": {
+    "name_zh": "Bun 运行时",
+    "intro": "把 Bun 同时当运行时、包管理器、打包器和测试运行器用时的做法，包括什么时候该选它而不是 Node、迁移时要改什么，以及部署到 Vercel 的支持情况。",
+    "usage": "要给新项目选运行时，或评估把现有 Node 项目迁过来值不值时用；在 Vercel 上跑 Bun 之前先看它对 Bun 的支持边界。",
+    "notes": "本地没抓到正文，具体命令以正文为准。",
+    "tier": "auto"
+  },
+  "affaan-m/ecc/context-budget": {
+    "name_zh": "上下文预算",
+    "intro": "查上下文用量：实时容量优先读 Codex 或 Claude Code 自带的计量，不去扫文件；只有在明确要求时才做一次有边界的静态组件审计，统计已装的东西占了多少上下文。",
+    "usage": "想知道还剩多少上下文、或已装组件吃掉多少额度时用；需要一份静态开销清单时再显式要求它审计，平时不该主动扫。",
+    "notes": "本地没抓到正文，具体命令以正文为准。默认走原生计量，扫文件是例外路径。",
+    "tier": "auto"
+  },
+  "affaan-m/ecc/investor-materials": {
+    "name_zh": "融资材料",
+    "intro": "写和改融资相关文档：路演稿、一页纸、投资人备忘录、加速器申请、财务模型和资金用途表。重点是几份材料之间口径一致，数字、里程碑和时间线不能各写一套。",
+    "usage": "要出融资材料、补资金用途表或里程碑计划时用；同一轮融资里已有几份文档，需要检查彼此数字和说法是否打架时也用。",
+    "notes": "本地没抓到正文，具体命令以正文为准。",
+    "tier": "auto"
+  },
+  "affaan-m/ecc/swiftui-patterns": {
+    "name_zh": "SwiftUI 模式",
+    "intro": "SwiftUI 的架构与写法：用 @Observable 管状态、拆视图组合、做导航、调渲染性能，以及 iOS 和 macOS 上较新的界面惯例。适合新建视图，也适合评审现有视图。",
+    "usage": "要决定状态放哪、视图怎么拆、导航怎么组织，或怀疑渲染有性能问题时用；动手前先按技能里的模式对齐，比事后返工省事。",
+    "notes": "本地没抓到正文，具体命令以正文为准。",
+    "tier": "auto"
+  },
+  "bmad-code-org/bmad-method/bmad-spec": {
+    "name_zh": "规格收敛",
+    "intro": "把散乱的输入压成一份短规格：一个内核文件加若干支撑文件，供下游技能接着做；也能更新和校验已有规格。输入可以是一句话想法、需求简报、PRD、访谈记录或混杂笔记。",
+    "usage": "手上只有想法、会议记录或半成品 PRD，想先固定成一份能往下走的短规格时用；已有规格要改，或要查它是否自相矛盾时也用。",
+    "notes": "本地没抓到正文，具体命令以正文为准。下游按内核文件加支撑文件的结构接手，所以规格只留结论和约束。",
+    "tier": "auto"
+  },
+  "coderabbitai/skills/autofix": {
+    "name_zh": "评审自动修",
+    "intro": "把 GitHub 上 CodeRabbit 的 PR 评审线程逐条读出来，再按条改代码，每条改动都要单独确认才落地。明确要求不直接执行评审意见里自带的提示词，避免评审文本被当成指令。",
+    "usage": "PR 上堆了一批 CodeRabbit 评审意见要处理时用；想先看清每条再决定改不改，而不是让它一次全改完时也用。",
+    "notes": "本地没抓到正文，具体命令以正文为准。逐条确认是这条的核心约束，不宜把多条改动合成一次批准。",
+    "tier": "auto"
+  },
+  "composiohq/awesome-claude-skills/tailored-resume-generator": {
+    "name_zh": "简历定向改写",
+    "intro": "读岗位描述，把简历往这个岗位上调：挑出对得上的经历、技能和成果放到更显眼的位置，弱化与岗位无关的内容，让过筛和拿面试的机会更大。",
+    "usage": "针对某个岗位投递、手上是通用简历时用；同一份简历要投几个方向、需要分别调重点时也可逐份改。",
+    "notes": "本地没抓到正文，具体命令以正文为准。",
+    "tier": "auto"
+  },
+  "earthtojake/text-to-cad/srdf": {
+    "name_zh": "SRDF 编写",
+    "intro": "MoveIt2 的 SRDF 编写与校验：规划组、虚拟关节、被动关节、末端执行器、组状态、禁用碰撞对，以及和 URDF 配对的规划语义。改完可以交给 review 流程看。",
+    "usage": "新建或修改 .srdf、加规划组、调末端执行器或处理碰撞对报错时用；机器人结构本身的问题走 URDF 那条，仿真描述走 SDF 那条。",
+    "notes": "本地没抓到正文，具体命令以正文为准。",
+    "tier": "auto"
+  },
+  "github/awesome-copilot/create-architectural-decision-record": {
+    "name_zh": "ADR 撰写",
+    "intro": "为一项架构决策生成 ADR 文档，把背景、决策内容、备选方案和后果写成固定结构，方便人和 AI 之后查证。目标是把决策记录留下来可检索，而不是散在讨论里。",
+    "usage": "要为一处架构选择留正式记录、需要写清备选方案与取舍时用；已有 ADR 目录但要补一条同格式文档时也用。",
+    "notes": "本地没抓到正文，具体命令以正文为准。",
+    "tier": "auto"
+  },
+  "google-gemini/gemini-skills/gemini-live-api-dev": {
+    "name_zh": "实时流接口",
+    "intro": "用 Gemini Live API 做实时双向流：音频、视频、文本走 WebSocket 推流，含人声检测、后台推理、异步函数调用、会话管理、临时令牌、实时转写和实时翻译；也讲旧版 Live 模型迁到 3.8 的差异。覆盖 Python 和 JS/TS 两套 SDK。",
+    "usage": "要做语音对话、实时转写或翻译这类双向流功能时用；手上还跑着旧版 Live 模型、需要评估迁到新版要改什么时也用。",
+    "notes": "本地没抓到正文，具体命令以正文为准。新版是 Gemini 3.8 Live，旧版 2.0、2.5、3.1 的接口差异是迁移的主要坑。",
+    "tier": "auto"
+  },
+  "jakubantalik/transitions.dev/transitions-polish": {
+    "name_zh": "动效打磨",
+    "intro": "按 transitions.dev 的运动刻度（时长、位移、缩放、模糊、缓动）校准已有动画，并说明每个刻度在什么场景用：开关不对称、悬停进出差别、错峰偏移、意图延迟。只调已经动起来的部分，不加新转场。",
+    "usage": "动画已经写出来但节奏发飘、太慢太快、错峰和延迟不对时，按刻度对齐；想先审一遍哪里是手写参数再统一时也用。",
+    "notes": "本地没抓到正文，具体命令以正文为准。它是 transitions-dev 的附加技能，管调参不管新建动画。",
+    "tier": "auto"
+  },
+  "lignertys/reddit-research-skills/reddit-research": {
+    "name_zh": "Reddit 调研",
+    "intro": "在 Reddit 上做市场调研、用户调研和产品验证。通过 reddapi.dev 对五万多个子版、两千万帖子和四千万评论做语义检索，按意思找而不是按关键词找，不需要 Reddit 的 OAuth 或应用注册。",
+    "usage": "想知道某个领域的人在 Reddit 上怎么抱怨、痛点在哪，或验证产品方向、找竞品讨论、看某段时间的子版趋势时用；需要先配好 REDDAPI_API_KEY。",
+    "notes": "本地没抓到正文，具体命令以正文为准。它只管调研流程，B2B 线索评分和纯接口文档是同仓另外两条技能。",
+    "tier": "auto"
+  },
+  "lignertys/reddit-research-skills/reddit-search-api": {
+    "name_zh": "reddapi 接口",
+    "intro": "reddapi.dev 的纯接口手册：认证方式、各端点（向量检索、语义检索、趋势、子版查询）、请求参数、响应结构和错误码。只讲接口本身，不套调研流程。",
+    "usage": "写集成或调不通接口，需要确切的字段名、参数名和错误码含义时用；想直接查端点清单而不是读一套调研方法时也用。",
+    "notes": "本地没抓到正文，具体命令以正文为准。同仓的 reddit-research 讲调研流程，这条只当参考手册。",
+    "tier": "auto"
+  },
+  "paramchoudhary/resumeskills/cover-letter-generator": {
+    "name_zh": "求职信生成",
+    "intro": "按简历和岗位描述写一封对得上的求职信：从简历里挑出和岗位最相关的经历和技能，说明为什么适合这个位置，避免套模板式的泛泛表述。",
+    "usage": "投一个具体岗位要附求职信时用；已有草稿想按岗位描述再改一版、把相关性写实一点时也用。",
+    "notes": "本地没抓到正文，具体命令以正文为准。",
+    "tier": "auto"
+  },
+  "paramchoudhary/resumeskills/interview-prep-generator": {
+    "name_zh": "面试准备",
+    "intro": "从简历里反推面试会问什么：按 STAR 结构把经历整理成能讲的段落，配一批练习题和可以主动提的谈资，让回答有具体事例而不是空话。",
+    "usage": "拿到面试通知、要按简历过一遍可能被追问的点时用；准备行为面试、想把项目经历讲成完整故事时也用。",
+    "notes": "本地没抓到正文，具体命令以正文为准。",
+    "tier": "auto"
+  },
+  "paramchoudhary/resumeskills/resume-formatter": {
+    "name_zh": "简历排版",
+    "intro": "把简历排成机器能解析、人也能快速扫的版式：照顾 ATS 的读取规则，去掉表格和多栏这类容易读错的结构，让要点一行一条、层次清楚。只改格式，不改内容。",
+    "usage": "投递前担心简历被系统解析错，或排版花到看不出重点时用；要把已有内容重排成单栏、统一层级时也用。",
+    "notes": "本地没抓到正文，具体命令以正文为准。",
+    "tier": "auto"
+  },
+  "phuryn/pm-skills/pre-mortem": {
+    "name_zh": "上线前预演失败",
+    "intro": "对 PRD 或发布计划做一次事前风险分析：把风险分成真问题、被放大的担忧和没人说出口的顾虑，再标为阻塞发布、随后跟进或只做观察。",
+    "usage": "发布前想先把可能出问题的地方摆出来时用；方案评审里有人隐约不安但说不清，需要把顾虑显式化时也用。",
+    "notes": "本地没抓到正文，具体命令以正文为准。分完类要给每条风险一个处置级别，不然清单只是清单。",
+    "tier": "auto"
+  },
+  "runpod/runpod-plugins-official/runpod-migrate": {
+    "name_zh": "Runpod 迁移",
+    "intro": "把代码从 Runpod 的 GraphQL 接口或 REST v1 迁到 REST v2：先盘清哪些地方用哪版接口，再逐个改调用点，标出会破坏现有行为的改动，最后验证。",
+    "usage": "要迁到 v2、想先知道 v2 会改动什么，或不确定代码现在跑在哪版接口上时用；它只管改代码，管基础设施另走运维类技能。",
+    "notes": "本地没抓到正文，具体命令以正文为准。",
+    "tier": "auto"
+  },
+  "software-mansion/argent/argent-ios-device-interact": {
+    "name_zh": "真机操作",
+    "intro": "通过 argent 操作一台插着线的实体 iPhone：点击、输入、翻页这类操作，以及把界面状态读回来。前提是设备列表里那一项是实体设备、kind 为 device；模拟器不走这条技能。",
+    "usage": "要在真机上复现或验证交互、跑一遍手工流程时用；只在模拟器上测的场合不该用它。线缆、信任或签名有问题时先看同仓的装机配置那条。",
+    "notes": "本地没抓到正文，具体命令以正文为准。",
+    "tier": "auto"
+  },
+  "software-mansion/argent/argent-ios-device-setup": {
+    "name_zh": "真机接线配置",
+    "intro": "把一台插线的实体 iPhone 配好，让 argent 能连上去。覆盖线缆、设备信任和签名几类常见卡点，前提同样是设备列表里是实体设备而不是模拟器。",
+    "usage": "真机连不上、信任提示反复出现或签名不过时按它排查；第一次给新机器接线、要走完配置流程时也用。",
+    "notes": "本地没抓到正文，具体命令以正文为准。只解决连接与签名，点按操作在同仓另一条技能里。",
+    "tier": "auto"
+  },
+  "wshobson/agents/linkerd-patterns": {
+    "name_zh": "Linkerd 模式",
+    "intro": "用 Linkerd 做轻量服务网格的落地做法：安装与配置、流量策略、零信任网络，以及在尽量少占资源的前提下把服务间通信管起来。侧重安全和小开销，不追求大而全的网格功能。",
+    "usage": "要给一组服务加上双向 TLS、重试、超时或流量拆分，又不想引入重型网格时用；已有 Linkerd 但要配流量策略时也用。",
+    "notes": "本地没抓到正文，具体命令以正文为准。",
+    "tier": "auto"
+  },
+  "yuan1z0825/nature-skills/nature-paper-card": {
+    "name_zh": "论文精读卡",
+    "intro": "为一篇科学论文做结构化精读卡：拆方法、把实验到结论之间的证据链摆出来、列局限，再给出可跟进的研究想法。不负责全文双语翻译，也不替代正式同行评审。",
+    "usage": "要判断一篇论文的结论站不站得住、想弄清方法细节和证据够不够时用；组会前做单篇精读，或要把论文方法搬进自己实验时也用。",
+    "notes": "本地没抓到正文，具体命令以正文为准。",
+    "tier": "auto"
+  }
+}
