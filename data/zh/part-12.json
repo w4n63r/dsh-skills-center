@@ -1,0 +1,177 @@
+{
+  "addyosmani/agent-skills/frontend-ui-engineering": {
+    "name_zh": "前端UI",
+    "intro": "写面向用户的前端界面时用这条：组件怎么拆文件、目录怎么摆、响应式布局、交互与状态、无障碍要求都覆盖。目标是让页面看起来像懂设计的工程师做的，而不是一眼就能看出是 AI 生成的样子。",
+    "usage": "做新组件或改现有页面时先看它的组件结构和无障碍清单，交付前按它的检查项再过一遍。",
+    "notes": "正文给了组件目录的摆放结构，实现、测试和故事文件放在同一个目录下。",
+    "tier": "auto"
+  },
+  "addyosmani/agent-skills/performance-optimization": {
+    "name_zh": "性能",
+    "intro": "优化应用性能，前端、后端、查询和数据库都算。核心是先测量再动手，用剖析找到真正的瓶颈，改完再测一遍；没有证据就不要优化，过早优化只会添复杂度。",
+    "usage": "有加载时间或响应时间指标、监控报慢、核心网页指标不达标时再用；先剖析再改，改完复测对比。",
+    "notes": "正文列了核心网页指标的达标线，并明确没有证据时不该动手优化。",
+    "tier": "auto"
+  },
+  "addyosmani/agent-skills/spec-driven-development": {
+    "name_zh": "写规格",
+    "intro": "动手写代码之前先写规格：把要做什么、为什么做、怎么算做完讲清楚，让规格成为人和模型共同的依据。需求含糊、改动跨多个模块，或者估计要花半小时以上时，尤其该先写。",
+    "usage": "新项目或新功能开工前先按它的分阶段流程写规格，需求不清就先补提问；单行修复和改错别字不用走这套。",
+    "notes": "正文给了四个阶段的门槛式流程；一个需求拆成多个可独立验证的能力时先画能力图。",
+    "tier": "auto"
+  },
+  "addyosmani/web-quality-skills/accessibility": {
+    "name_zh": "无障碍",
+    "intro": "按 WCAG 2.2 审并修网页无障碍问题。有可访问的真实页面时先跑 Lighthouse 的无障碍审计，用失败的审计节点定位到具体组件，再看渲染后的无障碍树里名称、角色、状态和标题层级对不对。",
+    "usage": "拿到页面先用审计结果把范围缩小到某个组件或模板，再逐项改；用键盘把受影响的流程走一遍，确认能操作。",
+    "notes": "正文基于 WCAG 2.2 和 Lighthouse 审计整理，目标是人人都能用。",
+    "tier": "auto"
+  },
+  "anthropics/claude-code/frontend-design": {
+    "name_zh": "UI 设计",
+    "intro": "做界面时的视觉方向指导：怎么定调性、怎么挑字体、怎么让配色和排版贴住具体题目，而不是套模板默认样式。给的是取舍思路和判断标准，不是现成的组件代码。",
+    "usage": "新建或重做界面时，先让模型明确产品是什么、给谁看、主要干什么，再按这套思路做字体和配色的选择。",
+    "notes": "正文要求把设计当成给客户做一套别人认不错的视觉识别，题目允许时可以冒一点审美风险。",
+    "tier": "auto"
+  },
+  "cloudflare/skills/sandbox-migrate-to-next": {
+    "name_zh": "迁沙箱",
+    "intro": "把现有的 Cloudflare 沙箱应用从稳定包搬到 @cloudflare/sandbox 的 next 预览线。正文按顺序给出审查规则、替换对照表和迁移步骤，细节不够时再去翻官方迁移文档；不强制做生产切换。",
+    "usage": "先审代码，把命中旧写法的位置列出来，再按替换表逐步改；要不要真切生产由用户定，别自己替他拍板。",
+    "notes": "正文提醒新项目别拿它起步，日常稳定版维护也不归它管。",
+    "tier": "auto"
+  },
+  "cloudflare/skills/sandbox-next": {
+    "name_zh": "沙箱next",
+    "intro": "在 Cloudflare Workers 里用 @cloudflare/sandbox 的 next 标签搭沙箱应用，也就是 SDK 1.0 的预览线。正文先让你确认依赖和容器镜像都在预览线上，再给预览版接口；跑在稳定包上的项目应该走另一条技能。",
+    "usage": "新项目可以按它给的预览版写法起步；如果发现依赖里没有 next 标签，就先停下换稳定版那条。",
+    "notes": "预览版接口会变，正文提醒以已安装的 next 类型定义和预览文档为准。",
+    "tier": "auto"
+  },
+  "cloudflare/skills/sandbox-stable": {
+    "name_zh": "CF沙箱",
+    "intro": "在 Cloudflare Workers 里跑沙箱应用时用这条，对应 @cloudflare/sandbox 这个默认稳定包的写法。它先检查项目里装的到底是不是稳定版依赖和容器镜像，再给出配套的接口和文档入口；新项目和预览版另走别的技能。",
+    "usage": "先确认项目依赖是稳定版、不带 next 之类的预览标签，再照着它给的契约写代码；已经在预览线上的项目换沙箱 next 那条。",
+    "notes": "正文把它定位成一道闸门和检索地图，不是完整手册；强调优先看已安装的类型定义和官方文档。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/pricing-strategy": {
+    "name_zh": "定价",
+    "intro": "定价、套餐设计和变现策略上的决策支持：分层怎么切、免费版和试用怎么给、涨价怎么走、按什么价值指标计费，以及用调研方法摸清用户愿意付多少钱。",
+    "usage": "开始前先读产品营销背景文档，只问任务特有的信息；要做应用内升级页面的转化就另找那条技能。",
+    "notes": "正文面向 SaaS 定价与变现，套餐切分和年付月付这类选择都会一起过一遍。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/product-marketing-context": {
+    "name_zh": "写底稿",
+    "intro": "建一份产品营销背景文档，把定位、目标人群和产品说明一次写清楚，之后做营销任务时不用反复交代。它会在项目里生成一份固定路径的文件，其他营销技能都读这份来了解产品和受众。",
+    "usage": "开新项目、准备用别的营销技能之前先跑它：先看项目里有没有现成的背景文档，旧位置有的话问清要不要搬过来。",
+    "notes": "正文说明文档默认存在项目内的固定路径，旧版本工具用的路径也会被检查到。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/prospecting": {
+    "name_zh": "拓客",
+    "intro": "找和筛潜在客户、把名单建起来：覆盖 B2B SaaS、一般 B2B 和本地小店三类打法，讲怎么用购买信号和意向数据挑账号、怎么做信息补全和邮箱验证，以及接触客户之前先摸清对方情况。",
+    "usage": "先定目标客户画像和名单标准，再按信号筛账号、补全联系方式；邮箱验证过才能进发送流程，也不要去爬领英。",
+    "notes": "正文说明受众在 Sales Navigator 里定义、联系人从有授权的数据源取；发信环节是另一条技能。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/sms": {
+    "name_zh": "短信",
+    "intro": "规划、搭建和优化短信、彩信和 WhatsApp 营销：欢迎流程、弃购提醒、购后跟进、唤回和促销发送，也包括验证码一类的通知短信，以及 TCPA 和运营商那套合规要求。",
+    "usage": "动手前先找产品营销背景文档，按它的口径定发送场景和节奏；合规条款和退订处理要一起想清楚。",
+    "notes": "正文面向直面消费者的品牌、移动应用和 SaaS；邮件序列和文案框架另有技能。",
+    "tier": "auto"
+  },
+  "firebase/agent-skills/developing-genkit-dart": {
+    "name_zh": "GenkitDart",
+    "intro": "Genkit 的 Dart 版：在 Dart 或 Flutter 应用里接大模型、写流程、定义工具和结构化输出。正文指了核心用法参考文档的位置，也讲了怎么用命令行起本地开发界面来看流程和追踪。",
+    "usage": "先在项目里确认 Genkit 命令行装好了，再用它启动带开发界面和追踪的运行方式来调流程。",
+    "notes": "正文推荐用官方命令行起本地开发界面，跑流程、试模型和评估输出都在里面。",
+    "tier": "auto"
+  },
+  "firebase/agent-skills/developing-genkit-js": {
+    "name_zh": "Genkit JS",
+    "intro": "用 Genkit 在 Node.js 和 TypeScript 里做 AI 应用：定义流程、工具、结构化输出和智能体，碰到报错、校验失败、类型不对或接口问题时也可以查。动手前先确认命令行工具版本够新。",
+    "usage": "先检查本机 Genkit 命令行版本是否满足最低要求，不够就升级，再按正文的初始化写法建流程和工具。",
+    "notes": "正文给出一个最小可跑的流程和版本门槛，新项目另有单独的搭建指引。",
+    "tier": "auto"
+  },
+  "firecrawl/skills/firecrawl-build-onboarding": {
+    "name_zh": "FC接入",
+    "intro": "把 Firecrawl 的凭证和 SDK 装进项目：应用需要 API key、要把它写进环境变量文件，或者正在挑第一个 SDK 和文档时用它。它自带浏览器授权流程，不依赖网站那条接入技能。",
+    "usage": "按它的授权流程拿到密钥并写进项目环境变量，再照参考文档装 SDK、把项目配置补齐。",
+    "notes": "正文附了授权流程、SDK 安装和项目搭建三份参考文档；也支持自建部署时改基础地址。",
+    "tier": "auto"
+  },
+  "firecrawl/skills/firecrawl-build-scrape": {
+    "name_zh": "FC抓取",
+    "intro": "把 Firecrawl 的单页抓取接进产品代码：应用手里已经有一个具体网址、需要这一页内容时用它。默认返回 Markdown，除非确实要别的格式，可以取正文、链接、截图和元数据。",
+    "usage": "先配好 API key，再按单页抓取的默认参数接进代码；只是页面级的需求就别上更大范围的爬取模式。",
+    "notes": "支持自建部署、可改基础地址；正文另有关于内容新鲜度与存活判断的参考文档。",
+    "tier": "auto"
+  },
+  "firecrawl/skills/firecrawl-build-search": {
+    "name_zh": "FC搜索",
+    "intro": "把 Firecrawl 的搜索接口接进产品代码和智能体流程：功能是从一个查询词开始、先发现来源再决定要不要抓正文时用它，可以顺手把结果页的内容也一起取回来。",
+    "usage": "配好 API key 后先搜出候选页面清单，再把选中的页面交给单页抓取；搜索和抽取尽量分成两步做。",
+    "notes": "正文建议先把搜索当作网址发现的步骤，不要默认把搜索结果整批抓下来。",
+    "tier": "auto"
+  },
+  "google-labs-code/stitch-skills/design-md": {
+    "name_zh": "DESIGN.md",
+    "intro": "分析 Stitch 项目里已经画好的界面，把用到的颜色、字体和视觉描述归纳成一份 DESIGN.md，作为之后继续生成新页面的统一依据。同一个项目里页面越做越多、怕新页面跑偏时，先用它把设计语言固定下来。",
+    "usage": "先确保能连上 Stitch 服务，并打开一个至少有一个设计页面的项目，让模型读取现有页面后生成这份文档；之后每次让 Stitch 出新页面都把它带上。",
+    "notes": "依赖 Stitch MCP 服务和已有设计页面的项目；正文里指向 Stitch 官方的提示词指南。",
+    "tier": "auto"
+  },
+  "greensock/gsap-skills/gsap-plugins": {
+    "name_zh": "GSAP插件",
+    "intro": "GSAP 官方插件总览：插件怎么注册，以及 ScrollToPlugin、ScrollSmoother、Flip、Draggable、Inertia、Observer、SplitText、ScrambleText、SVG 与物理、缓动等插件的用法边界。要写滚动、翻转、拖拽或 SVG 描边动画时先看它。",
+    "usage": "按插件名查注册方式和用法；核心补间、滚动触发和 React 集成各有单独技能，不要混着看。",
+    "notes": "正文说明这些插件现在都免费，商用也可以，不再需要会员资格或授权码。",
+    "tier": "auto"
+  },
+  "greensock/gsap-skills/gsap-react": {
+    "name_zh": "GSAP动画",
+    "intro": "GSAP 在 React 和 Next.js 里的接法：优先用 useGSAP 钩子替掉 useEffect，讲引用、作用域和卸载时的清理，以及服务端渲染场景下要注意的上下文问题。",
+    "usage": "在 React 里加动画时按它的钩子写法接入，组件卸载时记得让动画和上下文一起清理干净。",
+    "notes": "正文给了安装命令，并说明 React 场景下默认推荐 GSAP。",
+    "tier": "auto"
+  },
+  "greensock/gsap-skills/gsap-utils": {
+    "name_zh": "GSAP工具",
+    "intro": "GSAP 的工具函数集：数值截断、区间映射、归一化、插值、随机、对齐吸附、转数组、环绕和管道这些辅助方法。做滚动映射到数值、随机化或按网格取整时用得上，不需要注册。",
+    "usage": "在补间参数、滚动回调或任意驱动 GSAP 的脚本里直接调这些工具函数；省略末位参数时会返回一个等着接收值的函数。",
+    "notes": "正文说明这些是纯函数，常配合核心补间、时间线和滚动触发使用；缓动类工具在插件那条技能里。",
+    "tier": "auto"
+  },
+  "mattpocock/skills/batch-grill-me": {
+    "name_zh": "追问",
+    "intro": "一轮一轮把设计问题问透：每轮先算出所有前置条件已经就绪的问题，编号一次性问完并给出推荐答案，等用户回答后再重算下一轮。事实由模型自己查，不去问用户本来能查到的东西。",
+    "usage": "开始一个新设计或需求讨论时拿它做访谈，一轮答完再进下一轮；要查文件或环境的事交给子代理去办。",
+    "notes": "正文说明已定的决策会把可问范围往外推，依赖未定问题的问题要留到后面的轮次。",
+    "tier": "auto"
+  },
+  "mattpocock/skills/chief-of-staff": {
+    "name_zh": "幕僚长",
+    "intro": "在一个会话里盯一个长期目标，把活分给子代理去做，并配合定时任务推进。要同时想两件事：眼前这一步怎么完成，以及怎么改动环境让下一步更容易做成。",
+    "usage": "拿它跑跨天的长期目标：具体活都在子代理里做，后台代理保持和用户的对话；信息尽量用指针传，别复制。",
+    "notes": "正文要求把记忆写进一个维基，子代理之间只靠研究笔记、提交记录和页面互相引用。",
+    "tier": "auto"
+  },
+  "nexscope-ai/ecommerce-skills/cross-border-ecommerce": {
+    "name_zh": "跨境",
+    "intro": "做跨境电商扩张时用来打分和排路线：按市场规模、电商渗透率、竞争、合规复杂度、物流、支付生态、文化距离和知识产权八个加权维度评目标市场，再比五种履约方式的成本与时效。",
+    "usage": "先给目标国家打分排队，再挑履约方式，最后按它整理的各国税负与合规要点排扩张节奏。",
+    "notes": "正文覆盖欧盟 VAT 与 IOSS、英国 VAT、美国销售税、加拿大和澳洲 GST、日本消费税；不需要 API key。",
+    "tier": "auto"
+  },
+  "pbakaus/impeccable/overdrive": {
+    "name_zh": "特效档",
+    "intro": "把界面做得比常规更狠一档：着色器、弹簧物理、滚动驱动的揭示、稳定六十帧的动画这类技术量大的做法。适合要让人眼前一亮、也愿意为此多花工时的页面。",
+    "usage": "先按它的要求在项目里备好设计上下文，没有就先跑前置步骤补上，再挑具体区域做效果。",
+    "notes": "正文强调效果要贴场景，作品集上的粒子系统和后台表格该用的做法不一样。",
+    "tier": "auto"
+  }
+}
