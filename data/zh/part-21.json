@@ -1,0 +1,177 @@
+{
+  "anthropics/skills/internal-comms": {
+    "name_zh": "内部沟通写作",
+    "intro": "按公司惯用格式写各类内部沟通材料：状态报告、领导层更新、3P 更新、公司通讯、FAQ、事故报告和项目进展。给要写对内汇报、又不想每次重新想格式的人用。",
+    "usage": "要写任何对内沟通时用它。先判断属于哪一类，再加载 `examples/` 下对应的指南：3P 更新看 `examples/3p-updates.md`，公司通讯看 `examples/company-newsletter.md`，FAQ 看 `examples/faq-answers.md`，对不上的用 `examples/general-comms.md`。",
+    "notes": "正文给的是一套按沟通类型分开的指南文件，不是通用模板；选错文件会写出不合公司格式的东西。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/ads": {
+    "name_zh": "付费广告投放",
+    "intro": "面向 Google Ads、Meta、LinkedIn、X 等平台的付费投放策略：受众定位、出价、优化，以及判断一个活动该不该停。给投手和做增长的人处理 PPC、预算和浪费支出用。",
+    "usage": "用户问 PPC、ROAS、CPA、retargeting、否定关键词、`Performance Max`、广告预算、`search terms report`、浪费的支出时用它。正文要求每条建议后面写清事实、假设和缺失的数据，拿不到的输入直接标 `MISSING`，不要估算。",
+    "notes": "创意批量生成看 ad-creative，落地页优化看 cro，像素和转化追踪审计看 conversion-tracking，触达目标客户的冷邮件看 cold-email。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/co-marketing": {
+    "name_zh": "联合营销",
+    "intro": "给 SaaS 找联合营销伙伴、策划联合活动、评估合作契合度并搭合作框架。给做伙伴营销和集成营销的人用，解决「该跟谁一起做活动、怎么谈」的问题。",
+    "usage": "用户说 co-marketing、partner marketing、联合活动、该找谁合作、integration marketing、互相导量、co-brand 时用它。开头先找产品营销上下文，有 `.agents/product-marketing.md` 就先读，读到了就别重复问。",
+    "notes": "正文明确要按已有上下文只问没覆盖到的信息。客户推荐计划看 referrals，发布相关的合作看 launch。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/competitors": {
+    "name_zh": "竞品对比页",
+    "intro": "写竞品对比页和替代方案页：既要为竞争词拿到排名，也要给正在评估的买家看。给要做「我方 vs 竞品」内容的市场和产品营销用，覆盖四种页面格式。",
+    "usage": "用户提到 alternative 页、vs 页、竞品对比、comparison page、竞品拆解、竞品页面审计时用它。正文覆盖四种格式：单个 alternative、多个 alternatives、我方 vs 竞品、竞品 vs 竞品。",
+    "notes": "从零做竞品调研看 competitor-profiling，这些页面的技术 SEO 看 seo-audit，审已有说法用这里的 asset audit。内部 battle card 和销售用的竞品材料看 sales-enablement。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/pricing": {
+    "name_zh": "定价与套餐",
+    "intro": "SaaS 定价与变现策略：定价格、切套餐、设免费试用、找价值指标、涨价，以及审计定价页。给要在「收多少钱、怎么分档」上做决定的产品和增长用。",
+    "usage": "用户提到定价、套餐分档、freemium、免费试用、涨价、`value metric`、`Van Westendorp`、付费意愿、per seat、年付还是月付时用它，也用来审定价页能不能被 AI 读懂。",
+    "notes": "应用内升级弹窗看 paywalls；服务、课程、教练和高客单 B2B 的报价结构看 offers。正文开头要求先确认产品营销上下文，能读到的就别再问。",
+    "tier": "auto"
+  },
+  "emilkowalski/skills/mobile-native": {
+    "name_zh": "移动端原生感",
+    "intro": "让网页在手机上像装了 App，而不是浏览器里打开的网站：一批小的 CSS 和 meta 标签改动。给正在做或要评审移动端页面的前端用，处理的是那些「桌面正常、手机别扭」的问题。",
+    "usage": "移动端开发或评审时用它，尤其当「Chrome 里正常、手机上不对」时。正文覆盖 sticky hover、点按高亮闪烁、`100vh` bug、输入框自动放大页面、点按延迟、下拉刷新抢滚动、刘海遮挡内容、长按选中按钮文字、轮播方向反了和状态栏不匹配。",
+    "notes": "正文的硬规矩是真机上测，不在模拟器或桌面浏览器里下结论。这里只修手感；动效本身看 animate，React Native 看 animate-expo。",
+    "tier": "auto"
+  },
+  "firecrawl/cli/firecrawl-agent": {
+    "name_zh": "抓取 Agent",
+    "intro": "Firecrawl CLI 的自主抓取：让 agent 自己逛站点、跨页抽结构化数据，单次跑 2–5 分钟。给没有现成 workflow 或数据源、只能现场导航提取的任务用，可以按 JSON schema 出结构化结果。",
+    "usage": "任务需要自主导航，或现成工具覆盖不了时才用。先跑 `firecrawl search alexandria` 找有没有现成 workflow，用 `firecrawl list` 看契约、再用 `firecrawl scrape` 执行；都没有才交给 `firecrawl agent`，结果常落到 `.firecrawl/pricing.json` 这类文件。",
+    "notes": "单次 2–5 分钟，比普通抓取慢。技能只声明 Bash(firecrawl *) 和 Bash(npx firecrawl-cli *) 权限，调用前先确认这条链路可用。",
+    "tier": "auto"
+  },
+  "firecrawl/cli/firecrawl-crawl": {
+    "name_zh": "站点批量抓取",
+    "intro": "沿链接批量抓一个站点或某个栏目下的多页内容，能限深度和页数。给要一次性拉完 /docs 这类栏目、或内容分散在多个互链页面的场景用。",
+    "usage": "要「把 /docs 下面全部抓下来」时用它。配 `--include-paths` 限定栏目、`--limit` 限页数、`--wait` 直接等结果；不加 `--wait` 就拿 job ID 异步轮询。完成标准是输出落进 `.firecrawl/crawl.json` 且页数符合预期。",
+    "notes": "crawl 必须认证，没有免密钥免费额度，无凭据会弹交互登录。`--wait` 没有默认超时，要用 `--timeout` 自己设上限。",
+    "tier": "auto"
+  },
+  "firecrawl/cli/firecrawl-download": {
+    "name_zh": "站点离线下载",
+    "intro": "把一个站点或栏目存成本地文件，支持 markdown、links 和截图，用来做离线文档或本地参考副本。给需要长期离线查阅某站内容、或想留一份快照的场景用。",
+    "usage": "用户说「把站点下载下来」、要离线文档时用它。命令在 `firecrawl x` 组下：先 map 出页面再逐页抓进 `.firecrawl/` 的嵌套目录；自动化跑必须带 `-y`，否则会卡在交互向导上等人输入。",
+    "notes": "这是实验性命令。需要认证，没有免密钥免费额度。用 `--format` 同时要多种格式时，每页各存一份文件，例如 index.md、links.txt、screenshot.png。",
+    "tier": "auto"
+  },
+  "firecrawl/cli/firecrawl-map": {
+    "name_zh": "站点 URL 发现",
+    "intro": "列出站点上的 URL，支持按关键词过滤，用来摸清站点结构或找到某个页面的确切地址。给知道是哪个站、但不知道具体哪一页的情况用。",
+    "usage": "用户说「把站点 map 一下」或「找到某某页面的 URL」时用它。大站点用 `--search` 直接定位目标页，要全部链接就配 `--limit` 输出 JSON；常见套路是先用 `--search` 找到地址再用 scrape 抓。",
+    "notes": "map 必须认证，没有免密钥免费额度，无凭据会弹交互登录；输出默认写在 `.firecrawl/` 目录下。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-gmail": {
+    "name_zh": "Gmail 命令行",
+    "intro": "Google Workspace CLI 的 Gmail 部分：收发、读取和管理邮件，命令形态是 gws gmail 加资源和方法。给想用命令行或脚本处理邮箱的开发者用，不用开网页版就能批量读写邮件。",
+    "usage": "要在终端里读写 Gmail 时用。基本形态 `gws gmail <resource> <method>`；常用动作有 `+send`、`+triage`（未读收件箱摘要）、`+read`、`+reply`、`+forward`、`+watch`，全部参数用 `gws gmail --help` 看。",
+    "notes": "需要 gws CLI（技能元数据里 requires bins: gws）。认证、全局 flag 和安全规则先读 `../gws-shared/SKILL.md`；这个文件缺失就跑 `gws generate-skills` 生成。",
+    "tier": "auto"
+  },
+  "kepano/obsidian-skills/obsidian-bases": {
+    "name_zh": "Obsidian视图",
+    "intro": "创建和编辑 Obsidian Bases（.base 文件）：用视图、过滤器、公式和汇总把笔记做成类数据库的表格、卡片、列表或地图。给在 Obsidian 里做看板式笔记组织的用户用。",
+    "usage": "涉及 .base 文件、想把笔记做成数据库视图，或用户提到 Bases、表格视图、卡片视图、过滤器、公式时用它。流程是建 .base 写 YAML、加 `filters` 选笔记、可选 `formulas` 定义计算属性、再配 `table` `cards` `list` `map` 视图和 `order`。",
+    "notes": "常见坑：YAML 特殊字符没加引号、公式表达式引号不配对、用了 `formula.X` 却没在 `formulas` 里定义 X。写完要在 Obsidian 里打开确认视图能正常渲染。",
+    "tier": "auto"
+  },
+  "kepano/obsidian-skills/obsidian-cli": {
+    "name_zh": "Obsidian命令",
+    "intro": "用 Obsidian CLI 操作正在运行的 Obsidian：读写、搜索、管理笔记、任务和属性，也能做插件与主题开发，包括重载插件、跑 JavaScript、抓错误、截图和查 DOM。给想从命令行操作笔记库或调试插件的用户用。",
+    "usage": "要在命令行里操作 Obsidian vault，或在开发调试插件和主题时用它。跑 `obsidian help` 看全部命令，参数用等号传值、带空格的加引号，例如 `obsidian create name=\"My Note\" content=\"Hello world\"`。",
+    "notes": "前置条件是 Obsidian 正在运行，CLI 是对着运行中的实例操作的。完整文档在 https://help.obsidian.md/cli。",
+    "tier": "auto"
+  },
+  "mastra-ai/skills/mastra": {
+    "name_zh": "Mastra 指南",
+    "intro": "Mastra 框架的使用指南：用当前 API 搭 agent、workflow、tool、memory、workspace 和 storage。给用 TypeScript 写 AI 应用的开发者用来查文档、核对 API、排查常见错误和做版本迁移。",
+    "usage": "涉及 Mastra 的文档查询、API 核对、TypeScript 项目搭建、常见报错、迁移，以及用 `mastra api` 在本地、Mastra 平台或远程服务器上检查和调用资源时用它。",
+    "notes": "正文第一条就是不要信内部知识：训练数据里的 Mastra API 多半已经过时，必须对着当前文档验证。Mastra Factory 相关操作要另找 mastra-factory 技能；确认的 bug 和文档缺陷可以通过 feedback endpoint 上报。",
+    "tier": "auto"
+  },
+  "mcollina/skills/fastify-best-practices": {
+    "name_zh": "Fastify 实践",
+    "intro": "Fastify 后端服务和 REST API 的开发指南，覆盖 TypeScript 和 JavaScript：路由、插件、JSON Schema 校验、错误处理、性能、认证、CORS 与安全头、数据库、WebSocket 和上线部署。给写 Node.js 服务端的人用。",
+    "usage": "建、配或调一个 Fastify 应用时用它，触发词包括 Fastify、Node.js server、REST API、API routes、server.ts、app.ts。正文还覆盖整个请求生命周期（hooks、序列化、Pino 日志）和 TypeScript 的 strip types 接法。",
+    "notes": "写测试时正文推荐 Fastify 自带的 inject 方法，不用真起一个监听端口。触发词里也列了 fastify.config 这类配置文件。",
+    "tier": "auto"
+  },
+  "nexscope-ai/amazon-skills/amazon-product-research": {
+    "name_zh": "亚马逊选品调研",
+    "intro": "给亚马逊卖家做选品调研：看需求、竞争、利润空间和入场门槛，验证一个产品想法值不值得做。给要决定卖什么、要不要上某个品的卖家或运营用。",
+    "usage": "用户问某个产品能不能卖、想验证选品想法、要看竞品格局和利润潜力时用它。正文给的是 1–10 分的 8 因子机会评分，外加需求分析（搜索量、季节性、增长趋势）和竞争评估。",
+    "notes": "安装命令是 `npx skills add nexscope-ai/Amazon-Skills --skill amazon-product-research -g`；正文还算了 FBA 费用对利润的影响和定价策略。",
+    "tier": "auto"
+  },
+  "pbakaus/impeccable/adapt": {
+    "name_zh": "响应式适配",
+    "intro": "把现有设计适配到不同屏幕尺寸、设备、平台和使用场景：断点、流式布局、触控目标尺寸。给要做移动端布局、视口适配和跨设备兼容的前端与设计师用，解决一套界面换个尺寸就崩的问题。",
+    "usage": "用户提到响应式设计、移动端布局、断点、视口适配或跨设备兼容时用它。正文要求先调 `/impeccable` 拿设计原则和 Context Gathering Protocol；还没有设计上下文就必须先跑 `/impeccable teach`，并补上目标设备和使用场景。",
+    "notes": "依赖 impeccable 主技能提供设计原则、反模式和 Context Gathering Protocol，不是一套独立的适配规则。",
+    "tier": "auto"
+  },
+  "pbakaus/impeccable/bolder": {
+    "name_zh": "增强视觉冲击",
+    "intro": "把过于保守、平庸、没个性的设计推向更强的视觉冲击和性格，同时不掉可用性。给觉得界面一眼模板、缺记忆点的设计师用，针对的是「安全但无聊」的设计。",
+    "usage": "用户说设计 bland、generic、太安全、没性格、想要更强视觉冲击时用它。正文先定位弱在哪里：系统字体和基础色这类通用选择、全都中等大小的胆怯尺度、对比不足、没有动效、一眼能猜到的套路。",
+    "notes": "正文要求先调 `/impeccable`；没有设计上下文时先跑 `/impeccable teach`。放大冲击力的前提是可用性不回退。",
+    "tier": "auto"
+  },
+  "pbakaus/impeccable/clarify": {
+    "name_zh": "界面文案改进",
+    "intro": "修不清楚的界面文案：错误提示、微文案、按钮标签和引导说明，让用户看懂发生了什么、下一步该做什么。给要改 UX writing 的产品和前端用，针对的是「能用但看不懂」的界面文本。",
+    "usage": "用户说文案看不懂、标签含糊、报错信息莫名其妙、说明跟不上操作时用它。正文要先调 `/impeccable` 走 Context Gathering Protocol，没有设计上下文先跑 `/impeccable teach`，另外要确认用户的技术水平和当下心理状态。",
+    "notes": "正文列的问题清单是行话、歧义、被动语态、太长或太短、以及默认用户已经懂了，逐条对照着改。",
+    "tier": "auto"
+  },
+  "pbakaus/impeccable/colorize": {
+    "name_zh": "配色增强",
+    "intro": "给过于单色、发灰、缺视觉温度的界面加颜色：有策略地用色彩表达层级和含义，而不是随手撒颜色。给觉得设计太素、想加暖色和表现力的设计师用。",
+    "usage": "用户说设计太灰、缺少温暖感、想要更有表现力的配色时用它。正文要先调 `/impeccable` 走 Context Gathering Protocol，没有设计上下文先跑 `/impeccable teach`，并收集现有品牌色。",
+    "notes": "正文要求先判断是纯灰阶、只有中性色，还是只有一个不敢用的强调色，再决定颜色加在哪里。",
+    "tier": "auto"
+  },
+  "pbakaus/impeccable/delight": {
+    "name_zh": "惊喜感设计",
+    "intro": "在界面里加让人会心一笑的细节：成功态、空状态、加载态的微交互和文案，把「能用」变成记得住。给想做打磨和个性表达的产品与前端用，落点是那些用户本来就在等的片刻。",
+    "usage": "用户要求加 polish、个性、动画、微交互、delight，或想让界面更有记忆点时用它。正文给的自然落点是成功态（保存、发送、发布完成）、空状态（首次使用、onboarding）和加载等待。",
+    "notes": "正文要求先调 `/impeccable`，并确认玩法贴合场景——活泼、专业、古怪还是优雅，别在不该开玩笑的地方加惊喜。",
+    "tier": "auto"
+  },
+  "pbakaus/impeccable/distill": {
+    "name_zh": "精简设计",
+    "intro": "把设计削到只剩本质：删掉多余元素、重复信息和装饰性边框阴影，让界面重新有清楚的层级。给觉得页面太挤、太吵、想减负的界面用，目标是把复杂度换成清晰度。",
+    "usage": "用户说想简化、去杂乱、减噪音、删元素、让 UI 更干净更聚焦时用它。正文先找复杂度的来源：互相抢的按钮、一遍遍重复的信息、没有目的的多种颜色字体和尺寸、一次性全铺开的内容。",
+    "notes": "正文要求先调 `/impeccable`；没有设计上下文时先跑 `/impeccable teach`。是简化到仍然表达完整，不是单纯删东西。",
+    "tier": "auto"
+  },
+  "pbakaus/impeccable/optimize": {
+    "name_zh": "界面性能优化",
+    "intro": "诊断并修 UI 性能：加载速度、渲染、动画、图片和包体积。给遇到页面慢、卡顿、掉帧或首屏太久的前端用，排查面从 Core Web Vitals 一直铺到帧率、内存和网络请求。",
+    "usage": "用户提到慢、卡、掉帧、performance、bundle size、load time 时用它。正文先量现状：`LCP`、`INP`、`CLS` 三个 Core Web Vitals、可交互时间、包体积、帧率和内存，再定位瓶颈属于首屏、交互还是动画。",
+    "notes": "正文反复强调先测再改、改完再测，别做提前优化；只动可感知的瓶颈，不要所有指标一把抓。",
+    "tier": "auto"
+  },
+  "pbakaus/impeccable/quieter": {
+    "name_zh": "降低视觉强度",
+    "intro": "把过于抢眼、刺激、攻击性强的设计降下来，压掉饱和度和对比的极端值，保留效果但更耐看。给觉得界面太吵、太扎眼、想收一收的设计师用。",
+    "usage": "用户说太粗、太吵、overwhelming、aggressive、花哨，或想要更平静克制的观感时用它。正文先找强度来源：过亮的色彩饱和、高对比并置、太多粗重元素互相抢、动画过量、装饰太多。",
+    "notes": "正文要求先调 `/impeccable`；没有设计上下文时先跑 `/impeccable teach`。降强度不等于把设计做平，效果要留住。",
+    "tier": "auto"
+  },
+  "spillwavesolutions/design-doc-mermaid/design-doc-mermaid": {
+    "name_zh": "Mermaid 图表",
+    "intro": "从文字或源码生成 Mermaid 图：流程图、时序图、类图、ER 图、状态图、C4 和架构图，也能把代码转成图。给写设计文档、要给 GitHub wiki 配图的人用。",
+    "usage": "用户要求画图、生成 mermaid、记录架构，或把代码转成图时用它，GitHub wiki 的默认选择就是它。发 Confluence 时除了代码围栏还要另外提供 PNG/SVG，否则显示不出来。",
+    "notes": "PlantUML 只用在 Mermaid 覆盖不到的图类型上。正文按决策树选图型，另外带了做高对比配色的样式说明。",
+    "tier": "auto"
+  }
+}

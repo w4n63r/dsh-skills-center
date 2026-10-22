@@ -1,0 +1,177 @@
+{
+  "anthropics/skills/algorithmic-art": {
+    "name_zh": "算法艺术生成",
+    "intro": "用 p5.js 做原创算法艺术：带种子的随机性加可交互的参数探索，产出三类文件——算法哲学的 .md、交互查看器的 .html、生成算法的 .js。过程分两步，先写算法哲学，再落成 p5.js 生成艺术。适用的请求包括用代码做艺术、生成艺术、算法艺术、流场和粒子系统。正文要求做原创作品，不要复制在世的艺术家，以避免版权问题；license 的完整条款在 LICENSE.txt。",
+    "usage": "用户要生成艺术、算法艺术、流场或粒子系统时调用；先产出一份算法哲学 .md（写明计算过程、涌现行为、噪声场、参数变化这些要素），再据此写 .html 与 .js。",
+    "notes": "需要浏览器环境跑 p5.js；正文要求原创而非照抄他人作品，许可条款见 LICENSE.txt。",
+    "tier": "auto"
+  },
+  "browser-act/skills/browser-act-skill-forge": {
+    "name_zh": "站点技能锻造",
+    "intro": "通过 browser-act 探索网站，炼出可复用的技能包（SKILL.md 加脚本），以后不必重新探索。适用情形：想给某个网站做可复用技能、想弄清站点内部 API、看过产品页后想复刻一个爬虫或 SaaS 工具、要规模化批量抽取几十到几千条记录（用户通常说得很随意，比如「抓 N 条帖子」「把列表全拉下来」「不要重复」）。与 browser-act 的区别是产出可复用而不是一次性。作者 BrowserAct，版本 1.0.6，主页 browseract.com。",
+    "usage": "用户说「看看 X 背后的 API」「X 怎么加载数据」「给这个站点做个技能/工具」「复刻这个工具」「每天我都要手动…」时调用；按正文流程先探索站点，再把探索结果固化成含 SKILL.md 与脚本的技能包。",
+    "notes": "依赖 browser-act 的浏览器执行环境；正文声明面向人工操作的自动化；批量抽取要按 N 条记录做去重。",
+    "tier": "auto"
+  },
+  "cloudflare/skills/cloudflare-one": {
+    "name_zh": "CF 零信任配置",
+    "intro": "设计、配置、排障或评审 Cloudflare One 的 Zero Trust 与 SASE 部署；跨厂商迁移规划走 cloudflare-one-migrations。正文要求：引用任何限制、设置、API 字段、分类 ID 或确切 UI 路径之前，先从 Cloudflare One 文档、Cloudflare docs MCP server 或 API schema 取当期信息。工作流五步：归类问题（架构、配置、排障、迁移、评审），收集账号 ID、用户与站点、身份源、SCIM 与组同步、设备管理、流量路径、合规约束和上线影响面，只检索涉及产品的当期文档（Access、Gateway、WARP 设备客户端、Tunnel/Mesh、Cloudflare WAN、DLP、CASB、设备姿态、身份），有账号访问权限时先盘点现有资源再提改动，最后给方案。",
+    "usage": "要设计、改动或复核 Zero Trust / SASE 时调用；先按架构、配置、排障、迁移、评审归类，把 account ID、身份源、流量路径这些上下文备齐，再只取相关产品的当期文档，有权限时先看现状。",
+    "notes": "限制、字段与 UI 路径都以官方文档为准，不要凭记忆引用；从别家 VPN/SWG/SASE 迁过来请改用 cloudflare-one-migrations。",
+    "tier": "auto"
+  },
+  "cloudflare/skills/cloudflare-one-migrations": {
+    "name_zh": "零信任迁移规划",
+    "intro": "从既有 VPN、SWG 或 SASE 平台迁到 Cloudflare One 的评估与规划，含策略映射、能力落差和上线节奏。正文工作流五步：识别源栈（Zscaler ZIA、Zscaler ZPA、Palo Alto NGFW/Prisma/GlobalProtect、老式 VPN/SWG/SD-WAN 等），先要导出与日志（优先结构化导出，别用截图或文字总结），盘点身份、组、应用、目标、连接器与隧道、DNS/URL/防火墙/DLP/TLS 策略、对象列表、位置站点、例外、命中数与合规日志，产出映射计划（源对象、Cloudflare One 目标资源、置信度、前置条件、不支持或部分支持的映射、需人工决策的点），再按依赖顺序创建。生成确切配置前要先取当期 Cloudflare 文档、API schema 和源厂商的导出文档。",
+    "usage": "要把别家 VPN/SWG/SASE 迁过来做评估和计划时调用；先确定源厂商并索要结构化导出，再按五步做盘点与映射，依赖先建（身份与 SCIM、连接器、路由与 DNS、列表对象、TLS 绕过、Access 与 Gateway 策略）。",
+    "notes": "需要源平台的管理员导出权限和 Cloudflare 侧访问；正文强调先取当期文档再生成确切配置，不要凭记忆写策略。",
+    "tier": "auto"
+  },
+  "cloudflare/skills/turnstile-spin": {
+    "name_zh": "CF 人机验证",
+    "intro": "在已有的前端和后端里接入、修复或迁移 Cloudflare Turnstile 人机验证，包含服务端 Siteverify。它把一句「set up Turnstile」变成能跑通的端到端集成：控件、每个选定插入点的前端片段、在客户现有后端里落一份规范的 siteverify，并在报告成功前真跑一次校验。正文说明 scripts/ 下的脚本持有确定性逻辑（API 调用、重试与错误处理），agent 只负责编排、读代码、确认和改前后端；产品要求以 Turnstile 官方文档为准。前端按栈给参考文件，已有 Vanilla HTML 和 Next.js App Router。",
+    "usage": "要在现有站点上线、修好或迁移 Turnstile 人机验证时调用；按正文的向导逐个执行 `scripts/` 下的脚本，并根据脚本输出的 JSON 分支处理，最后跑一次真实验证再收尾。",
+    "notes": "需要 Cloudflare 账号和 Turnstile 站点密钥；产品要求以官方文档为准，前端接入按现有栈选参考文件（如 Vanilla HTML、Next.js App Router）。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/analytics": {
+    "name_zh": "埋点与数据衡量",
+    "intro": "分析埋点与衡量的搭建、改进和审计。触发语有 set up tracking、GA4、Google Analytics、event tracking、UTM parameters、tag manager、GTM、analytics implementation、tracking plan、Mixpanel、Segment，以及「我的事件到底有没有上报」。适合有人问「这事到底有没有效果」或要衡量营销结果时使用。转化回传到广告平台（像素、转化标签、CAPI、服务端）并验证到达走 conversion-tracking；归因模型选择、多触点与 MMM、增量实验对比、跨工具对数走 attribution；A/B 实验衡量走 ab-testing。正文提醒比率类指标要除以匹配的完整窗口，不要用全周期花费除以部分周期结果。",
+    "usage": "要上新埋点、查事件是否真的上报、写 tracking plan，或用户问怎么衡量效果时调用；先做初始评估（正文第一步是检查产品营销上下文），再给埋点与衡量方案。",
+    "notes": "比率指标要用匹配的完整窗口；转化回传、归因、A/B 衡量分别在 conversion-tracking、attribution、ab-testing 里。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/community-marketing": {
+    "name_zh": "社区运营策略",
+    "intro": "建社区并把它当作产品增长与品牌忠诚的杠杆。适用场景是设计社区策略、运营 Discord 或 Slack 社区、管理论坛或 subreddit、培养品牌拥护者、做口碑传播、做社区驱动增长、做注册后的用户培育，以及把客户变成布道者。正文第一步是检查有无产品营销上下文：.agents/product-marketing.md 存在就读它（老项目里还可能是 .claude/product-marketing.md 或 product-marketing-context.md），读完再提问。",
+    "usage": "用户说要建社区、要社区策略、要运营 Discord/Slack/论坛，或要做社区驱动增长、大使计划时调用；动手前先读产品营销上下文，避免重复问基础信息。",
+    "notes": "依赖产品营销上下文文档；平台账号与权限不在范围内，正文给的是策略与执行方法。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/cro": {
+    "name_zh": "转化率优化",
+    "intro": "面向营销页与表单的转化率优化，覆盖面包括首页、落地页、定价页、功能页、留资表单和联系表单。做法是分析页面并给出可执行的改进建议；针对具体意图要先加载对应参考文件，再用页面分析做初步判断。触发语包括 CRO、conversion rate optimization、这个页面不转化、表单放弃、转化率低等，用户只贴一个 URL 要反馈时也适用。注册流程走 signup，注册后的激活走 onboarding，弹窗与模态走 popups。",
+    "usage": "要提升某个营销页或表单的转化，或用户贴了 URL 让你看问题时调用；先判断意图（留资/联系/演示表单放弃、定价页、首页等），按意图加载对应参考文件再给建议。",
+    "notes": "相邻主题各有归属：注册流程 signup、注册后激活 onboarding、弹窗 popups；正文建议先有产品营销上下文再动页面。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/directory-submissions": {
+    "name_zh": "目录站提交",
+    "intro": "把产品提交到创业、SaaS、AI、agent、MCP、无代码和测评类目录站，换外链、域名评分和曝光。触发语包含 directory submissions、submit to directories、list my product、Product Hunt、BetaList、TAAFT、Futurepedia、G2 listing、Capterra listing、AlternativeTo、SaaSHub、MCP registry、publish my MCP server、awesome list、llms.txt 目录、Claude 插件目录、agent directory、dofollow 外链、launch directories 和 directory tracker。适合规划一次发布里的目录层，或长期的外链计划；更大的发布节点走 launch，外链之后的程序化 SEO 页走 programmatic-seo，AI 引用优化走 ai-seo。",
+    "usage": "用户要提交产品到目录站、攒外链或拉域名评分时调用；先确认要投的目录类型（创业、SaaS、AI、MCP、测评等）与产品信息，再筛目录、排优先级并跟踪提交状态。",
+    "notes": "邻近技能分工：整体发布走 launch，程序化 SEO 页走 programmatic-seo，AI 引用优化走 ai-seo；各目录站的账号与提交表单不在本技能内。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/image": {
+    "name_zh": "营销配图制作",
+    "intro": "营销图片的生成、编辑与优化：博客头图、社交图、产品样机图、资料横幅、商品页视觉和品牌资产。正文提到的生成模型与设计工具有 Flux、Flux Kontext、Midjourney、DALL-E、GPT Image、ChatGPT Images、Ideogram、Gemini image、Nano Banana、Recraft、Stable Diffusion，以及 Canva 和 Figma；优化侧覆盖图片压缩、WebP 和 OG image。用途定位是通用的营销图创作与优化，付费广告图与平台广告规格走 ad-creative，视频走 video。",
+    "usage": "用户要生成、改图或优化营销图，或提到压缩、WebP、OG image 时调用；先分清是 AI 生成、设计工具出图还是既有图优化，再按对应路径处理。",
+    "notes": "付费广告创意与平台广告规格在 ad-creative，视频在 video；模型或工具的账号与额度不在本技能内。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/product-marketing": {
+    "name_zh": "产品营销上下文",
+    "intro": "创建和维护产品营销上下文文档，把定位、受众与信息这类基础内容沉淀下来，供其他营销技能引用，省得反复交代。文档固定放在 .agents/product-marketing.md。正文流程第一步是查已有上下文：先看 .agents/product-marketing.md 是否存在，也看 .claude/product-marketing.md 和老项目里的 product-marketing-context.md。触发语有 product context、marketing context、positioning、ICP、ideal customer profile、brand voice、tone of voice 等。新项目开工、要用其他营销技能之前先用它。",
+    "usage": "开新项目、要写定位或 ICP、或发现自己反复交代产品背景时调用；先查有没有现成文档，没有就按正文的提问流程生出一份 .agents/product-marketing.md。",
+    "notes": "文档路径是 .agents/product-marketing.md；老项目里还可能是 .claude/product-marketing.md 或 product-marketing-context.md，需要兼容读取。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/social": {
+    "name_zh": "社媒内容运营",
+    "intro": "LinkedIn、Twitter/X、Instagram、TikTok、Facebook 的社媒内容创作、排期与优化，也包含社媒监听和互动分诊。触发语有 LinkedIn post、Twitter thread、content calendar、social scheduling、viral content、repurpose this content、LinkedIn carousel、TikTok video、Reels、Shorts、video script、video hook、short-form video、social listening、brand mentions、competitor monitoring、carousel、slide-by-slide 和 document post。正文提醒写帖子要避开 AI 腔，比如「不是 X，而是 Y」这种句式；更宽的内容策略走 content-strategy，付费广告走 ad-creative，earned media 走 public-relations。",
+    "usage": "要写或改社媒帖、排内容日历、拆短视频脚本，或做品牌提及与竞品监听时调用；先分清平台和内容形态，短文、轮播、短视频脚本各自有对应做法。",
+    "notes": "邻近技能分工：整体内容策略走 content-strategy，付费广告走 ad-creative，公关与 earned media 走 public-relations。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/video": {
+    "name_zh": "营销视频制作",
+    "intro": "用 AI 工具或程序化框架做营销视频：AI 生成模型、AI 数字人和程序化视频框架都在范围内，产出偏产品演示、讲解视频、社交短片和广告。正文点到的工具与模型有 Remotion、Hyperframes、HeyGen、Synthesia、Veo、Sora、Runway、Kling、Seedance、Hailuo、MiniMax、Pika、Hunyuan 和 Wan，也覆盖数字人、口播视频、程序化视频、视频模板、讲解视频、产品演示与录屏演示，以及照参考剪辑复刻风格这类需求。内容策略与发什么走 social，付费视频广告走 ad-creative。",
+    "usage": "用户要生成或生产视频、做数字人口播、或要照着某条参考剪辑复刻时调用；先定清是 AI 生成、数字人还是程序化渲染，再进对应工具路径。",
+    "notes": "邻近技能分工：内容策略与发布排期走 social，付费视频广告创意走 ad-creative；各模型的账号与额度不在本技能内。",
+    "tier": "auto"
+  },
+  "firecrawl/cli/firecrawl-scrape": {
+    "name_zh": "网页正文抓取",
+    "intro": "读已知网页，或执行此前发现的工作流、数据提供方能力：URL 或工具定下来之后，用它拿页面内容或结构化结果。正文的用法是先用 search 发现工具、用 list 看输入，再去执行；多个 URL 可以并发抓。结构化数据集要先经 firecrawl-search 找合适的工作流或数据提供方，已知页面直接读，选好的契约复用即可，不必重复发现。",
+    "usage": "手上有确切 URL 要正文，或 search 已经选好工具时调用；基础抓取用 firecrawl scrape，结果落文件加 `-o .firecrawl/page.md`，只要正文不要导航和页脚加 `--only-main-content`，要等 JS 渲染加 `--wait-for 3000`。",
+    "notes": "需要 firecrawl CLI（正文许可的工具是 Bash(firecrawl *) 与 Bash(npx firecrawl-cli *)）；结构化数据先在 firecrawl-search 里选好契约再执行。",
+    "tier": "auto"
+  },
+  "firecrawl/cli/firecrawl-search": {
+    "name_zh": "网页检索与发现",
+    "intro": "找网上资料：返回与问题相关的页面片段，可选带整页内容，同时能发现工作流、数据 API 和索引。用于网络调研，或找结构化记录、清单、转写文本和数据集；支持按语义发现工具、按域名匹配和逐步浏览目录。正文给的入口分工是：通用检索用 firecrawl search，已知网站用 firecrawl find-tools，结构化数据先查 firecrawl search alexandria 有没有现成工作流或数据提供方，选中契约后用 firecrawl list 看输入，再交给 scrape 执行。",
+    "usage": "要查资料或找结构化数据源时调用；先判断是通用检索还是已知站点，前者走 `firecrawl search`，后者走 `firecrawl find-tools <url>`，拿到契约先 `firecrawl list <provider> <capability> --pretty` 看输入再执行。",
+    "notes": "依赖 firecrawl CLI，正文声明的可用工具是 Bash(firecrawl *) 和 Bash(npx firecrawl-cli *)；结构化数据要先在 firecrawl-search 里选好契约再执行。",
+    "tier": "auto"
+  },
+  "heygen-com/hyperframes/website-to-hyperframes": {
+    "name_zh": "网站转宣传片",
+    "intro": "抓取一个网站，再据此产出 HyperFrames 视频。常见请求是给出一个 URL 要 25 秒产品发布片、把官网做成 15 秒的 Instagram 社交广告，或从 URL 做 30 秒产品导览。正文流程分 7 步，每步产出一个交付物作为下一步的关卡；默认是协作模式，标 💬 的关卡会停下来问用户，用户说「你定」「给我惊喜」这类自主模式信号时跳过偏好类关卡。正文特意说明自主模式不等于跳过全部关卡，它只覆盖 TTS 供应商、音色、配色侧重这类偏好问题。",
+    "usage": "用户丢一个网址要视频，或说「把这个站点抓下来做视频」「给我的站点做条宣传片」时调用；先问清想要的时长和投放平台，再按 7 步流程逐关推进，偏好问题默认停下来确认。",
+    "notes": "需要能抓取目标站点；默认协作会停下提问，要让它自己决定必须先说明自主模式，而自主模式也只接管偏好类关卡。",
+    "tier": "auto"
+  },
+  "mattpocock/skills/review": {
+    "name_zh": "双轴代码评审",
+    "intro": "对「固定点以来的改动」做两条轴的评审：Standards 看代码是否符合本仓文档化的编码规范，Spec 看代码是否忠实实现了发起 issue / PRD 的要求。两条轴各起一个并行子代理，避免互相污染上下文，最后聚合结果并列报告。固定点可以是 commit SHA、分支名、tag 或 merge-base；正文提醒 issue tracker 应当已经提供，缺 docs/agents/issue-tracker.md 时先跑 /setup-matt-pocock-skills。",
+    "usage": "用户要评审某分支、某个 PR 或在途改动，或直接说「review since X」时调用；先确认固定点（commit SHA、分支名、tag、main 都可以），用户没说就直接问，然后用 `git diff <fixed-point>..` 取差异再分两条轴跑。",
+    "notes": "两条轴依赖仓库里文档化的编码规范和可读的 issue/PRD；缺 docs/agents/issue-tracker.md 时先跑 /setup-matt-pocock-skills，并且宿主要能派并行子代理。",
+    "tier": "auto"
+  },
+  "microsoft/azure-skills/azure-observability": {
+    "name_zh": "Azure 可观测性",
+    "intro": "Azure 的可观测性服务集合：Azure Monitor、Application Insights、Log Analytics、Alerts 和 Workbooks，覆盖指标、APM、分布式追踪、KQL 查询和交互式报表。正文用一张表把服务、适用场景、MCP 工具和 CLI 列在一起，例如 Azure Monitor 对应 azure__monitor 与 az monitor，Application Insights 对应 azure__applicationinsights 与 az monitor app-insights，Log Analytics 对应 azure__kusto 与 az monitor log-analytics，Alerts 对应 az monitor alert。用 App Insights SDK 给应用埋点、查询 Kusto/ADX 集群和成本分析都不在范围内，分别走 appinsights-instrumentation、azure-kusto、azure-cost-optimization。",
+    "usage": "要查 Azure 指标、看 APM 与分布式追踪、写 KQL 日志查询，或建告警和交互式报表时调用；按服务在表里选 MCP 工具或 CLI，例如日志用 `az monitor log-analytics`。",
+    "notes": "边界写得很清楚：App Insights SDK 埋点走 appinsights-instrumentation，Kusto/ADX 查询走 azure-kusto，成本分析走 azure-cost-optimization；CLI 一列是 az 命令。",
+    "tier": "auto"
+  },
+  "pbakaus/impeccable/animate": {
+    "name_zh": "动效与微交互",
+    "intro": "复核一个功能，再加上有目的的动画、微交互和动效，用来帮助理解、提供反馈和提升体验感。正文先找该加动效的地方：没有视觉反馈的动作（按钮点击、表单提交）、生硬的过渡（显示隐藏、页面加载、路由切换），以及空间或层级关系不清楚的切换。前置同样是强制准备：先调用 /impeccable 拿设计原则、反模式和 Context Gathering Protocol，没有设计上下文先跑 /impeccable teach，另外还要确认性能约束。",
+    "usage": "用户说加动画、做过渡、微交互、hover 效果，或嫌界面太死板时调用；先按前置步骤拿设计上下文和性能约束，再逐处判断该不该加动效。",
+    "notes": "依赖 /impeccable 的设计上下文，缺上下文先跑 /impeccable teach；参数是目标范围（argument-hint 为 [target]）。",
+    "tier": "auto"
+  },
+  "pbakaus/impeccable/audit": {
+    "name_zh": "技术质量审计",
+    "intro": "跨无障碍、性能、主题化、响应式设计和反模式做技术质量检查，产出一份带评分的报告、P0 到 P3 的严重度分级和可执行的整改计划。正文强调这是代码层面的审计而不是设计批评，只看实现里可测量、可验证的东西，而且只记录问题不修，留给其他命令处理。诊断扫描按 5 个维度各评 0 到 4 分；无障碍一项会看对比度（正文给的门槛是 4.5:1，AAA 是 7:1）和缺少 ARIA 的交互元素。",
+    "usage": "用户要做无障碍检查、性能审计或技术质量复核时调用；先按前置要求拿到设计上下文，再跑 5 个维度的打分扫描，输出分级报告而不是直接改代码。",
+    "notes": "只诊断不修复，改动交给其他命令；依赖 /impeccable 的设计上下文，缺上下文要先跑 /impeccable teach。",
+    "tier": "auto"
+  },
+  "pbakaus/impeccable/critique": {
+    "name_zh": "设计评审打分",
+    "intro": "从 UX 角度评估设计：视觉层级、信息架构、情绪感受、认知负荷和整体质量，手段包括定量打分、按人物角色测试、自动检测反模式，以及给出可执行的反馈。触发场景是用户要求评审、批评、评估或反馈某个设计或组件。正文步骤：先调用 /impeccable 拿设计原则与 Context Gathering Protocol，没有设计上下文时必须先跑 /impeccable teach，并明确界面想达成什么；然后起两份独立评估，正文要求两者互相看不到对方输出以避免偏差，并建议各自交给一个子代理，返回结构化文本。",
+    "usage": "用户要评审某个设计或组件、要 UX 视角的反馈或打分时调用；先拿到设计上下文，再让两份评估并行且互相不可见，最后汇总成结构化反馈。",
+    "notes": "依赖 /impeccable 的设计上下文，缺上下文要先跑 /impeccable teach；两次评估必须互相隔离，宿主得能派子代理。",
+    "tier": "auto"
+  },
+  "pbakaus/impeccable/polish": {
+    "name_zh": "上线前打磨",
+    "intro": "交付前最后一轮质量过手，修对齐、间距、一致性和微细节。正文有强制准备步骤：先调用 /impeccable，它带着设计原则、反模式和 Context Gathering Protocol；还没有设计上下文时必须先跑 /impeccable teach，另外要确认质量档（MVP 还是旗舰）。之后做设计系统勘查：找设计系统文档、组件库、样式指南或 token 定义，摸清颜色 token、间距刻度、排版样式和组件 API，以及共享组件的导入方式。",
+    "usage": "用户说打磨、收尾、上线前检查、看着哪里不对，或要从「能用」做到「好看」时调用；先拿到设计上下文和质量档，再对照设计系统逐项过细节。",
+    "notes": "依赖 /impeccable 的设计上下文，缺上下文要先跑 /impeccable teach；参数是目标范围（argument-hint 为 [target]）。",
+    "tier": "auto"
+  },
+  "prime-skills/runcomfy-agent-skills/gpt-image-2": {
+    "name_zh": "GPT 图像生成",
+    "intro": "在 RunComfy 上用 OpenAI GPT Image 2（ChatGPT Images 2.0）生成和编辑图片。正文记的是这个模型的强项——文字嵌入、logo、多语言排版、指令精确度——以及它只有 3 个固定尺寸、编辑时用「保留式」措辞，还有什么时候该改道兄弟模型（Flux 2、Nano Banana Pro、Seedream）。调用走本地 RunComfy CLI；触发语是 gpt image 2、gpt-image-2、ChatGPT Images 2、image 2，或用户明确要求用这个模型出图改图。主页 runcomfy.com，许可为 MIT。",
+    "usage": "用户点名要 GPT Image 2 出图或改图时调用；文生图走 `runcomfy run openai/gpt-image-2/text-to-image`，改图走同模型的 `/edit`，先确认尺寸和保留要求。",
+    "notes": "需要本地装好并配置 RunComfy CLI；模型只有 3 个固定尺寸；要更强风格或文字能力时按正文改道 Flux 2、Nano Banana Pro、Seedream。",
+    "tier": "auto"
+  },
+  "vercel/turborepo/turborepo": {
+    "name_zh": "turbo 仓库配置",
+    "intro": "Turborepo 仓库的配置与排查。完整文档随安装的 turbo 包一起发，所以正文的要求是不要靠这个技能讲框架用法，而是读捆绑文档，让文档版本与安装版本对齐；入口是 node_modules/turbo/docs/README.md，用它的任务索引挑最小相关的那页，改 turbo.json、包脚本或 CI 之前先读。node_modules 不是扁平结构或走 workspace 链接时，先用 node -p \"require.resolve('turbo/package.json')\" 解析包位置，再按解析出的目录读 docs/README.md。仓库里没装 turbo 时，先看它用的包管理器和现有版本约束再决定装。",
+    "usage": "改 turbo.json、任务流水线、缓存、Remote Cache、turbo CLI 参数、过滤、环境变量、包边界、monorepo 结构或 CI 时调用；先读 `node_modules/turbo/docs/README.md`，按任务索引找最小相关页读完再动手。",
+    "notes": "需要已安装 turbo 包（文档在包内）；非扁平 node_modules 或 workspace 链接场景要先解析包位置；不要用针对其他版本的资料改配置。",
+    "tier": "auto"
+  },
+  "wshobson/agents/typescript-advanced-types": {
+    "name_zh": "TS 高级类型",
+    "intro": "TypeScript 高级类型系统的实操指南：泛型、条件类型、映射类型、模板字面量类型和工具类型。适用场景是搭类型安全的库或框架、写可复用的泛型组件、实现复杂类型推断、设计类型安全的 API 客户端、做表单校验、写强类型配置对象、做类型安全的状态管理，以及把 JS 代码库迁到 TS。正文分节给代码，例如泛型函数 identity<T>(value: T): T，目的是在保持类型安全的前提下让组件可复用。",
+    "usage": "要写复杂类型逻辑、造可复用的类型工具，或排查编译期类型报错时调用；按泛型、条件类型、映射类型、模板字面量类型和工具类型分节找对应的写法与代码片段。",
+    "notes": "以模式说明和 TS 代码片段为主，不是可直接执行的命令行工具。",
+    "tier": "auto"
+  }
+}

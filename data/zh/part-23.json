@@ -1,0 +1,177 @@
+{
+  "addyosmani/agent-skills/code-review-and-quality": {
+    "name_zh": "代码评审",
+    "intro": "合并前的多维代码评审：固定看正确性、可读性、架构、安全和性能五条轴。批准标准写得很直白——只要这次改动确实让代码整体变好就批，不要求完美，也不因为「换我会写成另一个样子」而卡住。",
+    "usage": "改完功能、修完 bug、重构完，或要评别人、别的模型写的代码时用；diff 直接贴在对话里也能评。修 bug 时正文要求把修复和补上的测试一起看。",
+    "notes": "正文把评审当作合并的强制关口，任何改动都要过一遍；判断依据是项目自己的约定和代码整体健康度，不是评审者的个人风格。",
+    "tier": "auto"
+  },
+  "addyosmani/agent-skills/security-and-hardening": {
+    "name_zh": "安全加固",
+    "intro": "写代码时对着漏洞做加固：所有外部输入都当敌意输入处理，密钥不外泄，每个授权检查都当必需项。涉及用户输入、认证、存敏感数据、接第三方接口、文件上传、webhook 或回调的功能时用它；审计依赖里的已知漏洞、判断新包的供应链风险，以及个人信息与 GDPR、CCPA 合规也算在内。",
+    "usage": "要落地登录流程、处理不可信数据、管理会话，或要逐条过 OWASP Top Ten 时用它；用包管理器做安全审计、评估新依赖的供应链风险时也可以。原则是按外部输入一律不可信来审，不等出事再补。",
+    "notes": "正文按 OWASP Top Ten 组织审查项，个人信息部分覆盖 GDPR 和 CCPA；核心三条是外部输入当敌意输入、密钥当最要紧的东西、授权检查不可省。",
+    "tier": "auto"
+  },
+  "agent.qq.com/agently-mail": {
+    "name_zh": "QQ 邮箱 CLI",
+    "intro": "通过 agently-cli 收发和管理邮件：发送、回复、转发、搜索、读信、下载附件、整理收件箱，凭据走 OAuth 授权后存在本机。任何邮件相关的操作都可以走它，后台管理在 agent.qq.com；授权必须在浏览器里完成，CLI 会把授权链接打出来。",
+    "usage": "首次用先装 CLI 再授权：`npm install -g @tencent-qqmail/agently-cli`、`agently-cli auth login`，之后用 `agently-cli +me` 确认当前授权的邮箱。技能本身可以用 `npx skills add https://agent.qq.com --skill -g -y` 安装。`agently-cli auth status` 看状态，`agently-cli auth logout` 清本机凭据。",
+    "notes": "授权是交互式长命令，正文要求在后台（pty）运行，把它输出的原始授权 URL 原样发给用户，不做编码或拼接改动；失败或超时不要重试，直接把错误反馈回去。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/marketing-plan": {
+    "name_zh": "营销计划",
+    "intro": "给客户、被投公司或自家产品写完整营销计划：13 个章节按 AARRR（获客、激活、留存、推荐、收入）组织，按当前的预算、团队和阶段做定制，并对齐后续融资节点。计划里会交叉引用一个 139 条点子的营销创意库和一份 17 节的现状审计清单，还会列出营销运营要用到的技能与 MCP/API 集成，最后输出可直接粘进 Notion 的 markdown。",
+    "usage": "要 GTM 计划、增长计划、90 天计划、12 个月路线图，或做市场测算（TAM SAM SOM）时用它。定位和 ICP 还没想清楚就先看 product-marketing；具体环节的深挖看 onboarding、signup、emails、referrals、pricing。",
+    "notes": "产出的是一份长文档，不是能直接执行的投放。正文按 fCMO 视角组织，要你给出真实的预算、团队和阶段信息才谈得上定制。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/paywalls": {
+    "name_zh": "应用内付费墙",
+    "intro": "设计应用内付费墙和升级引导：升级弹窗、追加销售弹窗、功能门禁、试用到期页、额度用尽页都算。它盯的是用户已经体验到价值之后的那个升级时刻，跟对外的定价页不是一回事；降价涨价这类定价决策另有 pricing 处理。",
+    "usage": "用户说「免费用户不升级」「试用到期怎么提示」「额度到顶的页面怎么写」「付费墙转化」时用它。对外公开定价页相关的看 cro，定价本身的决策看 pricing。",
+    "notes": "正文要求先读 `.agents/product-marketing.md` 之类的产品营销上下文再提问。它给的是文案和引导时机的改法，不实现付费与订阅逻辑。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/popups": {
+    "name_zh": "弹窗转化",
+    "intro": "做转化用的弹窗和浮层：退出意图弹窗、邮件收集弹窗、公告条、吸底条、滑入式浮层都算。它的取舍点是弹出要能带来转化，又不能烦人或伤品牌，所以正文先问清弹窗是为了收集邮箱还是别的，再谈触发时机和文案。",
+    "usage": "用户提到 exit intent、弹窗转化、弹窗优化、邮件收集弹窗、公告条、吸底条、通知条时用它。弹窗之外的一般表单看 cro，整页转化优化也看 cro。",
+    "notes": "正文要求先读 `.agents/product-marketing.md`（老项目是 `.claude/product-marketing.md`）里的产品营销上下文再提问。它只给弹窗内容与触发时机的建议。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/signup": {
+    "name_zh": "注册转化",
+    "intro": "优化注册、开户和免费试用激活流程的技能：把步骤砍短、提高完成率，让注册完的人顺利进入首次使用。动手前先读产品营销上下文文件，把已经写下来的人群和定位信息拿过来，少问重复问题。适合注册漏斗表现差、试用转化率低、注册步骤太多的场景。",
+    "usage": "用户说「注册转化低」「注册流失」「试用转化率」「表单太长」时用它；先确认 `.agents/product-marketing.md` 之类的上下文文件在不在，读到了就不要再问里面已有的信息。注册之后的新手引导转 onboarding，只收集线索、不建账号的表单转 cro。",
+    "notes": "动手前要能拿到当前注册步骤和转化数据，正文的 Initial Assessment 一节就是收集这些的。注册后的引导看 onboarding，线索采集表单看 cro。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/social-content": {
+    "name_zh": "社媒内容",
+    "intro": "做社媒内容：为 LinkedIn、Twitter/X、Instagram、TikTok、Facebook 等平台写帖子、排内容日历、把已有内容改成多平台版本，以及写短视频脚本（Reels、Shorts、TikTok）。它的定位是社媒策略与内容产出；更上层的内容策略看 content-strategy，付费视频广告看 ad-creative。",
+    "usage": "用户说「LinkedIn 帖子怎么写」「Twitter 长推文串」「内容日历」「把这篇改成社媒版」「短视频脚本与 hook」时用它，排期和「我该发什么」这类问题也算。",
+    "notes": "正文要求先读 `.agents/product-marketing-context.md`（老项目在 `.claude/product-marketing-context.md`）里的产品营销上下文，再动手写。",
+    "tier": "auto"
+  },
+  "expo/skills/expo-dev-client": {
+    "name_zh": "Expo 开发客户端",
+    "intro": "用 EAS Build 构建 Expo 开发客户端，给自己或内测同事在真机上验证原生改动：改了原生代码、要测某个分支，或者用到了 Expo Go 里没有的原生模块时就得走这条路。本地构建免费；云端构建和 TestFlight 分发消耗 EAS 套餐的构建额度，真机与 TestFlight 分发还需要付费的 Apple 开发者账号。",
+    "usage": "Expo Go 满足不了、或要测带原生模块的分支时才需要开发客户端；构建前先确认 EAS 额度与 Apple 开发者账号。费用说明在 https://expo.dev/pricing，Expo Go 与开发构建的区别见 https://docs.expo.dev/develop/development-builds/introduction/。",
+    "notes": "生产版 TestFlight 发布和商店上架不在本技能范围，正文让你转 eas-app-stores。免费的是本地构建，云端按 EAS 套餐计费。",
+    "tier": "auto"
+  },
+  "firecrawl/cli/firecrawl-interact": {
+    "name_zh": "页面交互抓取",
+    "intro": "在抓下来的页面上开一个真实浏览器去操作：点击、填表、登录、翻页、无限滚动，用来拿静态抓取拿不到的内容。抓取失败或结果不完整、页面内容要交互才会出现时用它；只做网页搜索的场合正文让你用 search，interact 是针对某个具体页面动手的。",
+    "usage": "先 `firecrawl scrape \"<url>\"` 抓一页（scrape ID 会自动存下来），再用自然语言提示操作，比如 `firecrawl interact \"Click the login button\"`；要精确控制就换 `firecrawl interact --code \"agent-browser click @e5\" --bash`，`agent-browser snapshot -i` 能拿可交互元素清单。做完记得停掉会话。",
+    "notes": "正文的 allowed-tools 限定 `firecrawl *` 和 `npx firecrawl-cli *`。首个参数是 UUID 时会被自动识别成 scrape ID。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-shared": {
+    "name_zh": "gws 通用参数",
+    "intro": "gws 命令行工具的公共部分：怎么登录、有哪些全局开关、输出格式怎么选，以及命令行的调用语法。跑任何 Google Workspace 的 gws 子命令之前都该先过一遍，尤其是输出格式和 --dry-run、--page-all 这类决定一次请求怎么发、结果怎么给的开关。",
+    "usage": "装好 gws 并保证它在 PATH 上之后，用 `gws auth login` 走浏览器 OAuth，或给服务账号设 `GOOGLE_APPLICATION_CREDENTIALS=/path/to/key.json`。语法是 `gws <service> <resource> [sub-resource] <method> [flags]`；传参用 `--params '{\"key\": \"val\"}'` 与 `--json '{\"key\": \"val\"}'`，全局开关有 `--format`、`--dry-run`、`--sanitize`、`--page-all`。",
+    "notes": "前置是 gws 二进制已在 PATH 上（正文的 requires.bins 里写了 gws）。`--dry-run` 只做本地校验不发请求，`--sanitize` 让响应过一遍 Model Armor。",
+    "tier": "auto"
+  },
+  "greensock/gsap-skills/gsap-performance": {
+    "name_zh": "GSAP 性能",
+    "intro": "GSAP 官方性能技能：动画只动 transform 和 opacity，把开销留在合成层，避开会触发布局的属性，减少卡顿以保住 60fps。长列表滚动动画掉帧、或页面在动画时一顿一顿的时候，先看它。",
+    "usage": "优化 GSAP 动画、查 jank、被问 FPS 时用它。要动的属性优先选 x、y、scale、rotation、opacity；能不用就不用 width、height、top、left、margin、padding，这些会触发布局。基础 tween 和 autoAlpha 看 gsap-core，时间线看 gsap-timeline，滚动相关的性能看 gsap-scrolltrigger。",
+    "notes": "正文给的是属性选择与调度层面的约定，具体数值要在你自己的页面上量。此批 GSAP 技能按 MIT 发布。",
+    "tier": "auto"
+  },
+  "greensock/gsap-skills/gsap-scrolltrigger": {
+    "name_zh": "GSAP 滚动触发",
+    "intro": "GSAP 官方 ScrollTrigger 技能：滚动联动动画、元素钉住、scrub 跟随滚动位置，以及基于滚动位置触发的 tween 与 timeline。做视差、分段钉住的长页面时用；用户只说「要滚动动画」而没指定库时，正文建议直接上 GSAP 加 ScrollTrigger。",
+    "usage": "写滚动驱动动画时先注册插件：`gsap.registerPlugin(ScrollTrigger);`，再把 tween 或 timeline 挂到滚动位置上。单条 tween 和缓动看 gsap-core，多步时间线看 gsap-timeline，React 的清理看 gsap-react，ScrollSmoother 和 scrollTo 看 gsap-plugins。",
+    "notes": "ScrollTrigger 是插件，脚本加载后要注册一次；此批 GSAP 技能按 MIT 发布。插件只管滚动驱动的动画，缓动本体在 gsap-core。",
+    "tier": "auto"
+  },
+  "greensock/gsap-skills/gsap-timeline": {
+    "name_zh": "GSAP 时间线",
+    "intro": "GSAP 官方时间线技能：把多个 tween 排成一条时间线，控制先后、并行、嵌套和播放。做多步动画、给几个元素排顺序、或用关键帧式的思路组织动画时用它；默认情况下 tween 一个接一个追加，位置参数用来把它们放到指定时间点。",
+    "usage": "先建时间线 `const tl = gsap.timeline();`，再往上面追加 tween；第三个参数（或 vars 里的 position）决定摆放位置，比如写 1 就是从第 1 秒开始。单个 tween 和缓动看 gsap-core，滚动驱动的时间线看 gsap-scrolltrigger，React 里看 gsap-react。",
+    "notes": "它只讲时间线的组织方式，元素的实际变化还是靠 tween 的属性。此批 GSAP 技能按 MIT 发布。",
+    "tier": "auto"
+  },
+  "heygen-com/hyperframes/lottie": {
+    "name_zh": "Lottie 适配",
+    "intro": "HyperFrames 里播 Lottie 与 dotLottie 的适配方式：动画时间线本来就编码在素材里，适配层只要拿到一个可 seek 的播放器对象，就能定位到任意时刻。嵌入 lottie-web 的 JSON、.lottie 文件或 dotLottie 播放器时用，目标是让 After Effects 导出的动画可复现。",
+    "usage": "按契约来：素材放本地项目文件里（通常在 `assets/` 下），设 autoplay:false，非必要不循环，把每个动画或播放器实例登记到 `window.__hfLottie`，容器尺寸用 CSS 固定住。适配层对 lottie-web 调 `goToAndStop(timeMs, false)`，dotLottie 按帧或百分比 API seek。",
+    "notes": "dotLottie 播放器走 @lottiefiles/dotlottie-web，seek 接口按播放器形态可能是帧也可能是百分比，正文说要按实际的播放器形状判断。",
+    "tier": "auto"
+  },
+  "heygen-com/hyperframes/three": {
+    "name_zh": "3D 场景适配",
+    "intro": "HyperFrames 里的 Three.js 与 WebGL 适配层：它不接管你的场景，只把 HyperFrames 的时间发出来并派发 seek 事件，让合成按指定帧渲染。做确定性的 Three.js 场景、WebGL 画布层、AnimationMixer 时间线或着色器画面时用，要求按 HyperFrames 时间渲染而不是挂钟时间。",
+    "usage": "按契约写：场景、相机、渲染器和贴图尽量同步创建，监听 `hf-seek` 事件并按事件里的时间渲染，模型与 HDRI 在 seek 之前加载完。适配层每次 seek 会写 `window.__hfThreeTime` 并派发 `new CustomEvent(\"hf-seek\", { detail: { time } })`。",
+    "notes": "别把 requestAnimationFrame 或 renderer.setAnimationLoop 当作渲染的主时钟。正文的例子用 `<canvas id=\"three-layer\">` 加 CDN 上的 three 模块。",
+    "tier": "auto"
+  },
+  "heygen-com/hyperframes/waapi": {
+    "name_zh": "WAAPI 适配",
+    "intro": "HyperFrames 里用 Web Animations API 做动画的适配方式：不引入 GSAP，直接拿浏览器原生关键帧加 JavaScript 造的时间控制。写 element.animate() 的动画、要用动画的 currentTime 定位、或用 document.getAnimations() 遍历时用，目标是让原生动画在渲染里按给定时间确定性呈现。",
+    "usage": "契约：动画在合成初始化时同步创建，`element.animate(...)` 的 duration 和 iterations 都取有限值，`fill: \"both\"` 让 seek 后的状态保留，创建后暂停或交给适配层在第一次 seek 时暂停。适配层会调 `document.getAnimations()`，把每个动画的 currentTime 设成 HyperFrames 的毫秒时间再暂停。",
+    "notes": "渲染关键路径上不要用回调和 promise 决定状态。正文的例子是一个带 data-start、data-duration、data-track-index 的 div 元素。",
+    "tier": "auto"
+  },
+  "momentic-ai/skills/momentic-test": {
+    "name_zh": "Momentic用例",
+    "intro": "维护 Momentic 的浏览器 E2E 测试和可复用模块：测试是 `*.test.yaml`，模块是 `*.module.yaml`，v2 文件靠 fileType 标成 momentic/test/v2 与 momentic/module/v2。写用例、改用例、排查跑不起来的问题都可以用它，重点是别按 v1 的旧格式直接改文件。",
+    "usage": "建、跑、维护用例时用。环境看 `defaultEnv`，命令行的 `--env <name>` 能覆盖它，而且不会回退到配置里唯一的环境。base URL 的取值顺序是 `--url-override`、用例自己的 url、再是 `env.BASE_URL`，都没给就跑不起来。v1 的 YAML 不要手改，改动通过 `momentic_test_splice_steps` 落。",
+    "notes": "动手前先看 `momentic.config.yaml` 和用例级元数据，别假设项目默认值都适用；缺 fileType 或 fileType 不同的按已废弃的 v1 处理。",
+    "tier": "auto"
+  },
+  "msmps/opentui-skill/opentui": {
+    "name_zh": "OpenTUI 终端",
+    "intro": "用 OpenTUI 写终端界面：Core、React、Solid 三套 API 都覆盖，组件、布局、键盘与键位映射、动画和测试都在范围内。正文给了四条硬规则，其中一条是新建项目用 create-tui 且选项必须写在参数前面，另一条是别直接调 process.exit()，要用 renderer.destroy()。",
+    "usage": "任何 TUI 任务都可以用它，先按正文的决策树选框架，再翻对应的参考文件（core、react、solid，以及 components、layout、keyboard、keymap、animation、testing）。建新项目要写成 `bunx create-tui -t react my-app`，写成 `bunx create-tui my-app -t react` 不生效。React/Solid 里改文字样式要用嵌套的修饰元素，不能用 props。",
+    "notes": "参考文件按 core、react、solid 的 5 文件模式组织，另有单文件的横向指南。正文提示 create-tui 的选项写在参数后面会不生效。",
+    "tier": "auto"
+  },
+  "nextlevelbuilder/ui-ux-pro-max-skill/banner-design": {
+    "name_zh": "横幅设计",
+    "intro": "按平台和尺寸出横幅设计：社媒封面、广告图、网站首屏、活动物料都覆盖，一次给多个美术方向，图可以是 CSS 拼的、你提供的或另外生成的。它只管横幅本身，不碰视频剪辑、整站设计和印厂制作。",
+    "usage": "用户要封面、头图、广告位或首屏视觉时用；调用参数是 `[platform] [style] [dimensions]`。平台可选 Facebook、Twitter/X、LinkedIn、YouTube、Instagram、Google Display、website hero、print，风格里包含 minimalist、gradient、bold typography、photo-based、glassmorphism、3D、neon、duotone、collage。",
+    "notes": "技能自述只做横幅设计：视频编辑、整站设计、印刷制作都不在范围内。正文给的是多个美术方向的方案，最终出图还要走你自己的工具。",
+    "tier": "auto"
+  },
+  "nutlope/hallmark/hallmark": {
+    "name_zh": "防AI味设计",
+    "intro": "专门对付「一眼 AI 味」的设计技能：新建页面、审设计、重做设计，或从 URL 和截图里提取设计规则时都能用。它的要求是结构上也要有变化，不只是换配色——同一个技能为两个不同需求做的页面，不该共用首屏、三特性、行动号召、页脚这套节奏，细节在 references/structure.md 里。",
+    "usage": "用户要搭新应用或落地页、要重做某个页面、直接点名 Hallmark，或者说 audit、redesign、study 时用它。规则来源是反 AI 味设计的共识整理，写作刻意保持短、少而固执。",
+    "notes": "技能说明里写了由 Together AI 提供支持。它管的是设计规则与结构，出图或出稿的能力取决于你另外接的工具。",
+    "tier": "auto"
+  },
+  "pbakaus/impeccable/typeset": {
+    "name_zh": "字体排版",
+    "intro": "改排版：字体选型、层级、字号、字重和可读性，目标是让文字看起来是刻意设计过的，而不是默认样式。觉得字号不对劲、标题和正文分不出来，或者想摆脱 Inter、Roboto、Arial、Open Sans、系统默认这些隐形默认时用它。正文有一条硬前置：先跑 /impeccable 拿设计原则和上下文收集协议。",
+    "usage": "用户提到字体、字体层级、可读性、字号怪、想把排版做讲究时用它。动手前必须走前置流程，否则评估没有依据；正文还把「超过 2 到 3 种字体家族基本就是乱」当默认判断。",
+    "notes": "前置：必须先跑 `/impeccable`；没有设计上下文时按正文要求先跑 `/impeccable teach`，否则不该直接给排版建议。",
+    "tier": "auto"
+  },
+  "stripe/ai/stripe-projects": {
+    "name_zh": "Stripe 开通",
+    "intro": "用 Stripe Projects 开通基础设施和第三方服务：数据库、鉴权、缓存、向量库、托管、监控、邮件、搜索、消息队列、对象存储、功能开关，以及去哪拿某个服务的 API key。正文的主张是别让用户自己跑去注册，先在 Projects 目录里查有没有能直接开通的服务。",
+    "usage": "用户说「我要个 Postgres」「配个 Redis」「加个向量库」「拿 X 的 API key」时用它；也能查项目状态、列已开通的资源和环境变量。入口是 stripe CLI，正文的 allowed-tools 写了 `stripe *` 和 `brew install stripe/stripe-cli/stripe`，目录部分提到 projects.dev。",
+    "notes": "前置是本机有 stripe CLI（正文给的安装方式是 Homebrew 那条），并按其 Bash 允许清单执行。它负责开通和拿凭据，服务怎么接进你的代码要自己写。",
+    "tier": "auto"
+  },
+  "vercel/ai/ai-sdk": {
+    "name_zh": "AI SDK 开发",
+    "intro": "Vercel 的 AI SDK（npm 上的 `ai` 包）是写 AI 应用的 TypeScript 工具集：在多家模型供应商之上统一了文本生成、结构化输出、工具调用、agent、向量嵌入和前端框架集成。用 generateText、streamText、ToolLoopAgent、embed、useChat 这些接口时，或要查供应商接入、流式、结构化输出时用它。",
+    "usage": "问 AI SDK 用法、要在应用里加 AI 功能、搭 chatbot 或 RAG、用 React 的 useChat 与 useCompletion 时用它。正文强调不要凭记忆答：接口在各版本之间改名、删除、新增都很频繁，答案要回仓库 https://github.com/vercel/ai 和文档 https://ai-sdk.dev/docs 核对。",
+    "notes": "接口随版本变化快，正文明确要求先查文档再答。它讲的是 SDK 用法，不含模型本身的选型建议。",
+    "tier": "auto"
+  },
+  "wshobson/agents/tailwind-design-system": {
+    "name_zh": "TW 设计系统",
+    "intro": "用 Tailwind CSS v4 搭可扩展的设计系统：设计令牌、组件变体、响应式模式和可访问性都在内。技能只针对 v4（2024 年以后），v3 项目要先去升级；v4 把配置从 JS 配置文件挪进了 CSS，正文用一张对照表列这个变化。",
+    "usage": "做组件库、统一全站 UI 写法、补暗色模式，或从 v3 迁到 v4 时用。迁移入口是 https://tailwindcss.com/docs/upgrade-guide；v4 的配置写在 CSS 里，不再是 tailwind.config。",
+    "notes": "只覆盖 v4，v3 要先按官方升级指南迁移。正文给的是建系统的方法和写法约定，不含构建配置实操。",
+    "tier": "auto"
+  }
+}

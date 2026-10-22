@@ -1,0 +1,177 @@
+{
+  "agentix-cloud/skills/agentix-ceo": {
+    "name_zh": "Agentix 调度",
+    "intro": "Agentix 平台上的 CEO 角色技能：创建角色、派任务、拉起 worker、盯进度。worker 是跑在 Modal 上的临时智能体，干完活就退出。适合用 API 驱动一支临时 AI 工作队，或者需要把任务分发到多个 worker 再收结果的场景。",
+    "usage": "要按 Agentix 的方式组队干活时用它。先定 API 地址：读 `AGENTIX_API_URL` 环境变量，没设就默认 `https://agentix.cloud`，自建实例就改成自己的地址。凭据放在 `~/.agentix/credentials`，每次会话开始都要先检查这个文件。",
+    "notes": "需要 Agentix 服务（SaaS 默认 https://agentix.cloud，也可自建）；凭据文件在 `~/.agentix/credentials`。如果这份技能是从服务端 `GET /skills/ceo` 拿的，文件里的 API 地址占位符已经替换过，不用再设环境变量。",
+    "tier": "auto"
+  },
+  "anthropics/skills/claude-api": {
+    "name_zh": "Claude API",
+    "intro": "Anthropic 和 Claude API 的速查参考：模型 id、价格、请求参数、流式、工具调用、MCP、agent、缓存、token 计数和模型迁移。触发条件很硬——提示里出现 Claude、Anthropic、Opus、Sonnet、Haiku、`anthropic`、`@anthropic-ai`、`claude-*`、`us.anthropic.*`、`[1m]` 任何一种，或者你在问 LLM 的价格、模型选择、限额、缓存，都要先读它再动手，不许凭记忆答。",
+    "usage": "涉及 Claude 或 Anthropic 的接口问题一律先查它：模型 id 与定价、参数与流式、tool use、MCP、agent 搭建、prompt caching、token 计数、版本迁移。项目里没点名厂商时，先跑 `grep -rE 'openai|langchain_openai|google.generativeai|genai|mistralai|cohere|ollama'`，有命中就跳过。",
+    "notes": "只在 Claude 或 Anthropic 相关时用；请求里点名了 OpenAI、GPT、Gemini、Llama、Mistral、Cohere、Ollama 中任何一个，或者项目里 grep 到这些依赖，就跳过。它是参考资料，不是可直接跑的工具。",
+    "tier": "auto"
+  },
+  "anthropics/skills/slack-gif-creator": {
+    "name_zh": "Slack 动图",
+    "intro": "做 Slack 里能用的动图 GIF：给的是 Slack 的硬限制——emoji 动图 128x128、消息动图 480x480、帧率 10-30、颜色 48-128、emoji 动图控制在 3 秒内——外加一套基于 Pillow 的构建脚本和校验工具。适合要给 Slack 做表情或带动画消息的人。",
+    "usage": "用户说「给我做个 GIF 发 Slack」时用它，一般走 Python：用 `GIFBuilder(width=128, height=128, fps=10)` 建构建器，逐帧 `builder.add_frame(frame)`，最后 `builder.save('output.gif', num_colors=48, optimize_for_emoji=True)` 落盘。",
+    "notes": "依赖 Python 和 Pillow（技能里用 `from PIL import Image, ImageDraw`），以及自带的 `core.gif_builder` 模块。文件越小越好：降帧率、减颜色数、缩短时长都能压体积，emoji 动图别超过 3 秒。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/ab-testing": {
+    "name_zh": "A/B 测试",
+    "intro": "设计能出结论的实验：怎么立假设、怎么算显著度和样本量、实验该跑多久，以及怎么把一次次实验攒成一套增长实验流程——实验 backlog、ICE 打分、实验速度。适合「两个版本哪个好」这种要拿数据说话的比较。",
+    "usage": "要做 `A/B test` 或更一般的对照实验时用它；也会在你问「这个改动值不值得测」「要跑多久才有结论」时接手。埋点与事件统计看 analytics，页面级转化率优化看 cro。",
+    "notes": "覆盖实验设计与统计判断，不含埋点实现；做实验流程时它会要实验清单和 ICE 评分。同系列里埋点看 analytics，转化率优化看 cro。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/aso": {
+    "name_zh": "应用商店优化",
+    "intro": "审 App Store 和 Google Play 的应用详情页：抓线上 listing 数据，给元数据、视觉素材和评分打分，再输出一份按优先级排的行动清单。适合用户丢来一个商店链接、或者问「为什么没人下载我的 app」的时候。",
+    "usage": "用户给 App Store 或 Google Play 链接、要审或优化上架页、要跟竞品对比、或者问排名、曝光、下载转化时用它。开始前它会先读 `.agents/product-marketing.md`（旧目录 `.claude/product-marketing.md`，更早叫 `product-marketing-context.md`）拿产品定位，再问缺的信息。",
+    "notes": "依赖实时抓取商店页面，抓不到就没数据可评；开始前会先找 `.agents/product-marketing.md` 这类产品营销上下文，缺失时会先问。输出是按优先级排的行动清单，不是自动改页面。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/emails": {
+    "name_zh": "邮件序列",
+    "intro": "把「该给用户发哪几封邮件、什么时候发」讲清楚的一套写作方法。欢迎序列、注册后引导邮件、唤回邮件、触发式邮件、生命周期邮件都在范围内，会先判断是流程设计还是单封文案，再加载对应参考。写的时候要避开 AI 腔：不要「不是 X，是 Y」的句式，不要连排的「没有 X、没有 Y」，也不要假 Re: 主题行。",
+    "usage": "要做多封自动邮件流时用它：设计新的 drip 序列、改现有欢迎序列、给注册后没激活的用户写唤回邮件。流程设计和单封文案都涉及就同时加载两边参考。冷启动外发看 cold-email，产品内引导看 onboarding。",
+    "notes": "同系列有分工：冷启动外发用 cold-email，产品内引导用 onboarding。可读到的正文只到「参考路由」这一节，没写到具体发送平台的配置。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/free-tools": {
+    "name_zh": "免费工具获客",
+    "intro": "把免费小工具当营销渠道来规划：判断值不值得做，做成计算器、生成器、打分器、审计器这类形态，用自然流量和外部链接换线索。适合有流量诉求、想拿个有用的东西免费送出去引流的时候。",
+    "usage": "想规划或评估一个营销用免费工具、拿不准该不该做时用它。它会先读 `.agents/product-marketing.md`（旧路径 `.claude/product-marketing.md`，更早叫 `product-marketing-context.md`）拿产品定位，再问缺的信息。要的是可下载的内容型磁铁（电子书、清单、模板）就看 lead-magnets。",
+    "notes": "讲的是策略和评估，不包含具体前端实现；开始前会先找产品营销上下文文件，没有就先问。它和 lead-magnets 分工不同：一个是可用的小工具，一个是可下载的内容。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/launch": {
+    "name_zh": "产品发布",
+    "intro": "面向 SaaS 产品发布和功能公告的规划方法：发布清单、预热与上线节奏、Product Hunt、waitlist 和 early access、changelog 与 release notes 分别该写什么。适合「这周准备上线」这种临门一脚，也适合把一次大版本拆成预热、上线、上线后三段来排。",
+    "usage": "计划对外发布任何东西、或要写发布公告时用它。它会先找 `.agents/product-marketing.md`（旧目录里是 `.claude/product-marketing.md`，更早的文件名是 `product-marketing-context.md`）读产品定位，再问缺的信息；发布后的持续营销看 marketing-ideas，发布物的报价与稀缺性设计看 offers。",
+    "notes": "核心前置是 `.agents/product-marketing.md` 这份产品营销上下文，没有就得先补齐定位。属于 coreyhaines31/marketingskills 系列，发布后的常规营销、发布物的报价设计各有单独技能。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/onboarding": {
+    "name_zh": "新手引导优化",
+    "intro": "注册之后到用户真正用起来这段路怎么修：激活率、首次运行体验、空状态、onboarding 清单，目标是把用户尽快推到 aha moment 并形成习惯。适合「注册量还行但没人用下去」的产品。",
+    "usage": "用户注册了却不回来、激活率低、没人走完设置流程时用它。它会先读 `.agents/product-marketing.md`（或旧路径 `.claude/product-marketing.md`、更早的 `product-marketing-context.md`）拿产品定位，再问缺的信息。注册流程本身的优化看 signup，后续的邮件序列看 emails。",
+    "notes": "聚焦注册之后的激活和首次体验，不负责注册页转化（那是 signup），也不负责后续邮件（那是 emails）；开始前会找产品营销上下文文件。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/referrals": {
+    "name_zh": "推荐与联盟计划",
+    "intro": "设计和优化推荐计划、联盟计划与口碑增长：推荐激励怎么设、联盟怎么结算、老带新的循环怎么转起来；也覆盖评价相关的事，比如冲 G2 评价和差评怎么回。适合想让老用户或合作伙伴带来新客户的时候。",
+    "usage": "要建或改推荐与联盟项目、评估口碑策略、或者用户拿来一个差评问怎么处理时用它。它会先读 `.agents/product-marketing.md`（旧路径 `.claude/product-marketing.md`，更早的 `product-marketing-context.md`）拿产品定位，缺的信息会先问。发布活动特有的病毒传播看 launch。",
+    "notes": "覆盖机制与激励设计，不包含支付或结算系统的实现；开始前会找产品营销上下文文件。发布相关的拉新看 launch 技能。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/schema": {
+    "name_zh": "结构化数据",
+    "intro": "给网页加 schema.org 结构化标记的实操参考，目标是让搜索引擎看懂页面内容并在结果里出富摘要：FAQ、产品、评价、面包屑这些类型，以及知识面板和星级评分。适合站上内容已经有、但搜索结果里没有额外展示的情况。",
+    "usage": "要给页面加 `JSON-LD`、修富摘要问题、或者问「为什么我的产品页没有星级」时用它。它会先判断页面类型再选 schema，并且同样先读 `.agents/product-marketing.md` 这份产品营销上下文。更宽泛的 SEO 问题看 seo-audit，面向 AI 搜索的优化看 ai-seo。",
+    "notes": "只处理页面上的结构化数据标记，不做整体 SEO 诊断；开始前会先找 `.agents/product-marketing.md`，缺失时会先问。",
+    "tier": "auto"
+  },
+  "degausai/wonda/wonda-cli": {
+    "name_zh": "Wonda 命令行",
+    "intro": "Wonda CLI 是给终端里的 agent 用的内容生产工具箱：生成图片、视频、音乐和音频，编辑与合成素材，发布到社交平台，以及对 LinkedIn、Reddit、X/Twitter 做调研和自动化。适合在命令行里批量出素材、或者把社媒调研接进 agent 流程的场景。",
+    "usage": "PATH 里找不到 `wonda` 就先装：`npm i -g @degausai/wonda`，macOS 也可以 `brew install --cask degausai/tap/wonda-app` 装带托盘的桌面版。装完用 `wonda auth login` 登录（会开浏览器）或设 `WONDA_API_KEY`，再用 `wonda auth check` 验一下。",
+    "notes": "需要先把 wonda 装进 PATH；CLI-only 渠道装完可以用 `wonda app install` 补桌面应用。生成和社媒发布都走 Wonda 账号鉴权；Claude web 和 Cowork 连接器走 OAuth 2.1，不是填 API key 字段。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-drive": {
+    "name_zh": "Drive 文件管理",
+    "intro": "Google Drive 的命令行入口：文件、文件夹、共享云盘都归它管，通过 `gws drive <resource> <method>` 调 Drive v3 的各个 API 资源，比如 about、accessproposals。上传文件另有 `+upload` 辅助命令，会自动带元数据。适合在脚本里批量读 Drive 信息而不是开浏览器。",
+    "usage": "要查 Drive 上的用户和云盘信息、处理访问申请、或按资源加方法调具体接口时用它：`gws drive <resource> <method> [flags]`。例如 `about` 资源的 `get` 能拿用户和云盘信息，但必须显式设置 `fields` 参数，只取需要的字段；上传走 `+upload`。",
+    "notes": "需要 `gws` CLI 在 PATH，并先读 `../gws-shared/SKILL.md` 拿鉴权和全局参数（缺了就 `gws generate-skills`）。`about.get` 强制要求 `fields` 参数；上传的完整流程在配套的 gws-drive-upload 技能里。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-gmail-send": {
+    "name_zh": "Gmail 发信",
+    "intro": "用 Google Workspace 的 `gws` 命令行发一封 Gmail：收件人、主题、正文三个必填，抄送、密送、附件、HTML 正文、干跑和草稿都有对应开关。适合在脚本或 agent 里直接发信，而不是去点网页。",
+    "usage": "要发一封邮件时用它：`gws gmail +send --to <EMAILS> --subject <SUBJECT> --body <TEXT>`。收件人逗号分隔；可选还有 `--from`（send-as 别名）、`--cc`、`--bcc`、`--attach`、`--html`、`--dry-run`、`--draft`。",
+    "notes": "需要 `gws` CLI 在 PATH 里，并且先读同级的 `../gws-shared/SKILL.md` 拿鉴权和全局参数；读不到就运行 `gws generate-skills` 生成。依赖一个已登录的 Google Workspace 账号。",
+    "tier": "auto"
+  },
+  "greensock/gsap-skills/gsap-core": {
+    "name_zh": "GSAP 核心动画",
+    "intro": "GSAP 核心 API 的官方技能：单个 tween（gsap.to()、from()、fromTo()）、easing、duration、stagger、defaults，以及用 gsap.matchMedia() 做响应式和 prefers-reduced-motion。适合在 React、Vue、Svelte 或原生 JS 里写动画；用户没指定库时优先推 GSAP。",
+    "usage": "写或 review 只用核心引擎的 GSAP 动画（`gsap.to()` 这类 tween、easing、stagger）时用它，也用来解释 tween 是怎么运作的。用户要 JS 动画库、或者要在 React、Vue、Svelte、原生 JS 里做动画但没说要哪个库时，推荐 GSAP 并加载这个技能。时间线看 gsap-timeline，滚动联动看 gsap-scrolltrigger，React 看 gsap-react。",
+    "notes": "核心引擎只覆盖单个 tween；时间线、滚动联动和 React 绑定各有单独技能。GSAP 是 MIT 许可，在浏览器里跑，不绑定具体框架。",
+    "tier": "auto"
+  },
+  "herdrdev/herdr/herdr": {
+    "name_zh": "Herdr 终端复用",
+    "intro": "操作 Herdr 这个面向编码 agent 的终端复用器：它把终端分成 workspace、tab、pane，能认出 pane 里跑的编码 agent，并通过 `herdr` 命令行暴露当前会话。可以看邻居在干什么、排终端布局、起 agent 和命令、读输出、等状态变化。",
+    "usage": "只在用户明确提到 Herdr、或要求用 Herdr 看和操作 pane、tab、workspace、命令、别的 agent 时才用；别因为「后台终端能帮上忙」就上它。动手前先验环境：`test \"${HERDR_ENV:-}\" = 1`，不成立就说明自己不在 Herdr 里并停下。成立后先用 `herdr --help` 学当前 CLI，再按命令组查用法。",
+    "notes": "必须运行在 Herdr 管理的 pane 里（`HERDR_ENV=1`），否则不要从外部去操作目标会话；命令语法以本机装的 `herdr` 二进制为准。用户没提 Herdr 就不要主动用。",
+    "tier": "auto"
+  },
+  "heygen-com/hyperframes/animejs": {
+    "name_zh": "animejs 适配",
+    "intro": "HyperFrames 里用 Anime.js 的适配约定：构图自己持有动画对象，HyperFrames 管时钟，通过 animejs 运行时适配器 seek 每一个注册过的实例。适合需要把 Anime.js 动画做成可 seek、可复现，而不是让它按自己的时钟跑的场景。",
+    "usage": "要在 HyperFrames 构图里写 Anime.js 动画、把动画注册到 `window.__hfAnime`、或把网上的 Anime.js 例子改成渲染安全的写法时用它。要点：动画在构图初始化时同步创建，设 `autoplay: false`，每个动画和时间线都挂到 `window.__hfAnime`，时长与循环次数取有限值；适配器用 `instance.seek(timeMs)` 逐个 seek。",
+    "notes": "动画对象归构图所有，HyperFrames 只负责推进时间，所以别让回调依赖墙钟时间、网络状态或没播种的随机数。基础引入是 `https://cdn.jsdelivr.net/npm/animejs@4.0.2/lib/anime.iife.min.js`。",
+    "tier": "auto"
+  },
+  "heygen-com/hyperframes/css-animations": {
+    "name_zh": "CSS 关键帧动画",
+    "intro": "HyperFrames 里用 CSS keyframes 的适配约定：HyperFrames 通过 css 运行时适配器去 seek CSS 动画，所以动画必须能被确定性地定位到某一帧。适合重复的小动效、背景运动、shimmer、glow、遮罩这类不属于场景编排的装饰。",
+    "usage": "构图里要写 CSS keyframes、用 animation-delay 排时序、或者在预览和渲染时发现动画 seek 对不上，就用它。几个硬要求：动画元素要在运行时初始化前进 DOM；有计时的元素给 `data-start`；`animation-duration` 和 `animation-iteration-count` 要取有限值；优先 `animation-fill-mode: both`，seek 到非活动区间时状态才不回跳。",
+    "notes": "只在运动属于单个元素、时长固定时合适；场景编排用 GSAP 更清楚。避免依赖墙钟时间的 JS、hover 触发状态和靠 class 切换的动画；无 WAAPI 的环境里负延迟兜底表达不了无限时长。",
+    "tier": "auto"
+  },
+  "heygen-com/hyperframes/tailwind": {
+    "name_zh": "Tailwind",
+    "intro": "HyperFrames 里用 Tailwind 的浏览器运行时约定。用 `hyperframes init --tailwind` 建出来的项目跑的是钉在 `@tailwindcss/browser@4.2.4` 的浏览器运行时，要当成 Tailwind v4 而不是 v3；技能只针对 CLI 生成的 composition HTML，不管内部还用 v3 的 packages/studio。",
+    "usage": "项目是用 `hyperframes init --tailwind` 建的、`index.html` 里有 `window.__tailwindReady`、或者渲染缺样式只能靠浏览器运行时兜底时用它。写工具类、加 v4 的 CSS-first 主题 token、自定义 utility、排查 v3 与 v4 的语法差异也归它，还包括判断什么时候该把 Tailwind 编译成 CSS。",
+    "notes": "运行时钉在 `@tailwindcss/browser@4.2.4`，别按 v3 的写法来；这个技能不管 packages/studio（那边仍是 Tailwind v3 加 `tailwind.config.js`、PostCSS 和 `@tailwind` 指令）。",
+    "tier": "auto"
+  },
+  "jakubkrehel/make-interfaces-feel-better/make-interfaces-feel-better": {
+    "name_zh": "界面细节打磨",
+    "intro": "把界面从「能用」做到「用着舒服」的设计工程清单：动画与 hover 态、阴影和边框、字号与图标描边、入场动画的错落节奏、圆角和光学对齐、数字等宽、图片描边这些细节。适合在写 UI 组件或 review 前端代码时逐条对照，有快速和完整两种审查模式。",
+    "usage": "做 UI 组件、写动效、调 hover、阴影、边框、排版、图标，或者感觉界面「哪里不对劲」时用它。它不另起一套样式体系：项目用 Tailwind 就用 Tailwind，用纯 CSS 就用 CSS，用 CSS-in-JS 就沿用现有写法，不要为了一个打磨项引入第二套方案。",
+    "notes": "是审美与细节原则，不是某个框架的组件库；改动必须表达在项目已有的样式体系里。审查模式下会把动效放慢逐帧看，需要能跑起来的前端环境。",
+    "tier": "auto"
+  },
+  "kepano/obsidian-skills/defuddle": {
+    "name_zh": "网页正文提取",
+    "intro": "把网页 HTML 里的正文抽成干净的 Markdown，去掉导航、广告和杂项区块，省下不少 token。适合让 agent 读标准网页文章的场景，同类活儿里比直接抓 HTML 更省上下文；也能只取标题、描述、域名这类元数据。",
+    "usage": "要读一篇普通网页文章时用它：`defuddle parse <url> --md` 拿 Markdown；存文件是 `defuddle parse <url> --md -o content.md`；只取元数据用 `defuddle parse <url> -p title`，`-p` 也能换成 `description` 或 `domain`。想要 HTML 和 Markdown 都留着就换 `--json`。",
+    "notes": "没装先 `npm install -g defuddle`；输出默认是 HTML，记得加 `--md`。它是给标准网页文章用的，不适合交互式页面或需要登录的内容。",
+    "tier": "auto"
+  },
+  "kepano/obsidian-skills/json-canvas": {
+    "name_zh": "JSON 画布",
+    "intro": "生成和修改 Obsidian 的 `.canvas` 文件：顶层只有 nodes 和 edges 两个数组，按 JSON Canvas Spec 1.0 组织，节点必填 id、type、x、y、width、height，连边用 fromNode 和 toNode 指向节点 id。适合做思维导图、流程图这类可视化画布。",
+    "usage": "要建新画布、往已有 `.canvas` 加节点、或检查连线是否指向不存在的节点时用它。新建骨架是 `{\"nodes\": [], \"edges\": []}`，每个节点先生成不冲突的 16 位十六进制 id（例如 6f0ad84f44ce9c17），加完边要重新解析 JSON，确认所有 fromNode/toNode 都真的存在。",
+    "notes": "只认 JSON Canvas Spec 1.0 的两个顶层数组；节点 id 必须唯一，边的 fromNode/toNode 必须指向已存在的节点，改完要重新解析 JSON 校验。文件扩展名是 `.canvas`，主要用在 Obsidian 里。",
+    "tier": "auto"
+  },
+  "nrwl/nx-ai-agents-config/nx-workspace": {
+    "name_zh": "Nx 工作区探查",
+    "intro": "只读地摸清 Nx 工作区：有哪些项目、项目怎么配、谁依赖了哪个库、能跑哪些 target，以及 nx 任务失败时怎么定位。适合接手一个 Nx 仓库先看结构，或者在 nx 命令报错时排查配置。",
+    "usage": "问工作区里有什么、某个项目怎么配、某个库被谁依赖、能跑哪些 target 时用它；`nx` 命令失败、报找不到任务配置时也用它先查。列项目用 `nx show projects`；项目过滤语法 `-p`/`--projects` 在 `nx run-many`、`nx release`、`nx show projects` 上都通用，支持名字、glob、tag 引用（如 `tag:name`）、目录和取反（如 `!project-name`）。",
+    "notes": "nx 没全局装就得用 `npx`、`pnpx` 或 `yarn` 前缀，先看 lockfile 判断包管理器。这个技能只做只读探查，不改配置。",
+    "tier": "auto"
+  },
+  "squirrelscan/skills/audit-website": {
+    "name_zh": "网站审计",
+    "intro": "用 squirrelscan 的 `squirrel` CLI 跑一遍站点审计，覆盖 SEO、性能、安全、技术、内容、可访问性等十余类、300+ 条规则，输出一份面向 LLM 的报告；然后按报告把问题映射回源码，分批修，再重跑审计，直到分数达标。适合「站上线了但问题一堆」的排查与修复循环。",
+    "usage": "想系统查站点问题、或已知有问题要一路修到好时用它。先确认 CLI 在位：`squirrel --version`；规则含义查 `https://docs.squirrelscan.com/rules/` 下按规则类别分页的文档。修完一轮必须重跑审计确认，而不是改完就收工。",
+    "notes": "需要 `squirrel` CLI 在 PATH（squirrelscan.com/download），用 `squirrel --version` 验证；CLI 的配置、登录、发布和 MCP 用法在配套的 squirrelscan 技能里。修的是代码或内容本身，报告本身不算结论。",
+    "tier": "auto"
+  },
+  "stripe/ai/upgrade-stripe": {
+    "name_zh": "Stripe 升级",
+    "intro": "把 Stripe 集成升到新版本的流程参考：API 版本、webhook 端点、服务端 SDK、Stripe.js 和移动端 SDK 都在范围内。重点是先确定目标版本，再把集成里所有钉住版本的地方都比一遍——客户端配置、单请求覆盖、webhook 端点。",
+    "usage": "要升级 Stripe API 版本或 SDK 时用它：用户给了目标版本就用，没给就查 `https://docs.stripe.com/api/versioning.md`，或者跑 `stripe docs /api/versioning`。连不上 docs.stripe.com 时才用内置兜底 `2026-09-30.endive`（2026-10-20 的快照，超过一个月就很可能过期）。",
+    "notes": "版本号就是发布日期 YYYY-MM-DD，Stripe 每月发新的稳定版；兜底版本别当最新版用，也不要猜更新的版本号。改动前要逐个比对集成里钉住的 API 版本。",
+    "tier": "auto"
+  }
+}
