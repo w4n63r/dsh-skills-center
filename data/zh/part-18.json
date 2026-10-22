@@ -1,0 +1,177 @@
+{
+  "antfu/skills/vue": {
+    "name_zh": "Vue 3 写法",
+    "intro": "Vue 3.5 的 Composition API 写法合集：script setup 宏、响应式系统、内置组件与指令，覆盖 defineProps、defineEmits、defineModel、watch、Transition、Teleport、Suspense、KeepAlive。给的规矩很硬：一律 Composition API，不写 Options API，优先 TypeScript，不需要深层响应式时用 shallowRef。",
+    "usage": "写 SFC 时按 `<script setup lang=\"ts\">` 模板起手；查具体专题就去读 `references/script-setup-macros.md`、`references/core-new-apis.md` 与 `references/advanced-patterns.md` 三份参考文件。",
+    "notes": "正文版本标注是 2026.9.25，由 vuejs/docs 生成；对 Reactive Props Destructure 持保留态度，别当推荐写法用。",
+    "tier": "auto"
+  },
+  "avdlee/swiftui-agent-skill/swiftui-expert-skill": {
+    "name_zh": "SwiftUI 专家",
+    "intro": "写、审或重构 SwiftUI 代码时用：状态与 @Observable 数据流、视图组合、可伸缩布局、安全区、显示缩放、性能、列表、环境、本地化、动画、Liquid Glass 和 API 迁移。折叠屏与大屏布局、铰链效果、@State 初始化、@ContentBuilder 歧义、拖放排序、自定义 AsyncImage、列表外的滑动操作和 Instruments 的 trace 分析也在范围里。",
+    "usage": "写、审或迁移 API 时先查 `references/latest-apis.md`；动手前先看正文里的 Operating Rules，别把 View 当成无成本的边界。",
+    "notes": "只有用户明确要求才上 Liquid Glass；软废弃的 API 在改功能时先标记不要顺手重写。",
+    "tier": "auto"
+  },
+  "code.deepline.com/clay-to-deepline": {
+    "name_zh": "Clay 迁移脚本",
+    "intro": "把一张 Clay 表格的配置翻译成跑在本地的 Deepline 脚本：抽配置、写文档、映射动作、生成脚本，最后跟 Clay 的原始输出做一致性校验，确认两边结果对得上。它本身只是配方快捷入口，只覆盖任务的一部分，整个会话由 deepline-gtm 接管。",
+    "usage": "先 `npm install -g deepline` 装好命令，再调 deepline-gtm 这个技能。只有在它的路由闸门放行时才读 `../deepline-gtm/recipes/clay-to-deepline.md`，不要因为配方被预选就跳掉别的子文档。",
+    "notes": "光调本技能不会替你完成整件事；别再调一次 Clay 的表，先确认新脚本的输出跟原始结果一致再替换。",
+    "tier": "auto"
+  },
+  "code.deepline.com/deepline-gtm": {
+    "name_zh": "Deepline",
+    "intro": "把 GTM 任务路由到合适的工具或 Play 上执行：单点查询直接调工具，批量和多步骤的活儿写成 Play，几千个 provider 覆盖线索、补全、调研和外呼。每次回复末尾要按固定结构输出结果，带工具清单、结果表格和 Bottom line。",
+    "usage": "先让用户确认预算和范围再动手；批量和多步骤的活儿写成 Play 跑，单点查询直接调工具，别用循环硬凑。",
+    "notes": "付费前先跑小样本试水，再执行全量；别在同一个任务上重复花第二遍钱。",
+    "tier": "auto"
+  },
+  "code.deepline.com/deepline-quickstart": {
+    "name_zh": "Deepline",
+    "intro": "用当前维护中的 Play 跑一个小规模 Deepline 演示，把单个记录或一份 CSV 的补全流程走通，并且明确说了别再用已经退役的 CSV 补全命令和它的参数。",
+    "usage": "按单条记录的顺序走 `deepline search` 找 Play、`deepline describe` 看输入输出契约，再动 `deepline plays run`；CSV 场景先跑通 pilot。",
+    "notes": "要花钱之前先让用户确认；跑之前先说明白要补什么字段、手上有哪些标识。",
+    "tier": "auto"
+  },
+  "code.deepline.com/linkedin-url-lookup": {
+    "name_zh": "LinkedIn",
+    "intro": "给人名加公司名，找回对应的 LinkedIn 个人主页链接，过程中会做严格的身份校验，宁可查不到也不返回一个看着像的错人。和其他 Deepline 配方一样，它只是快捷入口，只覆盖任务的一部分，整个会话由 deepline-gtm 接管。",
+    "usage": "先跑 `npm install -g deepline` 装命令，再调 deepline-gtm。只有它的路由闸门放行时才读 `../deepline-gtm/recipes/linkedin-url-lookup.md`，路由之外的文档照旧要加载。",
+    "notes": "同名的人很多，别为了凑齐条数放宽校验；查不到比给错人便宜。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-add": {
+    "name_zh": "能力接入",
+    "intro": "给现有 Convex 应用加一项能力，比如计费、定时任务、鉴权、agent、搜索或者托管。它会先去取一份在线能力目录，命中就按那份文档里的流程和规则做，这样不用等插件重新发版也能拿到最新做法。",
+    "usage": "先识别要加的能力，再抓 `https://basic-anteater-667.convex.site/capabilities.json`（4 秒超时），命中就取对应的 /capability/<id>.md 文档照着做。",
+    "notes": "取不到或没命中就用兜底：托管接 @convex-dev/static-hosting，其余走 /add-component 搜索脚本装最匹配的组件；别写死组件映射，也别硬失败。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-advisor": {
+    "name_zh": "线上诊断",
+    "intro": "直接读线上部署的健康数据来定位问题，而不是靠静态审阅猜：官方 Convex MCP 的 insights 工具会给每个函数最近 72 小时的类型化事件，包括读文档数超限、字节数逼近阈值、写入冲突重试或永久失败，每条都带表名、读到的字节数、文档 id 和重试次数这些证据。",
+    "usage": "先按 deploy-guard 的步骤识别并宣告要读的部署，再调 `insights` 拿健康事件；整个过程只读，别顺手打开会写生产数据的访问。",
+    "notes": "结果里没证据就说没证据，不要编发现；线上部署可以只读地看健康数据，但诊断这一趟不要申请写权限。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-auth": {
+    "name_zh": "Convex 登录",
+    "intro": "给现有 Convex 应用加上登录：默认用 passkey，也能换成 OAuth 或密码，顺带把服务端配置、客户端 hooks 和登录界面都接上。正文点名 auth.config.ts 是现实中最容易踩的坑，写错或漏写会让应用静默地一直处于未登录状态，而且不报错。",
+    "usage": "先装 @convex-dev/auth 并加进 convex.config.ts，pnpm 项目还要补一条 `pnpm add jose`；密钥用 jose 无交互生成，别跑那个交互式向导，它在没有 TTY 的环境会挂住。",
+    "notes": "pnpm 不显式装 jose 就不会被提升；用命令行写密钥时用 NAME=VALUE 形式，以 - 开头的密钥会被当成未知参数。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-authz": {
+    "name_zh": "授权加固",
+    "intro": "专查 Convex 应用里的授权缺陷，盯四种形态：身份从参数传进来、改别人的文档前不校验归属、公开查询按客户端给的 id 泄露数据、往自己不属于的父容器里写子行。它先跑确定性的正则扫描，再把 requireIdentity 和 requireOwner 套到每个命中点上。",
+    "usage": "扫描命中的每一处都套上 requireIdentity/requireOwner 这对加固写法，改完再重扫，确认命中归零。没有 convex/ 目录就跳过。",
+    "notes": "动手前先确认有 auth.config.ts，而且有按鉴权主体建的 users 表，否则挂上去的检查形同虚设。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-crons": {
+    "name_zh": "定时任务管理",
+    "intro": "给 Convex 应用加周期性任务：在 convex/crons.ts 里用 cronJobs() 声明，按合适的时间间隔调度内部函数，处理逻辑写成可以反复执行也不会出错的幂等实现，每次跑的量要小。",
+    "usage": "用 cronJobs() 声明任务，目标写 `internal.*` 这类内部函数，别调度公开的 `api.*`；跑完到控制台的 schedule 里确认任务确实挂上去了。",
+    "notes": "别拿很短的轮询间隔去盯一个订阅就能推给你的东西；处理器要保持小且可重跑。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-deploy-guard": {
+    "name_zh": "部署守卫",
+    "intro": "Convex 项目通常同时有个人开发、预览和生产三个部署，事故多半源于命令打到了错的那个。这套纪律要求先识别目标、用一行明确宣告，再执行；生产环境的操作要按动作、按目标、按会话单独取得当次的明确同意。",
+    "usage": "识别阶段读 .env.local 里的 `CONVEX_DEPLOYMENT`、`convex.json` 和有没有设 `CONVEX_DEPLOY_KEY`，宣告写成 `target: dev (joyful-capybara-123, personal dev)` 这样一行。",
+    "notes": "别把「看一眼生产」和「改生产」混在一起，两个 MCP 生产开关要分开；用户说过只读之后，整场会话都算数，连看起来无害的写操作也不行。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-design": {
+    "name_zh": "后端设计",
+    "intro": "从一句产品需求出发设计 Convex 后端：认证、实时、文件上传、定时任务、LLM 工作流这些都覆盖，还带 15 条核心设计原则，比如默认响应式、schema 先行、ACID 事务、不要请求瀑布流、组件优先。用户还没定技术栈时会主动给出建议。",
+    "usage": "先判断需求属于哪一类，再点出能解决问题的 Convex 原语并给一段五行左右的代码；用户接受搭建就转给 quickstart 技能。",
+    "notes": "用户已经选了别的技术栈就别硬推；动手前先看包里有没有既存后端；LLM 聊天别自己手写消息表，用 @convex-dev/agent。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-docs": {
+    "name_zh": "文档对齐",
+    "intro": "怀疑手上那个 Convex 或 @convex-dev 组件的 API 记不准时，用这套纪律去取跟项目版本对得上的文档，而不是凭记忆写代码。因为 convex-expert 带的是插件版本固化知识，碰上组件加了新导出、CLI 参数变了、API 改了名这种地方就正好过时。",
+    "usage": "查版本可以用 `node -p \"require('./node_modules/convex/package.json').version\"`；先钉住项目里实际装的版本，再取线上那份 markdown 文档，别从记忆里写不熟的 API。",
+    "notes": "装到 `node_modules/@convex-dev/*` 里的类型导出才是这个版本的最终依据；版本不匹配的构建报错要当版本问题处理，重新钉版本取文档，别靠换个拼写猜。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-env": {
+    "name_zh": "环境变量管理",
+    "intro": "管 Convex 部署的环境变量和密钥：密钥存在部署的环境变量里，在 action 里用 process.env 读，不进代码库。确认某个键设没设时只列名字，不要把值打印出来。",
+    "usage": "设置用 `npx convex env set KEY value`，每个部署各设一份；确认用 `npx convex env list --names-only`。读值只能在 action 里做，查询和 mutation 里读不到。",
+    "notes": "换部署就得重新设一遍；用 --names-only 就是为了避免把密钥打进对话记录里，也别把密钥提交进仓库。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-expert": {
+    "name_zh": "Convex 后端",
+    "intro": "碰 convex/ 目录里的代码之前先过它：函数定义、schema、索引、查询、mutation、action、HTTP 端点、定时任务、文件存储、鉴权接线和组件安装都管，重点是对象形式的函数语法、args/returns 校验器、索引与内部公开函数的纪律，这些都是通用模型写 Convex 时最常见的翻车点。",
+    "usage": "改 convex/ 文件前先读 `convex/schema.ts`，函数一律写成对象形式并带上 args 和 returns 校验器；每个读路径都用 withIndex 走索引。",
+    "notes": "已登录的用户别强行用匿名模式，那会把本地环境文件重新绑定掉；有值表上别直接加必填字段。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-migrate": {
+    "name_zh": "数据迁移",
+    "intro": "给已部署的 Convex 应用改 schema 并回填数据，顺序是先把新字段设为可选（这样部署不会拒绝已有行），再用 @convex-dev/migrations 写回填让旧数据变合法，跑完确认所有行都合规，最后才把校验器收紧成必填。",
+    "usage": "用 @convex-dev/migrations 装依赖并写迁移；跑完之后验证新字段覆盖情况，再收紧校验器，跑前跑后都对一下行数。",
+    "notes": "回填没跑完就收紧校验器会把老行判为非法、把线上应用弄挂，这是整篇里最容易犯的错。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-optimize": {
+    "name_zh": "整改优化",
+    "intro": "给已有的 Convex 应用做整改：先由 launch-readiness 出一份打分的报告，再照着报告动手——升级落后组件、补上生产环境的错误捕获。它只负责对报告采取动作，不重复实现审阅和打分那几遍。",
+    "usage": "先确认项目里有 convex/ 目录，再跑 `launch-readiness` 拿报告，然后 `check-updates` 查 `@convex-dev/*` 组件的过时情况。",
+    "notes": "全程先只读，出计划并确认后才改文件；安全与数据丢失类风险排在最前，别在别人的生产应用上自动落地改动。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-reviewer": {
+    "name_zh": "代码审查",
+    "intro": "上线前审 convex/ 目录里的代码：安全和授权、校验器、性能、schema 设计，按 Critical、Important、Suggestion 三档给结论。检查项很具体，比如公开函数是否都校验登录、资源读写前是否核对归属、有没有信客户端传来的用户 id、定时任务有没有指向内部函数而不是公开接口。",
+    "usage": "先说明要审的目录、是迭代式审查还是一次性审查，再让报告聚焦到你已知的风险点，别把三遍检查合并成一遍。",
+    "notes": "查询处理器里出现取当前时间会破坏响应式；无界查询上用全量收集会把读放大；文档里塞超长数组也在被点名的清单里。",
+    "tier": "auto"
+  },
+  "firebase/agent-skills/firebase-ai-logic": {
+    "name_zh": "Gemini 接入",
+    "intro": "用客户端 SDK 把 Gemini 接进移动端或 Web 应用：支持 Gemini Developer API（有免费额度，适合原型）和 Vertex AI Gemini API（要企业级 Blaze 计划）两个 provider，覆盖多模态推理、结构化输出和安全配置。",
+    "usage": "上手前先确认本机有 Node.js 16+ 和 npm；默认选 Gemini Developer API，只有应用确实需要时才换 Vertex AI Gemini API。",
+    "notes": "没配安全措施等于把配额开放给陌生人；两个 provider 别混着用，默认就是 Gemini Developer API。",
+    "tier": "auto"
+  },
+  "firecrawl/firecrawl-workflows/firecrawl-deep-research": {
+    "name_zh": "深度调研报告",
+    "intro": "产出带引用的长报告：执行摘要、多角度发现、反方观点、仍未解决的问题和完整来源清单。它明说只适合真正需要严谨综合的复杂题目，产品推荐、榜单、快速查资料都不该用它；证据是已发表论文的文献综述也该交给 firecrawl-research-papers。",
+    "usage": "先确认用户要的是一份正式书面报告；产品推荐、榜单、快速查资料、以及不够格用它的请求都直接排除。",
+    "notes": "别把自己抓的页面摘要直接堆成报告，要综合；写论文和文献综述属于 firecrawl-research-papers，它查的是论文索引不是网站。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-gmail-reply": {
+    "name_zh": "Gmail 回复",
+    "intro": "在命令行里回复一封 Gmail 邮件，自动带上 In-Reply-To、References 和 threadId 这几个头，还会把原邮件引用进正文，所以不用自己拼线程。要回复全部收件人时换成 +reply-all。",
+    "usage": "跑之前先读 `../gws-shared/SKILL.md` 确认认证方式和全局参数，缺了就 `gws generate-skills` 补；回复本身是 `gws gmail +reply --message-id <ID> --body <TEXT>`。",
+    "notes": "正文里说想加附件用 -a 或 --attach；--html 只支持片段标签，不用套 html/body；不想马上发就加 --draft。",
+    "tier": "auto"
+  },
+  "limrun-inc/skills/limrun-android-emulator": {
+    "name_zh": "云模拟器操作",
+    "intro": "驱动跑在 Limrun 云端 Android 模拟器上的应用：装 APK、启动和结束应用并拿到崩溃报告、点按、输入、读界面元素树、截图、录视频、注入麦克风音频、限制网络带宽、读应用日志、执行 shell 命令、传文件，还能把应用的网络目的地通过本机隧道转发并做 HTTP 抓包和 HAR 记录。",
+    "usage": "先用 limrun-gradle 或别的构建器把包打出来，再用它跑、点、截图、看日志、录视频或抓网络；私有网络走私有隧道，要透明抓包就把目标域名引到本机。",
+    "notes": "要在代理后面跑才加证书信任，别默认开；自定义 CA 只有在应用肯吃这个证书时才有意义，遇到证书固定就只能放弃拦截。",
+    "tier": "auto"
+  },
+  "wshobson/agents/python-performance-optimization": {
+    "name_zh": "Python 调优",
+    "intro": "给 Python 代码做剖析和优化：CPU、内存、逐行剖析几种类型，找耗时函数、内存泄漏、慢查询和 I/O 等待，再决定是换算法、换数据结构、并行化、加缓存还是把热点挪到原生扩展。正文的第一条规矩是先量再改，先定位真正的瓶颈，不要对着猜出来的地方动手。",
+    "usage": "看 runbook 里的剖析类型和工作流，先用 timeit 这类手段量出可信的耗时，再动优化；线上升级瓶颈就上剖析器观察。",
+    "notes": "别忘了缓存、生成器和批量 I/O 这些现成手段；也别去优化几乎不走的代码路径。",
+    "tier": "auto"
+  },
+  "zhaono1/agent-playbook/self-improving-agent": {
+    "name_zh": "自我改进记录",
+    "intro": "把工作里踩过的坑和用户纠正沉淀成一条小到能审的行为变更，默认结果是候选或什么都不改，而不是自动改技能。每次运行必须落在候选、已验证、已应用、已拒绝、已取代这些明确状态里的一个。",
+    "usage": "装好 apb 后用 apb self-improve 系列的 capture、eval、review 子命令，配 apb behavior proposal 生成改动提案。",
+    "notes": "候选和应用是两步，应用前要有同一个候选通过的可执行评测结果；导出到 Obsidian 那步只是出口，真数据在命令行目录里。",
+    "tier": "auto"
+  }
+}

@@ -1,0 +1,177 @@
+{
+  "better-auth/skills/two-factor-authentication-best-practices": {
+    "name_zh": "双因素认证配置",
+    "intro": "用 Better Auth 的 twoFactor 插件做双因素认证：TOTP 认证器应用、邮件/短信 OTP、备份码、可信设备，以及 2FA 登录流程。服务端加 twoFactor() 并带上 issuer，客户端加 twoFactorClient()，然后跑迁移并在 user 表上确认字段存在。",
+    "usage": "四步：服务端配置里加 `twoFactor()`（带 `issuer`）；客户端配置里加 `twoFactorClient()`；跑 `npx auth@latest migrate`（内置 adapter），Drizzle/Prisma 就生成再 push；最后确认 user 表上有 `twoFactorSecret` 列。",
+    "notes": "客户端可以在 `onTwoFactorRedirect()` 里把用户跳转到 /2fa 页面。用 Drizzle 或 Prisma 时迁移走生成再 push，不是直接 migrate。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-agent": {
+    "name_zh": "Convex智能体",
+    "intro": "给 Convex 应用加 AI 代理 / RAG 后端，装 @convex-dev/agent 拿到持久化线程、消息历史、tool-calls 和向量检索。默认走 Convex AI Gateway 调模型：凭据由 Convex 保管，不用自己申请、保存或轮换 LLM key。",
+    "usage": "安装 @convex-dev/agent 和 @convex-dev/ai-sdk-provider，把 agent component 加进 convex.config.ts，用 `languageModel: convexGateway(\"provider/model\")` 定义代理的 tools 与 instructions。需要 convex 1.45+ 且跑在 Convex Cloud 付费计划上。",
+    "notes": "RAG 要注意：gateway 目前不提供 embedding，得把 embedding 供应商的 key 通过 `env` micro power 存起来。只有 gateway 不可用（免费版、自托管、本地后端）时才退回直接用供应商 SDK。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-backup": {
+    "name_zh": "Convex备份演练",
+    "intro": "备份有两半，大多数人只做了第一半：定期导出快照，以及真的把数据恢复回来验证。这个能力两半都做——设好快照导出，再跑一次 RESTORE DRILL，把数据恢复到一次性 preview 里并断言数据完好。",
+    "usage": "导出快照用 `npx convex export --path backup-<date>.zip`；如果应用存文件，再加上 `--include-file-storage`。演练的恢复目标永远是一次性 preview，不是 prod。",
+    "notes": "第一步仍是 deploy-guard：先分类并声明要备份的部署。读取和导出是安全的。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-billing": {
+    "name_zh": "Convex支付接入",
+    "intro": "给 Convex 应用接 Stripe 计费：checkout action、由组件注册的 httpAction webhook（自动验签）、订阅状态存进组件自己的表，再用一个 query 做服务端放行判断。密钥放 Convex env，不写在代码里。",
+    "usage": "先 `npm install @convex-dev/stripe`，然后在 `convex/convex.config.ts` 里 `app.use(stripe)`，再建 `convex/http.ts` 注册 webhook 路由。`STRIPE_SECRET_KEY`（sk_test_… / sk_live_…）和 `STRIPE_WEBHOOK_SECRET`（whsec_…）存到 Convex env 里。",
+    "notes": "webhook 的签名校验由组件自动完成，不用自己写。订阅状态存在组件表里，鉴权时用 query 在服务端判断。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-cost": {
+    "name_zh": "Convex成本预估",
+    "intro": "预估 Convex 应用的花费：用 insights 里的 bytes-read / documents-read 证据按调用量给函数排榜，给每个成本大头推算增长曲线，并指出最便宜的改法。另外带了 confirm-cost 纪律——任何按量计费的动作之前先报价格、拿到明确同意。",
+    "usage": "成本读取是只读的，dev 和 prod 都能读，但 insights 只在 cloud + 用户鉴权下可用，preview 读不到。先声明在读哪个部署，再拉 `insights` 里的 bytes-read / documents-read 事件。",
+    "notes": "成本问题通常集中在少数几个读数据远超预期的函数上，和性能问题是同一批模式。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-domains": {
+    "name_zh": "Convex域名接入",
+    "intro": "把已有域名指到 Convex 应用：先确认目标是静态托管站点还是部署的 HTTP actions URL，再建 DNS 记录、挂自定义域名，如果应用用了鉴权还要重绑 auth origin。全程走用户自己的注册商。",
+    "usage": "如果检测到用户已经登录过某家的 DNS CLI，可以提议自动建记录：Cloudflare 用 `flarectl dns create`，Route53 用 `aws route53 change-resource-record-sets`，DigitalOcean 用 `doctl compute domain records create`，Vercel DNS 用 `vercel dns add`。动手前先用只读命令确认身份。",
+    "notes": "注意 `wrangler` 本身不管理 DNS 记录，别搞混；Cloudflare 也可以直接走 API 加 token 环境变量。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-explain-app": {
+    "name_zh": "Convex应用解读",
+    "intro": "把现有 Convex 应用讲清楚：数据模型和关系、公开与内部函数、鉴权与归属模型、组件，以及一次请求到数据的流向。只读 schema 和函数表面这两类可信来源，所以又快又不容易读错。它是纯描述性的，判断交给审计能力，改动交给修复能力。",
+    "usage": "先探测应用形态：有没有 `convex/` 目录、`schema.ts`，以及是否已经存在部署；如果有部署，就用官方 MCP 的 `functionSpec` / `tables` 拿线上的权威结构。",
+    "notes": "它也是优化或自愈流程的合理第一步：在「改自己搭的东西」之前，先把当前架构重新解释一遍。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-improve-convex-plugin": {
+    "name_zh": "Convex会话上报",
+    "intro": "把当前编码会话的转录发给 Convex 团队做一次 AI 复盘，产出结构化发现（指令含糊、代理卡住的模式、工具失败、做对的地方），用来改进 quickstart 系统而不是分析用户数据。分享是选择加入：助手会问一次 Always / Just this once / Never 并记住选择。",
+    "usage": "只有用户明确要求时才跑。调用 anteater 提供的助手脚本；如果它打印 CONSENT_REQUIRED（退出码 4），先用 Always / Just this once / Never 问清楚，再重跑并追加 `--consent always|once|never`。用户没回答之前不要发送。",
+    "notes": "助手脚本走 curl -fsSL 从 anteater 拉取后交给 bash 执行，并带一个 --idea 说明本次会话的应用想法。复盘目标是 runbook、bootstrap 脚本、skills 和 components。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-insights": {
+    "name_zh": "Convex日志问答",
+    "intro": "用自然语言查线上 Convex 应用的日志和健康度：失败、慢或贵的函数、部署因果，答案要有证据，并附一个 dashboard 深链方便人工点开复核。它是对官方 Convex MCP 只读工具的一层封装。",
+    "usage": "先按 deploy-guard 的第 0-1 步确认并声明读的是哪个部署。查 `logs`、`insights`、`functionSpec`、`status` 都是只读的，不要为排查打开 prod 写开关；查之前先做字段发现，别猜标识符。",
+    "notes": "输出刻意省 token：三个视图而不是十五个工具。只适合只读排查，改代码不在它的范围内。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-launch-readiness": {
+    "name_zh": "Convex上线体检",
+    "intro": "把 Convex 的几项审计（鉴权、reviewer、advisor、insights）各跑一遍，归一成一份去重、打分、排序的上线就绪报告，并给出一张按优先级排的行动清单。它自己不动手修，只决定修什么、按什么顺序修，再派给具体的修复能力。",
+    "usage": "开头是 GUARD + SCOPE：deploy-guard 会把目标分类成 local-anonymous / dev / preview / prod 并声明出来。先判断哪些检查有前提（有没有 convex/ 目录、有没有带流量的部署、有没有鉴权基础），前提不满足的检查跳过，但要说明跳了哪些。",
+    "notes": "它只做组合：发现来自 findings bus（specs/finding.schema.json），报告结构见 specs/finding-report.schema.json，每个发现都带一个 fixCapability。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-migrate-rehearse": {
+    "name_zh": "Convex迁移预演",
+    "intro": "在 preview 部署上先演练 schema 变更和回填：Convex 每次推 schema 都会校验所有已有文档，任何一行不符合就推失败，这个闸门最好先让它在一个演练副本上失败。做法是用 prod 快照喂 preview，在那里推新 schema、跑回填，等绿了再推到 prod。",
+    "usage": "先看前置条件：preview 部署需要在 dashboard 的 Project Settings → Deploy Keys → Preview 里拿 Preview Deploy Key，导出成 `CONVEX_DEPLOY_KEY`，否则带 --preview-create / --preview-name 的部署都做不了。",
+    "notes": "它组合了 deploy-guard 的目标分类、migrate 的「先可选后收紧」模式，以及 @convex-dev/migrations 的分批可续跑回填。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-monitor": {
+    "name_zh": "Convex事件监听",
+    "intro": "等下一个事件，而不是轮询：它同时盯着本地错误日志、部署订阅和 Sentinel 的线上错误行，谁先来就返回谁，一直没有就回一个安静的心跳。事件 schema 固定且带版本，同样的触发条件给出同样的类型化事件。",
+    "usage": "调用 `wait_for_event`，参数是 {project_dir, event_kinds, timeout_ms}。拿到 kind=convex_error 就解码并修；kind=prod_error 先分诊再修；kind=feature_request 就去做；kind=quiet 就继续循环。",
+    "notes": "线上事件（kind=prod_error）需要已部署的 cloud 应用，并且装了 Sentinel。没有阻塞式 MCP 的环境会退化成同样事件契约的轮询循环。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-seed": {
+    "name_zh": "Convex数据填充",
+    "intro": "往 Convex 数据库灌数据。少量夹具就写一个可重复运行的 internalMutation 插入样例行；批量导入则把数据整理成符合 schema 的形状再导入。要点是让灌数据幂等（先清后插或 upsert），这样重跑是安全的，最后核对行数。",
+    "usage": "夹具用 internalMutation 写插入逻辑，然后 `npx convex run` 执行；批量导入用 `npx convex import`，数据要匹配 schema 校验器。灌数据要做成幂等，完成后核对行数。",
+    "notes": "别把密钥或 PII 灌进共享部署。用 internalMutation 或 convex import 时都要匹配 validators。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-self-heal": {
+    "name_zh": "Convex线上自愈",
+    "intro": "线上报错到修复 PR 的一条闭环。Sentry、Datadog、Vercel 这类工具会停在人工合并那一步，交出去的还是没验证过的 diff；Convex 能做的是——错误行就在用户自己的部署里，修复可以在该部署的 preview 上演练，所以在人审之前就能对着真实不变量验证通过。",
+    "usage": "流程是 sentinel 抓取 → findings bus 诊断 → 修复能力动手 → migrate-rehearse / tsc / probe 认证 → 交给人工 PR → deploy-guard 发布。第一步的 GUARD 要分类并声明部署，它会读 prod 并提议对 prod 的改动。",
+    "notes": "合并按钮始终在人手里，它不自动合并。tsc、演练、复现后消失这几重认证过了才出 PR。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-sentinel": {
+    "name_zh": "Convex错误采集",
+    "intro": "把线上错误采集进用户自己的 Convex 部署：服务端函数失败、客户端 JS/React 崩溃、OCC 和规模信号都会写进一张表，写入时就做脱敏，数据不离开用户的部署。脱敏默认开启，对密钥名和值模式是默认拒绝。",
+    "usage": "装 `@convex-dev/sentinel`，在 `convex/convex.config.ts` 里写 `app.use(sentinel)`；客户端接 SDK，加一个 React error boundary 以及 `window.onerror` / `unhandledrejection` 和面包屑。查最近的错误用 Convex CLI。",
+    "notes": "脱敏是强制的、默认开启，绝不要存原始密钥。可选打开自愈 cron：triage 给错误分类，把反复出现的非瞬时错误交给 ai-runner 开修复 PR。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-suggest": {
+    "name_zh": "Convex组件推荐",
+    "intro": "当用户手写了某个 Convex 组件已经解决的模式时，给一条有指向的建议：只推一个组件、说清为什么（引用用户自己的代码或需求）、给一个具体的安装提示。用户没明确同意就不装，也不要一次推多个，除非用户主动问。",
+    "usage": "被动观察 codeSnippets 和 userAsk，不要为提建议打断当前任务。匹配规则在 `generators/suggest-detector.mjs` 里：邮件/SMTP → resend，推送 → expo-push，setInterval/cron → @convex-dev/crons，共享计数自增 → @convex-dev/sharded-counter，.collect().length 扫描 → @convex-dev/aggregate。",
+    "notes": "多步骤或长时间运行的 action 也在识别范围内。一次只提一个组件。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-test": {
+    "name_zh": "Convex内存单测",
+    "intro": "为 Convex 函数生成 convex-test + vitest 测试：跑在内存后端上，不连真实部署。覆盖参数与返回值、withIdentity 的鉴权路径、索引，以及用 t.finishInProgressScheduledFunctions 处理的定时函数。",
+    "usage": "写测试时用 `convexTest(schema)` 起内存后端，通过 t.run 灌数据，再用 t.query/t.mutation 调用并断言。别忘了补鉴权和报错分支，以及 scheduled functions。",
+    "notes": "规则要求测试保持确定性：不要依赖真实时间和网络。用内存实现，不要指向线上部署。",
+    "tier": "auto"
+  },
+  "convex/agent-skills/convex-verify": {
+    "name_zh": "Convex功能验证",
+    "intro": "证明一个 Convex 功能真的能用：先灌数据、再模拟多个用户去驱动、最后断言行为，包括那些反向的鉴权用例——不该被允许的用户是否真被拒、数据范围是否真的生效。整个循环在进程内跑，不需要部署。",
+    "usage": "跑的是 seed → drive → assert 三步循环，用 `convex-test` 在进程内执行，不需要部署。断言里最有价值的是反向用例：调用者本该被拒绝的那些。",
+    "notes": "类型检查通过只说明代码能解析，不能证明非所有者真的被拒。真实语料显示鉴权缺陷是第一大 bug，而只跑顺利路径的演示永远抓不到。",
+    "tier": "auto"
+  },
+  "firebase/agent-skills/developing-genkit-python": {
+    "name_zh": "Genkit 开发",
+    "intro": "在 Python 里用 Genkit 开发 AI 应用：Hello World 是 from genkit import Genkit 配上 GoogleAI 插件和 googleai/gemini-flash-latest 模型，然后 await ai.generate(...) 取 response.text。Python SDK 改动频繁，导入和 API 都要对着 references 或上游文档核实。",
+    "usage": "前置：Python 3.14+，依赖用 `uv` 管；CLI 用 `genkit --version` 检查，缺了就 `npm install -g genkit-cli`。新项目看 `references/setup.md`，模式和代码样例看 `references/examples.md`。",
+    "notes": "遇到任何报错先读正文里的 Common Errors 部分，不要凭印象改 import。",
+    "tier": "auto"
+  },
+  "firecrawl/firecrawl-workflows/firecrawl-research-papers": {
+    "name_zh": "论文检索综述",
+    "intro": "用 Firecrawl Research 做带出处的文献综述：语义论文检索、相关论文扩展，再回到正文里核实。索引以 PubMed、bioRxiv、medRxiv 的生物医学与生命科学文献为主，另加 arXiv 的 CS、物理、数学预印本。要文献综述、系统性综述或研究全景时用它。",
+    "usage": "需要一个 Firecrawl API key，放在 `FIRECRAWL_API_KEY` 环境变量里，用于托管的 Firecrawl Research、CLI、MCP 或同类工具请求。证据基础是已发表论文而不是网页，所以优先用它而不是通用网页研究流程。",
+    "notes": "不是通用网页搜索的替代品：证据基础是已发表论文时才选它，索引以 PubMed、bioRxiv、medRxiv 和 arXiv 为主。",
+    "tier": "auto"
+  },
+  "googlechrome/modern-web-guidance/modern-web-guidance": {
+    "name_zh": "Web 最佳实践查询",
+    "intro": "按具体用例检索现代 Web 开发规范，拿到对应的实践指引。做 HTML/CSS 和客户端 JS 任务时要第一个执行——Web API 变化快，训练权重里常有过时写法。UI 布局、滚动与动效、性能、系统 API、以及框架里的原生 HTML/CSS/DOM 都该先查一下。",
+    "usage": "触发范围包括：模态框/对话框/popover、表格、暗色模式、锚点定位、容器查询、`:has()`；View Transitions、滚动驱动动画；CWV（LCP、INP）、content-visibility、Fetch Priority；passkeys、HTML 净化、Web Components、日期/时区、Built-in AI、WebAssembly；以及表单校验（`:user-valid`）、autofill、无障碍、自定义 select。",
+    "notes": "后端 SQL/ORM、CI/CD 与 Docker、Vite/tsconfig/ESLint 这类配置，以及纯复制重命名之类的琐事不在触发范围。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-gmail-forward": {
+    "name_zh": "Gmail 邮件转发",
+    "intro": "用 gws CLI 把 Gmail 里的一封邮件转发给新收件人。必填 --message-id 和 --to（多个收件人用逗号分隔），可选 --from 指定发信别名、--body 在转发内容上方加一段说明、--attach 追加附件、--cc 抄送；--no-original-attachments 可以不带原邮件附件。",
+    "usage": "命令形状是 `gws gmail +forward --message-id <ID> --to <EMAILS>`，帮助信息看 `gws gmail +forward --help`。用之前先读 `../gws-shared/SKILL.md` 了解鉴权、全局参数和安全规则；没有这个文件就运行 `gws generate-skills` 生成。",
+    "notes": "`--body` 默认纯文本，写 HTML 要配 --html；带 --no-original-attachments 时，--html 模式里的内联图片仍会保留。",
+    "tier": "auto"
+  },
+  "jimliu/baoyu-skills/baoyu-image-gen": {
+    "name_zh": "AI 图片生成",
+    "intro": "走官方 API 做图片生成，支持 OpenAI GPT Image 2.5、Azure OpenAI、Google、OpenRouter、DashScope（阿里通义万象）、Z.AI GLM-Image、MiniMax、Jimeng（即梦）、Seedream（豆包）、Replicate 和 Agnes。支持文生图、参考图、宽高比，也能从保存好的提示词文件批量生成。",
+    "usage": "默认按顺序一张张生成；如果用户已经有多个提示词、或者想要稳定的多图吞吐，就用批量并行生成。需要向用户提问时优先用运行时自带的用户输入工具，没有就发编号纯文本让用户按编号回复。",
+    "notes": "依赖 bun 或 npx；只是单张试效果时保持默认顺序即可，不用开并行。",
+    "tier": "auto"
+  },
+  "jimliu/baoyu-skills/baoyu-post-to-wechat": {
+    "name_zh": "公众号发文",
+    "intro": "把内容发到微信公众号：可以走 API，也可以走 Chrome CDP。文章支持 HTML、markdown 或纯文本三种输入；贴图（以前的图文）支持多张图片。markdown 文章默认会把普通外部链接转成文末引用，更贴合公众号的阅读习惯。",
+    "usage": "需要向用户提问时按优先级选：优先用运行时自带的用户输入工具（`AskUserQuestion`、`request_user_input`、`clarify`、`ask_user` 等）；没有就把问题写成编号纯文本让用户回复；工具支持一次多问就把问题合并成一次调用。",
+    "notes": "依赖 bun 或 npx。用户提到「发布公众号」「post to wechat」「微信公众号」或「贴图/图文/文章」时用它。",
+    "tier": "auto"
+  },
+  "twostraws/swiftui-agent-skill/swiftui-pro": {
+    "name_zh": "SwiftUI 审查",
+    "intro": "审查 Swift 和 SwiftUI 代码：正确性、现代 API 用法、是否贴合项目既有约定。只报真问题，不吹毛求疵也不臆造问题；被弃用的 API 也要写进结论。做功能或修 bug 时先把手头改动做完，无关的现代化建议单独提，未经要求不要顺手改。",
+    "usage": "按检查清单逐项过：先用 `references/api.md` 查弃用 API，再用 `references/views.md` 看视图、修饰符和动画；数据流见 `references/data.md`，导航见 `references/navigation.md`，设计与无障碍合规性见 `references/design.md`。",
+    "notes": "还要看窗口缩放时的布局表现，包括 iPad 多任务和折叠 iPhone Duo。作者 Paul Hudson，MIT 许可。",
+    "tier": "auto"
+  }
+}

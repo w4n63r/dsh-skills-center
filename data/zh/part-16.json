@@ -1,0 +1,177 @@
+{
+  "amplitude/mcp-marketplace/taxonomy": {
+    "name_zh": "事件分类治理",
+    "intro": "Amplitude 里事件分类的事件命名、属性规范与数据审计规则，回答建库、验收、打分和改进这类问题。能按事件命名规则、属性标准和打分框架检查一份追踪计划，也能对分支跑数据质量审计，找重复事件、过期事件和缺失元数据；还覆盖漏斗设计与事件关系，以及废弃流程和 AI readiness。",
+    "usage": "先说明要做什么：建追踪计划、验命名、跑数据质量审计，还是问漏斗设计和事件关系。检查计划对上自家标准时，要对的是 Data → Settings 里的 naming conventions 和 AI Context，不是通用模板。打分时按 scoring frameworks 走，别只报命名问题。",
+    "notes": "元数据操作和废弃流程在正文里都归到 safe / deprecation 名下，动线上分类前先确认当前项目里的角色权限。",
+    "tier": "auto"
+  },
+  "anysearch-ai/anysearch-skill/anysearch": {
+    "name_zh": "实时搜索接口",
+    "intro": "AnySearch 的实时搜索命令行，支持通用网页搜索、垂直领域搜索、并行批量搜索和整页正文抽取，直接调公开 HTTP 端点，不用装 MCP server 或 JSON-RPC 包装。日常就是 search、batch_search、extract 和 get_sub_domains 几个调用，多看信息、查新闻、核事实这类活用它。",
+    "usage": "常规检索直接跑 search，要一次问多个方向用 batch_search，抓整页正文用 extract，查同域子域用 get_sub_domains；只在接口未知或需要恢复信息时才跑 doc。默认匿名可用，配额低；要更高额度就配 ANYSEARCH_API_KEY，可以走 .env、环境变量或 --api_key。",
+    "notes": "key 不是必填项，但匿名限速更低，批量任务前先确认额度，免得一半请求被挡。",
+    "tier": "auto"
+  },
+  "cloudflare/skills/nextjs-on-cloudflare": {
+    "name_zh": "Next.js 部署",
+    "intro": "在 Cloudflare Workers 上用 vinext 搭、迁、部署 Next.js 应用。新项目默认选 vinext 而不是 OpenNext，这一点跟 Cloudflare 的 Next.js 官方指南一致。vinext 在 Vite 上重新实现了 Next.js 的 API：App Router、Pages Router、React Server Components 和受支持的 next/* 导入都在，配 Vite 的快速 HMR、原生 ESM 和插件生态。",
+    "usage": "只在做新项目、从别处迁到 Workers、或者要在 vinext 和 OpenNext 之间做选择时用它。需要装 vinext 的上游技能就跑 npx skills add cloudflare/vinext，然后照它和文档走。具体的 Workers 绑定用法看官方指南。",
+    "notes": "现存的 OpenNext 项目在做无关维护时保持原样，不要顺手迁；用户明确指定了方案就听用户的。",
+    "tier": "auto"
+  },
+  "dietrichgebert/ponytail/ponytail-gain": {
+    "name_zh": "ponytail",
+    "intro": "展示 ponytail 基准测出来的节省：代码量、token 和速度三项。数据来自 Ponytail 5 的公开 agentic benchmark——headless Claude Code（Opus 5.5，默认 effort）在 39 个任务上各跑 5 次，任务包括真实 FastAPI 加 React 仓库里的功能票、bug 修复、安全与隐私案例和小应用，18 个任务带隐藏的正确性与安全检查。每个数字是各任务中位数的几何平均，是实测的，不是按当前仓库算的。",
+    "usage": "跑 /ponytail-gain 就会显示这个记分板，用纯 ASCII 条形显示，条长表示 ponytail 相对 no-skill 基线的占比，旁边标注精确数值，例如代码行数 47%。这是一次性展示：不改模式、不写标记文件、也不持久化任何东西。",
+    "notes": "它只读实测结果，数字不会随当前仓库变化；数据来源是 benchmarks/results/2026-10-07-agentic.md 和 README。",
+    "tier": "auto"
+  },
+  "expo/skills/expo-api-routes": {
+    "name_zh": "Expo 路由",
+    "intro": "在 Expo Router 配 EAS Hosting 里创建 API 路由的取舍指南。适合放进路由的有：服务端密钥（API key、数据库凭据、token）、不该暴露的数据库操作、第三方 API 代理、写库前的服务端校验、Stripe 或 GitHub 这类 webhook 回调、服务端限流，以及移动端跑不动的重计算。",
+    "usage": "反过来的场景就别建路由：数据本来就公开就直接 fetch 公开 API，不需要密钥的静态数据、要实时更新（走 WebSocket 或 Supabase Realtime）、简单 CRUD（考虑 Firebase、Supabase、Convex）、文件上传（直传存储，S3 预签名或 Cloudflare R2）都不适合塞进 API 路由。",
+    "notes": "判断标准是服务端是否真的需要这层；只是把客户端请求转发一遍，通常不如直接调公开接口。",
+    "tier": "auto"
+  },
+  "firebase/agent-skills/firebase-firestore-standard": {
+    "name_zh": "Firestore",
+    "intro": "Cloud Firestore Standard Edition 的上手与使用：在 Firebase 项目和本地环境里开通 Firestore、写并部署 Security Rules 保护数据，以及在自己的应用代码里接 SDK。Web 端走 Modular SDK 那条线，索引部分讲索引类型和查询支持表。",
+    "usage": "按主题进：开通和本地环境看 references/provisioning.md，安全规则看 references/security_rules.md，应用侧接 SDK 看 references/web_sdk_usage.md，索引和查询支持看索引那节。配 Firebase CLI 更顺手，没有 CLI 也能用，命令走 npx -y firebase-tools@latest。",
+    "notes": "安全规则要部署到项目上才生效，本地写完别忘这一步；查询没索引会直接失败，写查询前先对照支持表。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-keep": {
+    "name_zh": "Keep 命令行",
+    "intro": "用 gws 命令行管 Google Keep 的笔记和附件。notes 下有 create、delete、get、list，media 下有 download。list 按 page_size 分页，传 0 就让服务端自己定上限，返回的 ListNotesResponse 最多给 page_size 条，多了要翻页。",
+    "usage": "命令形状是 gws keep <resource> <method> [flags]。先看 gws keep --help 摸清参数。要删笔记得对它有 OWNER 角色，删掉即刻生效、无法撤销，协作者也会跟着失去访问权。下载附件要带 alt=media，MIME 对不上会返 400。",
+    "notes": "认证和全局 flag 不在这张卡里，要先读 ../gws-shared/SKILL.md；缺这个文件就跑 gws generate-skills 生成。",
+    "tier": "auto"
+  },
+  "jakubkrehel/skills/better-ui": {
+    "name_zh": "界面细节打磨",
+    "intro": "打磨界面里的表面、图标和动效：圆角、光学对齐、阴影、图标状态和动画都给精确值。前提是底层交互已经没问题，打磨项永远不会排在一个坏掉的交互前面。值都是精确值而不是区间，cubic-bezier(0.2, 0, 0, 1) 不等于 cubic-bezier(0.4, 0, 0.2, 1)，0.96 也不等于 0.95。",
+    "usage": "保留项目已有的组件库、token 和密度，本卡没给值的地方就沿用项目自己的动效语言。项目刻意且一致的做法，比如整体不用阴影，算偏好不算问题；同一个细节在项目里出现两种做法才算问题。光学微调和同心内边距的截断值可以先按肉眼判断。",
+    "notes": "文本换行、字体渲染、等宽数字和文字间距归 better-typography；点击区域、键盘支持、ARIA 和 reduced-motion 要求归另一个技能，别在这里改。",
+    "tier": "auto"
+  },
+  "nextlevelbuilder/ui-ux-pro-max-skill/brand": {
+    "name_zh": "品牌规范",
+    "intro": "品牌相关的规则与素材管理：brand voice 与内容语气、视觉识别标准和 style guide、messaging framework、品牌一致性审查、素材的整理命名与审批，以及配色和字体规格。有品牌内容、营销素材、语气统一或规范审查需求时激活它。",
+    "usage": "可以用 argument-hint 里的 update、review、create 三种方式进入。要改、要审、要新建品牌规范时按这三种走。素材命名和审批流程也在覆盖范围内。日常用得最多的是先把 voice 和配色定下来，再回头审已有素材。",
+    "notes": "脚本路径相对 SKILL.md 所在目录而不是项目根：scripts/ 是本技能自己的文件夹，../<skill>/scripts/ 是同级子技能；工作目录保持在项目根，否则脚本读写 docs/brand-gui 下的项目文件会错位。",
+    "tier": "auto"
+  },
+  "nextlevelbuilder/ui-ux-pro-max-skill/ui-styling": {
+    "name_zh": "前端 UI 样式",
+    "intro": "用 shadcn/ui 组件、Tailwind CSS 的工具类和 canvas 视觉设计做界面，覆盖可访问性和响应式布局。组件基于 Radix UI 加 Tailwind，常见场景有对话框、下拉、表单、表格和导航这类可访问组件，以及主题色定制、暗色模式和跨应用统一的样式约定。",
+    "usage": "在 React 系的框架里用：Next.js、Vite、Remix、Astro 都行。要查文档就去 shadcn/ui 的 https://ui.shadcn.com/llms.txt 和 Tailwind 的 https://tailwindcss.com/docs。调用时可以带上 argument-hint 里的组件名或布局名，做响应式就按 mobile-first 来。",
+    "notes": "组件底层是 Radix，别绕开它自己写弹层；主题改动先落到 design token，不要在各个组件里散着覆盖。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-benchmark": {
+    "name_zh": "Go 基准与性能剖析",
+    "intro": "Go 的基准测试与性能测量方法：写、跑、比较 benchmark，用 pprof 剖析热点路径，解读 CPU、内存和 trace 三类 profile，用 benchstat 分析结果，在 CI 里做基准回归检测，或用 Prometheus 运行时指标查线上性能。它讲的是测量方法，优化套路在另一个技能 golang-performance 里。",
+    "usage": "要 benchstat 得先备好 bin：go install golang.org/x/perf/cmd/benchstat@latest。完整流程是先写 benchmark，再用 pprof 定位热点、用 benchstat 对比两轮结果，最后把回归检测接进 CI，别只看单次跑出来的数字。",
+    "notes": "它只负责测，不负责改；想直接拿优化方案要找 golang-performance。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-cli": {
+    "name_zh": "Go 命令行工具",
+    "intro": "做 Go CLI 的工程规范，写、改、审一个命令行工具时用。点位很细：命令结构、flag 处理、配置分层、版本号嵌入、退出码、I/O 模式、信号处理、shell 补全、参数校验、以及 CLI 自己的单元测试。代码里用了 cobra、viper 或 urfave/cli 也会触发这个技能。",
+    "usage": "默认激活路径是 **/*.go。经验规则是让工具像原生的 Unix 命令：可组合、可脚本化、在自动化下行为可预测。cobra 的 API 去 golang-spf13-cobra，viper 的配置分层去 golang-spf13-viper，这里只讲整体结构。",
+    "notes": "它给的是 CLI 整体结构，具体框架的 API 要跳专门技能；写测试时别漏掉退出码和信号这两个面。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-continuous-integration": {
+    "name_zh": "Go CI 流水线",
+    "intro": "Go 项目的 GitHub Actions CI/CD 配置：test、lint、SAST、覆盖率和漏洞扫描这几类 job 的 workflow 文件怎么写，Dependabot 和 Renovate 的配置文件长什么样，GoReleaser 的发布流水线、Docker 构建与推送、仓库安全设置，以及 AI 驱动的 PR 审查。写 .github/workflows/*.yml 或加质量门禁时用它。",
+    "usage": "要把它接进流水线时，先定 job 拆法，再选扫描器，然后配依赖更新机器人，最后补发布和镜像推送。需要 go、goreleaser、gh 三个 bin 在环境里。仓库安全设置和 AI PR 审查也在覆盖范围内。",
+    "notes": "它只负责把工具接进流水线，不解释扫描结果；安全结论去 golang-security，依赖升级与审计去 golang-dependency-management。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-dependency-injection": {
+    "name_zh": "Go 依赖注入选型",
+    "intro": "Go 依赖注入的对比指南：先讲清楚为什么需要 DI，也就是可测性、松耦合、关注点分离和生命周期管理；再讲手动构造函数注入这一路的写法；最后横向比较 google/wire、uber-go/dig、uber-go/fx 和 samber/do 这几个库。设计服务架构、搭依赖注入骨架、拆紧耦合代码时用它。",
+    "usage": "按场景选路：直接 new 的构造函数注入当基线，再比对上面几个库。管单例和 service factory、讨论 inversion of control 或 service containers 时用这张卡；定了具体库就去对应的专门技能，比如 golang-google-wire、golang-uber-fx 或 golang-samber-do。",
+    "notes": "具体某个库的 API 细节不在这里，要看对应的单库技能；godig 和 gopls 能辅助反查依赖关系。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-grpc": {
+    "name_zh": "Go gRPC 规范",
+    "intro": "Go 微服务的 gRPC 使用规范、protobuf 组织和生产级写法。实现、审查或排查 gRPC 服务端与客户端时用它：写 proto 文件、挂 interceptor、用 status codes 处理 gRPC 错误、配 TLS/mTLS、用 bufconn 写测试，以及处理 streaming RPC。默认路径是 **/*.go。",
+    "usage": "先定 proto 的组织方式，再补 interceptor 和错误映射，最后处理超时和 TLS。想跑 protoc 得先装 protobuf 工具链，可以用 brew 装。用 godig 和 gopls 辅助看调用关系，测试侧用 bufconn 起本地连接。",
+    "notes": "它默认假设服务已经按 gRPC 分层；status codes 和 deadline 没定下来之前，先别挂 interceptor。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-popular-libraries": {
+    "name_zh": "Go 库选型指南",
+    "intro": "samber 这套 Go 技能库里的选型卡：按 web、database、testing、logging、messaging 分类列经过筛选、可直接上生产的库和框架，也讲标准库优先的取舍，以及新出的、实验性的 stdlib 包。判断一个库是否成熟，会看维护状态、license 和 importer counts 这几个信号。",
+    "usage": "要推荐库、对比几个候选、给某个具体任务挑一个库，或者项目要加新依赖时用它。流程是先定分类，再看标准库能不能顶，然后比 maturity signals；选定之后查那个库的专门技能，别在这张卡里继续挖某个库的 API。",
+    "notes": "go.mod 的机制、升级和漏洞审计不归它管，找 golang-dependency-management。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-samber-do": {
+    "name_zh": "do 依赖注入容器",
+    "intro": "用 samber/do 在 Go 里做依赖注入：service container、生命周期管理、scope、健康检查、graceful shutdown 和模块组织。项目 import github.com/samber/do 或 github.com/samber/do/v2，或者要把手写的构造函数注入改成 DI 容器时用它。默认路径是 **/*.go。",
+    "usage": "容器放在 composition root，依赖接口而不是具体类型，provider 返回的错误当一等失败处理。godig 和 gopls 能辅助看依赖图。它是接口驱动的 DI，所以 lifecycle 里还要考虑健康检查和优雅关闭接在哪里。",
+    "notes": "它假定你已经在往容器化方向重构；只是想拆紧耦合代码、还没决定用哪个 DI 库，先看 golang-dependency-injection 做横向对比。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-samber-hot": {
+    "name_zh": "hot 内存缓存",
+    "intro": "用 samber/hot 在 Go 里做内存缓存：可选的淘汰算法有 LRU、LFU、TinyLFU、W-TinyLFU、S3FIFO、ARC、TwoQueue、SIEVE 和 FIFO，另外有 TTL、cache loader、分片、stale-while-revalidate、缺失键缓存和 Prometheus 指标。默认路径是 **/*.go。",
+    "usage": "项目 import 了 github.com/samber/hot 时用它；典型场景是同一批中低基数的资源被高频反复加载，要降延迟或减后端压力。先按访问分布选淘汰算法，再配 TTL 与 loader，然后决定要不要分片和 stale-while-revalidate，最后把 Prometheus 指标接上。",
+    "notes": "缓存被当成系统设计决策来对待，命中率之外的容量上限和失效语义要一起想清楚，别只调算法名字。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-samber-lo": {
+    "name_zh": "lo 函数式工具库",
+    "intro": "samber/lo 的用法：500 多个类型安全的泛型函数，覆盖切片、映射、通道、字符串、数学、元组和并发，常见的有 Map、Filter、Reduce、GroupBy、Chunk、Flatten、Find、Uniq。包分成几支：核心不可变的 lo、并发的 lo/parallel、原地修改的 lo/mutable、懒迭代的 lo/it，还有实验性的 SIMD。",
+    "usage": "项目 import 了 github.com/samber/lo 就用它。选包按语义：要不可变结果留在 lo，并发跑 lo/parallel，允许原地改数据用 lo/mutable，Go 1.23+ 的懒迭代用 lo/it。结论步骤常写成 Filter 加 Map 再加 GroupBy 这类链式组合。",
+    "notes": "流式管道不归它管，那种场景去 golang-samber-ro；SIMD 还是实验性的，别直接上生产。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-samber-mo": {
+    "name_zh": "mo 单子类型",
+    "intro": "用 samber/mo 给 Go 加单子类型：Option、Result、Either、Future、IO、Task 和 State，用来表达可能为空的值、错误处理和函数式组合，配合 pipeline 子包把多步调用串起来。写类型安全的可空值、或者在 Go 里试用函数式写法当安全设计时用它。",
+    "usage": "项目 import 了 github.com/samber/mo 就适用。用 Option 表达可空、Result 与 Either 表达成败分支、Future 和 Task 表达异步步骤，中间用 pipeline 串起来，省掉一层层手工判空。把它当安全设计，不是当作唯一写法。",
+    "notes": "它管的是库内的单子类型；不用这个库时的 nil 与零值设计看 golang-safety，fmt.Errorf、errors.Is 和 errors.As 这条原生错误包装路线看 golang-error-handling。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-samber-oops": {
+    "name_zh": "oops 结构化错误",
+    "intro": "用 samber/oops 在 Go 里做结构化错误处理：错误构建器、堆栈、错误码、错误上下文、错误包装、错误属性、面向用户的提示与面向开发者的信息分开，再加 panic 恢复和日志集成。默认路径是 **/*.go。",
+    "usage": "项目 import 了 github.com/samber/oops 就用它。做法是把错误当结构化数据：domain、attributes 和 trace 要能支撑 on-call 工程师自己定位，不用回头问写代码的人。godig 和 gopls 可以辅助看调用链。",
+    "notes": "用户可见信息与开发者信息是两条线，别把内部细节直接返给前端；它解决声明式错误结构，不是替代标准库兜底。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-samber-ro": {
+    "name_zh": "ro 响应式数据流",
+    "intro": "用 samber/ro 在 Go 里写响应式流和事件驱动程序：ReactiveX 实现，150 多个类型安全算子，冷热 observable，Publish、Behavior、Replay、Async、Unicast 五种 subject，用 Pipe 拼声明式管道，40 多个插件覆盖 HTTP、cron、fsnotify、JSON 和日志，另有背压、错误传播和 context 集成。",
+    "usage": "项目 import 了 github.com/samber/ro 就用它；适合异步事件驱动管道、实时数据处理、流和响应式架构。先选 subject 类型，再用 Pipe 串算子，插件按数据源挑，背压交给库自动处理。",
+    "notes": "它面向流式管道而不是有限切片变换；只是对 slice 做 Map 或 Filter，去 golang-samber-lo。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-samber-slog": {
+    "name_zh": "slog 扩展包",
+    "intro": "samber 这一系列 slog-* 扩展包，给 Go 的结构化日志补外围能力：多 handler 管道 slog-multi、日志采样 slog-sampling、属性格式化 slog-formatter、HTTP 中间件 slog-fiber 与 slog-gin、slog-chi、slog-echo，还有后端路由 slog-datadog、slog-sentry、slog-loki、slog-syslog、slog-logstash、slog-graylog 等。",
+    "usage": "用 slog 或项目已经 import 了任何 github.com/samber/slog-* 包时适用。多个后端就先用 slog-multi 串管道，按量采样上 slog-sampling，属性格式统一交给 slog-formatter，HTTP 侧按框架挂对应中间件，最后再用对应后端包把日志送出去。",
+    "notes": "各包版本不齐，正文里 slog-multi 是 1.8.0、slog-datadog 是 2.10.4，加依赖前先对齐版本，别把 dev 包带进生产。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-stay-updated": {
+    "name_zh": "Go 生态资讯源",
+    "intro": "Go 生态的跟踪清单：官方渠道有 go.dev/blog、pkg.go.dev、tour.golang.org 和 golang-nuts；newsletter 有 Golang Weekly 和 Awesome Go Newsletter；社区有 r/golang、gophers.slack.com、Go Forum 和 go.dev/wiki；还有 Dave Cheney、Ardan Labs、Rob Pike 的博客，Gopher Academy 与 GopherCon 的频道，以及值得在 GitHub、X 和 Bluesky 上关注的 Go 贡献者。",
+    "usage": "找学习资源、发现新库新工具、找社区渠道或线下 meetup、挑值得关注的人，或者只是想知道 Go 语言最近有什么变化和版本发布时用它。按渠道类型挑，不用每次把整张清单过一遍。",
+    "notes": "它不查具体模块的版本、文档或漏洞，那类问题去 golang-pkg-go-dev。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-stretchr-testify": {
+    "name_zh": "testify 指南",
+    "intro": "stretchr/testify 的完整用法，覆盖 assert、require、mock 和 suite 四个包。讲断言怎么写、mock 期望怎么设、参数匹配和调用校验怎么做、suite 的生命周期怎么管，还有 Eventually、JSONEq 和自定义 matcher 这类进阶写法。什么时候用 assert、什么时候必须用 require 也给了判断依据。",
+    "usage": "项目里 import 了 github.com/stretchr/testify 就适用。写测试、造 mock、搭测试套件时按包分工找：断言优先用 assert，失败会中断后续步骤的关键检查用 require，mock 管期望与调用校验，suite 管 SetupTest 到 TearDownTest 的整条生命周期。",
+    "notes": "需要 gotests 时用 go install github.com/cweill/gotests/...@latest；Expecter 风格和自定义 matcher 容易写过头，先用默认断言。",
+    "tier": "auto"
+  }
+}
