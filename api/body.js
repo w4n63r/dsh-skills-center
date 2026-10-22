@@ -69,7 +69,7 @@ export function isSafeId(id) {
   return parts.every((p) => p.length > 0 && /^[A-Za-z0-9._-]+$/.test(p) && !/^\.+$/.test(p));
 }
 
-export default async function handler(request) {
+async function handle(request) {
   const secret = process.env.CRON_SECRET;
   if (!secret) return json(503, { error: 'CRON_SECRET is not set' });
 
@@ -116,4 +116,17 @@ export default async function handler(request) {
       'x-body-bytes': String(Buffer.byteLength(contents)),
     },
   });
+}
+
+export default async function handler(request) {
+  try {
+    return await handle(request);
+  } catch (err) {
+    // 线上出错时把原因带进响应体：FUNCTION_INVOCATION_FAILED 不告诉调用方任何东西。
+    return json(500, {
+      error: 'handler_crashed',
+      message: String(err?.message || err),
+      stack: String(err?.stack || '').split('\n').slice(0, 6).join(' | '),
+    });
+  }
 }
