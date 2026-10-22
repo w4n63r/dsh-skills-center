@@ -30,6 +30,19 @@ import { pathToFileURL } from 'node:url';
 
 export const BANNED = ['专治', '逼出', '无死角', '一站式', '深度赋能', '赋能', '颠覆', '神器', '王炸', '闭眼入', '碾压', '吊打'];
 export const PLACEHOLDERS = ['TODO', 'TBD', 'xxx', 'XXX', '示例', '待补'];
+
+// 占位符判断：紧跟在点号后面的不算占位符。`context.TODO()`、`String.TBD` 这类是真实 API 名，
+// 写手照实引用不该被判成没写完。
+export function looksLikePlaceholder(text, word) {
+  const source = String(text ?? '');
+  let from = 0;
+  for (;;) {
+    const at = source.indexOf(word, from);
+    if (at === -1) return false;
+    if (source[at - 1] !== '.') return true;
+    from = at + word.length;
+  }
+}
 export const FIELDS = ['name_zh', 'intro', 'usage', 'notes'];
 export const LENGTH_RULES = {
   name_zh: { min: 2, max: 16 },
@@ -169,7 +182,7 @@ export function validateEntry(entry, context = {}) {
   }
 
   if (typeof entry.intro === 'string') {
-    for (const word of PLACEHOLDERS) if (entry.intro.includes(word)) push(`intro 含占位符 "${word}"`);
+    for (const word of PLACEHOLDERS) if (looksLikePlaceholder(entry.intro, word)) push(`intro 含占位符 "${word}"`);
   }
   for (const key of FIELDS) {
     if (typeof entry[key] !== 'string') continue;
@@ -252,8 +265,15 @@ export async function validateCatalog(zh, options = {}) {
   const skippedNoBody = [];
   const tierCounts = { hand: 0, auto: 0 };
 
-  if (!zh || typeof zh !== 'object' || Array.isArray(zh)) {
-    return { ok: false, count: 0, errors: ['中文层顶层必须是 { id: {...} } 对象'], skipped_no_body: [], tierCounts, entries: null };
+  // 两种形状都收：手写层的 { id: {...} }，以及 zh_generate 写出的 { entries: { id: {...} } }。
+  // 写手按 zh_generate 的 `check` 落盘后再拿本工具校验，不该因为外壳不同被判成 30 条缺失。
+  const table =
+    zh && typeof zh === 'object' && !Array.isArray(zh) && zh.entries && typeof zh.entries === 'object' && !Array.isArray(zh.entries)
+      ? zh.entries
+      : zh;
+
+  if (!table || typeof table !== 'object' || Array.isArray(table)) {
+    return { ok: false, count: 0, errors: ['中文层顶层必须是 { id: {...} } 或 { entries: { id: {...} } } 对象'], skipped_no_body: [], tierCounts, entries: null };
   }
 
   const wanted = options.wanted ? new Set(options.wanted) : null;
@@ -264,7 +284,7 @@ export async function validateCatalog(zh, options = {}) {
     readBody: options.readBody ?? null,
   });
 
-  for (const [id, entry] of Object.entries(zh)) {
+  for (const [id, entry] of Object.entries(table)) {
     const body = await readBody(id);
     const result = validateEntry(entry, { id, body });
     errors.push(...result.errors);
@@ -273,13 +293,13 @@ export async function validateCatalog(zh, options = {}) {
   }
 
   if (wanted) {
-    for (const id of wanted) if (!(id in zh)) errors.push(`${id}: 缺少条目`);
+    for (const id of wanted) if (!(id in table)) errors.push(`${id}: 缺少条目`);
     if (strictSet) {
-      for (const id of Object.keys(zh)) if (!wanted.has(id)) errors.push(`${id}: 输入分片里没有这个 id（不许自己加）`);
+      for (const id of Object.keys(table)) if (!wanted.has(id)) errors.push(`${id}: 输入分片里没有这个 id（不许自己加）`);
     }
   }
 
-  return { ok: errors.length === 0, count: Object.keys(zh).length, errors, skipped_no_body: skippedNoBody, tierCounts, entries: zh };
+  return { ok: errors.length === 0, count: Object.keys(table).length, errors, skipped_no_body: skippedNoBody, tierCounts, entries: table };
 }
 
 // ---- CLI ----

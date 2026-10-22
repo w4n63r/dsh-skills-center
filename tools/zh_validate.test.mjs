@@ -119,6 +119,20 @@ try {
   const badPart = join(dir, 'part-bad.json');
   await writeFile(badPart, `${JSON.stringify({ [id]: { ...good, intro: '短' } }, null, 2)}\n`, 'utf8');
 
+  // ---- 占位符：真实 API 名不算占位符，裸 TODO 仍要报 ----
+  const apiName = validateEntry({ ...good, intro: `${intro}把 context.TODO() 换成显式传下来的值。` }, { id, body });
+  assert.equal(apiName.errors.some((e) => /占位符/.test(e)), false, 'context.TODO() 是 API 名，不该判成占位符');
+  const realPlaceholder = validateEntry({ ...good, intro: `${intro}TODO: 补完这一节。` }, { id, body });
+  assert.ok(realPlaceholder.errors.some((e) => /占位符 "TODO"/.test(e)), '裸 TODO 仍要报占位符');
+
+  // ---- 外壳：{ entries: {...} } 与扁平 { id: {...} } 都要收（写手按 zh_generate 的形状落盘） ----
+  const shelled = await validateCatalog({ entries: { [id]: good } }, { bodyHashes: new Map([[id, body]]) });
+  assert.equal(shelled.ok, true, `entries 外壳应当直接通过：${shelled.errors.join(' | ')}`);
+  assert.equal(shelled.count, 1, 'entries 外壳也要数对条数');
+  const flat = await validateCatalog({ [id]: good }, { bodyHashes: new Map([[id, body]]) });
+  assert.equal(flat.ok, true, '扁平外壳继续可用');
+  assert.equal(flat.count, 1);
+
   assert.equal(await run([inputPath, goodPart, '--catalog', catalogPath]), 0, 'good part exits 0');
   assert.equal(await run([inputPath, badPart, '--catalog', catalogPath]), 1, 'bad part exits 1');
   assert.equal(await run([inputPath, goodPart, '--bodies', bodiesDir, '--catalog', catalogPath]), 0);

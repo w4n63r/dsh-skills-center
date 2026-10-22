@@ -1,0 +1,177 @@
+{
+  "angular/skills/angular-developer": {
+    "name_zh": "Angular 开发规范",
+    "intro": "Angular 官方写法的常驻参考：建项目、写组件和服务、HTTP 通信、表单、路由、SSR 与 hydration、无障碍、样式动画、测试都会给建议。响应式部分覆盖 signals、linkedSignal、resource、httpResource 这套新写法。动手前先看项目版本，因为不同版本能用的 API 差很多，正文反复强调这点。",
+    "usage": "新建项目用 `npx @angular/cli@latest new <project-name>`，脚手架交给 CLI 保持风格一致；生成完必须跑 `ng build` 确认没有编译错误再收工。",
+    "notes": "正文说 Angular v22 起 Signal Forms 稳定，新项目默认用它；更细的 API 文档它会让你去 angular.dev 对应页面读。",
+    "tier": "auto"
+  },
+  "antfu/skills/vitest": {
+    "name_zh": "Vitest 测试框架",
+    "intro": "Vitest 的参考索引：配置、CLI、test 与 describe 与 expect 三套 API、钩子、mock、快照、覆盖率（V8 或 Istanbul）、fixture、并发与分片、按名字文件标签过滤、报告器、benchmark、类型测试、多项目工作区。底层跑在 Vite 上，Jest 兼容，原生支持 ESM、TS 和 JSX。正文按七个主题拆成 references 下的分册。",
+    "usage": "按要解决的问题翻对应分册：CLI 和参数看 `references/core-cli.md`，覆盖率看 `references/features-coverage.md`，多项目配置看 `references/advanced-projects.md`，mock 与假定时器看 `references/advanced-vi.md`。",
+    "notes": "正文注明内容基于 Vitest 5.0.1（2026-09-25 生成），更老或更新的版本 API 可能有出入。",
+    "tier": "auto"
+  },
+  "better-auth/skills/email-and-password-best-practices": {
+    "name_zh": "Better Auth 邮箱登录",
+    "intro": "Better Auth 里 email/password 认证的配置要点：开关、邮箱验证、密码重置流程、回调 URL、密码策略和哈希算法。给正在搭注册登录的人用，重点是别把重置 token 和会话吊销搞错。正文给的是 betterAuth 配置片段和 authClient 调用，还写了内置的时序攻击防护与恒定响应。",
+    "usage": "按正文 Quick Start 走：先 `emailAndPassword: { enabled: true }`，配好 `emailVerification.sendVerificationEmail` 和 `sendResetPassword`，再跑 `npx auth@latest migrate`；注册请求要给绝对 callbackURL。",
+    "notes": "重置 token 默认 1 小时过期且一次性；配 `revokeSessionsOnPasswordReset` 才会在改密后踢掉旧会话；默认哈希是 Node 原生 scrypt，可换 Argon2id。服务端无服务器环境还要另配后台任务 handler。",
+    "tier": "auto"
+  },
+  "clerk/skills/clerk-testing": {
+    "name_zh": "Clerk 登录测试",
+    "intro": "给 Clerk 应用写端到端认证测试的路数：Playwright 或 Cypress 里怎么让每个用例拿到独立的认证上下文、怎么用测试 token 跳过交互登录、怎么用 storageState 复用状态。核心是「一个测试一份新鲜会话」，别让用例互相污染。正文还列了 anti-patterns 和两个框架各自的接法。",
+    "usage": "在全局 setup 里调 `clerkSetup()` 起环境，用例里用 `setupClerkTestingToken()` 绕开登录页，Playwright 侧用 `storageState` 存恢复态，再等 `[data-clerk-component]` 出现。",
+    "notes": "需要 publishable key 和 CLERK_SECRET_KEY 或 CLERK_TESTING_TOKEN；没有 key 时 `npx clerk@latest init` 能生成临时开发 key，不用注册账号。",
+    "tier": "auto"
+  },
+  "cloudflare/security-audit-skill/security-audit": {
+    "name_zh": "代码安全审计",
+    "intro": "Cloudflare 的代码安全审计流程。默认只是指导模式：回答安全问题、做聚焦 review 时给建议，不建文件也不自动开跑完整审计；只有用户明确要求审计代码库或渗透测试，才进完整工作流——建 run 目录、记覆盖台账、写 findings 和报告。硬要求是所有构建和测试在 OS 级沙箱里跑、源码只读。核心口径是没有具体受影响主体和资源就不算确认漏洞。",
+    "usage": "先分清模式：只问问题就按正文核心原则给建议，不要建文件；要完整审计才建 `~/security-audit-skill/<repo-name>/run-<N>` 目录，按 quick、standard、deep 三档 profile 决定范围。",
+    "notes": "完整流程需要 OS 级沙箱和写隔离；预算不够会把 run 标成 incomplete 并写明原因，而不是硬跑完。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/marketing-council": {
+    "name_zh": "营销顾问团",
+    "intro": "召一个模拟的营销顾问团：Seth Godin、David Ogilvy、Eugene Schwartz、April Dunford、Rory Sutherland、Alex Hormozi、Byron Sharp 等人，按各自公开的框架和立场对同一个问题分别表态，重点是把分歧摆出来而不是给统一答案。适合定位、定价、文案方向这类需要多视角对撞的决策。",
+    "usage": "先交代要评审的东西（落地页、定价改动、launch 计划）和赌注大小，再从 `references/advisors/` 挑 3 到 5 位入座，务必至少留一位立场相反的；最后按正文的分歧与综合两节收结论。",
+    "notes": "正文开头就声明这是模拟顾问，用公开材料推演、不是本人点评；有 .agents/product-marketing.md 会先读它当背景。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/marketing-loops": {
+    "name_zh": "营销循环自动化",
+    "intro": "把一次性的营销动作变成按周期自动跑的 loop：明确的触发条件、固定的一组步骤、自检和停止条件。适合每周 SEO 机会扫描、广告疲劳刷新、流失信号盯梢这类重复活。正文给了 loop 的九个组成部分、节奏规则（检查频率跟信号变化速度走）、哪些场景不该做成 loop，以及怎么接宿主的调度能力。",
+    "usage": "先读 `references/loop-catalog.md` 挑一个最接近的 loop，再照 `references/loop-template.md` 把九个部分填满；节奏和调度按正文 cadence rule 定，宿主有循环能力就直接挂上去。",
+    "notes": "需要宿主支持周期性唤醒；状态处理在 references/loop-state.md，正文明确说缺停止条件或自检的 loop 是负债。想搭整套营销系统时它建议先做跟踪加周报，别一次铺开。",
+    "tier": "auto"
+  },
+  "dietrichgebert/ponytail/ponytail-audit": {
+    "name_zh": "整仓质量体检",
+    "intro": "把整个仓库当成刚接手、随时会被叫去修的项目来审：先画地图（入口、路由、handler、任务、测试），再按正确、安全、扛得住并发、有测试、快、精简的顺序找问题，每条都写清是在什么负载假设下会坏。一次出报告，不改任何代码。适合接手陌生仓库或想知道哪些能删能并的时候。",
+    "usage": "说 `/ponytail-audit` 或者直接讲「审一下这个仓库」；不指定范围就是整个 repo，想看某几块就点名目录。",
+    "notes": "正文要求标明哪些部分没读，发现里给到文件加行号这种可核对的引用；它说这是用户要的报告要给全，但不许编，没有代码位置支撑的判断不算发现。",
+    "tier": "auto"
+  },
+  "expo/skills/expo-module": {
+    "name_zh": "Expo 原生模块",
+    "intro": "用 Expo Modules API 写原生模块和原生视图的手册，Swift、Kotlin、TypeScript 三端都覆盖：模块定义 DSL（Function、AsyncFunction、Event、Constant）、共享对象、原生视图、生命周期钩子、autolinking、config plugin 和类型系统。偏参考书性质，正文建议先脚手架再改，而不是手写目录结构。",
+    "usage": "别手搓目录，先用 `create-expo-module` 生成脚手架；只缺某个平台时用 `create-expo-module add-platform-support`，再在 `expo-module.config.json` 里补平台声明。",
+    "notes": "把老 definition DSL 迁到 2.0 宏不在本 skill 范围，正文指向 expo-migrate-module；scaffold 时要求显式给 slug、自己选 features，别吃默认值。",
+    "tier": "auto"
+  },
+  "expo/skills/native-data-fetching": {
+    "name_zh": "Expo 数据请求",
+    "intro": "Expo 和 React Native 项目里所有网络请求的决策手册：裸 fetch 还是 React Query 或 SWR、错误怎么分类、离线怎么兜、token 放哪、请求怎么取消，以及 Expo Router 的 route loader（useLoaderData）怎么接。正文按基础请求、状态库、错误处理、鉴权、离线、环境变量、取消分节，最后给决策树和常见错误。",
+    "usage": "先看正文的决策树判断项目该用哪套，再按分节抄骨架；环境变量必须以 `EXPO_PUBLIC_` 开头才会打进客户端，页面级加载则用 `useLoaderData`。",
+    "notes": "Router loader 的细节在 references/expo-router-loaders.md，正文标注只适用于 web 且 Expo SDK 55 以上；token 存放走 expo-secure-store，别塞进 AsyncStorage。",
+    "tier": "auto"
+  },
+  "flutter/agent-plugins/flutter-add-integration-test": {
+    "name_zh": "Flutter 集成测试",
+    "intro": "给 Flutter 项目配 integration_test 和 Flutter Driver，并且能把 MCP 里手点出来的操作路径固化成可重复跑的集成测试。流程是加依赖、在入口调 enableFlutterDriverExtension()、给关键控件挂 ValueKey、写测试和驱动脚本，再用 flutter drive 跑；失败就回 widget 树里重新定位。",
+    "usage": "先 `flutter pub add 'dev:integration_test:{\"sdk\":\"flutter\"}'`，再 `flutter drive --driver=test_driver/integration_test.dart --target=integration_test/app_test.dart -d chrome` 验证。",
+    "notes": "web 端要另起 `chromedriver --port=4444`；想走「先用 MCP 探索、再固化」这条路需要 Dart 和 Flutter 的 MCP，纯手写测试可以跳过。要看性能指标得换成 perf_driver 那套脚本。",
+    "tier": "auto"
+  },
+  "flutter/agent-plugins/flutter-add-widget-test": {
+    "name_zh": "Flutter 组件测试",
+    "intro": "用 WidgetTester 给单个 widget 写组件级测试：验证渲染出来的数据对不对，以及点击、滚动、输入这些交互有没有按预期改状态。属于 Flutter agent-plugins 里偏动作型的一个 skill，产出落在 test/ 目录、文件名以 `_test.dart` 结尾。正文带了一个完整的 TodoList 测试样例和交互后的 pump 策略。",
+    "usage": "先把 `flutter_test` 加进 `dev_dependencies`，测试文件放 `test/`；用 `testWidgets()` 包用例，`find.text('Submit')` 定位控件后 `await tester.tap(finder)`，动画场景再 `pumpAndSettle()`，最后 `flutter test test/your_test_file_test.dart` 跑。",
+    "notes": "正文要求测试文件按源文件名命名；断言动画或异步状态时漏 pump 会出假失败。",
+    "tier": "auto"
+  },
+  "flutter/agent-plugins/flutter-implement-json-serialization": {
+    "name_zh": "Dart JSON 序列化",
+    "intro": "手写 fromJson 和 toJson 的那套规矩：JSON key 与类属性怎么对应、类型怎么显式转换、工厂构造函数怎么写、列表和可空字段怎么处理，以及什么时候该把解析丢到后台 isolate。只针对简单结构，复杂 schema 正文明说该上代码生成。",
+    "usage": "按正文清单走：先让类属性对齐 JSON key，再实现 `fromJson` 从 `jsonDecode()` 拿到的 `Map<String, dynamic>` 取值，`toJson` 反向映射；payload 大就用 `compute(parseFunction, response.body)` 放后台解析。",
+    "notes": "正文把自己的定位限定在简单数据结构的手动方案，字段一多该改用生成器；解析前要先判 statusCode，非 2xx 抛异常而不是硬解。",
+    "tier": "auto"
+  },
+  "flutter/agent-plugins/flutter-setup-declarative-routing": {
+    "name_zh": "Flutter 声明式路由",
+    "intro": "用 go_router 给 Flutter 配声明式路由和深链：MaterialApp.router 接 GoRouter、redirect 处理登录态、StatefulShellRoute 做带底部导航的嵌套路由并保留各分支状态，外加 Android intent filter 和 iOS universal links 的平台配置。web 端还要在域名根目录放 assetlinks.json 和 apple-app-site-association。",
+    "usage": "先 `flutter create <app-name>` 再 `flutter pub add go_router`，定义一个 `GoRouter` 实例挂到 `MaterialApp.router`；换栈用 `context.go()`，压栈用 `context.push()`。",
+    "notes": "深链必须在真机或模拟器上验：Android 发 VIEW intent，iOS 用 simctl openurl。正文强调两份 JSON 里填的包名和域名要和实际一致，否则静默失败。",
+    "tier": "auto"
+  },
+  "flutter/agent-plugins/flutter-setup-localization": {
+    "name_zh": "Flutter 本地化",
+    "intro": "把 Flutter 项目的 i18n 搭起来：加 flutter_localizations 和 intl 依赖、在 pubspec.yaml 打开 generate、建设置文件声明 arb 目录与模板、写 .arb 词条，最后用生成的 AppLocalizations 取字符串。正文还覆盖占位符、复数、条件选择三种标注法，以及 MaterialApp 侧 delegates 和 supportedLocales 的接入。",
+    "usage": "依次 `flutter pub add flutter_localizations --sdk=flutter`、`flutter pub add intl:any`，配好 arb-dir 和模板名后跑 `flutter pub get` 触发生成，代码里用 `AppLocalizations.of(context)!.helloWorld` 取词条。",
+    "notes": "正文提醒生成的类 import 路径取决于 synthetic-package 开关；widget 必须是 MaterialApp 或 CupertinoApp 的后代才拿得到 context。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-gmail-triage": {
+    "name_zh": "Gmail 未读速览",
+    "intro": "Google Workspace CLI 里的一条子命令封装：把未读邮件按发件人、主题、日期列出来。适合每天早上扫一眼邮箱，或者让 agent 先摸清邮件状况再决定要不要逐封细看。输出可以切成 JSON，接 jq 直接取字段。",
+    "usage": "最短一次调用是 `gws gmail +triage`；限条数并过滤用 `gws gmail +triage --max 5 --query 'from:boss'`；要结构化数据加 `--format json` 再接 jq。",
+    "notes": "需要本机装好 gws CLI 并已登录，授权说明在同源的 gws-shared；参数以 `gws gmail +triage --help` 为准。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-sheets-append": {
+    "name_zh": "表格追加行",
+    "intro": "往指定电子表格末尾追加一行数据，同样是 gws CLI 的 sheets 子命令封装。适合把每日抓取结果、表单提交、流水日志写进同一张表，不用打开浏览器。单行、多行、指定落到哪张 sheet 三种写法正文都给了。",
+    "usage": "最短一次调用是 `gws sheets +append --spreadsheet ID --values 'Alice,100,true'`；多行多列改用 `--json-values`，指定落到哪张表用 `--range`。",
+    "notes": "需要 gws CLI 且已授权 Sheets；正文里的 ID 是占位写法，实际换成电子表格的 spreadsheetId。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-tasks": {
+    "name_zh": "Google 待办管理",
+    "intro": "用 gws CLI 操作 Google Tasks：任务列表和任务的增删改查、清空已完成、调整顺序。适合让 agent 读你今天的待办、把讨论结果写成任务，或者批量清理。正文把 tasklists 和 tasks 两类资源的每个方法列了出来，包括配额和删除时对已分配任务的影响。",
+    "usage": "先 `gws tasks --help` 看有哪些资源和方法，再用 `gws tasks <resource> <method> [flags]` 调用；某个方法的必填参数和默认值用 `gws schema` 查。",
+    "notes": "需要本机装好 gws CLI；正文只覆盖 API 方法目录，OAuth 授权在同源的 gws-shared。清空已完成只是把任务标成隐藏，不是删除。",
+    "tier": "auto"
+  },
+  "juliusbrussee/caveman/compress": {
+    "name_zh": "记忆文件压缩",
+    "intro": "把 CLAUDE.md、todo、偏好这类自然语言记忆文件改写成 caveman 风格（砍虚词、留名词和结构）来省输入 token。代码、URL、反引号内容和标题层级逐字保留。压缩结果直接覆盖原文件，同时留一份 `<filename>.original.md` 备份，方便回滚对比。",
+    "usage": "在 skill 目录下跑 `cd <directory_containing_this_SKILL.md> && python3 -m scripts <absolute_filepath>`；也可以对 agent 说 compress memory file，触发 `/caveman:compress <filepath>`。",
+    "notes": "会覆盖原文件，跑之前先提交或确认已有备份；正文强调反引号里的内容和代码块一个字都不能改，只压叙述性文字。",
+    "tier": "auto"
+  },
+  "othmanadi/planning-with-files/planning-with-files": {
+    "name_zh": "文件式任务规划",
+    "intro": "把多步任务的计划、发现和进度落成磁盘上的三份 markdown：task_plan.md、findings.md、progress.md，让上下文被压缩或会话重开后还能接着干。给动辄 5 次以上工具调用的长任务用。生命周期钩子只注入选中的那份项目计划，恢复时也只看项目里的计划文件；想读本地会话记录的聚合计数，得显式跑 session-catchup.py 的 metadata 模式。",
+    "usage": "开工前跑 `scripts/init-session.sh \"Task Name\"` 建目录，脚本会打印 `PLAN_ID`；用 `PLAN_ID` 或 `PWF_PLAN_ROOT` 把当前计划钉死，收尾跑 `scripts/check-complete.sh`。多个任务并行时各自 pin 一个计划或用独立 worktree。",
+    "notes": "依赖随 skill 带的 bash 和 PowerShell 脚本；会话回放要用户单独批准，正文声明没有任何网络上传路径。目录里若同时存在根计划和嵌套计划，正文要求先解决歧义再继续，不许退回到别的任务计划。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-code-style": {
+    "name_zh": "Go 代码风格",
+    "intro": "Go 里需要人判断的那部分风格：行长和断行位置、`:=` 与 `var` 怎么选、slice 和 map 必须显式初始化、早返回压平嵌套、switch 替掉 if-else 链、复合字面量必须带字段名。会让 linter 管的格式化它不重复讲，命名和注释另有同系列 skill。核心口径是规则服务于可读性，破例要写注释。",
+    "usage": "写或 review Go 代码时按正文各节过一遍：超过约 120 列就在语义边界断行，4 个以上参数的调用一行一个；格式化交给 `gofumpt` 和 `goimports`，风格检查交给 `gocritic` 和 `revive`。",
+    "notes": "正文末尾提到可以并行跑多个 style review 子任务；linter 配置和命名规范不在本 skill，指向同系列对应技能。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-error-handling": {
+    "name_zh": "Go 错误处理",
+    "intro": "Go 错误处理的规矩：返回的错误必须检查、用 `%w` 包上下文、错误字符串小写且不带尾标点、哨兵错误配 `errors.Is` 和 `errors.As` 判断、`errors.Join` 合并独立错误、只 log 或只返回绝不做两遍、用 slog 打结构化日志、别拿 panic 处理预期错误。目标是接上日志聚合后日志还能用。",
+    "usage": "包错误用 `fmt.Errorf(\"{context}: %w\", err)`；多条独立错误要一起返回就用 `errors.Join`；日志统一走 `slog`，HTTP 入口加一层记 method、path、status 和耗时的中间件。",
+    "notes": "正文按 Go 1.20、1.21、1.26 分版本给建议；samber/oops 和 slog handler 生态另有专门 skill。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-testing": {
+    "name_zh": "Go 测试实践",
+    "intro": "写生产级 Go 测试的清单：表驱动测试必须用命名子测试、集成测试用 build tag 隔离、每个测试能单独跑、用 goleak 查 goroutine 泄漏、用 testing/synctest 做确定性并发测试、fuzz、benchmark、覆盖率、只 mock 接口。还点了几个常见坑，比如 assert 实例被父测试绑住、作用域漏进子测试。",
+    "usage": "表驱动骨架用 `go install github.com/cweill/gotests/gotests@latest` 装 gotests 生成；单测跑 `go test -v -run TestName`，覆盖率用 `go test -coverprofile=coverage.out ./...` 再 `go tool cover -html=coverage.out` 看。",
+    "notes": "正文按 Go 1.26 前后的新特性写（ArtifactDir、stdversion、synctest），老版本部分写法不适用；testify 和 benchmark 细节另有同系列 skill。",
+    "tier": "auto"
+  },
+  "shadcn-ui/ui/migrate-radix-to-base": {
+    "name_zh": "Radix 迁 Base UI",
+    "intro": "把 React 项目里的 Radix UI 换成 Base UI，包括 shadcn 包装层、手写的 radix 组合和它们的调用方，要求每一步项目都能编译。做法是先拿官方 base 样式当基准逐文件比对，再动存量代码；单组件（比如 accordion）和整仓迁移两种模式都支持。正文列了硬规则和必须手工复核的行为变化。",
+    "usage": "先跑 `npx shadcn@latest info --json` 摸清当前 base、style、Tailwind 版本和已装组件，再要求 git 工作区干净、按组件一次提交。",
+    "notes": "正文要求动依赖前先跑一遍 typecheck 和 build 记下既存失败，再装 `@base-ui/react`（与 radix 并存到最后一个组件迁完）；不确定的 prop 映射要查 references 里的对照表，并把缺口记进 `.migration/<component>.md`。",
+    "tier": "auto"
+  },
+  "wind-alice/alicemarket/wind-find-finance-skill": {
+    "name_zh": "万得金融技能路由",
+    "intro": "万得金融技能的路由入口：本身不取数、不做分析、不需要 API Key，只判断用户问题该落到哪个数据底座 skill 或工作流 skill。缺哪个就列出来让用户选安装范围，确认后由 AI 直接装。正文定了硬门禁——只有数据 skill 装好不算满足，工作流 skill 缺失时不许用通用分析顶替。",
+    "usage": "触发后先跑 `scripts/update-check.mjs`（正文写的是不得跳过），再读 `references/skills-catalog.md` 归类问题并标注每个 skill 的角色；缺必需 skill 时先测 GitHub 和 Gitee 连通性再装。",
+    "notes": "安装命令正文规定不许原样展示给用户，由 AI 在确认后执行；当前 agent 与全部 agent 两种安装范围对应加不加 -g。脚本失败或断网时静默跳过，不影响后续流程。",
+    "tier": "auto"
+  }
+}

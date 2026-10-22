@@ -1,0 +1,177 @@
+{
+  "alchaincyf/huashu-design/huashu-design": {
+    "name_zh": "花叔 Design",
+    "intro": "用 HTML 做高保真视觉产出：可点的交互原型、1920×1080 的 HTML 幻灯片、时间轴驱动的动效 demo、信息图，能导出 MP4 和 GIF。用工作室分工的方式推进（艺术总监、品牌研究员、视觉、动效、前端、文案），并且任何新设计都先出三个方向让你选，指定了风格也不例外。",
+    "usage": "直接说要做的东西，比如「做个咖啡主题的 PPT」或「做个 30 秒产品动画」；动画开工前它会先按 `references/storyboard-basics.md` 出一张轻量分镜卡。",
+    "notes": "生产级 Web App、SEO 站、需要后端的系统不适用。涉及具体品牌时必须先取官方 logo 和产品图，事实性断言（是否已发布、版本号）要先搜证再动手，正文把这条定为优先级最高。",
+    "tier": "auto"
+  },
+  "axelfreeman/marketing-mindset/marketing-mindset": {
+    "name_zh": "营销操盘手思维",
+    "intro": "不是模板库，而是一个干了 15 年 B2B 增长的营销负责人怎么想问题：一个想法值不值得做、第一个客户从哪个竞对手里抢、该盯哪类竞争对手、三个月能不能见效、什么时候该招人而不是自己硬扛。核心观点是营销先于产品，且营销从不免费。",
+    "usage": "直接把处境丢给它——写广告、找首批客户、评估一个定位。它会先卡一道门：用 `scripts/first-client-gate.py` 确认你的第一个客户是不是你自己。",
+    "notes": "纯方法论文档，不接外部服务。作者在正文里给了「停止清单」：Product Hunt 榜单、半年前的报告、拿口碑换广告的博主都不算可靠信息源；社交平台要先去假评论和刷量再看。",
+    "tier": "auto"
+  },
+  "better-auth/skills/better-auth-security-best-practices": {
+    "name_zh": "Better Auth 安全配置",
+    "intro": "Better Auth 的安全清单：密钥从哪读、限流的窗口和敏感接口单独规则、CSRF 与可信来源、会话过期和 cookie 缓存、OAuth token 加密、IP 记录、审计日志，基本都给到可以直接抄进配置文件的片段。",
+    "usage": "最少把 `BETTER_AUTH_SECRET` 配上（用 `openssl rand -base64 32` 生成），再给 `trustedOrigins` 列出前端域名；敏感接口默认 3 次/10 秒，要改就写 `customRules`。",
+    "notes": "生产环境会拒绝默认值或弱密钥，短于 32 字符或熵不足会告警。限流的 memory 存储在 serverless 上不可用，正文建议换 database 或 Redis。",
+    "tier": "auto"
+  },
+  "clerk/skills/clerk-orgs": {
+    "name_zh": "Clerk 组织与多租户",
+    "intro": "Clerk 的 Organizations：团队和工作区切换、角色与权限、邀请成员、验证域名、企业 SSO，以及按组织隔离数据与路由。它不会默认给你开——先数项目里的信号，判断这个应用到底是不是多租户，再问你要不要上。",
+    "usage": "已有项目用 `clerk enable orgs` 开通，新项目可以 `clerk init --template b2b-saas`；权限检查从 `auth()` 取 `orgId`、`orgSlug`，再用 `has({ role })` 挡路由。",
+    "notes": "要在 Dashboard 里启用 Organizations。Membership required（2025-08-22 起的默认）会把所有登录用户导向选组织并关掉个人账号；B2C 与 B2B 并存必须选 optional。正文反复强调不要在没问过的情况下静默开启。",
+    "tier": "auto"
+  },
+  "coreyhaines31/marketingskills/popup-cro": {
+    "name_zh": "弹窗转化优化",
+    "intro": "给做转化的人一套弹窗判断标准：什么时候弹（过早就是打扰，过晚就是错过）、退出意图和滚动触发各适合什么页面、邮件订阅与折扣弹窗的文案结构、移动端怎么做，以及怎么让关闭按钮一眼可见。开工前会先读项目里的产品营销背景，只问没覆盖到的信息。",
+    "usage": "说清弹窗目的（收集邮箱、发折扣、公告）和现在的表现，它按时机、价值、尊重用户三条原则给方案；表单类需求会转给 `form-cro`，整页转化转给 `page-cro`。",
+    "notes": "纯咨询技能，没有命令行。项目里若有 `.agents/product-marketing-context.md`（老目录是 `.claude/product-marketing-context.md`）会先读，避免重复问背景。",
+    "tier": "auto"
+  },
+  "firebase/agent-skills/developing-genkit-go": {
+    "name_zh": "Genkit Go 开发",
+    "intro": "用 Go 写 AI 功能的参考书：Genkit 初始化与插件、生成与结构化输出、流式、prompt 文件、工具调用与中断、中间件、flow 与 HTTP 暴露，以及各家模型供应商的接法。每个主题对应一份 reference，按需读，不要求一次看完。",
+    "usage": "先照 Hello World 起一个 flow（`genkit.Init` 拿实例、`genkit.DefineFlow` 定义），再用 `genkit start -- go run .` 打开本地 Developer UI 调流程和看 trace。",
+    "notes": "需要 Go 项目自己引 genkit 的 Go SDK；CLI 用官方脚本装，正文给的是 `curl -sL cli.genkit.dev | bash`。正文还提醒模型 ID 变化快，别硬编码。",
+    "tier": "auto"
+  },
+  "firecrawl/cli/firecrawl-parse": {
+    "name_zh": "本地文件转 Markdown",
+    "intro": "把本地文件转成干净的 markdown：PDF、DOCX、DOC、ODT、RTF、XLSX、XLS、HTML 都支持，也能直接让模型出一份摘要，或者针对文档回答一个具体问题。判断标准很干脆——输入是文件路径就走它，输入是 URL 走 firecrawl-scrape。",
+    "usage": "`firecrawl parse ./paper.pdf -o .firecrawl/paper.md` 转 markdown；加 `-S` 出 AI 摘要，加 `-Q` 让它就文档作答。",
+    "notes": "要装 firecrawl CLI 且要配额。结果一定用 `-o` 落到 .firecrawl/ 再分段读，直接打 stdout 会撑爆上下文，记得把这个目录写进 .gitignore。单文件上限 50 MB，PDF 大约一页一个 credit，HTML 只算 1 个。",
+    "tier": "auto"
+  },
+  "flutter/agent-plugins/flutter-apply-architecture-best-practices": {
+    "name_zh": "Flutter 分层架构",
+    "intro": "给 Flutter 项目套官方推荐的分层：UI 层用 MVVM（View 只留 UI 逻辑，ViewModel 继承 ChangeNotifier 管状态）、Data 层用 Service 包外部接口、Repository 做单一数据源，业务复杂时再加可选的 Use Case。还给了 lib/ 下 data、domain、ui 的目录约定和按功能落地的 8 步清单。",
+    "usage": "新建项目或重构时按清单走：先定义领域模型（`freezed` 或 `built_value`），再 Service、Repository、ViewModel，最后注册进依赖容器并跑测试。",
+    "notes": "纯架构建议，没有脚本。正文把「什么时候该加 Use Case」写成条件判断：只有逻辑复杂到撑爆 ViewModel，或要跨多个 ViewModel 复用时才建。",
+    "tier": "auto"
+  },
+  "flutter/agent-plugins/flutter-build-responsive-layout": {
+    "name_zh": "Flutter 响应式布局",
+    "intro": "让一套 Flutter UI 在手机、平板和可自由缩放的窗口下都好看：用 LayoutBuilder 读父级给出的约束、用 MediaQuery.sizeOf 读整个窗口尺寸、用 Expanded 和 Flexible 分配剩余空间，而不是去判断机型、锁横竖屏或按硬件类型分支。",
+    "usage": "用 `LayoutBuilder` 拿到 `constraints.maxWidth`，跟断点比较（正文给的值是 `largeScreenMinWidth = 600`），大于就返回带侧边栏的宽屏布局，否则返回单列布局。",
+    "notes": "正文明确反对在树顶用 MediaQuery.orientationOf 或 OrientationBuilder 切布局、反对锁屏幕方向（折叠屏会出现黑边），大屏上要用 ConstrainedBox 限制行宽，列表一律走 builder。",
+    "tier": "auto"
+  },
+  "flutter/agent-plugins/flutter-fix-layout-issues": {
+    "name_zh": "Flutter 布局报错修复",
+    "intro": "按报错信息反查 Flutter 布局问题：RenderFlex overflowed、Vertical viewport was given unbounded height、InputDecorator 宽度无界、ParentData 放错位置，每种都给了对应修法（包 Expanded 或 Flexible、给 SizedBox 定高、把组件挪回正确的父级），并配了改前改后的代码对照。",
+    "usage": "在 debug 模式拿到异常，先跳过连带出现的 `RenderBox was not laid out`，找到真正的约束冲突，按错误类型改完再 hot reload 看红屏或黄黑条纹是否消失。",
+    "notes": "纯排错手册，不装东西也能读。核心规则一句话：约束往下传、尺寸往上报、父级定位置，多数报错都是这条链断在某一层。",
+    "tier": "auto"
+  },
+  "github/awesome-copilot/git-commit": {
+    "name_zh": "规范化的 Git 提交",
+    "intro": "把改动转成 Conventional Commits 格式的提交：先看 diff 判断 type 和 scope，必要时按逻辑分组暂存文件，再生成一行标题（祈使句、72 字符内）加可选的正文和脚注，破坏性变更用感叹号或 BREAKING CHANGE 标注。",
+    "usage": "在要提交时说「帮我 commit」或者打 `/commit`；它会先跑 `git diff --staged`，没暂存就看工作区 diff，再决定 message。",
+    "notes": "只读仓库状态并执行提交，没有额外依赖。正文附了安全条款：不改 git config、不擅自 force 或 hard reset、不跳过 hook、提交因 hook 失败要新建提交而不是 amend。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-calendar-agenda": {
+    "name_zh": "Google 日历日程",
+    "intro": "gws 的日历总览命令：默认把账号下所有日历接下来的日程一起列出来，可以只看今天、明天、本周或往后若干天，也能按日历名过滤、覆盖时区、换成表格输出。只读，不会改任何事件。",
+    "usage": "`gws calendar +agenda --today` 看今天，`gws calendar +agenda --week --format table` 出本周的表格。",
+    "notes": "需要 `gws` 与 gws-shared 的认证。默认用 Google 账号时区，跨时区看要显式加 `--timezone`。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-calendar-insert": {
+    "name_zh": "Google 日历建事件",
+    "intro": "gws 里新建日历事件的子命令：标题和起止时间必填，可以补地点、描述、多个参会人邮箱，加一个开关还能自动生成 Google Meet 链接。适合让 agent 把约好的会直接写进日历。",
+    "usage": "`gws calendar +insert --summary 'Standup' --start '2026-06-17T09:00:00-07:00' --end '2026-06-17T09:30:00-07:00'`，要视频会议再加 `--meet`。",
+    "notes": "时间要用 RFC3339 格式。这是写操作，正文要求执行前跟用户确认；需要 `gws` 与 gws-shared 认证。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-docs-write": {
+    "name_zh": "Google 文档追加文本",
+    "intro": "gws 里往 Google 文档末尾追加纯文本的子命令：给文档 ID 和要写的文本，内容插到正文结尾。只处理纯文本，需要加粗、标题、表格这类富格式得走原始的 batchUpdate 接口。",
+    "usage": "`gws docs +write --document DOC_ID --text 'Hello, world!'`，文本会追加到文档正文末尾。",
+    "notes": "这是写操作，正文要求执行前跟用户确认。需要 `gws` 与 gws-shared 里的认证配置。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-drive-upload": {
+    "name_zh": "Google Drive 上传",
+    "intro": "gws 里往 Drive 传文件的子命令：自动识别 MIME 类型，默认用本地文件名作为远端名字，可以指定父文件夹、也可以改名。适合把刚生成好的报告或导出的表格直接推上去。",
+    "usage": "`gws drive +upload ./report.pdf` 直接传；要放进指定目录加 `--parent`，要换名字加 `--name`。",
+    "notes": "写操作，正文要求确认后再执行。需要 `gws` 和 gws-shared 里的认证配置。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-sheets-read": {
+    "name_zh": "读 Google 表格数值",
+    "intro": "gws 里读表格的子命令：给 spreadsheet ID 加一个范围，把单元格里的值取回来，只读不写，不会改动任何内容。跨所有表格操作的认证和全局参数都在 gws-shared 里，缺了就先生成。",
+    "usage": "`gws sheets +read --spreadsheet ID --range \"Sheet1!A1:D10\"`，只要整张表里一个区块时也可以只给 `--range Sheet1`。",
+    "notes": "需要装 `gws` 并先按 `../gws-shared/SKILL.md` 配好认证；这个文件缺失时跑 `gws generate-skills` 生成。更细的选项走原始 values.get 接口。",
+    "tier": "auto"
+  },
+  "heygen-com/hyperframes/typegpu": {
+    "name_zh": "WebGPU 合成层",
+    "intro": "HyperFrames 的 typegpu 运行时适配层：播放器把当前时间通过 hf-seek 事件推给画布，你的 WebGPU 管线按这个时间渲染出确定的帧，适合 WGSL 着色器、计算管线、液态玻璃、粒子这类 GPU 驱动的画面层。适配层只负责递时间，不管你的管线怎么画，但渲染时序的坑文档里点得很细。",
+    "usage": "监听 `hf-seek` 事件，用 `e.detail.time` 重绘；GSAP 时间线必须在任何 await 之前同步注册，视频渲染收尾要 `await device.queue.onSubmittedWorkDone()`。",
+    "notes": "正文强调三条纪律：别用 performance.now() 或 requestAnimationFrame 计时、别用 Math.random()（换带种子的 PRNG）、WebGPU 不可用时适配层不会替你兜底。无头 Chrome 里 copyExternalImageToTexture 可能失败，量产渲染建议先用 FFmpeg 抽帧当图片纹理。",
+    "tier": "auto"
+  },
+  "jane-o-o-o-o/agent-pulse-skill/agent-pulse": {
+    "name_zh": "Agent 用量看板",
+    "intro": "读本机各家 AI agent 的日志（Claude Code、Codex、Cursor、Copilot、Aider、Goose、Qwen 等），统计会话数、token、工具与搜索调用、模型分布和估算花费，还能看预算、做预测、查异常、跑健康检查，导出报告或起一个本地看板。",
+    "usage": "`agent-pulse status --json` 看当前状态，`agent-pulse top --sort cost --json --hours 168` 找这周最贵的会话，查不到数据就先跑 `agent-pulse doctor --json`。",
+    "notes": "需要从 PyPI 装 `agentpulse-cli`，命令名仍是 agent-pulse。Windows 上要先设 `PYTHONUTF8=1` 和 `PYTHONIOENCODING=utf-8`，否则 emoji 和框线会乱码。web 和 api 是 extras，装之前要先问用户。",
+    "tier": "auto"
+  },
+  "larksuite/cli/lark-meeting": {
+    "name_zh": "飞书会议与妙记",
+    "intro": "飞书视频会议业务的统一入口：按主题或时间找历史会议、看参会人和录像，读 AI 智能纪要与妙记（总结、待办、章节、关键词、逐字稿），也能让应用机器人入会、拉会中发言和聊天内容、发会中消息。预约会议、忙闲和会议室不在这里，走 lark-calendar。",
+    "usage": "先找会议再读内容：`lark-cli vc +meeting-list-active --as user` 列出当前进行中的会议，拿到唯一 ID 后用 `lark-cli vc +meeting-events` 读会中事件。",
+    "notes": "依赖 lark-cli；身份要显式给 `--as user` 或 `--as bot`，定了就别中途换。meeting_id（长数字）、meeting_no（9 位，参数名 --meeting-number）、minute_token 三者不能互换。",
+    "tier": "auto"
+  },
+  "mvanhorn/last30days-skill/last30days": {
+    "name_zh": "近 30 天全网调研",
+    "intro": "查一个话题最近 30 天大家到底在说什么：从 Reddit、X、YouTube、TikTok、Hacker News、Polymarket、GitHub 和网页抓帖子与互动量，再综合成有出处的结论，还带一个 doctor 体检，某个源挂了或没配能定位到具体哪一条。",
+    "usage": "直接给主题，例如 `last30days nvidia earnings reaction`；数据拿不到时先跑 `doctor --cached --json` 看哪些源没通，再决定要不要补凭证。",
+    "notes": "需要 Python 3.12+ 和随技能安装的引擎脚本，首次运行有 setup 向导；可选接 SCRAPECREATORS_API_KEY、X_BEARER_TOKEN 等。正文明确要求跑引擎，不许降级成只用 WebSearch 凑一份报告。",
+    "tier": "auto"
+  },
+  "pbakaus/impeccable/teach-impeccable": {
+    "name_zh": "已废弃的 teach 命令",
+    "intro": "一个空壳：命令已经改名并合并进 impeccable 主技能，文件里只剩一句话，让 agent 告诉用户去用新的入口，明确写着不要在这里执行任何 teach 流程。装到就是装了个提示牌，实际能力已经不在这个条目里了。",
+    "usage": "被触发时它只会回复改名提示，真正要用的是 `{{command_prefix}}impeccable teach`。",
+    "notes": "已废弃（DEPRECATED），别指望用它学 teach 流程。正文原话是 Do NOT proceed with any teach flow here，只做转告。",
+    "tier": "auto"
+  },
+  "proseify.xyz/anti-prose-slop": {
+    "name_zh": "反 AI 腔小说写作",
+    "intro": "接上 Proseify MCP 之后，给写长篇的 agent 套一组硬约束：先定体裁再动笔、按章节顺序真把每一章写完（不许写六章然后把剩下的压成摘要）、每章过一遍反套话自检，最后用评分接口验收。附带一份公共版权语料，可以检索范文来对齐句子节奏。",
+    "usage": "先跟用户确认要长篇还是中篇，再按体裁取配方：`get_genre_recipe` 会返回节奏、对白比例和句式锚点，然后 `plan_book` 出章节架构，逐章写完再用 `evaluate_book` 打分。",
+    "notes": "需要 Proseify 的 API key 并配好 MCP，没 key 就没有任何工具可用。`plan_book` 默认只出 30 章约 4.8 万字，要整本长篇必须显式传 40 章、8 万字。",
+    "tier": "auto"
+  },
+  "skills.volces.com/byted-web-search": {
+    "name_zh": "豆包联网搜索",
+    "intro": "把火山引擎豆包搜索包成一条行为纪律：涉及现实事实、时效、出处、价格政策的问题，先搜再答；纯计算、基础常识、闲聊和用户明确说不要搜的就不搜。返回网页和图片结果，支持权威过滤、时间范围和 query 改写。",
+    "usage": "`byted-web-search \"具体搜索词\"` 直接搜，要限定时间加 `--time-range OneWeek`；结果不够就换英文关键词或开 `--query-rewrite` 再试一轮。",
+    "notes": "需要 WEB_SEARCH_API_KEY（豆包搜索控制台或 Agent Plan 取），个人账号每月 500 次免费额度、次月 1 日重置。正文要求先直接跑，鉴权失败再出引导，不要预先检查环境变量。",
+    "tier": "auto"
+  },
+  "tencent/wechatreading/weread-skills": {
+    "name_zh": "微信读书助手",
+    "intro": "通过 Agent API Gateway 调微信读书：搜书、看章节和阅读进度、读书架、查阅读时长与偏好统计、导出自己的划线和想法、看章节热门划线及划线下点评、读公开书评、拿个性化推荐。接口按能力拆成独立说明文件，先读对应文档再调用。",
+    "usage": "所有能力走同一个 POST 地址 `https://i.weread.qq.com/api/agent/gateway`，body 里用 `api_name` 指定接口、业务参数平铺在顶层，并且每次都要带 `skill_version`。",
+    "notes": "需要 WEREAD_API_KEY（wrk- 开头，绑定账号身份），没设就提示用户 export。业务参数不要包进 params，否则 count、lastSort 不转发、分页看着像失效。回包出现 upgrade_info 必须先升级再重试。",
+    "tier": "auto"
+  },
+  "wshobson/agents/nodejs-backend-patterns": {
+    "name_zh": "Node.js 后端模式",
+    "intro": "一份 Node 后端的检查清单式参考：Express 或 Fastify 下的中间件组织、自定义错误类、Zod 或 Joi 做输入校验、结构化日志、限流、CORS、连接池、优雅关闭、健康检查，以及为什么该上 TypeScript。具体代码放在 references 里按需展开。",
+    "usage": "建 REST 接口、GraphQL 服务或微服务时把它当清单过一遍；要可直接抄的模式就让它读 `references/details.md`。",
+    "notes": "纯文档，没有可执行脚本。测试部分它转交给 `javascript-testing-patterns` 技能，这里不给完整测试代码。",
+    "tier": "auto"
+  }
+}

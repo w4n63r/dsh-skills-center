@@ -1,0 +1,177 @@
+{
+  "amplitude/mcp-marketplace/diff-intake": {
+    "name_zh": "PR 变更摘要",
+    "intro": "埋点工作流的第一步：读一个 PR 或分支 diff，产出一段机器可读的 YAML change brief，交给下游两个技能消费。它把改动文件按 Core Logic、Generated、Testing、Config / Dependencies、Documentation、Noise 分类，每个文件记下路径、分类、变更类型（Added / Modified / Deleted）和 1–5 的埋点可能性；再为 Core Logic 文件逐个写两行摘要、标出 frontend/backend/shared，并推导出 user_facing_changes 和 surfaces.components 这两层信号。取数按 PR 链接、分支对比、含糊提及三种情况分别给了命令。",
+    "usage": "贴 PR 链接或给分支名时调它，先用 `gh pr view` 拉变更清单，比对两个分支用 `git diff --stat`；输出只留 YAML 块，不夹解释性文字。",
+    "notes": "要能访问仓库的 gh 和 git；正文要求下游拿到的输出必须机器可读，写散文会被后面的步骤嫌弃。",
+    "tier": "auto"
+  },
+  "amplitude/mcp-marketplace/discover-analytics-patterns": {
+    "name_zh": "埋点写法发现",
+    "intro": "找的是一个代码库怎么发事件，而不是有哪些事件：扫出工程师真正在用的 SDK 调用、函数签名和 import 写法，输出一份去重后的模式清单，每条附上脱敏后的写法和它出现的文件路径，再据此推断事件名和属性名的主流命名习惯。命名依据的优先级在正文里排死了——客户提交的 `.amplitude/instrumentation-agent-context.md` 里写的约定最高，其次是 Amplitude MCP 观察到的真实事件名，再次是代码里的调用点，最后才是 taxonomy 技能。",
+    "usage": "在动手写任何埋点代码之前先跑它，直接问「我们这边怎么埋事件」；接了 Amplitude MCP 的话它会先读一遍真实事件名再回代码里比对。",
+    "notes": "正文要求跳过 `[Amplitude], [Guides-Surveys]` 这类系统事件前缀，否则命名推断会被系统名带偏。",
+    "tier": "auto"
+  },
+  "amplitude/mcp-marketplace/discover-event-surfaces": {
+    "name_zh": "事件候选清单",
+    "intro": "工作流第二步：拿 diff-intake 产出的 change brief，列出一份尽量全的候选事件，命名规整、按类归好，交给 PM 决定哪些真值得埋。它不照 diff 硬凑事件，而是先把用户流程在代码里走通——读 surfaces.components 点名的文件，顺着 import 和跳转再往外看一层，盯入口、交互序列和异步边界，产出回答业务问题的事件而不是复述实现的字段。若 classification.analytics_scope 是 none 就直接停下告诉你没东西可埋。",
+    "usage": "手上已经有 change brief 时调用，问「这个 PR 该埋什么事件」；它会先把用户路径串起来再列候选，广度优先，收窄留给下一步。",
+    "notes": "要接第一步的 YAML 输出才有输入；正文说这一步刻意追求广度，别在这里纠结该不该埋。",
+    "tier": "auto"
+  },
+  "amplitude/mcp-marketplace/instrument-events": {
+    "name_zh": "埋点实施方案",
+    "intro": "工作流第三步：从候选事件里只取 priority 为 3 的关键事件，产出能一行行照着改的埋点方案。它先摸清代码库现有的埋点写法，读被点名的文件确认作用域里有哪些变量，设计最少但能撑起看板的属性（明确排斥没人查的虚荣字段），再定位每条上报该插在哪一行，最后输出 JSON 格式的 trackingPlan。若筛完一条关键事件都没有，就说明情况并停止。",
+    "usage": "拿到候选清单后问「把这些事件埋进去」或「生成 tracking plan」；它会先列出筛出的关键事件让你确认范围，确认完才往下推。",
+    "notes": "客户可以在仓库里放 `.amplitude/instrumentation-agent-context.md` 指定命名与属性标准；缺这个文件不阻塞，但技能会提示补上。",
+    "tier": "auto"
+  },
+  "antfu/skills/vite": {
+    "name_zh": "Vite 构建配置",
+    "intro": "Anthony Fu 维护的 Vite 参考，按 Vite v8.3.1 生成：配置怎么写、插件 API 与虚拟模块、库模式和 SSR、以及 Vite 8 换成 Rolldown 打包器和 Oxc 转换器之后的迁移差异。偏好给死了——用 TypeScript、配置写成 vite.config.ts、只上 ESM 不上 CommonJS。内容按主题拆进 references 下的几个文件，正文本身是索引加常用配置和命令片段，遇到具体问题再跳对应那页。",
+    "usage": "写 `vite.config.ts`、做库模式或 SSR、迁到 Vite 8 时按主题跳对应 reference；日常命令就 `vite`、`vite build`、`vite preview` 三个。",
+    "notes": "正文说明内容由脚本从 vitejs/vite 仓库生成，版本会随时间更新，别当成永久有效的手册。",
+    "tier": "auto"
+  },
+  "expo/skills/expo-cicd-workflows": {
+    "name_zh": "EAS 工作流编写",
+    "intro": "写和改 EAS 的 CI/CD 工作流 YAML。正文要求先去拉三份资料再动笔：workflows 的 JSON Schema、语法文档、预置 job 文档，理由是这些资源随新功能一直在变，凭记忆写出来的值会过期，Schema 还是校验的唯一依据。会讲清顶层结构（name、on、jobs、defaults、concurrency）以及 `${{ }}` 表达式能用哪些上下文，比如 github、inputs、needs、steps、workflow。",
+    "usage": "工作流文件放 `.eas/workflows/*.yml`；写完用 `node <skill-dir>/scripts/validate.js` 对最新 schema 校一遍，报错清零才算完。",
+    "notes": "正文给的抓取脚本是 `node <skill-dir>/scripts/fetch.js`，带 ETag 缓存；schema 属于必拉项，不拉就别生成。",
+    "tier": "auto"
+  },
+  "flutter/agent-plugins/flutter-add-widget-preview": {
+    "name_zh": "Flutter 组件预览",
+    "intro": "用 Flutter 的预览系统给工程加可交互的组件预览：给顶层函数、类里的静态方法、或者没有必填参数且返回 Widget 或 WidgetBuilder 的公开构造函数加 @Preview 注解，就能在 Widget Previewer 里脱离整个 App 单独渲染。还讲了注解参数（name、group、size、textScaleFactor、wrapper、theme、brightness、localizations）、怎么继承注解批量注入主题和尺寸、以及预览跑在 Web 上所以不能用原生插件和 dart:io、dart:ffi 这些限制。",
+    "usage": "新建或改 UI 组件时顺手加预览；写 `@Preview` 前先确认目标没有必填参数，并 import `package:flutter/widget_previews.dart`。",
+    "notes": "预览宿主是 Web 环境，组件一旦传递依赖 `dart:io` 或 `dart:ffi` 就预览不起来。",
+    "tier": "auto"
+  },
+  "limrun-inc/skills/limrun-detox-testing": {
+    "name_zh": "云端 Detox 测试",
+    "intro": "在 Limrun 的云端 iOS 模拟器上配、跑、调 Detox。正文把三个角色拆得很清楚：本地 Node/Jest/Detox 进程是 tester，`detox run-server` 是 mediator（一般跑在 agent 那台机器上），App 客户端由模拟器通过 `lim ios launch-app --runtime detox` 注入。要解决的问题是让 tester 和 app 在目标隧道上互相看见，正文还给了判断连上了没有的信号，以及 SwiftUI 下按 id 取元素那类坑。",
+    "usage": "mediator、隧道、tester 分三个终端起：先 `npx detox run-server -p 8099 -l verbose`，再 `lim ios tunnel` 加 `--detach`，然后 `npx detox test --no-start`，最后 `lim ios launch-app` 带 `--runtime detox` 重启 App。",
+    "notes": "`.detoxrc` 要自己读会话环境变量，Detox 不会自动吃；driver 是 `@limrun/detox/driver`，正文给了完整配置样例。",
+    "tier": "auto"
+  },
+  "limrun-inc/skills/limrun-expo-development": {
+    "name_zh": "Expo 开发构建",
+    "intro": "在 Limrun 上跑 Expo / React Native 的 dev-client 迭代：先确认是 Expo 工程并推导出 bundle id、Android package、slug、scheme 和当前分支，缺 expo-dev-client 就补上，然后走 Metro 隧道改 JS/TS，省掉反复原生重建。产物按 bundle id 加分支出名，能在同一分支上复用；当前会话动过原生依赖或原生配置就不能复用，得重建。iOS 模拟器和 Android 模拟器都覆盖。",
+    "usage": "先用 `npx expo config --type introspect --json` 读出工程信息；再按分支决定复用旧包还是重建，设备用 `lim ios create` 或 `lim android create`，装包靠 `--install-asset`。",
+    "notes": "构建与设备命令的细节在 `limrun-xcode`、`limrun-gradle` 里，这条只管 Expo 特有的部分；本机 Xcode 和模拟器都不许用。",
+    "tier": "auto"
+  },
+  "limrun-inc/skills/limrun-ios-simulator": {
+    "name_zh": "云端 iOS 模拟器",
+    "intro": "驱动一台 Limrun 云端 iOS 模拟器上已经装好的 App：启动、点击、输入、读无障碍元素树、看 App 日志和模拟器 syslog、截图、录屏；还能把 App 连到本地服务或私有隧道、拿视频文件当摄像头、把全部流量导到自己的代理并信任它的 CA、设剪贴板、读写 user defaults、发通知、跑定时动作链。Linux、Windows、容器里都能用，不需要本机 Xcode。它只负责驱动跑起来的 App，构建那一步交给构建技能。",
+    "usage": "装 CLI 用 `npm install --global lim`，登录 `lim login` 或设 `LIM_API_KEY`；已有构建产物就 `lim ios sync` 传上去，要新开一台用 `lim ios create --attach`。",
+    "notes": "正文明令不许用本机 Xcode、本机模拟器和本机 macOS 工具；构建走 `limrun-xcode` 或 Bazel 那条路。",
+    "tier": "auto"
+  },
+  "limrun-inc/skills/limrun-xcode": {
+    "name_zh": "远程 Xcode 构建",
+    "intro": "在 Limrun 的远程 Xcode 上构建 Apple 项目：同步源码到远端实例、在那边编译，挂了模拟器就自动安装并重启 App，跑完你手上是一个已经跑起来的应用。除构建外还能跑项目命令、跑 XCTest、读构建日志、重载、出预览包和打签名 IPA。面向非 Bazel 工程——.xcodeproj 或 .xcworkspace、XcodeGen 的 project.yml、React Native / Expo 的原生构建，从任意系统发起都行。",
+    "usage": "在工程根目录跑 `lim xcode build .`；多 scheme 或 workspace 时加 `--scheme`、`--workspace`，要构建完立刻返回用 `--detach`，日志看 `lim xcode logs`。",
+    "notes": "需要 `lim` CLI 和登录；Bazel 工作区该走 `limrun-bazel`，构建完想点、截图、录屏再交给 `limrun-ios-simulator`。",
+    "tier": "auto"
+  },
+  "limrun-inc/skills/limrun-xcode-bazel": {
+    "name_zh": "Bazel 远程构建",
+    "intro": "标着 legacy 的一条：用 `lim xcode rbe` 在专用 Xcode 沙箱上构建 Bazel 的 iOS 工程，并装到挂在该沙箱上的远端模拟器。正文自己说新路径是 `lim bazel setup`，也就是 limrun-bazel 技能——不要沙箱和隧道、iOS 与 Android 都支持、全组织共用一个缓存。所以它只在工作区本来就是 `lim xcode rbe` 起的、或者用户明确点名、或者这条老路出毛病时用，其它 Bazel 构建都该换新技能。",
+    "usage": "在 Bazel 工作区根目录（有 `MODULE.bazel` 或 `WORKSPACE`）跑 `lim xcode rbe`，它会配好 `.limrun/` 并打印确切的构建命令，照着执行即可；要换 Xcode 版本用 `lim xcode version set 27`。",
+    "notes": "别手写 `.limrun/` 和那些 flag，CLI 会按沙箱的 Xcode 和你的系统生成；需要 `lim` CLI 与登录。",
+    "tier": "auto"
+  },
+  "nextlevelbuilder/ui-ux-pro-max-skill/design": {
+    "name_zh": "品牌与设计物料",
+    "intro": "一个总入口，按任务把活转给对应子技能：品牌识别与语气、设计 token 与 CSS 变量、shadcn/ui 加 Tailwind 的界面代码，内置的还有 logo 生成（55 种以上风格，接 Gemini Nano Banana、Atlas Cloud 或 MuAPI）、企业视觉识别（50 项交付物和 mockup）、Chart.js 做的 HTML 演示稿、22 种横幅规格、SVG 图标和社交图。适合一次要出成套品牌物料的场合，单点需求也能直接跳对应那一页。",
+    "usage": "按任务点名子技能：做 logo 走 `references/logo-design.md`，出 CIP 走 `references/cip-design.md`，其余先看正文那张路由表。",
+    "notes": "正文说脚本路径相对 SKILL.md 所在目录算，工作目录要留在项目根，否则 `docs/brand-guidelines.md` 这类输出会写到错的地方。",
+    "tier": "auto"
+  },
+  "pbakaus/impeccable/arrange": {
+    "name_zh": "版式间距调整",
+    "intro": "管界面里说不清哪里别扭的空间问题：间距是一堆随手写的数值还是成体系、视觉层级糊不糊（正文给了眯眼测试）、栅格和结构是不是随机、有没有节奏起伏、密度跟内容对不对。评估完出的是系统性方案——一套统一的间距刻度、按组收紧按组放松的节奏，而不是逐处微调。正文强调布局常是「看着不对」的真因，颜色和字体都没毛病时也一样。",
+    "usage": "觉得页面拥挤、卡片网格重复得像复制粘贴、元素对不齐时调它；它会先走 `impeccable` 的上下文收集流程，没有设计上下文时先让你补 teach 那一步。",
+    "notes": "依赖同系列的主技能，设计原则和反模式清单都放在那边，单独装这一条会缺上下文。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-data-structures": {
+    "name_zh": "Go 数据结构选型",
+    "intro": "讲 Go 内置和标准库数据结构该怎么挑：切片的三字头结构、容量增长和预分配，map 的哈希桶与 maps 包，数组，container/list、heap、ring 各自的适用场景，strings.Builder 和 bytes.Buffer 的分工，泛型集合该用多紧的约束，unsafe.Pointer 的合法转换和 Go 1.24 起的 weak.Pointer，以及值拷贝语义。判断依据是内存布局、分配成本和访问模式，不是哪个更眼熟。正文还提醒别依赖切片容量增长的时机，那个算法跨版本变过。",
+    "usage": "要挑容器、写泛型集合、用 `container/` 下的包，或者怀疑切片和 map 的底层行为时问它。",
+    "notes": "性能调优不在这条里：正文说要在 profiling 定位到瓶颈之后才动手，那部分归 `golang-performance`。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-dependency-management": {
+    "name_zh": "Go 依赖管理",
+    "intro": "管 go.mod 和 go.sum：go get 的安装与升级流程、最小版本选择、用 replace/exclude/retract 解冲突、用 govulncheck 扫整棵模块树、查过期依赖和二进制体积、vendoring、tool 指令、go.work 工作区。几条硬规则写在前面：go.sum 必须提交（go mod verify 靠它查供应链篡改）、每个版本发布前跑一遍漏洞扫描、改依赖的提交前跑 go mod tidy。给 AI 代理另加一条：新增依赖前必须先问你，标准库常常已经够用。",
+    "usage": "要加、删、升依赖，或者掂量某个包值不值得引进来时用；升级已有依赖用 `go get -u` 是正文认可的稳妥操作，新增则先过问。",
+    "notes": "需要 `go` 和 `govulncheck`，后者的装法是 `go install golang.org/x/vuln/cmd/govulncheck@latest`。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-documentation": {
+    "name_zh": "Go 文档写作",
+    "intro": "管 Go 项目的文档层：godoc 注释、README、CONTRIBUTING、CHANGELOG、Go Playground 链接、Example 测试、API 文档、llms.txt。分写和审两种模式——写模式按清单补齐缺的文档，可以一包一个子代理并行；审模式最多开五个子代理，一个文档层一个，查完整性、准确性和风格。原则里最硬的一条是意图优先于复述：代码只说明发生了什么，文档要讲为什么存在、什么时候用、有哪些约束，只把签名念一遍的注释不算文档。",
+    "usage": "要补 godoc 注释、写 README，或者在接手的大仓库里审一遍文档时用；大工程按包或按文档层并行写，最后合并。",
+    "notes": "正文提到在 Claude Code 上要用 `ultracode` 才进多代理编排，其它 harness 就顺序跑。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-lint": {
+    "name_zh": "Go 代码检查",
+    "intro": "golangci-lint 的配置与使用：跑检查、配 `.golangci.yml`、用 nolint 抑制告警、读懂输出、挑 linter。立场很明确——每个 Go 项目都该有一份 `.golangci.yml`，它是「启用了哪些 linter」的唯一事实来源，正文随附一份开了 48 个 linter 的生产级配置。分三种模式：装环境、写代码时后台跑修复、读输出和清存量告警；老项目清理按 linter 类别并行，五类各自独立。",
+    "usage": "写代码时后台跑 `golangci-lint run --fix` 只针对改动文件；配检查项从 `.golangci.yml` 起步，老项目按类别拆开清。",
+    "notes": "需要 `golangci-lint` 和 `go` 两个二进制，正文给的装法是 `go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest`。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-modernize": {
+    "name_zh": "Go 代码现代化",
+    "intro": "把老写法换成新语言特性和标准库：range-over-int、min/max、any、迭代器、slices/maps/cmp/slog、t.Context、b.Loop、synctest，加上弃用包与 API 的替换，以及 golangci-lint v2、govulncheck、PGO 和 CI 流水线。两种模式分得很清：开发者正在写代码时就只提当前文件相关的改动，把别处的机会记成备注；显式全量扫描时开五个子代理分头查弃用包、语言特性、标准库、测试写法和工具链，最后在隔离 worktree 里改，不直接动主工作树。",
+    "usage": "遇到弃用告警、要升到某个 Go 版本（正文举例 1.27）、或者想让 CI 工具链跟上时用；别人正改着代码时它只记不分别动手。",
+    "notes": "全量扫描本身是只读的，批量改写落在独立 worktree 里，review 过再合。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-observability": {
+    "name_zh": "Go 线上可观测",
+    "intro": "盯生产环境常开的那几路信号：用 log/slog 出结构化日志、Prometheus 指标、OpenTelemetry 分布式链路、pprof 与 Pyroscope 持续剖析、服务端 RUM 事件，以及告警和 Grafana 看板。默认模式是给新代码补可观测性，review 模式查新代码有没有导出该有的信号，audit 模式按信号开五个子代理并行查覆盖率。也管把 zap、logrus、zerolog 迁到 slog，和 CDP 场景下符合 GDPR/CCPA 的埋点。",
+    "usage": "给新服务或新功能接监控时用；迁旧 logger、给功能补链路、配告警和看板都在范围内。",
+    "notes": "正文提醒具体 API 签名以各库官方文档为准，别照抄记忆里的写法。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-project-layout": {
+    "name_zh": "Go 项目布局",
+    "intro": "定 Go 项目的目录和工作区：cmd/、internal/、pkg/ 各自该放什么，模块与包怎么命名，go.work 多模块怎么摆，以及那几个必备配置文件。做事方式是先问架构（clean architecture、六边形、DDD 还是扁平），再问依赖注入选哪条路（手写构造注入、samber/do、google/wire、uber-go/dig+fx 或者干脆不用），两个问题分开问、等一个答完再问下一个。它反复强调别把小项目撑大：一百行的 CLI 不需要分层和注入。",
+    "usage": "起新项目、整理老仓库、拆多模块，或者判断某个包该不该挪进 `internal/` 时用；开场会先问你架构再问 DI，两个问题分开答。",
+    "notes": "提问走宿主带的 question 工具，不是让你在对话里打字回答；需要 `go`。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-safety": {
+    "name_zh": "Go 防御式编码",
+    "intro": "针对正常（非对抗）代码里自己写出来的 bug：nil 解引用、typed-nil 接口被判成非 nil、append 复用底层数组让两个切片互相改写、int64 转 int32 静默截断、浮点用等号比较、在循环里写 defer、导出函数没做防御性拷贝、零值不可用。人设是防御型 Go 工程师，逐条给反例和正例，最后落成检查清单。它不管并发设计、不管可被利用的漏洞、也不管已经跑挂了的程序，那三块各有专门的技能。",
+    "usage": "review 时让它过一遍 nil 安全、数值转换和资源生命周期；设计一个「零值拿来就能用」的类型时也可以直接问它。",
+    "notes": "需要本地有 `go`；正文声明的兼容环境是 Claude Code、Codex 一类 harness。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-structs-interfaces": {
+    "name_zh": "Go 结构体与接口",
+    "intro": "讲 Go 的类型该怎么设计：接口保持小（一到三个方法，要更大的契约就从小接口组合）、接口定义在使用方而不是实现方、函数接受接口返回具体类型、别在没有第二个实现之前就造接口；再往下是结构体嵌入、类型断言与 type switch、接口分段、用接口做依赖注入、序列化用的字段 tag、指针接收者和值接收者怎么选。核心那句是「抽象是发现出来的，不是设计出来的」。",
+    "usage": "设计新类型、拆接口、写 type switch，或在指针接收者和值接收者之间拿不定主意时问它；它也解释接受接口返回结构体到底解决什么问题。",
+    "notes": "正文写明社区默认：公司内部若有明确取代它的技能，以公司那份为准。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-troubleshooting": {
+    "name_zh": "Go 问题排查",
+    "intro": "系统性地找根因：按症状走决策树，先复现再动手，一次只验一个假设，逐步升级工具而不是一上来就上重型调试器。覆盖常见 Go 坑、测试驱动调试、pprof 抓取、Delve、竞态检测、GODEBUG 追踪和生产环境调试。硬规则写在开头——没查清根因不许改，越赶时间越要这样，症状式修补只会生出新 bug。单点问题顺序查，全库大扫除时才按 bug 类别开五个子代理并行。",
+    "usage": "遇到崩溃、死锁、竞态或行为不对时从它开始；单点问题它顺序查，要全库扫 bug 才按类别并行。",
+    "notes": "需要 `go` 与 `dlv`，正文给的安装命令是 `go install github.com/go-delve/delve/cmd/dlv@latest`。",
+    "tier": "auto"
+  },
+  "wshobson/agents/brand-landingpage": {
+    "name_zh": "品牌落地页设计",
+    "intro": "给还没想清视觉方向的产品做单页落地页：先做一轮聚焦的品牌访谈（颜色、字体、形状语言），把回答翻成设计决策，用 Stitch 生成页面并在浏览器里预览，再按结构化反馈迭代，最后交付可直接部署的 HTML 包。语气设定是对懂 API 和环境变量的开发者说话，不藏工具链，但会解释为什么视觉层级重要。范围只到单目的落地页和产品营销页，多页应用、后台面板、文档站都不接。",
+    "usage": "手上只有产品、没有设计稿时用它起第一版；开工前它会先确认 Stitch SDK 装好、key 已进环境变量，然后才进访谈。",
+    "notes": "必须有可用的 Stitch 连接和 key，否则访谈白做；已经有设计稿或设计 token 的场合它建议换 `frontend-design`。",
+    "tier": "auto"
+  }
+}

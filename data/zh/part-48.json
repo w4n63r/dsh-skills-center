@@ -1,0 +1,177 @@
+{
+  "addyosmani/web-quality-skills/performance": {
+    "name_zh": "网页性能优化",
+    "intro": "用真实用户信号排优先级、用浏览器 trace 找病因的网页性能做法：先建立 field 加 lab 两套基线，再挑真实用户里差的 Core Web Vitals 下刀，只改跟实测瓶颈相关的代码与资源，改完重跑同级测量并报出前后数值、条件与不确定度。给要提速站点、做性能审计的人。",
+    "usage": "页面能跑就先读 `references/MEASUREMENT.md` 建基线；有 Chrome DevTools MCP 就用 `performance_start_trace` 录 trace、`performance_analyze_insight` 看聚焦结论，别拿 `lighthouse_audit` 当性能工具用。",
+    "notes": "没有可跑页面时只能静态看，这时结论要标成假设并附上能验证它的命令或浏览器流程，不能当成已测到的回归来汇报。",
+    "tier": "auto"
+  },
+  "amplitude/mcp-marketplace/add-analytics-instrumentation": {
+    "name_zh": "埋点方案生成",
+    "intro": "从一段代码变更倒推该埋哪些事件：先认出输入是 PR、分支、文件或目录、还是一句功能描述，取到相关代码，再依次跑 diff 接收、事件面发现、事件实现，最后给一份能直接照着做的埋点计划。它是整条埋点流程的入口，正文明确要求别去单独调那三个子步骤。",
+    "usage": "直接把 PR 链接、分支名、路径或功能描述丢给它，输入类型它会自己判；真判不准时它才反过来问你要哪一类；然后一次跑完拿 tracking plan。",
+    "notes": "属于 Amplitude 的 MCP 市场包，后面几步会调到同包里的子技能，只装这一条会跑不完整。",
+    "tier": "auto"
+  },
+  "dietrichgebert/ponytail/ponytail-debt": {
+    "name_zh": "Ponytail 欠账清单",
+    "intro": "把仓库里所有 `shortcut:` 注释（老代码里可能写成 `ponytail:`）收成一张技术债清单：每行给出文件与行号、当时简化掉了什么、天花板在哪、什么条件下该回头改。只读，不动代码。给想确认「当时省下的事有没有悄悄变成永久欠账」的人。",
+    "usage": "在仓库里跑 `git grep --no-index --exclude-standard -nE '(#|//|/[*]) ?(shortcut|ponytail):'`；想换成自己的标记词就搜那个词；要在每行补上责任人，再叠 `git blame -L<line>,<line>`。",
+    "notes": "只读不写；想把清单存成文件（比如 PONYTAIL-DEBT.md）得单独要求。没写升级路径或触发条件的标记会被标成 no-trigger，那几条才是会烂掉的。",
+    "tier": "auto"
+  },
+  "dietrichgebert/ponytail/ponytail-help": {
+    "name_zh": "Ponytail 帮助卡",
+    "intro": "ponytail 的一页速查：三档模式分别做什么（Lite 只做被要求的、顺口提一句更小的做法；Full 默认给最小完整改动并说明跳过了什么；Ultra 会先质疑需求）、六个技能各自的职责、怎么退出（说 stop ponytail 或用 `/ponytail off`）、以及 Claude Code 里 prompt 上方那条 band 怎么开关。",
+    "usage": "需要时直接 `/ponytail-help` 把这张卡打出来，它只显示一次、不改模式、不落盘；在 Codex CLI 和 IDE 扩展里换成 `$ponytail:ponytail-help` 这种写法。",
+    "notes": "默认档位是 full 且每个 session 自动生效。想换默认档用环境变量 `PONYTAIL_DEFAULT_MODE`，或改 `~/.config/ponytail/config.json`（Windows 在 %APPDATA% 下），设成 off 就变成手动激活。",
+    "tier": "auto"
+  },
+  "expo/skills/expo-deployment": {
+    "name_zh": "Expo 应用发布",
+    "intro": "用 EAS 把 Expo 应用发到 iOS App Store、Google Play 和 TestFlight：配 eas.json 的 build 与 submit profile、管版本号与 build number、发布商店元数据与 ASO，也能用 EAS Hosting 把 web 包和 API 路由一起发出去。适合要出正式包、跑 eas build 或 eas submit、准备上架或灰度的人。",
+    "usage": "先 `npm install -g eas-cli` 再 `eas login`，`npx eas-cli@latest init` 生成 eas.json；出包用 `npx eas-cli@latest build -p ios --profile production`，加 `--submit` 直接送审；快速上 TestFlight 用 `npx testflight`。",
+    "notes": "提审前要配好 Apple 凭据（走 `eas credentials`）和 Google Play 的 service account。API 路由本身怎么写看 expo-api-routes，不在这条里。",
+    "tier": "auto"
+  },
+  "expo/skills/upgrading-expo": {
+    "name_zh": "升级 Expo SDK",
+    "intro": "Expo 升 SDK 的操作顺序与坑位：用 `npx expo install expo@latest` 加 `--fix` 把依赖拉齐，跑 `npx expo-doctor` 查问题，再清缓存重装。正文还按 SDK 版本列了破坏性变更：SDK 54 的 React 19、SDK 53 的 New Architecture、SDK 55 把 expo-av 拆成 expo-audio 与 expo-video、SDK 56 的 React Navigation 迁到 expo-router。",
+    "usage": "按顺序来：`npx expo install expo@latest`、`npx expo install --fix`、`npx expo-doctor`，然后 `npx expo export -p ios --clear` 清掉缓存、删掉 node_modules 与 .expo 重装；想试 beta 用 `npx expo install expo@next --fix`。",
+    "notes": "beta 版本带 .preview 后缀（如 55.0.0-preview.2），发在 @next 标签下。项目里没有 ios/ 与 android/ 目录说明走的是 CNG 流程；改了原生配置要 `npx expo prebuild --clean`。",
+    "tier": "auto"
+  },
+  "flutter/agent-plugins/flutter-use-http-package": {
+    "name_zh": "Flutter 网络请求",
+    "intro": "用 http 包把 GET、POST、PUT、DELETE 发出去，并把响应映射成强类型 Dart 对象。正文按顺序给到四件事：装依赖与改平台权限、请求怎么带 header 与 JSON 负载、状态码怎么判、以及把重解析丢到后台 isolate。适合要给 Flutter 应用接 REST API、又不想自己重写一遍错误处理的人。",
+    "usage": "先 `flutter pub add http`，在 Dart 文件里 `import 'package:http/http.dart' as http;`；URL 一律走 `Uri.parse('your_url')`，POST 与 PUT 的 body 用 `jsonEncode()` 编码；解析重就把 `compute(parsePhotos, response.body)` 丢到后台 isolate。",
+    "notes": "漏配置会直接失败：Android 要在 AndroidManifest.xml 里加 INTERNET 权限，macOS 要在 DebugProfile.entitlements 与 Release.entitlements 里都加 network client 键。状态码只把 200 与 201 当成功。",
+    "tier": "auto"
+  },
+  "google-labs-code/stitch-skills/remotion": {
+    "name_zh": "Stitch 走查视频",
+    "intro": "把 Stitch 项目里的界面截图串成一条走查视频：先从 Stitch MCP 取项目与屏幕列表，把屏幕编排进 Remotion 的合成，加平滑转场、缩放与文字浮层，最后渲染成片。给要把设计稿变成 demo 或产品演示视频的人，前提是有一份已经画好的 Stitch 项目。",
+    "usage": "先 `list_tools` 确认有 `stitch:` 与 `remotion:` 前缀的 MCP，再用 `[stitch_prefix]:list_projects` 找到项目、`[stitch_prefix]:list_screens` 取屏幕，然后把屏幕清单写成 JSON（每屏带 `imagePath` 与 `duration`）交给 Remotion 合成。",
+    "notes": "硬前置：Stitch MCP、Remotion MCP 或 Remotion CLI、Node.js 与 npm、一个已有设计稿的 Stitch 项目；只装了其中一个 MCP 流程走不完。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-forms": {
+    "name_zh": "Google Forms 读写",
+    "intro": "用 gws 读写 Google 表单：create 只能带上标题与 document_title 建一张空表单，题目得靠 batchUpdate 加，get 取表单结构，另有 setPublishSettings 改发布设置、responses 与 watches 处理答卷和监听。适合要把收问卷、读答卷这条链路脚本化的人。",
+    "usage": "先 `gws forms --help` 浏览资源与方法，再用 `gws schema forms.<resource>.<method>` 查必填参数，然后拼 `--params` 与 `--json`；建一张有内容的表单要两步：先 `create` 再 `update` 加 items。",
+    "notes": "依赖 `gws` 与 `../gws-shared/SKILL.md` 的鉴权说明。老式表单没有 publish_settings 字段，setPublishSettings 对它们用不了。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-gmail-read": {
+    "name_zh": "Gmail 读信",
+    "intro": "读一封 Gmail：按消息 ID 取正文，或者把 From、To、Subject、Date 这些头部一并带上；HTML-only 的信会自动转纯文本，multipart/alternative 与 base64 解码也替你处理掉。给要把邮件内容喂给 agent、或者做批量解析和归档的人。",
+    "usage": "`gws gmail +read --id 18f1a2b3c4d` 读正文；要头部加 `--headers`；要结构化输出用 `--format json`，例如 `gws gmail +read --id 18f1a2b3c4d --format json | jq '.body'`；只想看会发什么请求，加 `--dry-run`。",
+    "notes": "依赖 `gws` 与 gws-shared 的鉴权。发信与管理邮箱的指令在 gws-gmail 那条，这条只管读单封。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-meet": {
+    "name_zh": "Google Meet 管理",
+    "intro": "管 Google Meet 会议：spaces 建会议空间、改详情、提前结束进行中的会议；conferenceRecords 默认按开始时间倒序列会议记录，再往下钻 participants、recordings、smartNotes、transcripts。给要拉会议纪要、取录音清单或自动收尾会议的人。",
+    "usage": "先 `gws meet --help` 看 v2 有哪些资源与方法，再用 `gws schema meet.<resource>.<method>` 查参数与默认值，然后拼 `--params` 与 `--json` 发请求。",
+    "notes": "依赖 `gws` 与 `../gws-shared/SKILL.md` 的鉴权。会议记录要等会议结束才有，进行中的只能查 space 本身。",
+    "tier": "auto"
+  },
+  "googleworkspace/cli/gws-slides": {
+    "name_zh": "Google Slides 读写",
+    "intro": "用 gws 命令行读写 Google 幻灯片：create 建空白稿，batchUpdate 一次提交多个改动（任一条不合法整批回滚，回复顺序与请求顺序对应），get 取最新版本，pages 处理页面级操作。适合要把演示文稿脚本化，或者让 agent 直接改 Slides 的场景。",
+    "usage": "先 `gws slides --help` 看有哪些 resource 与 method，再用 `gws schema slides.<resource>.<method>` 查必填参数、类型与默认值，然后照 schema 输出拼 `--params` 与 `--json` 发请求。",
+    "notes": "依赖 `gws` 可执行文件，以及 `../gws-shared/SKILL.md` 里的鉴权与全局参数说明；那份文件缺了就先跑 `gws generate-skills`。版本 0.22.5。",
+    "tier": "auto"
+  },
+  "mattpocock/skills/decision-mapping": {
+    "name_zh": "决策地图",
+    "intro": "把一个松散的念头变成带状态、有先后顺序的决策地图：每条 ticket 一个短 slug，用 Blocked by 连成依赖，状态只有 open、in-progress、resolved 三种。整张地图是单个 Markdown 文件、随项目进 git、每个 session 全量加载，所以它必须短。适合一件事要跨多个 agent session 才能定下来的场合。",
+    "usage": "先建图，再一张张推进：动手前把该条改成 `Status: in-progress` 并保存，其他并发 session 就会跳过它；ticket 只有 Research、Prototype、Grilling、Task 四类，每条控制在一次 100K token 的 session 内能做完。",
+    "notes": "单个 session 就能搞完的事别用。文件头带 `disable-model-invocation: true`，需要手动触发。领域不限，工程与课程内容都能套同一个形状。",
+    "tier": "auto"
+  },
+  "microsoft/azure-skills/discover-azure-skills": {
+    "name_zh": "找 Azure 技能",
+    "intro": "动手碰任何 Azure 或微软云服务之前，先去官方技能目录里查有没有现成的：列插件目录、列每个插件下的技能、按 SKILL.md 的描述逐层筛掉不相关的，最后给出该装哪个插件以及对应的安装命令。目的是别在没加载对技能的情况下硬做，正文把这些步骤固定成四步。",
+    "usage": "按四步来：从 GitHub Contents API 列插件目录，再列每个插件下的 skills，再读候选的 `SKILL.md` 描述筛一遍，最后读 `.plugin/plugin.json` 拿真实插件名，再给出安装命令。",
+    "notes": "它会调 api.github.com 拉目录，网络不通就退化成按名字猜。插件名和插件目录名可能不一样，装之前必须读 plugin.json，别拿目录名拼命令。",
+    "tier": "auto"
+  },
+  "multica-ai/andrej-karpathy-skills/karpathy-guidelines": {
+    "name_zh": "Karpathy 写码准则",
+    "intro": "从 Andrej Karpathy 对 LLM 写代码毛病的观察里抽出的一组行为约束：动手前把假设摊开说、只写解决问题的最少代码、只改必须改的行、把目标拆成能验证的步骤。正文明确说了它偏向保守而不是快，写、审、重构代码时挂在边上，专门压过度设计和顺手改别人代码的冲动。",
+    "usage": "当准则用，不是敲命令：写之前先说清假设与互相冲突的理解；写完自问「200 行能不能压到 50」；改老代码不动相邻注释与格式，只清自己改出来的无用导入；把任务先写成 `[Step] → verify: [check]` 再开工。",
+    "notes": "琐碎任务可以不套，正文自己写了「对琐碎任务自行判断」。MIT 许可。",
+    "tier": "auto"
+  },
+  "nextlevelbuilder/ui-ux-pro-max-skill/design-system": {
+    "name_zh": "设计令牌系统",
+    "intro": "把设计系统落成能执行的东西：三层令牌（primitive 到 semantic 再到 component）、CSS 变量、间距与字号阶梯、组件状态规格，另外还带一套按决策表拼出来的幻灯片。给要做 design token、设计到代码交付、Tailwind 主题配置的人。",
+    "usage": "生成令牌用 `node scripts/generate-tokens.cjs --config tokens.json -o tokens.css`，检查有没有绕过令牌写死颜色用 `node scripts/validate-tokens.cjs --dir src/`；脚本路径相对 SKILL.md 所在目录算，工作目录要留在项目根。",
+    "notes": "依赖 brand 与 ui-styling 两个同类技能。幻灯片那部分要跑 `python scripts/search-slides.py`，需要本机有 Python。",
+    "tier": "auto"
+  },
+  "pexoai/pexo-skills/pexo-agent": {
+    "name_zh": "Pexo 视频生成",
+    "intro": "从一句话到成片的生产线：自动在 Seedance 2、Kling 3.0、HappyHorse 等十多个模型里给每个镜头挑一个，吃文本、图片、URL、脚本、音频五种输入，产出 5 到 120 秒、带音乐字幕与转场的成片，比例可 16:9、9:16、1:1。适合做产品广告、口播和竖屏短视频的人，不用自己写提示词也不用切模型。",
+    "usage": "先建项目 `pexo-project-create.sh \"brief description\"` 并记下返回的 project_id；有素材就 `pexo-upload.sh <project_id> <file_path>` 拿 asset_id；再把需求发过去，形如 `pexo-chat.sh proj_123 \"做个猫的视频\"`。",
+    "notes": "要 `PEXO_API_KEY`，以及 bash、curl、jq、file 四个命令。扣费前会先跟你确认；鉴权请求只发往 https://pexo.ai，上传的素材也只有你确认过的那些。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-concurrency": {
+    "name_zh": "Go 并发设计",
+    "intro": "并发代码怎么写、怎么审：goroutine 生命周期与泄漏预防、channel 的所有权与方向、select、`sync.Mutex` 与 `RWMutex`、`sync.Map`、`sync.Once`、atomic 之间怎么选、errgroup 与 singleflight 的区别、worker pool 与 fan-out/fan-in 流水线。底层态度是「每个 goroutine 都是负债，直到证明它必要」。",
+    "usage": "写的时候先定退出路径再起 goroutine；审 PR 只看 diff 里的泄漏、丢掉的 context、所有权越界和裸露的共享状态；怀疑泄漏查 goroutine profile：`curl http://localhost:6060/debug/pprof/goroutineleak?debug=2`。",
+    "notes": "依赖 `go`。nil panic、slice 别名、数值溢出这类与并发无关的防御写法看 golang-safety；已经卡死或乱序、要事后排查的看 golang-troubleshooting。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-context": {
+    "name_zh": "Go context 用法",
+    "intro": "讲 Go 里 `context.Context` 该怎么传：整条请求链路共用同一个 context，从 HTTP handler 到 service 到 DB 再到外部 API，中间谁新起一个 context，谁就会在客户端走了之后继续跑。还覆盖 ctx 固定做第一个参数、别存进结构体、还没想好上游来源时用 context 包里那个占位构造函数，也不传 nil、取消与超时、请求内取值，以及让后台任务活过请求的 `context.WithoutCancel`。",
+    "usage": "先改最典型的错：把中途的 `context.Background()` 换成调用方传进来的 `ctx` 再落库；审的时候专门找中途重新起 context 的地方、以及被塞进 struct 的 ctx；最后交给 linter 兜住。",
+    "notes": "依赖 `go`。只是接了个 ctx 参数、没有传递决策的代码不归这条管。文本自带「公司技能可覆盖」的声明，团队有自己的规范时以团队为准。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-database": {
+    "name_zh": "Go 数据库访问",
+    "intro": "Go 连数据库的成套写法：参数化查询防注入、结构体扫描与可空列、事务与隔离级别、SELECT FOR UPDATE、连接池、批量处理、context 传递、迁移工具。态度很明确：在 database/sql 之上用 sqlx 或 pgx 换取易用性，但不用 ORM。给写、审、调 PostgreSQL、MySQL、MariaDB、SQLite 代码的人。",
+    "usage": "先改最要命的一处：把 `fmt.Sprintf` 拼出来的 SQL 换成占位符查询，PostgreSQL 用 `$1`、MySQL 用 `?`；动态 `IN` 用 `sqlx.In` 再 `Rebind`；排序列必须先过白名单校验。",
+    "notes": "不生成表结构，也不生成迁移 SQL。sqlx 与 pgx 的具体签名以各自官方文档为准，正文自己也这么要求。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-design-patterns": {
+    "name_zh": "Go 设计模式",
+    "intro": "Go 里那些真正会影响后期维护的写法取舍：构造函数用 functional options 而不是 builder、避开 `init()` 与全局可变状态、枚举从 1 起把 0 留给「未设置」、什么时候该 panic 什么时候返 error、资源生命周期与优雅退出、超时与重试、流式与迭代器，以及 clean、hexagonal、DDD、flat 几种架构风格怎么挑。",
+    "usage": "分两种用法：设计模式先问清架构偏好，再挑能满足需求的最小模式，不为展示复杂度而套；审查模式扫 `init()` 滥用、无界资源、缺超时、隐式全局状态，先报发现再谈重构。",
+    "notes": "依赖 `go`。错误包装与 `errors.Is` 看 golang-error-handling，DI 容器与库选型看 golang-dependency-injection，结构体与接口设计看 golang-structs-interfaces。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-naming": {
+    "name_zh": "Go 命名规范",
+    "intro": "Go 的命名细则，连最常被忽略的那几条一起给：标识符一律 MixedCaps、不用下划线，大小写决定导出与否；包名小写单词，别叫 utils 或 helpers；避免口吃，写 `http.Client` 而不是 `http.HTTPClient`；另外 New 还是 NewTypeName、ErrNotFound 还是 NotFoundError、iota 0 该留给什么状态、getter 要不要 Get 前缀，都有明确取舍。",
+    "usage": "写新代码或 review 时对着 Quick Reference 查；看到 `MAX_PACKET_SIZE`、`max_packet_size` 这种从别的语言带过来的写法直接改掉；有意的例外在代码里写注释说明，别默默破例。",
+    "notes": "依赖 `go`。只问 Go 实现、不涉及命名决策的不归这条管。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-performance": {
+    "name_zh": "Go 性能优化",
+    "intro": "给「已经定位到瓶颈之后」用的优化手册：先排除外部因素，再走「定目标、压测、诊断、改一处、再压测」的循环，按 CPU 时间花在哪里的决策树往下走。覆盖分配减少、CPU 效率、内存布局、GC 调参、对象池、缓存与热路径，另有一节讲怎么在 CI 里拦性能回归。",
+    "usage": "不许凭感觉改：先用 pprof 与基准测试量出热点，一次只动一件事再重测，前后数据用 `benchstat` 对比；结论里写清测量条件，别把猜测说成已测到的回归。",
+    "notes": "要装 `go` 与 benchstat（`golang.org/x/perf/cmd/benchstat@latest`）。测量方法学本身看 golang-benchmark，排查卡死或内存涨的流程看 golang-troubleshooting。",
+    "tier": "auto"
+  },
+  "samber/cc-skills-golang/golang-security": {
+    "name_zh": "Go 安全审查",
+    "intro": "把 Go 的安全面拆成可查的几块：注入（SQL、命令、XSS）、密码学、路径穿越、SSRF 与安全响应头、Cookie、密钥管理、日志里的 PII、内存安全，配 STRIDE 威胁建模与 DREAD 打分。给写、审或审计 Go 代码的人，尤其是要碰加解密、文件与网络 IO、用户输入、鉴权的时候。",
+    "usage": "审 PR 从改动文件出发，沿调用链往外追，漏洞常在 diff 之外；全仓审计按五个子域并行铺开再合并去重。工具侧：`go tool gosec ./...`、`go test -race ./...`、`go test -fuzz=Fuzz`。",
+    "notes": "先把 gosec 装成 go tool：`go get -tool github.com/securego/gosec/v2/cmd/gosec@latest`。govulncheck 依赖漏洞扫描归 golang-dependency-management，安全扫描接 CI 归 golang-continuous-integration，都不是这条的范围。",
+    "tier": "auto"
+  },
+  "vuejs-ai/skills/vue-best-practices": {
+    "name_zh": "Vue 最佳实践",
+    "intro": "一条按顺序走的 Vue 工作流：默认栈定成 Vue 3 加 Composition API 加 `<script setup lang=\"ts\">`，动手前先确认架构、先画组件边界与状态归属，再落实响应式、SFC 结构与模板安全、组件数据流、composables，行为正确之后才谈性能优化。适合任何要写或改 .vue 文件的人。",
+    "usage": "开工前先读 `references/reactivity.md`、`references/sfc.md`、`references/component-data-flow.md`、`references/composables.md` 并让它们全程留在上下文里，不是出问题才翻；项目明确用 Options API 或 JSX 时改加载对应的 best-practices 技能。",
+    "notes": "版本 19.0.1，作者 vuejs-ai，MIT。默认只认 Composition API，遇到老项目要显式说明走 Options API，否则它会按新栈改你的代码。",
+    "tier": "auto"
+  }
+}
