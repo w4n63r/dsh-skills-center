@@ -1,0 +1,104 @@
+---
+name: thinkui
+description: "Use when a UI decision needs evidence from real products instead of invention."
+version: 1.0.0
+author: ThinkUI
+license: MIT
+platforms: [windows, linux, macos]
+metadata:
+  hermes:
+    tags: [mcp, ui-references, design, evidence, ui]
+---
+
+# ThinkUI — UI references over MCP
+
+ThinkUI answers one question well: **what did a real product decide here, and what can I
+learn from it?** Ask about a paywall, an empty state, a pricing toggle, a dense data table,
+and it returns the screen, the flow it belongs to, the patterns in play and the page it came
+from — with a screenshot when one exists.
+
+It is evidence for a decision. It is not a component library to copy out of.
+
+## Connect
+
+Hosted MCP endpoint, one bearer token:
+
+```json
+{
+  "mcpServers": {
+    "thinkui": {
+      "type": "http",
+      "url": "https://thinkui.xyz/mcp",
+      "headers": { "Authorization": "Bearer tk_your_key" }
+    }
+  }
+}
+```
+
+Keys are issued at https://thinkui.xyz/account. The same five tools are exposed on any MCP
+client — Claude Code, Codex, Cursor, Hermes, or `curl`.
+
+## Which tool answers which question
+
+| the question | tool |
+|---|---|
+| "how do good products frame a free trial?" | `find_ui_references` |
+| "give me a working pricing toggle" | `find_ui_elements` |
+| "a loader that actually animates" | `find_animated_icons` |
+| "what typeface for a dense data tool?" | `find_ui_materials` |
+| "how much material is there about X?" | `corpus_stats` |
+
+## Query craft — the skill in one rule
+
+**Ask for the decision, not a keyword.** The corpus is indexed by what a screen
+demonstrates, so a topic word returns one thin category record while a decision returns
+evidence.
+
+```
+good   "how a paywall frames its free trial"      → the paywall record, patterns, metrics
+good   "empty state for a search with no results" → the loading/empty-state pair
+bad    "paywall"                                  → one generic flow record
+bad    "design system"                            → nothing usable
+```
+
+- `limit` 1–5, default 3. One precise result beats five loose ones; the server says as much.
+- `platform` defaults to `any` on purpose. Pass `ios` only when the product is iOS — it
+  silently excludes most of the corpus.
+- Leave `flow` empty unless you are narrowing a flow you already know.
+
+## Reading what comes back
+
+Each reference carries a name, the flow and category, the platform, what it demonstrates,
+the patterns used, sometimes metrics, and the page it came from. Screenshots are attached
+when the corpus owns one, each with the licence it travels under.
+
+- **Take the reasoning, not the pixels.** Most of the library is study reference. Around a
+  quarter is redistributable (MIT, Apache-2.0, BSD-3-Clause, AGPL-3.0) and the rest is
+  comparison-only — check the licence on the record before anything goes on a public page,
+  and put the licence on the card when it does.
+- **`find_ui_elements` returns demo blocks.** The snippet's own caption and variant row are
+  part of the markup, so framing it narrowly shows clipped prose instead of a button.
+  Isolate the control before you use it.
+- **A refusal is a feature.** Ask for a nav bar or a footer and the server returns nothing
+  and tells you what it does hold. Do not retry with synonyms to force an answer — that
+  turns an honest gap into an invented one.
+
+## Numbers rot; the server does not
+
+Never hard-code corpus counts into copy, docs or a landing page. Call `corpus_stats` and
+quote what it returns. Published numbers have gone stale while the corpus kept moving.
+
+## Failure modes worth knowing
+
+- **`find_ui_materials` takes `role`, not `query`.** A caller that passes `query` gets a run
+  of failures and reads the tool as dead.
+- **A 403 with an upgrade message is the monthly ceiling**, not a bug. Usage is counted per
+  account across every key, and the body names the upgrade page.
+- **An empty result on a phrase that should exist** is usually the wording. Rephrase toward
+  the decision before concluding the material is missing.
+
+## Bulk work
+
+Picking twenty screenshots or sweeping the whole corpus belongs on a plan that does not
+meter per call. For one-off questions, the hosted endpoint is the fastest path: no install,
+no corpus to sync, and the same data every client sees.
